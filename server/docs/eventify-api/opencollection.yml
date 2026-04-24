@@ -1,0 +1,32 @@
+opencollection: 1.0.0
+
+info:
+  name: Eventify API
+config:
+  proxy:
+    inherit: true
+request:
+  scripts:
+    - type: before-request
+      code: |-
+        // Collection level pre-request script
+        console.log('Eventify API Collection - Request starting');
+    - type: after-response
+      code: |-
+        // Collection level post-response script
+        console.log('Response time: ' + res.responseTime + 'ms');
+docs:
+  content: |-
+    # Eventify API Collection
+
+    API collection for Eventify - Event Management System.
+
+    ## Authentication
+    Most endpoints require JWT authentication. Use the login endpoint to obtain a token.
+
+    ## Base URL
+    Set the `baseUrl` environment variable to your API base URL.
+  type: text/markdown
+ignore:
+  - node_modules
+  - .git

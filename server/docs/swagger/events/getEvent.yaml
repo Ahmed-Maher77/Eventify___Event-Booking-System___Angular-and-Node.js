@@ -1,0 +1,61 @@
+paths:
+  /api/events/{id}:
+    get:
+      summary: Get a single event by ID
+      tags:
+        - Events
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The event ID
+      responses:
+        '200':
+          description: Event retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Event retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/Event'
+        '400':
+          description: Missing or invalid event ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingId:
+                  summary: Missing ID
+                  value:
+                    success: false
+                    message: "Event ID is required"
+                invalidId:
+                  summary: Invalid ID
+                  value:
+                    success: false
+                    message: "Invalid Event ID"
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                message: "Event not found"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

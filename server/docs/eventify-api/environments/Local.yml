@@ -1,0 +1,24 @@
+name: Local
+variables:
+  - name: baseUrl
+    value: http://localhost:3000
+  - name: apiVersion
+    value: v1
+  - name: timeout
+    value: "30000"
+  - name: adminEmail
+    value: admin@eventify.com
+  - secret: true
+    name: adminPassword
+  - name: userEmail
+    value: user@example.com
+  - secret: true
+    name: userPassword
+  - secret: true
+    name: authToken
+  - name: userId
+    value: ""
+  - name: eventId
+    value: ""
+  - name: bookingId
+    value: ""

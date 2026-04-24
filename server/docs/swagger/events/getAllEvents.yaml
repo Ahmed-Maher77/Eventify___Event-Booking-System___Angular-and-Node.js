@@ -1,0 +1,129 @@
+tags:
+  - name: Events
+    description: Event management endpoints
+
+paths:
+  /api/events:
+    get:
+      summary: Get all events with filtering and pagination
+      tags:
+        - Events
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of events per page
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search in title and description
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum:
+              - concert
+              - conference
+              - workshop
+              - seminar
+              - sports
+              - other
+          description: Filter by event category
+        - in: query
+          name: location
+          schema:
+            type: string
+          description: Filter by location
+        - in: query
+          name: minPrice
+          schema:
+            type: number
+          description: Minimum price filter
+        - in: query
+          name: maxPrice
+          schema:
+            type: number
+          description: Maximum price filter
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Filter events from this date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: Filter events until this date
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum:
+              - date
+              - price
+              - title
+              - createdAt
+            default: date
+          description: Sort field
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order
+      responses:
+        '200':
+          description: Events retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Events retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      events:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Event'
+                      pagination:
+                        type: object
+                        properties:
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 5
+                          totalEvents:
+                            type: integer
+                            example: 50
+                          limit:
+                            type: integer
+                            example: 10
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

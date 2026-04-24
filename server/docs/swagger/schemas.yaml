@@ -1,0 +1,236 @@
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        _id:
+          type: string
+          description: Auto-generated MongoDB ID
+          example: "60d5ec49f1b2c8b1f8e4e1a1"
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: User's full name
+          example: "Mohamed Rashad"
+        email:
+          type: string
+          format: email
+          description: User's email address (unique)
+          example: "mohamed@example.com"
+        password:
+          type: string
+          minLength: 6
+          description: Hashed password (not returned in responses)
+          example: "$2a$10$abc123..."
+        role:
+          type: string
+          enum:
+            - admin
+            - user
+          default: user
+          description: User role
+          example: "user"
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: "2026-04-10T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2026-04-10T10:00:00.000Z"
+
+    Event:
+      type: object
+      required:
+        - title
+        - description
+        - date
+        - location
+        - category
+        - capacity
+        - price
+        - createdBy
+      properties:
+        _id:
+          type: string
+          description: Auto-generated MongoDB ID
+          example: "60d5ec49f1b2c8b1f8e4e1a2"
+        title:
+          type: string
+          description: Event title
+          example: "Music Festival 2026"
+        description:
+          type: string
+          description: Event description
+          example: "Annual music festival featuring local and international artists"
+        date:
+          type: string
+          format: date-time
+          description: Event date and time
+          example: "2026-08-15T18:00:00.000Z"
+        location:
+          type: string
+          description: Event location
+          example: "Central Park, New York"
+        category:
+          type: string
+          enum:
+            - concert
+            - conference
+            - workshop
+            - seminar
+            - sports
+            - other
+          description: Event category
+          example: "concert"
+        capacity:
+          type: integer
+          minimum: 1
+          description: Total event capacity
+          example: 500
+        availableSeats:
+          type: integer
+          minimum: 0
+          description: Remaining available seats
+          example: 450
+        price:
+          type: number
+          minimum: 0
+          description: Event price (can be 0 for free events)
+          example: 50.00
+        status:
+          type: string
+          enum:
+            - upcoming
+            - ongoing
+            - completed
+            - cancelled
+          default: upcoming
+          description: Event status
+          example: "upcoming"
+        image:
+          type: string
+          description: Event cover image URL (Cloudinary URL, direct image URL, or placeholder path)
+          example: "https://res.cloudinary.com/demo/image/upload/v1/eventify/events/sample.jpg"
+        imagePublicId:
+          type: string
+          nullable: true
+          description: Cloudinary public_id used for lifecycle operations (delete/replace). Null for non-Cloudinary images.
+          example: "eventify/events/sample"
+        createdBy:
+          type: object
+          description: Event creator user reference
+          properties:
+            _id:
+              type: string
+              example: "60d5ec49f1b2c8b1f8e4e1a1"
+            name:
+              type: string
+              example: "Mohamed Rashad"
+        createdAt:
+          type: string
+          format: date-time
+          description: Event creation timestamp
+          example: "2026-04-10T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2026-04-10T10:00:00.000Z"
+
+    BookingUserRef:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: User ID
+          example: "60d5ec49f1b2c8b1f8e4e1a1"
+        name:
+          type: string
+          example: "Mohamed Rashad"
+        email:
+          type: string
+          format: email
+          example: "mohamed@example.com"
+
+    BookingEventRef:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Event ID
+          example: "60d5ec49f1b2c8b1f8e4e1a2"
+        title:
+          type: string
+          example: "Music Festival 2026"
+        date:
+          type: string
+          format: date-time
+          example: "2026-08-15T18:00:00.000Z"
+        location:
+          type: string
+          example: "Central Park, New York"
+
+    Booking:
+      type: object
+      required:
+        - userId
+        - eventId
+        - quantity
+        - totalPrice
+      properties:
+        _id:
+          type: string
+          description: Auto-generated MongoDB ID
+          example: "60d5ec49f1b2c8b1f8e4e1b0"
+        userId:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/BookingUserRef'
+          description: User reference or populated user object
+        eventId:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/BookingEventRef'
+          description: Event reference or populated event object
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        totalPrice:
+          type: number
+          minimum: 0
+          example: 100
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - cancelled
+          example: pending
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-10T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-04-10T10:00:00.000Z"
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Error message
+          example: "An error occurred"

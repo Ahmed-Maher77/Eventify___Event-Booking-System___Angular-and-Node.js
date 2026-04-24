@@ -1,0 +1,69 @@
+paths:
+  /api/bookings/{id}:
+    get:
+      summary: Get a single booking by ID
+      tags:
+        - Bookings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The booking ID
+      responses:
+        '200':
+          description: Booking retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Booking retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/Booking'
+        '400':
+          description: Missing or invalid booking ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingId:
+                  summary: Missing ID
+                  value:
+                    success: false
+                    message: "Booking ID is required"
+                invalidId:
+                  summary: Invalid ID
+                  value:
+                    success: false
+                    message: "Invalid Booking ID"
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                message: "Booking not found"
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

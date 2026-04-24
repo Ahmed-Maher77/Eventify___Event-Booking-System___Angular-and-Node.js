@@ -1,0 +1,98 @@
+tags:
+  - name: Admin
+    description: Admin-only endpoints
+
+paths:
+  /api/admin/bookings:
+    get:
+      summary: Get all bookings (Admin only)
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of bookings per page
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - cancelled
+          description: Filter by booking status
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: Filter by user ID
+        - in: query
+          name: eventId
+          schema:
+            type: string
+          description: Filter by event ID
+      responses:
+        '200':
+          description: All bookings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "All bookings retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      bookings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Booking'
+                      pagination:
+                        type: object
+                        properties:
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 1
+                          totalBookings:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

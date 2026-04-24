@@ -1,0 +1,26 @@
+info:
+  name: Eventify API Collection
+
+http:
+  headers:
+    - name: content-type
+      value: application/json
+    - name: user-agent
+      value: Eventify-Bruno/1.0
+
+request:
+  scripts:
+    - type: before-request
+      code: |-
+        // Runs before every request in the collection
+        bru.setVar("collection_timestamp", Date.now());
+    - type: tests
+      code: |-
+        // Runs after every request in the collection
+        test("Response time is acceptable", function() {
+          expect(res.responseTime).to.be.below(5000);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 30000

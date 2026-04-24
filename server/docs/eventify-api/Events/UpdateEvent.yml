@@ -1,0 +1,102 @@
+info:
+  name: UpdateEvent
+  type: http
+  seq: 4
+  tags:
+    - events
+    - admin
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/events/{{eventId}}"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Updated Music Festival 2026",
+        "description": "Updated description for the annual music festival",
+        "date": "2026-09-20T18:00:00.000Z",
+        "location": "Madison Square Garden, New York",
+        "category": "conference",
+        "capacity": 1000,
+        "price": 75
+      }
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure eventId and token are available
+        if (!bru.getEnvVar('eventId')) {
+          console.error('Error: No eventId set. Create or get an event first.');
+        }
+        if (!bru.getEnvVar('authToken')) {
+          console.error('Error: No auth token available. Please login first.');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Event was updated", function() {
+          expect(res.body.data.title).to.equal("Updated Music Festival 2026");
+          expect(res.body.data.description).to.equal("Updated description for the annual music festival");
+          expect(res.body.data.location).to.equal("Madison Square Garden, New York");
+          expect(res.body.data.category).to.equal("conference");
+          expect(res.body.data.capacity).to.equal(1000);
+          expect(res.body.data.price).to.equal(75);
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Event updated successfully
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Update Event
+
+    Update an existing event (Admin only).
+
+    ## Authentication
+    Requires admin JWT token in Authorization header.
+
+    ## Path Parameters
+    - `id` (string, required): The event ID to update
+
+    ## Request Body (all optional)
+    - `title` (string): Event title
+    - `description` (string): Event description
+    - `date` (date-time): Event date and time
+    - `location` (string): Event location
+    - `category` (string): Event category (concert, conference, workshop, seminar, sports, other)
+    - `capacity` (integer): Total event capacity (min: 1)
+    - `price` (number): Event price (can be 0 for free events)
+
+    ## Response
+    Returns the updated event object.
+
+    ## Note
+    Only send the fields you want to update. Requires admin authentication.
+  type: text/markdown

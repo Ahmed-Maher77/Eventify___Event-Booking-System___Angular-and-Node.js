@@ -1,0 +1,129 @@
+paths:
+  /api/events/{id}:
+    put:
+      summary: Update an event (Admin only)
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The event ID to update
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Event title
+                  example: "Updated Music Festival 2026"
+                description:
+                  type: string
+                  description: Event description
+                  example: "Updated description for the music festival"
+                date:
+                  type: string
+                  format: date-time
+                  description: Event date and time
+                  example: "2026-09-20T18:00:00.000Z"
+                location:
+                  type: string
+                  description: Event location
+                  example: "Madison Square Garden, New York"
+                category:
+                  type: string
+                  enum:
+                    - concert
+                    - conference
+                    - workshop
+                    - seminar
+                    - sports
+                    - other
+                  description: Event category
+                  example: "conference"
+                capacity:
+                  type: integer
+                  minimum: 1
+                  description: Total event capacity
+                  example: 1000
+                price:
+                  type: number
+                  minimum: 0
+                  description: Event price
+                  example: 75.00
+                image:
+                  type: string
+                  format: binary
+                  description: Optional replacement image file uploaded with key `image` (Multer + Cloudinary)
+                imageUrl:
+                  type: string
+                  format: uri
+                  description: Optional direct image URL. If provided, backend uses it and clears previous Cloudinary public id.
+                  example: "https://example.com/new-event-cover.jpg"
+      responses:
+        '200':
+          description: Event updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Event updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Event'
+        '400':
+          description: Missing or invalid event ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingId:
+                  summary: Missing ID
+                  value:
+                    success: false
+                    message: "Event ID is required"
+                invalidId:
+                  summary: Invalid ID
+                  value:
+                    success: false
+                    message: "Invalid Event ID"
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                message: "Event not found"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

@@ -1,0 +1,83 @@
+info:
+  name: DeleteEvent
+  type: http
+  seq: 5
+  tags:
+    - events
+    - admin
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/events/{{eventId}}"
+  headers:
+    - name: content-type
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure eventId and token are available
+        if (!bru.getEnvVar('eventId')) {
+          console.error('Error: No eventId set. Create or get an event first.');
+        }
+        if (!bru.getEnvVar('authToken')) {
+          console.error('Error: No auth token available. Please login first.');
+        }
+    - type: after-response
+      code: |-
+        // Clear eventId if event was deleted
+        if (res.status === 200) {
+          bru.setEnvVar("eventId", "");
+          console.log('Event deleted and eventId cleared');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Deletion message present", function() {
+          expect(res.body.message).to.include("Event deleted successfully");
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Event deleted successfully
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Delete Event
+
+    Delete an event (Admin only).
+
+    ## Authentication
+    Requires admin JWT token in Authorization header.
+
+    ## Path Parameters
+    - `id` (string, required): The event ID to delete
+
+    ## Response
+    Returns success message confirming deletion.
+
+    ## Note
+    This action is irreversible. Requires admin authentication.
+  type: text/markdown

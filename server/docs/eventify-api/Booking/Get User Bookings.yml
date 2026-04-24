@@ -1,0 +1,101 @@
+info:
+  name: Get User Bookings
+  type: http
+  seq: 1
+  tags:
+    - bookings
+    - user
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/bookings?page=1&limit=10"
+  headers:
+    - name: content-type
+      value: application/json
+  params:
+    query:
+      - name: page
+        value: "1"
+      - name: limit
+        value: "10"
+      - name: status
+        value: pending
+        disabled: true
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Save the first booking ID for follow-up requests
+        if (res.status === 200 && res.body.data.bookings.length > 0) {
+          bru.setEnvVar("bookingId", res.body.data.bookings[0]._id);
+          console.log('Booking ID saved: ' + res.body.data.bookings[0]._id);
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Response has bookings array", function() {
+          expect(res.body.data).to.have.property('bookings');
+          expect(res.body.data.bookings).to.be.an('array');
+        });
+
+        test("Response has pagination", function() {
+          expect(res.body.data).to.have.property('pagination');
+          expect(res.body.data.pagination).to.have.property('currentPage');
+          expect(res.body.data.pagination).to.have.property('totalPages');
+          expect(res.body.data.pagination).to.have.property('totalBookings');
+        });
+
+        test("Bookings have required fields", function() {
+          if (res.body.data.bookings.length > 0) {
+            const booking = res.body.data.bookings[0];
+            expect(booking).to.have.property('_id');
+            expect(booking).to.have.property('userId');
+            expect(booking).to.have.property('eventId');
+            expect(booking).to.have.property('quantity');
+            expect(booking).to.have.property('totalPrice');
+            expect(booking).to.have.property('status');
+          }
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.data.bookings
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Get User Bookings
+
+    Retrieve the authenticated user's bookings with pagination support.
+
+    ## Query Parameters
+    - `page` (integer, default: 1): Page number
+    - `limit` (integer, default: 10): Items per page
+    - `status` (string, optional): Filter by booking status
+
+    ## Response
+    Returns a paginated list of the user's bookings.
+
+    ## Note
+    The first returned booking ID is saved to `{{bookingId}}` when available.
+  type: text/markdown

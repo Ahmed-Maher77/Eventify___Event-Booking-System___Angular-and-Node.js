@@ -1,0 +1,100 @@
+info:
+  name: Create Booking
+  type: http
+  seq: 3
+  tags:
+    - bookings
+    - user
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/bookings"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "eventId": "{{eventId}}",
+        "quantity": 2
+      }
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure eventId and auth token are available
+        if (!bru.getEnvVar('eventId')) {
+          console.error('Error: No eventId set. Run GetAllEvents first or set eventId manually.');
+        }
+        if (!bru.getEnvVar('authToken')) {
+          console.error('Error: No auth token available. Please login first.');
+        }
+    - type: after-response
+      code: |-
+        // Save booking ID for follow-up requests
+        if (res.status === 201) {
+          bru.setEnvVar("bookingId", res.body.data._id);
+          console.log('Booking created: ' + res.body.data._id);
+        }
+    - type: tests
+      code: |-
+        test("Status is 201 Created", function() {
+          expect(res.status).to.equal(201);
+        });
+
+        test("Response has booking data", function() {
+          expect(res.body.data).to.have.property('_id');
+          expect(res.body.data).to.have.property('userId');
+          expect(res.body.data).to.have.property('eventId');
+          expect(res.body.data).to.have.property('quantity');
+          expect(res.body.data).to.have.property('totalPrice');
+          expect(res.body.data).to.have.property('status');
+        });
+
+        test("Booking uses the selected event", function() {
+          expect(res.body.data.eventId._id).to.equal(bru.getEnvVar('eventId'));
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Booking created successfully
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Create Booking
+
+    Book tickets for an event.
+
+    ## Authentication
+    Requires a valid user JWT token.
+
+    ## Request Body
+    - `eventId` (string, required): Event MongoDB ObjectId
+    - `quantity` (integer, required): Number of seats to book
+
+    ## Response
+    Returns the created booking object and saves the booking ID to `{{bookingId}}`.
+
+    ## Note
+    Set `{{eventId}}` from the Events folder before running this request.
+  type: text/markdown

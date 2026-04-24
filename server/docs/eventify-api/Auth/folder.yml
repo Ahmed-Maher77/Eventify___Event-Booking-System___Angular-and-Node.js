@@ -1,0 +1,16 @@
+info:
+  name: Authentication
+  type: folder
+  seq: 1
+
+http:
+  headers:
+    - name: content-type
+      value: application/json
+
+docs:
+  content: |-
+    # Authentication Endpoints
+
+    User registration and login endpoints for obtaining JWT tokens.
+  type: text/markdown

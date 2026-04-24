@@ -1,0 +1,82 @@
+tags:
+  - name: Bookings
+    description: Booking operations for authenticated users
+
+paths:
+  /api/bookings:
+    get:
+      summary: Get the authenticated user's bookings
+      tags:
+        - Bookings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of bookings per page
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - cancelled
+          description: Filter by booking status
+      responses:
+        '200':
+          description: Bookings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Bookings retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      bookings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Booking'
+                      pagination:
+                        type: object
+                        properties:
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 1
+                          totalBookings:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

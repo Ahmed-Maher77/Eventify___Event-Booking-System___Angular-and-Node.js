@@ -1,0 +1,73 @@
+info:
+  name: Cancel Booking
+  type: http
+  seq: 5
+  tags:
+    - bookings
+    - user
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/bookings/{{bookingId}}"
+  headers:
+    - name: content-type
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure bookingId and auth token are available
+        if (!bru.getEnvVar('bookingId')) {
+          console.error('Error: No bookingId set. Create or fetch a booking first.');
+        }
+        if (!bru.getEnvVar('authToken')) {
+          console.error('Error: No auth token available. Please login first.');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Cancellation message present", function() {
+          expect(res.body.message).to.include("Booking cancelled successfully");
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Booking cancelled successfully
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Cancel Booking
+
+    Cancel a booking.
+
+    ## Authentication
+    Requires a valid user JWT token. Admins can also cancel any booking.
+
+    ## Path Parameters
+    - `bookingId` (string, required): The booking ID to cancel
+
+    ## Response
+    Returns a success message and restores the event's available seats.
+  type: text/markdown

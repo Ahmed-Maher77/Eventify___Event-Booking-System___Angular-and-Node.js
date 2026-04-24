@@ -1,0 +1,97 @@
+info:
+  name: Get All Bookings
+  type: http
+  seq: 1
+  tags:
+    - bookings
+    - admin
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/admin/bookings?page=1&limit=10"
+  headers:
+    - name: content-type
+      value: application/json
+  params:
+    query:
+      - name: page
+        value: "1"
+      - name: limit
+        value: "10"
+      - name: status
+        value: pending
+        disabled: true
+      - name: userId
+        value: ""
+        disabled: true
+      - name: eventId
+        value: ""
+        disabled: true
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Save the first booking ID for quick follow-up actions
+        if (res.status === 200 && res.body.data.bookings.length > 0) {
+          bru.setEnvVar("bookingId", res.body.data.bookings[0]._id);
+          console.log('Admin booking ID saved: ' + res.body.data.bookings[0]._id);
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Response has bookings array", function() {
+          expect(res.body.data).to.have.property('bookings');
+          expect(res.body.data.bookings).to.be.an('array');
+        });
+
+        test("Response has pagination", function() {
+          expect(res.body.data).to.have.property('pagination');
+          expect(res.body.data.pagination).to.have.property('currentPage');
+          expect(res.body.data.pagination).to.have.property('totalPages');
+          expect(res.body.data.pagination).to.have.property('totalBookings');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.data.bookings
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Get All Bookings
+
+    Retrieve all bookings across all users.
+
+    ## Authentication
+    Requires an admin JWT token.
+
+    ## Query Parameters
+    - `page` (integer, default: 1): Page number
+    - `limit` (integer, default: 10): Items per page
+    - `status` (string, optional): Filter by booking status
+    - `userId` (string, optional): Filter by user ID
+    - `eventId` (string, optional): Filter by event ID
+
+    ## Response
+    Returns a paginated list of all bookings.
+  type: text/markdown

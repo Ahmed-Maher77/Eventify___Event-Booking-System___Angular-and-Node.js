@@ -1,0 +1,91 @@
+info:
+  name: Login User
+  type: http
+  seq: 2
+  tags:
+    - auth
+    - login
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/auth/login"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{adminEmail}}",
+        "password": "{{adminPassword}}"
+      }
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // You can dynamically set credentials here
+        console.log('Attempting login with: ' + bru.interpolate('{{adminEmail}}'));
+    - type: after-response
+      code: |-
+        // Save token for subsequent requests
+        if (res.status === 200) {
+          bru.setEnvVar("authToken", res.body.token);
+          bru.setVar("userId", res.body.data._id);
+          console.log('Login successful, token saved');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Response has token", function() {
+          expect(res.body).to.have.property('token');
+          expect(res.body.token).to.be.a('string').and.to.have.lengthOf.at.least(20);
+        });
+
+        test("Response has user data", function() {
+          expect(res.body.data).to.have.property('_id');
+          expect(res.body.data).to.have.property('name');
+          expect(res.body.data).to.have.property('email');
+          expect(res.body.data).to.have.property('role');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Login successful
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Login User
+
+    Authenticate user and obtain JWT token.
+
+    ## Request Body
+    - `email` (string, required): User's email address
+    - `password` (string, required): User's password
+
+    ## Response
+    Returns user object and JWT token for authentication.
+
+    ## Next Steps
+    Use the token from `{{authToken}}` to authenticate subsequent requests.
+  type: text/markdown

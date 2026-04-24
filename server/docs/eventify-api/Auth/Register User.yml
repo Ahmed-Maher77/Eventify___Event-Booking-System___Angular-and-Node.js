@@ -1,0 +1,84 @@
+info:
+  name: Register User
+  type: http
+  seq: 1
+  tags:
+    - auth
+    - register
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/auth/register"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "John Doe",
+        "email": "{{$randomEmail}}",
+        "password": "Passw0rd!"
+      }
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Save user ID and token from response
+        if (res.status === 201) {
+          bru.setVar("userId", res.body.data._id);
+          bru.setEnvVar("authToken", res.body.token);
+          console.log('User registered: ' + res.body.data._id);
+        }
+    - type: tests
+      code: |-
+        test("Status is 201 Created", function() {
+          expect(res.status).to.equal(201);
+        });
+
+        test("Response has token", function() {
+          expect(res.body).to.have.property('token');
+          expect(res.body.token).to.be.a('string');
+        });
+
+        test("Response has user data", function() {
+          expect(res.body.data).to.have.property('_id');
+          expect(res.body.data).to.have.property('name');
+          expect(res.body.data).to.have.property('email');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.token
+      operator: isString
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Register User
+
+    Register a new user account.
+
+    ## Request Body
+    - `name` (string, required): User's full name (2-50 characters)
+    - `email` (string, required): User's email address (must be unique)
+    - `password` (string, required): Password with uppercase, lowercase, number, and special character
+
+    ## Response
+    Returns the created user object and JWT token.
+  type: text/markdown

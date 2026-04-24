@@ -1,0 +1,85 @@
+info:
+  name: GetEvent
+  type: http
+  seq: 2
+  tags:
+    - events
+    - public
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/events/{{eventId}}"
+  headers:
+    - name: content-type
+      value: application/json
+  params:
+    path:
+      - name: eventId
+        value: "{{eventId}}"
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure eventId is set
+        if (!bru.getEnvVar('eventId')) {
+          console.warn('Warning: No eventId set. Run GetAllEvents first or set eventId manually.');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Response has event data", function() {
+          expect(res.body.data).to.have.property('_id');
+          expect(res.body.data).to.have.property('title');
+          expect(res.body.data).to.have.property('description');
+          expect(res.body.data).to.have.property('date');
+          expect(res.body.data).to.have.property('location');
+          expect(res.body.data).to.have.property('category');
+          expect(res.body.data).to.have.property('capacity');
+          expect(res.body.data).to.have.property('price');
+        });
+
+        test("Event has createdBy field", function() {
+          expect(res.body.data).to.have.property('createdBy');
+          expect(res.body.data.createdBy).to.have.property('name');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.data._id
+      operator: eq
+      value: "{{eventId}}"
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Get Single Event
+
+    Retrieve a single event by ID.
+
+    ## Path Parameters
+    - `id` (string, required): The event ID
+
+    ## Response
+    Returns the event object with creator information.
+
+    ## Note
+    Set `{{eventId}}` environment variable or run GetAllEvents first.
+  type: text/markdown

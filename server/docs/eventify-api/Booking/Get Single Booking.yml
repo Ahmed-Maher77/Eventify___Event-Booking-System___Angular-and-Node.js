@@ -1,0 +1,87 @@
+info:
+  name: Get Single Booking
+  type: http
+  seq: 2
+  tags:
+    - bookings
+    - user
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/bookings/{{bookingId}}"
+  headers:
+    - name: content-type
+      value: application/json
+  params:
+    path:
+      - name: bookingId
+        value: "{{bookingId}}"
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure bookingId is set
+        if (!bru.getEnvVar('bookingId')) {
+          console.warn('Warning: No bookingId set. Run Get User Bookings or Create Booking first.');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Response has booking data", function() {
+          expect(res.body.data).to.have.property('_id');
+          expect(res.body.data).to.have.property('userId');
+          expect(res.body.data).to.have.property('eventId');
+          expect(res.body.data).to.have.property('quantity');
+          expect(res.body.data).to.have.property('totalPrice');
+          expect(res.body.data).to.have.property('status');
+        });
+
+        test("Booking has populated relations", function() {
+          expect(res.body.data.userId).to.have.property('name');
+          expect(res.body.data.userId).to.have.property('email');
+          expect(res.body.data.eventId).to.have.property('title');
+          expect(res.body.data.eventId).to.have.property('date');
+          expect(res.body.data.eventId).to.have.property('location');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.data._id
+      operator: eq
+      value: "{{bookingId}}"
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Get Single Booking
+
+    Retrieve a single booking by ID.
+
+    ## Path Parameters
+    - `bookingId` (string, required): The booking ID
+
+    ## Response
+    Returns the booking object with populated user and event details.
+
+    ## Note
+    Set `{{bookingId}}` manually or run Get User Bookings first.
+  type: text/markdown

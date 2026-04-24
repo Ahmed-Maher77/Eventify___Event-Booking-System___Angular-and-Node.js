@@ -1,0 +1,28 @@
+variables:
+  - name: baseUrl
+    value: https://api.eventify.com
+  - name: apiVersion
+    value: v1
+  - name: timeout
+    value: "30000"
+  - name: adminEmail
+    value: ""
+    secret: true
+  - name: adminPassword
+    value: ""
+    secret: true
+  - name: userEmail
+    value: ""
+    secret: true
+  - name: userPassword
+    value: ""
+    secret: true
+  - name: authToken
+    value: ""
+    secret: true
+  - name: userId
+    value: ""
+  - name: eventId
+    value: ""
+  - name: bookingId
+    value: ""

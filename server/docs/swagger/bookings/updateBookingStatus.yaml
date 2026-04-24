@@ -1,0 +1,97 @@
+paths:
+  /api/bookings/{id}:
+    patch:
+      summary: Update booking status (Admin only)
+      tags:
+        - Bookings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The booking ID to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - confirmed
+                    - pending
+                    - cancelled
+                  description: New booking status
+                  example: "confirmed"
+      responses:
+        '200':
+          description: Booking status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Booking status updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Booking'
+        '400':
+          description: Missing or invalid booking ID or status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingId:
+                  summary: Missing ID
+                  value:
+                    success: false
+                    message: "Booking ID is required"
+                invalidId:
+                  summary: Invalid ID
+                  value:
+                    success: false
+                    message: "Invalid Booking ID"
+                invalidStatus:
+                  summary: Invalid status
+                  value:
+                    success: false
+                    message: "Invalid booking status."
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                message: "Booking not found"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

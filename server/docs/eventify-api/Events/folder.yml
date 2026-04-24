@@ -1,0 +1,35 @@
+info:
+  name: Events
+  type: folder
+  seq: 2
+
+http:
+  headers:
+    - name: content-type
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure token is available
+        const token = bru.getEnvVar('authToken');
+        if (!token && req.getUrl().includes('/api/events') && req.getMethod() !== 'GET') {
+          console.warn('Warning: No auth token available for this request');
+        }
+    - type: tests
+      code: |-
+        // Common tests for all event requests
+        test("Response time is acceptable", function() {
+          expect(res.responseTime).to.be.below(5000);
+        });
+
+docs:
+  content: |-
+    # Event Management Endpoints
+
+    CRUD operations for managing events. Public endpoints for viewing, admin-only for modifications.
+  type: text/markdown

@@ -1,0 +1,42 @@
+info:
+  name: Booking Management
+  type: folder
+  seq: 3
+
+http:
+  headers:
+    - name: content-type
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure auth token is available for booking requests
+        const token = bru.getEnvVar('authToken');
+        if (!token) {
+          console.warn('Warning: No auth token available. Please login first.');
+        }
+    - type: tests
+      code: |-
+        // Common tests for booking requests
+        test("Response time is acceptable", function() {
+          expect(res.responseTime).to.be.below(5000);
+        });
+
+docs:
+  content: |-
+    # Booking Endpoints
+
+    User booking operations for creating, viewing, updating, and cancelling bookings.
+
+    ## Authentication
+    Requires a valid JWT token in the Authorization header.
+
+    ## Common Usage
+    - Login with a user account before creating or viewing your own bookings.
+    - Login with an admin account before updating booking status.
+  type: text/markdown

@@ -1,0 +1,83 @@
+info:
+  name: Update Booking Status
+  type: http
+  seq: 4
+  tags:
+    - bookings
+    - admin
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/bookings/{{bookingId}}"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "status": "confirmed"
+      }
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure bookingId and auth token are available
+        if (!bru.getEnvVar('bookingId')) {
+          console.error('Error: No bookingId set. Create or fetch a booking first.');
+        }
+        if (!bru.getEnvVar('authToken')) {
+          console.error('Error: No auth token available. Please login first.');
+        }
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Booking status was updated", function() {
+          expect(res.body.data).to.have.property('status');
+          expect(res.body.data.status).to.equal('confirmed');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Booking status updated successfully
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Update Booking Status
+
+    Update a booking's status. Admin only.
+
+    ## Authentication
+    Requires an admin JWT token.
+
+    ## Path Parameters
+    - `bookingId` (string, required): The booking ID
+
+    ## Request Body
+    - `status` (string, required): One of `confirmed`, `pending`, `cancelled`
+
+    ## Response
+    Returns the updated booking object.
+  type: text/markdown

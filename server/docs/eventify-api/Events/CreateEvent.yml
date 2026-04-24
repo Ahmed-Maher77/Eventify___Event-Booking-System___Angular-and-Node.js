@@ -1,0 +1,114 @@
+info:
+  name: CreateEvent
+  type: http
+  seq: 3
+  tags:
+    - events
+    - admin
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/events"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Music Festival 2026",
+        "description": "Annual music festival featuring local and international artists",
+        "date": "2026-08-15T18:00:00.000Z",
+        "location": "Central Park, New York",
+        "category": "concert",
+        "capacity": 500,
+        "price": 50
+      }
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure admin token is available
+        const token = bru.getEnvVar('authToken');
+        if (!token) {
+          console.error('Error: No auth token available. Please login first with an admin account.');
+        }
+    - type: after-response
+      code: |-
+        // Save created event ID
+        if (res.status === 201) {
+          bru.setEnvVar("eventId", res.body.data._id);
+          console.log('Event created: ' + res.body.data._id);
+        }
+    - type: tests
+      code: |-
+        test("Status is 201 Created", function() {
+          expect(res.status).to.equal(201);
+        });
+
+        test("Response has event data", function() {
+          expect(res.body.data).to.have.property('_id');
+          expect(res.body.data).to.have.property('title');
+          expect(res.body.data).to.have.property('description');
+          expect(res.body.data).to.have.property('date');
+          expect(res.body.data).to.have.property('location');
+          expect(res.body.data).to.have.property('category');
+          expect(res.body.data).to.have.property('capacity');
+          expect(res.body.data).to.have.property('price');
+        });
+
+        test("Event has correct title", function() {
+          expect(res.body.data.title).to.equal("Music Festival 2026");
+        });
+
+        test("Available seats equals capacity", function() {
+          expect(res.body.data.availableSeats).to.equal(res.body.data.capacity);
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.message
+      operator: contains
+      value: Event created successfully
+
+settings:
+  encodeUrl: true
+  timeout: 30000
+
+docs:
+  content: |-
+    # Create Event
+
+    Create a new event (Admin only).
+
+    ## Authentication
+    Requires admin JWT token in Authorization header.
+
+    ## Request Body
+    - `title` (string, required): Event title
+    - `description` (string, required): Event description
+    - `date` (date-time, required): Event date and time
+    - `location` (string, required): Event location
+    - `category` (string, required): Event category (concert, conference, workshop, seminar, sports, other)
+    - `capacity` (integer, required): Total event capacity (min: 1)
+    - `price` (number, required): Event price (can be 0 for free events)
+
+    ## Response
+    Returns the created event object.
+
+    ## Note
+    Requires admin authentication. Login first with admin credentials.
+  type: text/markdown
