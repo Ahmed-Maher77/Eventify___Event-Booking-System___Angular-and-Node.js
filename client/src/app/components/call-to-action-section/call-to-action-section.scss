@@ -1,0 +1,51 @@
+@use '../../../sass/abstracts/mixins';
+@use '../../../sass/components/cta-shared';
+
+:host {
+  display: block;
+}
+
+.cta-section {
+  padding: 2.5rem 0 4rem;
+}
+
+.cta-section__card {
+  @extend %eventify-cta-card;
+}
+
+.cta-section__content {
+  @extend %eventify-cta-content;
+}
+
+.cta-section__actions {
+  @extend %eventify-cta-actions;
+}
+
+:host ::ng-deep .cta-section__browse-btn {
+  min-width: 200px;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-brown);
+}
+
+:host ::ng-deep .cta-section__outline-btn {
+  min-width: 200px;
+  border-style: dashed;
+  border-color: rgb(255 255 255 / 76%);
+  color: var(--color-white);
+  background: transparent;
+
+  &:hover {
+    border-color: var(--color-white);
+    color: var(--color-white);
+    background: rgb(255 255 255 / 12%);
+  }
+}
+
+@media (max-width: 575.98px) {
+  :host ::ng-deep .cta-section__browse-btn,
+  :host ::ng-deep .cta-section__outline-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}

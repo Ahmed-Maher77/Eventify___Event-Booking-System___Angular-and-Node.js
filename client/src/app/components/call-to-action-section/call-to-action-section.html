@@ -1,1 +1,32 @@
-<p>call-to-action-section works!</p>
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-section__card">
+      <div class="cta-section__content">
+        <h2>Never Miss an Event</h2>
+        <p>Get upcoming events, early access tickets, and exclusive offers delivered to your inbox.</p>
+      </div>
+
+      <div class="cta-section__actions">
+        <app-button
+          label="Browse Events"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          rightIcon="fa-solid fa-arrow-right"
+          customClass="cta-section__browse-btn diagonal-swipe-hover"
+          [routerLink]="'/events'"
+        ></app-button>
+
+        <app-button
+          label="Create Account"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          rightIcon="fa-solid fa-right-to-bracket"
+          customClass="cta-section__outline-btn"
+          [routerLink]="'/register'"
+        ></app-button>
+      </div>
+    </div>
+  </div>
+</section>
