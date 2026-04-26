@@ -1,1 +1,30 @@
-<p>explore-categories-section works!</p>
+<section class="explore-categories">
+  <div class="container explore-categories__inner">
+    <div class="explore-categories__header">
+      <div class="explore-categories__heading">
+        <h2>Explore by Category</h2>
+        <p>Find events that match your interests.</p>
+      </div>
+
+      <a class="explore-categories__view-all" [routerLink]="['/events']">
+        <span>View All Categories</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="explore-categories__grid">
+      @for (category of categories; track category.name) {
+        <article class="explore-categories__card">
+          <span class="explore-categories__icon-shell" aria-hidden="true">
+            <i [class]="category.iconClass"></i>
+          </span>
+
+          <div class="explore-categories__copy">
+            <h3>{{ category.name }}</h3>
+            <p>{{ category.description }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
