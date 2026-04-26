@@ -1,0 +1,41 @@
+.route-loader-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: brightness(0.15) blur(2px);
+  z-index: 9999;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.route-loader-overlay.visible {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+:host {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-layout {
+  display: flex;
+  min-height: calc(100vh - 73px);
+}
+
+.admin-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-main {
+  min-height: 100svh;
+}
+
+.page-main--with-fixed-header {
+  padding-top: 5.6rem !important;
+}
