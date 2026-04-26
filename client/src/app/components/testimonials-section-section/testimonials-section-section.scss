@@ -1,0 +1,126 @@
+@use '../../../sass/abstracts/mixins';
+@use '../../../sass/components/testimonials-shared';
+
+:host {
+  display: block;
+}
+
+.testimonials-section {
+  padding: 5rem 0;
+  background: var(--gradient-bg-flipped);
+}
+
+.testimonials-section__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.3rem;
+
+  @include mixins.respond(lg) {
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    align-items: start;
+    gap: 3rem;
+  }
+}
+
+.testimonials-section__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+    color: var(--color-black);
+    font-size: clamp(2rem, 3vw, 3.2rem);
+    line-height: 1.2;
+    font-weight: 500;
+    max-width: 84%;
+  }
+}
+
+.testimonials-section__badge {
+  @extend %eventify-testimonial-badge;
+}
+
+.testimonials-section__description {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--color-gray);
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+.testimonials-section__stats {
+  @extend %eventify-testimonial-stats;
+}
+
+.testimonials-section__stat {
+  @extend %eventify-testimonial-stat-item;
+}
+
+.testimonials-section__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  color: var(--color-primary);
+  font-size: 10px;
+}
+
+.testimonials-section__testimonial {
+  display: flex;
+  flex-direction: column;
+  gap: 1.7rem;
+}
+
+.testimonials-section__person {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 999px;
+    object-fit: cover;
+  }
+
+  h3 {
+    margin: 0.2rem 0 0;
+    display: block;
+    color: var(--color-black);
+    font-size: 16px;
+    // line-height: 1.1;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0.2rem 0 0;
+    color: var(--color-black);
+    font-size: 14px;
+    opacity: 0.9;
+  }
+}
+
+.testimonials-section__quote-icon {
+  margin-left: auto;
+  color: var(--color-black);
+  font-size: 44px;
+}
+
+.testimonials-section blockquote {
+  margin: 0;
+  color: var(--color-black);
+  font-size: clamp(1.12rem, 1.5vw, 2.1rem);
+  line-height: 1.4;
+  max-width: 88%;
+}
+
+.testimonials-section__controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.4rem;
+}
+
+.testimonials-section__control-btn {
+  @extend %eventify-testimonial-nav-button;
+}
