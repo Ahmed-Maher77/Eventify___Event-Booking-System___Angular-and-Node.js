@@ -54,10 +54,14 @@ export class TestimonialsSectionSection implements AfterViewInit, OnDestroy {
   }
 
   protected previous(): void {
+    const last = this.testimonials.length - 1;
+    this.activeIndex = this.activeIndex === 0 ? last : this.activeIndex - 1;
     this.quoteSwiper?.nativeElement.swiper?.slidePrev(420);
   }
 
   protected next(): void {
+    const last = this.testimonials.length - 1;
+    this.activeIndex = this.activeIndex === last ? 0 : this.activeIndex + 1;
     this.quoteSwiper?.nativeElement.swiper?.slideNext(420);
   }
 
