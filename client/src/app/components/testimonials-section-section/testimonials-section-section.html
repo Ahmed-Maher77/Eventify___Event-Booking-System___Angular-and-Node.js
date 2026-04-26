@@ -38,9 +38,15 @@
         <i class="fa-solid fa-quote-right testimonials-section__quote-icon" aria-hidden="true"></i>
       </div>
 
-      <blockquote>
-        "{{ activeTestimonial.quote }}"
-      </blockquote>
+      <swiper-container #quoteSwiper class="testimonials-section__quote-swiper" init="false">
+        @for (testimonial of testimonials; track testimonial.name) {
+          <swiper-slide>
+            <blockquote class="testimonials-section__quote-text">
+              "{{ testimonial.quote }}"
+            </blockquote>
+          </swiper-slide>
+        }
+      </swiper-container>
 
       <div class="testimonials-section__controls">
         <button type="button" class="testimonials-section__control-btn" (click)="previous()" aria-label="Previous testimonial">

@@ -18,7 +18,7 @@
   @include mixins.respond(lg) {
     grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
     align-items: start;
-    gap: 3rem;
+    gap: 4rem;
   }
 }
 
@@ -109,16 +109,44 @@
 
 .testimonials-section blockquote {
   margin: 0;
+}
+
+.testimonials-section__quote-swiper {
+  width: 100%;
+}
+
+.testimonials-section__quote-swiper swiper-slide {
+  width: 100%;
+}
+
+.testimonials-section__quote-text {
+  --testimonial-quote-lines: 4;
+  margin: 0;
   color: var(--color-black);
   font-size: clamp(1.12rem, 1.5vw, 2.1rem);
   line-height: 1.4;
   max-width: 88%;
+  min-height: calc(1em * 1.4 * var(--testimonial-quote-lines));
+  max-height: calc(1em * 1.4 * var(--testimonial-quote-lines));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--testimonial-quote-lines);
+}
+
+@media (max-width: 767.98px) {
+  .testimonials-section__quote-text {
+    --testimonial-quote-lines: 5;
+    max-width: 100%;
+  }
 }
 
 .testimonials-section__controls {
   display: flex;
   gap: 1rem;
-  margin-top: 0.4rem;
+  margin-top: 2rem;
+  justify-content: center;
 }
 
 .testimonials-section__control-btn {
