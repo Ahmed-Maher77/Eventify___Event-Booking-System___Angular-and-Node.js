@@ -1,0 +1,79 @@
+<footer class="site-footer">
+  <div class="site-footer__inner container">
+    <div class="site-footer__top">
+      <!-- Brand -->
+      <section class="site-footer__brand footer-stack">
+        <a class="site-footer__logo" routerLink="/">Eventify</a>
+        <p class="site-footer__description footer-muted-text small-text">
+          Precision in event management. Built for professionals who require financial clarity and
+          seamless team collaboration.
+        </p>
+      </section>
+
+      <!-- Links -->
+      <section class="site-footer__links footer-stack">
+        <h3 class="site-footer__heading">Company</h3>
+        <nav class="site-footer__nav footer-stack">
+          <a class="site-footer__link" routerLink="/about">About</a>
+          <a class="site-footer__link" routerLink="/contact">Contact</a>
+          <a class="site-footer__link" routerLink="/privacy">Privacy Policy</a>
+          <a class="site-footer__link" routerLink="/terms">Terms of Service</a>
+        </nav>
+      </section>
+
+      <!-- Subscribe -->
+      <section class="site-footer__subscribe footer-stack">
+        <h3 class="site-footer__heading">Subscribe</h3>
+        <form class="site-footer__form" [formGroup]="subscribeForm" (ngSubmit)="subscribeNewsletter()">
+          <input
+            type="email"
+            class="site-footer__input"
+            formControlName="email"
+            placeholder="e.g. your@email.com"
+            aria-label="Email address"
+          />
+          <button type="submit" class="site-footer__button" [disabled]="subscribeForm.invalid">
+            Send
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </form>
+        @if (subscribeForm.controls.email.touched && subscribeForm.controls.email.invalid) {
+          <small class="site-footer__feedback site-footer__feedback--error">
+            Please enter a valid email address.
+          </small>
+        }
+        @if (isSubmitted()) {
+          <small class="site-footer__feedback site-footer__feedback--success">
+            Thanks! You are subscribed.
+          </small>
+        }
+        <p class="site-footer__subscribe-note footer-muted-text small-text">
+          Subscribe to our newsletter to receive our weekly feed.
+        </p>
+      </section>
+    </div>
+
+    <!-- Bottom -->
+    <div class="site-footer__bottom">
+      <!-- Social -->
+      <div class="site-footer__social-group">
+        <span class="site-footer__follow">Follow Us</span>
+        <div class="site-footer__social-list">
+          @for (socialLink of socialLinks; track socialLink.label) {
+            <a
+              [href]="socialLink.url"
+              class="site-footer__social-link site-footer__social-link--{{ socialLink.modifier }}"
+              [attr.aria-label]="socialLink.label"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <i [class]="socialLink.iconClass" aria-hidden="true"></i>
+            </a>
+          }
+        </div>
+      </div>
+      <!-- Copyright -->
+      <small class="site-footer__copyright">© 2026 Eventify. All rights reserved.</small>
+    </div>
+  </div>
+</footer>

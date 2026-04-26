@@ -1,0 +1,78 @@
+import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-footer',
+  standalone: true,
+  imports: [RouterLink, ReactiveFormsModule],
+  templateUrl: './footer.html',
+  styleUrl: './footer.scss',
+})
+export class Footer implements OnDestroy {
+  private readonly fb = inject(FormBuilder);
+  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  protected readonly isSubmitted = signal(false);
+  protected readonly subscribeForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+  });
+
+  protected readonly socialLinks = [
+    {
+      label: 'Facebook',
+      url: 'https://m.facebook.com/ahmed.maher.algohary',
+      iconClass: 'fa-brands fa-facebook-f',
+      modifier: 'facebook',
+    },
+    {
+      label: 'GitHub',
+      url: 'https://github.com/Ahmed-Maher77',
+      iconClass: 'fa-brands fa-github',
+      modifier: 'github',
+    },
+    {
+      label: 'LinkedIn',
+      url: 'https://www.linkedin.com/in/ahmed-maher-algohary',
+      iconClass: 'fa-brands fa-linkedin-in',
+      modifier: 'linkedin',
+    },
+    {
+      label: 'WhatsApp-work',
+      url: 'https://wa.me/+201150383416',
+      iconClass: 'fa-brands fa-whatsapp',
+      modifier: 'whatsapp',
+    },
+  ] as const;
+
+  protected subscribeNewsletter(): void {
+    this.isSubmitted.set(false);
+
+    if (this.subscribeForm.invalid) {
+      this.subscribeForm.markAllAsTouched();
+      return;
+    }
+
+    // just as a demo
+    this.subscribeForm.reset();
+    this.isSubmitted.set(true);
+    this.startSuccessMessageTimer();
+  }
+
+  ngOnDestroy(): void {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+      this.successMessageTimer = null;
+    }
+  }
+
+  private startSuccessMessageTimer(): void {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+    }
+
+    this.successMessageTimer = setTimeout(() => {
+      this.isSubmitted.set(false);
+      this.successMessageTimer = null;
+    }, 2000);
+  }
+}
