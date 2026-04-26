@@ -1,1 +1,112 @@
-<p>talk-to-ai-section works!</p>
+<section class="talk-to-ai">
+  <div class="container">
+    <div class="talk-to-ai__card">
+      <div class="talk-to-ai__left">
+        <div class="talk-to-ai__badge">
+          <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+          <span>Powered by EventFlow AI</span>
+        </div>
+
+        <h2>Talk to AI, Find Events Faster</h2>
+        <p class="talk-to-ai__description">
+          Get instant, personalized event recommendations based on your interests, budget, and location.
+        </p>
+
+        <ul class="talk-to-ai__features">
+          @for (feature of features; track feature.text) {
+            <li>
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <span>{{ feature.text }}</span>
+            </li>
+          }
+        </ul>
+
+        <app-button
+          label="Start Chat"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          leftIcon="fa-regular fa-comments"
+          customClass="talk-to-ai__chat-btn diagonal-swipe-hover"
+          (pressed)="startChatFromCta()"
+        ></app-button>
+      </div>
+
+      <div class="talk-to-ai__right">
+        <article class="talk-to-ai__mockup">
+          <img
+            src="/images/Decorative Sparkles.png"
+            alt=""
+            class="talk-to-ai__sparkles"
+            loading="lazy"
+            aria-hidden="true"
+          />
+          <header class="talk-to-ai__mockup-header">
+            <div class="talk-to-ai__assistant">
+              <span class="talk-to-ai__assistant-icon">
+                <i class="fa-solid fa-briefcase"></i>
+              </span>
+              <div>
+                <strong>EventFlow Assistant</strong>
+                <span class="talk-to-ai__online" [class.is-offline]="!isAssistantOnline()">
+                  {{ isAssistantOnline() ? 'Online' : 'Offline' }}
+                </span>
+              </div>
+            </div>
+            <div class="talk-to-ai__menu-wrap" (click)="onMenuAreaClick($event)">
+              <button
+                type="button"
+                class="talk-to-ai__menu-trigger"
+                aria-label="Open chat options"
+                [attr.aria-expanded]="isMenuOpen()"
+                (click)="toggleMenu()"
+              >
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+              @if (isMenuOpen()) {
+                <div class="talk-to-ai__menu">
+                  <button type="button" (click)="openChatScreen()">Open chat screen</button>
+                  <button type="button" (click)="openChatScreen()">Continue in AI chat</button>
+                </div>
+              }
+            </div>
+          </header>
+
+          <div class="talk-to-ai__chat">
+            <div class="talk-to-ai__bubble talk-to-ai__bubble--assistant">
+              Hi! Looking for something fun to do? Tell me what you’re in the mood for.
+            </div>
+            <div class="talk-to-ai__bubble talk-to-ai__bubble--user">
+              I’m looking for a jazz concert this Saturday under $50.
+            </div>
+            <div class="talk-to-ai__result">
+              <strong>Found 3 matches!</strong>
+              <div class="talk-to-ai__event-card">
+                <img src="/images/Concert.png" alt="Midnight Jazz Sessions" loading="lazy" />
+                <div>
+                  <h3>Midnight Jazz Sessions</h3>
+                  <p>$35 • Sat, 9 PM</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form class="talk-to-ai__input" (submit)="submitMessage()">
+            <label class="visually-hidden" for="talk-ai-input">Type your request</label>
+            <input
+              id="talk-ai-input"
+              name="talkAiMessage"
+              type="text"
+              placeholder="Type your request..."
+              [ngModel]="draftMessage()"
+              (ngModelChange)="draftMessage.set($event)"
+            />
+            <button type="submit" aria-label="Send AI request">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>

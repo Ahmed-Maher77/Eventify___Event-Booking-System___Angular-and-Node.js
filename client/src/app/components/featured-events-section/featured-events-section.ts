@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FeaturedEventCard, FeaturedEventCardData } from '../featured-event-card/featured-event-card';
+import { FeaturedEventCard } from '../featured-event-card/featured-event-card';
+import { FeaturedEventCardData } from '../featured-event-card/featured-event-card.model';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
@@ -15,10 +16,12 @@ register();
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('featuredSectionRoot') private featuredSectionRoot?: ElementRef<HTMLElement>;
   @ViewChild('featuredSwiper') private featuredSwiper?: ElementRef<SwiperContainer>;
   @ViewChild('featuredPagination') private featuredPagination?: ElementRef<HTMLElement>;
   @ViewChild('chipsTrack') private chipsTrack?: ElementRef<HTMLElement>;
   private filterAnimationTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private syncUiRafId: number | null = null;
 
   protected readonly categories = [
     'All',
@@ -56,7 +59,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       dateText: 'Oct 24, 2024 • 20:00',
       location: 'Madison Square Garden, NY',
       priceFrom: '$45.00',
-      imageUrl: 'https://www.figma.com/api/mcp/asset/88bc1705-a422-4af1-ba4f-470b4ecb3f4b'
+      imageUrl: '/images/Concert.png'
     },
     {
       id: 'evt-2',
@@ -65,7 +68,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       dateText: 'Oct 24, 2024 • 20:00',
       location: 'Madison Square Garden, NY',
       priceFrom: '$45.00',
-      imageUrl: 'https://www.figma.com/api/mcp/asset/82ac87e3-00f8-424e-8e17-368c43c8ffa2'
+      imageUrl: '/images/Workshop.png'
     },
     {
       id: 'evt-3',
@@ -74,7 +77,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       dateText: 'Oct 24, 2024 • 20:00',
       location: 'Madison Square Garden, NY',
       priceFrom: '$45.00',
-      imageUrl: 'https://www.figma.com/api/mcp/asset/7a4aa944-7f1f-47ac-935a-d13db23e9c6f'
+      imageUrl: '/images/Conference.jpg'
     },
     {
       id: 'evt-4',
@@ -83,7 +86,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       dateText: 'Oct 24, 2024 • 20:00',
       location: 'Madison Square Garden, NY',
       priceFrom: '$45.00',
-      imageUrl: 'https://www.figma.com/api/mcp/asset/c057786c-9e8f-48cb-a74a-308d3c9f12b7'
+      imageUrl: '/images/Seminar.jpg'
     },
     {
       id: 'evt-5',
@@ -92,7 +95,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       dateText: 'Nov 2, 2024 • 19:30',
       location: 'Staples Center, LA',
       priceFrom: '$39.00',
-      imageUrl: 'https://www.figma.com/api/mcp/asset/88bc1705-a422-4af1-ba4f-470b4ecb3f4b'
+      imageUrl: '/images/Concert-1.png'
     },
     {
       id: 'evt-6',
@@ -101,7 +104,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       dateText: 'Nov 18, 2024 • 17:00',
       location: 'National Arena, Chicago',
       priceFrom: '$32.00',
-      imageUrl: 'https://www.figma.com/api/mcp/asset/7a4aa944-7f1f-47ac-935a-d13db23e9c6f'
+      imageUrl: '/images/Sports.jpg'
     },
     // {
     //   id: 'evt-7',
@@ -123,26 +126,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     this.isFiltering = true;
     this.updateResponsiveState();
 
-    // Keep slider behavior smooth after filtering.
-    queueMicrotask(() => {
-      this.configureSwiper();
-      const swiperElement = this.featuredSwiper?.nativeElement;
-      const swiper = swiperElement?.swiper;
-      if (this.shouldUseSwiper && swiper) {
-        swiper.update();
-        swiper.slideTo(0, 380);
-        this.animateFilteredSlides();
-      }
-
-      if (this.filterAnimationTimeoutId) {
-        clearTimeout(this.filterAnimationTimeoutId);
-      }
-
-      this.filterAnimationTimeoutId = setTimeout(() => {
-        this.isFiltering = false;
-        this.filterAnimationTimeoutId = null;
-      }, 420);
-    });
+    this.scheduleUiSync();
   }
 
   protected get filteredEvents(): FeaturedEventCardData[] {
@@ -179,6 +163,11 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     if (this.filterAnimationTimeoutId) {
       clearTimeout(this.filterAnimationTimeoutId);
       this.filterAnimationTimeoutId = null;
+    }
+
+    if (this.syncUiRafId !== null) {
+      cancelAnimationFrame(this.syncUiRafId);
+      this.syncUiRafId = null;
     }
   }
 
@@ -219,14 +208,19 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private animateFilteredSlides(): void {
-    const swiperElement = this.featuredSwiper?.nativeElement;
-    if (!swiperElement || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return;
     }
 
-    const slides = Array.from(swiperElement.querySelectorAll('swiper-slide')) as HTMLElement[];
-    slides.forEach((slide, index) => {
-      slide.animate(
+    const sectionRoot = this.featuredSectionRoot?.nativeElement;
+    if (!sectionRoot) {
+      return;
+    }
+
+    const targets = Array.from(sectionRoot.querySelectorAll('.featured-events__animatable-item')) as HTMLElement[];
+    targets.forEach((target, index) => {
+      target.getAnimations().forEach((animation) => animation.cancel());
+      target.animate(
         [
           { opacity: 0, transform: 'translateY(18px) scale(0.985)', filter: 'blur(4px)' },
           { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
@@ -263,9 +257,14 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    const swiperElement = this.featuredSwiper.nativeElement;
+    if (!swiperElement.isConnected) {
+      return;
+    }
+
     const paginationElement = this.featuredPagination?.nativeElement;
 
-    Object.assign(this.featuredSwiper.nativeElement, {
+    Object.assign(swiperElement, {
       slidesPerView: 1,
       spaceBetween: 16,
       loop: false,
@@ -286,11 +285,43 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    if (this.featuredSwiper.nativeElement.swiper) {
-      this.featuredSwiper.nativeElement.swiper.update();
+    if (swiperElement.swiper) {
+      swiperElement.swiper.update();
       return;
     }
 
-    this.featuredSwiper.nativeElement.initialize();
+    swiperElement.initialize();
+  }
+
+  private scheduleUiSync(): void {
+    if (this.syncUiRafId !== null) {
+      cancelAnimationFrame(this.syncUiRafId);
+      this.syncUiRafId = null;
+    }
+
+    this.syncUiRafId = requestAnimationFrame(() => {
+      this.syncUiRafId = null;
+      this.configureSwiper();
+
+      const swiperElement = this.featuredSwiper?.nativeElement;
+      const swiper = swiperElement?.swiper;
+      if (this.shouldUseSwiper && swiper) {
+        swiper.update();
+        if (this.filteredEvents.length > 0) {
+          swiper.slideTo(0, 380);
+        }
+      }
+
+      this.animateFilteredSlides();
+
+      if (this.filterAnimationTimeoutId) {
+        clearTimeout(this.filterAnimationTimeoutId);
+      }
+
+      this.filterAnimationTimeoutId = setTimeout(() => {
+        this.isFiltering = false;
+        this.filterAnimationTimeoutId = null;
+      }, 420);
+    });
   }
 }

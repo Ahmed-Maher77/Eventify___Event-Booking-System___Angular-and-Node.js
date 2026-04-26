@@ -11,7 +11,7 @@
     </div>
 
     <form class="landing-hero__search" (submit)="$event.preventDefault()">
-      <input type="text" class="landing-hero__search-input" placeholder="Search events, cities, or categories..." />
+      <input type="text" class="landing-hero__search-input" [attr.placeholder]="searchPlaceholder" />
       <button type="submit" class="landing-hero__search-btn" aria-label="Search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
       </button>

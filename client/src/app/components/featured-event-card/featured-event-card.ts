@@ -1,15 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-export interface FeaturedEventCardData {
-  id: string;
-  title: string;
-  category: string;
-  dateText: string;
-  location: string;
-  priceFrom: string;
-  imageUrl: string;
-}
+import { FeaturedEventCardData } from './featured-event-card.model';
 
 @Component({
   selector: 'app-featured-event-card',

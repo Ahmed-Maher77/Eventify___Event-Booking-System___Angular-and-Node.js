@@ -1,10 +1,11 @@
 <header class="eventify-header">
-  <nav class="navbar navbar-expand-lg container eventify-header__nav">
-    <a class="eventify-header__brand" routerLink="/">
+  <nav #headerNavRoot class="navbar navbar-expand-lg container eventify-header__nav">
+    <a class="eventify-header__brand" routerLink="/" (click)="onNavItemClick()">
       <img src="images/logo.png" alt="Eventify" class="eventify-header__brand-logo" />
     </a>
 
     <button
+      #headerTogglerRef
       class="navbar-toggler eventify-header__toggler"
       type="button"
       data-bs-toggle="collapse"
@@ -13,10 +14,14 @@
       aria-expanded="false"
       aria-label="Toggle navigation"
     >
-      <span class="navbar-toggler-icon"></span>
+      <span class="eventify-header__toggler-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
     </button>
 
-    <div id="mainHeaderNav" class="collapse navbar-collapse eventify-header__collapse">
+    <div #mainHeaderNavRef id="mainHeaderNav" class="collapse navbar-collapse eventify-header__collapse">
       <ul class="navbar-nav eventify-header__nav-list">
         @for (link of navLinks; track link.route) {
           <li class="nav-item">
@@ -24,6 +29,7 @@
               class="eventify-header__nav-link"
               routerLinkActive="active"
               [routerLink]="link.route"
+              (click)="onNavItemClick()"
             >
               {{ link.label }}
             </a>
@@ -40,6 +46,7 @@
             [rounded]="true"
             customClass="eventify-header__login-btn laser-sweep-hover"
             [routerLink]="'/login'"
+            (click)="onNavItemClick()"
           ></app-button>
           <app-button
             label="Get Started"
@@ -48,6 +55,7 @@
             [rounded]="true"
             customClass="eventify-header__cta-btn diagonal-swipe-hover"
             [routerLink]="'/register'"
+            (click)="onNavItemClick()"
           ></app-button>
         </div>
       } @else {
@@ -62,8 +70,8 @@
           </button>
           @if (isProfileMenuOpen()) {
             <ul class="dropdown-menu dropdown-menu-end show mt-2">
-              <li><a class="dropdown-item" routerLink="/profile">My Profile</a></li>
-              <li><a class="dropdown-item" routerLink="/bookings">My Bookings</a></li>
+              <li><a class="dropdown-item" routerLink="/profile" (click)="onNavItemClick()">My Profile</a></li>
+              <li><a class="dropdown-item" routerLink="/bookings" (click)="onNavItemClick()">My Bookings</a></li>
               <button class="dropdown-item" (click)="logout()">Logout</button>
             </ul>
           }

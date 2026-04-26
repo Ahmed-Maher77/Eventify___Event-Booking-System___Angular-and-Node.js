@@ -54,8 +54,8 @@
   display: block;
   object-fit: contain;
   background: transparent;
-  // Avoid "layer" look on logos with white backgrounds.
-  filter: grayscale(var(--logo-grayscale)) contrast(1.02);
+  // Keep grayscale clean without tinting image background boxes.
+  filter: grayscale(100%);
   transition:
     filter 0.25s ease,
     transform 0.25s ease;
@@ -65,7 +65,7 @@
   }
 
   &:hover {
-    filter: grayscale(0) contrast(1);
+    filter: grayscale(0);
     transform: translateY(-1px);
   }
 }

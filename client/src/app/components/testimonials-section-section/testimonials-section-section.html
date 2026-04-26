@@ -1,1 +1,61 @@
-<p>testimonials-section-section works!</p>
+<section class="testimonials-section">
+  <div class="container testimonials-section__inner">
+    <div class="testimonials-section__content">
+      <div class="testimonials-section__badge">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+        <span>Top Rated Platform</span>
+      </div>
+
+      <h2>What our attendees are saying?</h2>
+      <p class="testimonials-section__description">
+        Thousands of people use Eventify to discover events, book in minutes, and enjoy seamless experiences.
+      </p>
+
+      <div class="testimonials-section__stats">
+        <article class="testimonials-section__stat">
+          <strong>10k+</strong>
+          <span>Happy Attendees</span>
+        </article>
+        <article class="testimonials-section__stat">
+          <strong>4.8/5</strong>
+          <span>Average Rating</span>
+          <div class="testimonials-section__stars" aria-hidden="true">
+            @for (_ of ratingStars; track _) {
+              <i class="fa-solid fa-star"></i>
+            }
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="testimonials-section__testimonial">
+      <div class="testimonials-section__person">
+        <img [src]="activeTestimonial.avatar" [alt]="activeTestimonial.name" loading="lazy" />
+        <div>
+          <h3>{{ activeTestimonial.name }}</h3>
+          <p>{{ activeTestimonial.role }}</p>
+        </div>
+        <i class="fa-solid fa-quote-right testimonials-section__quote-icon" aria-hidden="true"></i>
+      </div>
+
+      <swiper-container #quoteSwiper class="testimonials-section__quote-swiper" init="false">
+        @for (testimonial of testimonials; track testimonial.name) {
+          <swiper-slide>
+            <blockquote class="testimonials-section__quote-text">
+              "{{ testimonial.quote }}"
+            </blockquote>
+          </swiper-slide>
+        }
+      </swiper-container>
+
+      <div class="testimonials-section__controls">
+        <button type="button" class="testimonials-section__control-btn" (click)="previous()" aria-label="Previous testimonial">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button type="button" class="testimonials-section__control-btn" (click)="next()" aria-label="Next testimonial">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

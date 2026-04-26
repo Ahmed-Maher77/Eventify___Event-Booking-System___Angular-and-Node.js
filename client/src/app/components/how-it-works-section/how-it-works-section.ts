@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
-
-interface HowItWorksStep {
-  title: string;
-  description: string;
-  iconClass: string;
-}
+import { HowItWorksStep } from './how-it-works-section.model';
 
 @Component({
   selector: 'app-how-it-works-section',

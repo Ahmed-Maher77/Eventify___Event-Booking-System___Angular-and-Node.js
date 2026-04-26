@@ -1,10 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'dark';
-type ButtonSize = 'sm' | 'md' | 'lg';
-type NativeButtonType = 'button' | 'submit' | 'reset';
+import { ButtonSize, ButtonVariant, NativeButtonType } from './button.model';
 
 @Component({
   selector: 'app-button',

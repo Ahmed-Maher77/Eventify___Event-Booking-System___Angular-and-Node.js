@@ -16,10 +16,28 @@
   // border-bottom: 1px solid rgb(255 255 255 / 16%);
 }
 
+.navbar-toggler {
+  box-shadow: none !important;
+  border: none !important;
+}
+
 .eventify-header__nav {
+  position: relative;
   min-height: 64px;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
+}
+
+@media (max-width: 500px) {
+  .eventify-header__nav {
+    padding-inline: 25px !important;
+  }
+}
+@media (max-width: 767.98px) {
+  .eventify-header__nav {
+    --bs-gutter-x: 0;
+    padding-inline: 0;
+  }
 }
 
 .eventify-header__brand {
@@ -39,11 +57,76 @@
 }
 
 .eventify-header__toggler {
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
+  width: 46px;
+  height: 42px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgb(231 200 115 / 28%);
+  }
+
+  @include mixins.respond(lg) {
+    display: none;
+  }
+}
+
+.eventify-header__toggler-lines {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+
+  span {
+    display: block;
+    height: 3px;
+    background: var(--color-white);
+    border-radius: 20px;
+  }
+
+  span:nth-child(1) {
+    width: 32px;
+  }
+
+  span:nth-child(2) {
+    width: 22px;
+  }
+
+  span:nth-child(3) {
+    width: 17px;
+  }
 }
 
 .eventify-header__collapse {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  margin-top: 0.7rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  background: rgb(14 18 24 / 84%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
   @include mixins.respond(lg) {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: auto;
+    margin-top: 0;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    border: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     display: grid !important;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -53,7 +136,8 @@
 
 .eventify-header__nav-list {
   margin: 1rem 0 0;
-  gap: 0.25rem;
+  // gap: 0.25rem;
+  gap: 0.9rem;
 
   @include mixins.respond(lg) {
     margin: 0;
@@ -107,13 +191,54 @@
 
 .eventify-header__actions {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.8rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  margin-top: 2rem;
+
+  app-button {
+    width: 100%;
+  }
+
+  :host ::ng-deep .ev-btn {
+    width: 100%;
+  }
 
   @include mixins.respond(lg) {
+    app-button {
+      width: auto;
+    }
+
+    :host ::ng-deep .ev-btn {
+      width: auto;
+    }
+
+    flex-direction: row;
+    align-items: center;
     margin-top: 0;
     justify-self: end;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .eventify-header__actions {
+    width: 100%;
+  }
+
+  .eventify-header__actions app-button {
+    width: 100%;
+  }
+
+  .eventify-header__actions :host ::ng-deep .ev-btn,
+  :host ::ng-deep .eventify-header__login-btn,
+  :host ::ng-deep .eventify-header__cta-btn {
+    width: 100%;
+  }
+
+  :host ::ng-deep .eventify-header__login-btn {
+    background: rgb(255 255 255 / 8%);
+    border: 1px solid rgb(255 255 255 / 32%);
+    color: var(--color-white);
   }
 }
 

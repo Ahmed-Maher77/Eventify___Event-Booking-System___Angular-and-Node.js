@@ -17,7 +17,7 @@
 
 .featured-event-card__image-wrap {
   border-radius: 6px;
-  height: 196px;
+  height: 175px;
   margin: 0;
   @include effects-shared.eventify-shine-host(-25% -70%, 980ms, -120%, 4deg);
 }
