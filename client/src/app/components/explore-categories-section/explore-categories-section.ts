@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 
 interface ExploreCategoryItem {
   name: string;
@@ -10,7 +11,7 @@ interface ExploreCategoryItem {
 
 @Component({
   selector: 'app-explore-categories-section',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SectionHeadingComponent],
   templateUrl: './explore-categories-section.html',
   styleUrl: './explore-categories-section.scss',
 })

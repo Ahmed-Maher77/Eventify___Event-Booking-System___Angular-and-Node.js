@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FeaturedEventCard, FeaturedEventCardData } from '../featured-event-card/featured-event-card';
+import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
 
@@ -8,7 +9,7 @@ register();
 
 @Component({
   selector: 'app-featured-events-section',
-  imports: [CommonModule, FeaturedEventCard],
+  imports: [CommonModule, FeaturedEventCard, SectionHeadingComponent],
   templateUrl: './featured-events-section.html',
   styleUrl: './featured-events-section.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -28,6 +29,16 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     'Sports',
     'Other'
   ] as const;
+
+  protected readonly categoryIcons: Record<(typeof this.categories)[number], string> = {
+    All: 'fa-solid fa-grip',
+    Concert: 'fa-solid fa-music',
+    Conference: 'fa-solid fa-users-line',
+    Workshop: 'fa-regular fa-lightbulb',
+    Seminar: 'fa-solid fa-graduation-cap',
+    Sports: 'fa-solid fa-futbol',
+    Other: 'fa-solid fa-ellipsis'
+  };
 
   protected activeCategory: (typeof this.categories)[number] = 'All';
   protected isFiltering = false;
@@ -201,6 +212,10 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     this.hasTabsOverflow = maxScrollLeft > 4;
     this.canScrollTabsLeft = chipsElement.scrollLeft > 4;
     this.canScrollTabsRight = chipsElement.scrollLeft < maxScrollLeft - 4;
+  }
+
+  protected getCategoryIcon(category: (typeof this.categories)[number]): string {
+    return this.categoryIcons[category];
   }
 
   private animateFilteredSlides(): void {
