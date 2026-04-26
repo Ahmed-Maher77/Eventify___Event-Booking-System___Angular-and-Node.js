@@ -60,7 +60,7 @@ Below, each page lists **purpose**, **primary information**, **actions**, and **
 - **Footer CTA:** Newsletter or “List your event” if B2B expands later.
 
 **Data:** `GET /api/events` with filters (upcoming, sort, limit).
-
+<!--
 ---
 
 #### **How it works (`/how-it-works`)**
@@ -72,7 +72,7 @@ Below, each page lists **purpose**, **primary information**, **actions**, and **
 - Booking lifecycle in plain language: **pending → confirmed → cancelled** (matches API).
 - What happens when an event is **cancelled** or **completed** at API `Event.status` level.
 - Link to **FAQ** and **Contact**.
-
+-->
 ---
 
 #### **About (`/about`)** *(optional but “real-world”)*
@@ -217,25 +217,25 @@ Below, each page lists **purpose**, **primary information**, **actions**, and **
 
 ### 3.6 User account
 
-#### **Account / Profile settings (`/account`)**
+#### **Account / Profile settings (`/profile`)**
 
 **Purpose:** View/update **name**, **email** (read-only until verification flow exists), change password.
 
 **Note:** Extend API if profile `PATCH` is not present; design assumes production parity.
-
+<!--
 ---
 
 #### **Notifications settings (`/account/notifications`)** *(optional)*
 
 **Purpose:** Email/SMS for booking confirmations and event changes — future feature.
-
+-->
 ---
 
 ### 3.7 Admin area (role-gated)
 
 **Base path suggestion:** `/admin` with layout distinct from consumer UI (sidebar nav).
 
-#### **Admin dashboard (`/admin`)**
+#### **Admin dashboard (`/dashboard`)**
 
 **Purpose:** Operational snapshot.
 
@@ -245,7 +245,7 @@ Below, each page lists **purpose**, **primary information**, **actions**, and **
 
 ---
 
-#### **Admin — Events list (`/admin/events`)**
+#### **Admin — Events list (`/dashboard/events`) + action icons (view + delete + edit)**
 
 **Purpose:** Manage catalog.
 
@@ -255,33 +255,11 @@ Below, each page lists **purpose**, **primary information**, **actions**, and **
 
 ---
 
-#### **Admin — Create event (`/admin/events/new`)**
-
-**Purpose:** `POST /api/events`.
-
-**Content:** Form fields matching **Event** model: title, description (rich text optional), date/time picker, location, category select, capacity, price, initial **status** (default upcoming). Validation messages aligned with API. On submit success → detail or list.
-
----
-
-#### **Admin — Edit event (`/admin/events/:id/edit`)**
-
-**Purpose:** `PUT /api/events/:id`.
-
-**Content:** Same as create, pre-filled; warn if lowering capacity below already-sold implied seats (business rule; may need API validation).
-
----
-
-#### **Admin — All bookings (`/admin/bookings`)**
+#### **Admin — All bookings (`/dashboard/bookings`) + action icons (view + delete + edit)**
 
 **Purpose:** `GET /api/admin/bookings`.
 
 **Content:** Table: booking id, user email/name (if populated from populate), event title, quantity, totalPrice, status, createdAt. Filters: status, event, date range. Row action: **Update status** → `PATCH /api/bookings/:id` (admin only).
-
----
-
-#### **Admin — Booking detail (`/admin/bookings/:id`)**
-
-**Purpose:** Audit and support single booking; same PATCH affordance.
 
 ---
 
@@ -301,7 +279,7 @@ Below, each page lists **purpose**, **primary information**, **actions**, and **
 #### **Payment-related (integrated into flows above)**
 
 - **Checkout:** Payment method selection, 3DS / SCA messaging, receipt.
-- **Billing history (`/account/orders` or `/account/payments`):** Transactions, invoices, refund status — requires new backend entities.
+- **Billing history (`/profile/orders`):** Transactions, invoices, refund status — requires new backend entities.
 - **Webhook-driven UI updates:** Booking moves to **confirmed** after successful payment.
 
 #### **AI chatbot**
