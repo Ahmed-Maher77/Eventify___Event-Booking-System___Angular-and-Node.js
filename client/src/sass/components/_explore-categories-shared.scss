@@ -1,0 +1,53 @@
+%eventify-explore-heading {
+  h2 {
+    margin: 0;
+    color: var(--color-black);
+    font-size: clamp(2rem, 2.8vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--color-gray);
+    font-size: 17px;
+    line-height: 1.9;
+  }
+}
+
+%eventify-explore-card {
+  background: var(--color-category-card-bg);
+  border: 1px solid var(--color-card-stroke);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+%eventify-explore-icon-shell {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-category-icon-bg);
+  color: var(--color-brown);
+  font-size: 18px;
+}
+
+$explore-icon-tones: (
+  1: var(--color-category-icon-bg),
+  2: var(--color-category-icon-bg),
+  3: var(--color-category-icon-bg),
+  4: var(--color-category-icon-bg),
+  5: var(--color-category-icon-bg)
+);
+
+@each $index, $tone in $explore-icon-tones {
+  .explore-categories__card:nth-child(#{$index}) .explore-categories__icon-shell {
+    background: $tone;
+  }
+}
