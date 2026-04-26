@@ -136,16 +136,58 @@
   }
 }
 
+@media (max-width: 767.98px) {
+  .landing-hero__content {
+    gap: 1.45rem;
+    padding-top: 8.9rem;
+    padding-bottom: 3.25rem;
+  }
+
+  .landing-hero__eyebrow {
+    min-height: 1.8rem;
+    font-size: 0.66rem;
+    padding-inline: 0.9rem;
+  }
+
+  .landing-hero__title {
+    font-size: clamp(1.62rem, 8.2vw, 2.15rem);
+    max-width: 24rem;
+    line-height: 1.18;
+  }
+
+  .landing-hero__title-wrap {
+    max-width: 24rem;
+    min-height: 6.2rem;
+  }
+
+  .landing-hero__search {
+    width: min(100%, 28rem);
+    min-height: 3.25rem;
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+  }
+
+  .landing-hero__search-input {
+    font-size: 0.9rem;
+
+    &::placeholder {
+      font-size: 0.82rem;
+      color: rgba(26, 26, 26, 0.73);
+    }
+  }
+
+  .landing-hero__search-btn {
+    width: 2.75rem;
+    height: 2.7rem;
+    font-size: 0.9rem;
+  }
+}
+
 .landing-hero__actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: 0.85rem;
-
-  @include mixins.respond(md) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 1.25rem;
-  }
 }
 

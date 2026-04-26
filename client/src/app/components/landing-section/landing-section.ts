@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Button } from '../../shared/button/button';
 import Typed, { type TypedOptions } from 'typed.js';
@@ -11,9 +11,10 @@ type TypingPreset = 'ai_stream' | 'smooth_fade' | 'classic_typewriter' | 'fast_p
   templateUrl: './landing-section.html',
   styleUrl: './landing-section.scss',
 })
-export class LandingSection implements AfterViewInit, OnDestroy {
+export class LandingSection implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('typedHeadline', { static: true }) private typedHeadlineRef!: ElementRef<HTMLElement>;
   private typedInstance: Typed | null = null;
+  protected searchPlaceholder = 'Search events, cities, or categories...';
 
   // Change this value to switch animation style quickly.
   private readonly activePreset: TypingPreset = 'ai_stream';
@@ -68,6 +69,10 @@ export class LandingSection implements AfterViewInit, OnDestroy {
     }
   };
 
+  ngOnInit(): void {
+    this.updateSearchPlaceholder();
+  }
+
   ngAfterViewInit(): void {
     this.typedInstance = new Typed(this.typedHeadlineRef.nativeElement, {
       strings: this.headlineStatements,
@@ -79,5 +84,15 @@ export class LandingSection implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.typedInstance?.destroy();
     this.typedInstance = null;
+  }
+
+  @HostListener('window:resize')
+  protected onWindowResize(): void {
+    this.updateSearchPlaceholder();
+  }
+
+  private updateSearchPlaceholder(): void {
+    this.searchPlaceholder =
+      window.innerWidth < 500 ? 'Search events, cities...' : 'Search events, cities, or categories...';
   }
 }
