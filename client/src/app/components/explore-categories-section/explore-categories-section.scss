@@ -115,5 +115,8 @@
     color: var(--color-gray);
     font-size: 12px;
     line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
