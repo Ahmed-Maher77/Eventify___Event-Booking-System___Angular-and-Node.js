@@ -2,8 +2,7 @@ import { AfterViewInit, Component, HostListener, ElementRef, OnDestroy, OnInit, 
 import { RouterLink } from '@angular/router';
 import { Button } from '../../shared/button/button';
 import Typed, { type TypedOptions } from 'typed.js';
-
-type TypingPreset = 'ai_stream' | 'smooth_fade' | 'classic_typewriter' | 'fast_pitch';
+import { TypingPreset } from './landing-section.model';
 
 @Component({
   selector: 'app-landing-section',
