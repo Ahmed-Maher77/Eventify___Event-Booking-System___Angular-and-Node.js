@@ -1,0 +1,9 @@
+.footer-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-muted-text {
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
