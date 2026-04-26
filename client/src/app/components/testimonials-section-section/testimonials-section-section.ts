@@ -2,15 +2,9 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
+import { TestimonialItem } from './testimonials-section-section.model';
 
 register();
-
-interface TestimonialItem {
-  name: string;
-  role: string;
-  quote: string;
-  avatar: string;
-}
 
 @Component({
   selector: 'app-testimonials-section-section',
