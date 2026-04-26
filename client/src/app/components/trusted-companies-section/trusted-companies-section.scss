@@ -1,0 +1,71 @@
+@use '../../../sass/abstracts/mixins';
+
+:host {
+  display: block;
+}
+
+.trusted-companies {
+  padding: 3rem 0;
+
+  @include mixins.respond(md) {
+    padding: 4.5rem 0;
+  }
+}
+
+.trusted-companies__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.trusted-companies__title {
+  margin: 0;
+  color: var(--color-trusted-text);
+  font-size: 1.05rem;
+  text-align: center;
+  line-height: 1.9;
+}
+
+.trusted-companies__marquee {
+  width: 100%;
+  padding: 0.4rem 0;
+}
+
+.trusted-companies__track {
+  display: inline-flex;
+}
+
+.trusted-companies__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.3rem;
+  padding-right: 2.3rem;
+
+  @include mixins.respond(md) {
+    gap: 3.8rem;
+    padding-right: 3.8rem;
+  }
+}
+
+.trusted-companies__logo {
+  height: 1.8rem;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  background: transparent;
+  // Avoid "layer" look on logos with white backgrounds.
+  filter: grayscale(var(--logo-grayscale)) contrast(1.02);
+  transition:
+    filter 0.25s ease,
+    transform 0.25s ease;
+
+  @include mixins.respond(md) {
+    height: 2rem;
+  }
+
+  &:hover {
+    filter: grayscale(0) contrast(1);
+    transform: translateY(-1px);
+  }
+}
