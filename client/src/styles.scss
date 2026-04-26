@@ -1,9 +1,11 @@
 @use './sass/abstracts/mixins';
 @use './sass/abstracts/placeholders';
 @use './sass/components/footer-shared';
+@use './sass/components/effects-shared';
 @use './sass/components/explore-categories-shared';
 @use './sass/components/featured-events-shared';
 @use './sass/components/header-shared';
+@use './sass/components/how-it-works-shared';
 @use './sass/components/landing-shared';
 @use './sass/components/trusted-companies-shared';
 
@@ -43,16 +45,27 @@
   --color-slider-nav-border: #d4d4d8;
   --color-category-card-bg: #f6f8fa;
   --color-category-icon-bg: rgb(231 200 115 / 45%);
+  --color-white-stroke: #f6f8fa;
+  --gradient-bg: linear-gradient(180deg, #f6f8fa 0%, rgb(231 200 115 / 24%) 100%);
+  --gradient-bg-flipped: linear-gradient(180deg, rgb(231 200 115 / 24%) 0%, #f6f8fa 100%);
   --logo-grayscale: 1;
 }
 
 body {
   font-family: 'Roboto', sans-serif;
+  background: var(--color-homepage-bg);
 }
 
 html,
 body {
   font-family: 'Roboto', sans-serif;
+  background: var(--color-homepage-bg);
+}
+
+app-root {
+  display: block;
+  background: var(--color-homepage-bg);
+  min-height: 100svh;
 }
 
 // ============ Shared Styles ============
