@@ -1,0 +1,74 @@
+<header class="eventify-header">
+  <nav class="navbar navbar-expand-lg container eventify-header__nav">
+    <a class="eventify-header__brand" routerLink="/">
+      <img src="images/logo.png" alt="Eventify" class="eventify-header__brand-logo" />
+    </a>
+
+    <button
+      class="navbar-toggler eventify-header__toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainHeaderNav"
+      aria-controls="mainHeaderNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="mainHeaderNav" class="collapse navbar-collapse eventify-header__collapse">
+      <ul class="navbar-nav eventify-header__nav-list">
+        @for (link of navLinks; track link.route) {
+          <li class="nav-item">
+            <a
+              class="eventify-header__nav-link"
+              routerLinkActive="active"
+              [routerLink]="link.route"
+            >
+              {{ link.label }}
+            </a>
+          </li>
+        }
+      </ul>
+
+      @if (!isLoggedIn()) {
+        <div class="eventify-header__actions">
+          <app-button
+            label="Login"
+            variant="ghost"
+            size="md"
+            [rounded]="true"
+            customClass="eventify-header__login-btn laser-sweep-hover"
+            [routerLink]="'/login'"
+          ></app-button>
+          <app-button
+            label="Get Started"
+            variant="primary"
+            size="md"
+            [rounded]="true"
+            customClass="eventify-header__cta-btn diagonal-swipe-hover"
+            [routerLink]="'/register'"
+          ></app-button>
+        </div>
+      } @else {
+        <div class="position-relative eventify-header__actions">
+          <button
+            class="header-pill-btn eventify-header__profile-btn"
+            type="button"
+            (click)="toggleProfileMenu()"
+          >
+            <img [src]="profileImageUrl" alt="Profile" class="header-avatar" />
+            <span>Profile</span>
+          </button>
+          @if (isProfileMenuOpen()) {
+            <ul class="dropdown-menu dropdown-menu-end show mt-2">
+              <li><a class="dropdown-item" routerLink="/profile">My Profile</a></li>
+              <li><a class="dropdown-item" routerLink="/bookings">My Bookings</a></li>
+              <button class="dropdown-item" (click)="logout()">Logout</button>
+            </ul>
+          }
+        </div>
+      }
+    </div>
+  </nav>
+</header>
