@@ -1,6 +1,7 @@
 @use './sass/abstracts/mixins';
 @use './sass/abstracts/placeholders';
 @use './sass/components/footer-shared';
+@use './sass/components/explore-categories-shared';
 @use './sass/components/featured-events-shared';
 @use './sass/components/header-shared';
 @use './sass/components/landing-shared';
@@ -40,6 +41,8 @@
   --color-slider-dot-active: #122223;
   --color-slider-nav-bg: rgba(255, 255, 255, 0.9);
   --color-slider-nav-border: #d4d4d8;
+  --color-category-card-bg: #f6f8fa;
+  --color-category-icon-bg: rgb(231 200 115 / 45%);
   --logo-grayscale: 1;
 }
 
