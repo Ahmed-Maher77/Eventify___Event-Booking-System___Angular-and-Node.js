@@ -79,6 +79,8 @@
 
 .explore-categories__card {
   @extend %eventify-explore-card;
+  text-decoration: none;
+  color: inherit;
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,

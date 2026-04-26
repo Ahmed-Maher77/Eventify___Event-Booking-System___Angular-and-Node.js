@@ -14,7 +14,12 @@
 
     <div class="explore-categories__grid">
       @for (category of categories; track category.name) {
-        <article class="explore-categories__card">
+        <a
+          class="explore-categories__card"
+          [routerLink]="['/events']"
+          [queryParams]="{ category: categoryToQuery(category.name) }"
+          [attr.aria-label]="'Browse ' + category.name + ' events'"
+        >
           <span class="explore-categories__icon-shell" aria-hidden="true">
             <i [class]="category.iconClass"></i>
           </span>
@@ -23,7 +28,7 @@
             <h3>{{ category.name }}</h3>
             <p>{{ category.description }}</p>
           </div>
-        </article>
+        </a>
       }
     </div>
   </div>

@@ -42,4 +42,8 @@ export class ExploreCategoriesSection {
       iconClass: 'fa-solid fa-futbol'
     }
   ];
+
+  protected categoryToQuery(categoryName: string): string {
+    return categoryName.trim().toLowerCase();
+  }
 }
