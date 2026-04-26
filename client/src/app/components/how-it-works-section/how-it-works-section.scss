@@ -1,0 +1,56 @@
+@use '../../../sass/abstracts/mixins';
+@use '../../../sass/components/how-it-works-shared';
+
+:host {
+  display: block;
+}
+
+.how-it-works {
+  padding: 5rem 0;
+  background: var(--gradient-bg);
+}
+
+.how-it-works__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.how-it-works__steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.6rem;
+
+  @include mixins.respond(md) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @include mixins.respond(xl) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+.how-it-works__steps::before {
+  content: '';
+  display: none;
+  position: absolute;
+  top: 39px;
+  left: 10%;
+  right: 10%;
+  height: 1.5px;
+  background: var(--color-primary);
+
+  @include mixins.respond(xl) {
+    display: block;
+  }
+}
+
+.how-it-works__step {
+  @extend %eventify-how-step-base;
+}
+
+.how-it-works__icon-shell {
+  @extend %eventify-how-icon-shell;
+}
