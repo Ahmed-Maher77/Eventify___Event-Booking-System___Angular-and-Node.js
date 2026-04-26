@@ -7,6 +7,7 @@
 @use './sass/components/header-shared';
 @use './sass/components/how-it-works-shared';
 @use './sass/components/landing-shared';
+@use './sass/components/testimonials-shared';
 @use './sass/components/trusted-companies-shared';
 
 @import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -66,6 +67,13 @@ app-root {
   display: block;
   background: var(--color-homepage-bg);
   min-height: 100svh;
+}
+
+@media (max-width: 767.98px) {
+  .container,
+  .container-sm {
+    --bs-gutter-x: 3rem;
+  }
 }
 
 // ============ Shared Styles ============
