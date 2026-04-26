@@ -12,10 +12,10 @@
 .featured-events__inner {
   display: flex;
   flex-direction: column;
-  gap: 2.2rem;
+  gap: 2rem;
 
   @include mixins.respond(lg) {
-    gap: 3rem;
+    gap: 2rem;
   }
 }
 
