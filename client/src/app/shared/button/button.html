@@ -1,0 +1,34 @@
+@if (isLinkMode) {
+  <a
+    [ngClass]="classes"
+    [routerLink]="routerLink"
+    [href]="href || null"
+    [attr.target]="href ? target : null"
+    [attr.rel]="href ? rel : null"
+    [attr.aria-disabled]="isInactive"
+    (click)="onClick($event)"
+  >
+    @if (leftIcon) {
+      <i [class]="leftIcon + ' ev-btn__icon'" aria-hidden="true"></i>
+    }
+    <span class="ev-btn__label">{{ loading ? 'Please wait...' : label }}</span>
+    @if (rightIcon && !loading) {
+      <i [class]="rightIcon + ' ev-btn__icon'" aria-hidden="true"></i>
+    }
+  </a>
+} @else {
+  <button
+    [ngClass]="classes"
+    [attr.type]="buttonType"
+    [disabled]="isInactive"
+    (click)="onClick($event)"
+  >
+    @if (leftIcon) {
+      <i [class]="leftIcon + ' ev-btn__icon'" aria-hidden="true"></i>
+    }
+    <span class="ev-btn__label">{{ loading ? 'Please wait...' : label }}</span>
+    @if (rightIcon && !loading) {
+      <i [class]="rightIcon + ' ev-btn__icon'" aria-hidden="true"></i>
+    }
+  </button>
+}
