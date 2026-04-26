@@ -30,6 +30,7 @@
   gap: 0.75rem;
   overflow-x: auto;
   padding: 0.2rem 0.2rem 0.4rem;
+  margin-top: 1.3rem;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -89,6 +90,7 @@
   @extend %eventify-chip-base;
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   transition:
     transform 220ms ease,
     background-color 220ms ease,
@@ -107,6 +109,14 @@
     background: var(--color-primary);
     border-color: var(--color-chip-border);
   }
+}
+
+.featured-events__chip-icon {
+  width: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: currentcolor;
+  opacity: 0.95;
 }
 
 .featured-events__slider {
@@ -180,7 +190,6 @@
 }
 
 .featured-events__pagination {
-  margin-top: 1.4rem;
   margin-bottom: 0.25rem;
   display: flex;
   justify-content: center;

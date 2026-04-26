@@ -1,9 +1,10 @@
 <section class="featured-events">
   <div class="container featured-events__inner">
-    <div class="featured-events__heading">
-      <h2>Featured Events</h2>
-      <p>Discover what’s happening soon and what everyone’s booking now.</p>
-    </div>
+    <app-section-heading
+      title="Featured Events"
+      subtitle="Discover what’s happening soon and what everyone’s booking now."
+      align="center"
+    />
 
     @if (hasCategories) {
       <div class="featured-events__chips-shell" [class.is-overflowing]="hasTabsOverflow">
@@ -33,6 +34,7 @@
               [ngClass]="{ 'is-active': activeCategory === category }"
               (click)="setCategory(category)"
             >
+              <i class="featured-events__chip-icon" [class]="getCategoryIcon(category)" aria-hidden="true"></i>
               <span>{{ category }}</span>
             </button>
           }
