@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FeaturedEventCard, FeaturedEventCardData } from '../featured-event-card/featured-event-card';
+import { FeaturedEventCard } from '../featured-event-card/featured-event-card';
+import { FeaturedEventCardData } from '../featured-event-card/featured-event-card.model';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
