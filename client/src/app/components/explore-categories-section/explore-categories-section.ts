@@ -2,12 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
-
-interface ExploreCategoryItem {
-  name: string;
-  description: string;
-  iconClass: string;
-}
+import { ExploreCategoryItem } from './explore-categories-section.model';
 
 @Component({
   selector: 'app-explore-categories-section',
