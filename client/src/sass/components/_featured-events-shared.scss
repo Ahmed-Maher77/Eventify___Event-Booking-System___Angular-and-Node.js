@@ -1,0 +1,54 @@
+%eventify-section-heading {
+  text-align: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    color: var(--color-black);
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0.75rem 0 0;
+    color: var(--color-gray);
+    font-size: 1.06rem;
+    line-height: 1.55;
+  }
+}
+
+%eventify-chip-base {
+  border: 1px solid var(--color-chip-border);
+  background: var(--color-chip-bg);
+  color: var(--color-chip-text);
+  border-radius: 9999px;
+  min-height: 37px;
+  padding: 0 17px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+%eventify-meta-row {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-meta-text);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+// Generate lightweight category tone hooks for future reuse.
+$event-category-tones: (
+  concert: var(--color-primary),
+  workshop: var(--color-primary),
+  conference: var(--color-primary),
+  seminar: var(--color-primary)
+);
+
+@each $name, $bg in $event-category-tones {
+  .event-category-badge--#{$name} {
+    background: $bg;
+  }
+}
