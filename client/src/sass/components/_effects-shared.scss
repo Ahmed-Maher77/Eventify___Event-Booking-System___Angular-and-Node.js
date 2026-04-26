@@ -1,0 +1,42 @@
+@mixin eventify-shine-host(
+  $inset: -25% -70%,
+  $duration: 980ms,
+  $start-x: -120%,
+  $angle: 4deg
+) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: $inset;
+    background: linear-gradient(
+      110deg,
+      transparent 35%,
+      rgb(255 255 255 / 0%) 44%,
+      rgb(255 255 255 / 42%) 50%,
+      rgb(255 255 255 / 0%) 56%,
+      transparent 65%
+    );
+    transform: translateX($start-x) rotate($angle);
+    transition: transform $duration cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+@mixin eventify-shine-trigger(
+  $scale: 1.04,
+  $end-x: 120%,
+  $angle: 4deg
+) {
+  &:hover {
+    transform: scale($scale);
+  }
+
+  &:hover::after {
+    transform: translateX($end-x) rotate($angle);
+  }
+}
