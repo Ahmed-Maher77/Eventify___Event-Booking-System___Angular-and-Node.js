@@ -1,0 +1,22 @@
+<div class="route-loader-overlay" [class.visible]="isNavigating()">
+  <app-loader></app-loader>
+</div>
+
+@if (!showAdminSidebar()) {
+  <app-header></app-header>
+
+  <!-- <main class="container py-4 page-main page-main--with-fixed-header"> -->
+  <main class="page-main pb-4">
+      <router-outlet></router-outlet>
+  </main>
+} @else {
+  <div class="admin-layout">
+    <app-admin-sidebar></app-admin-sidebar>
+
+    <main class="admin-content p-4 page-main">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+}
+
+<app-footer></app-footer>

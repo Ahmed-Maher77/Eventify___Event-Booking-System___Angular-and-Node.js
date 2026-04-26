@@ -1,0 +1,18 @@
+<section class="how-it-works">
+  <div class="container how-it-works__inner">
+    <app-section-heading title="How It works?" subtitle="Book your next event in minutes." align="center" />
+
+    <div class="how-it-works__steps">
+      @for (step of steps; track step.title) {
+        <article class="how-it-works__step">
+          <div class="how-it-works__icon-shell">
+            <i [class]="step.iconClass" aria-hidden="true"></i>
+          </div>
+
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </article>
+      }
+    </div>
+  </div>
+</section>

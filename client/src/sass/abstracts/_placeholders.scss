@@ -1,0 +1,16 @@
+%footer-link-base {
+  color: var(--color-text-light);
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-white);
+  }
+}
+
+%footer-heading {
+  color: var(--color-white);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}

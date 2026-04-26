@@ -1,0 +1,10 @@
+.logo-marquee-shell {
+  overflow: hidden;
+  width: 100%;
+}
+
+.logo-marquee-track {
+  display: inline-flex;
+  width: max-content;
+  will-change: transform;
+}

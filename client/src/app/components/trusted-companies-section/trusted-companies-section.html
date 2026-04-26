@@ -1,0 +1,20 @@
+<section class="trusted-companies">
+  <div class="trusted-companies__content">
+    <p class="trusted-companies__title">Many of world’s leading companies trust Eventify</p>
+
+    <div class="trusted-companies__marquee logo-marquee-shell" (mouseenter)="pauseAnimation()" (mouseleave)="resumeAnimation()">
+      <div #marqueeTrack class="trusted-companies__track logo-marquee-track">
+        <div class="trusted-companies__group">
+          @for (logo of logos; track logo.src) {
+            <img [src]="logo.src" [alt]="logo.alt" class="trusted-companies__logo" loading="lazy" />
+          }
+        </div>
+        <div class="trusted-companies__group" aria-hidden="true">
+          @for (logo of logos; track logo.src + '-duplicate') {
+            <img [src]="logo.src" [alt]="logo.alt" class="trusted-companies__logo" loading="lazy" />
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

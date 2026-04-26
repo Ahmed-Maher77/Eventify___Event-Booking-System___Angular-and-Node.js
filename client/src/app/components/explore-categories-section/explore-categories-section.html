@@ -1,0 +1,32 @@
+<section class="explore-categories">
+  <div class="container explore-categories__inner">
+    <div class="explore-categories__header">
+      <app-section-heading title="Explore by Category" subtitle="Find events that match your interests." align="left" />
+
+      <a class="explore-categories__view-all" [routerLink]="['/events']">
+        <span>View All Categories</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="explore-categories__grid">
+      @for (category of categories; track category.name) {
+        <a
+          class="explore-categories__card"
+          [routerLink]="['/events']"
+          [queryParams]="{ category: categoryToQuery(category.name) }"
+          [attr.aria-label]="'Browse ' + category.name + ' events'"
+        >
+          <span class="explore-categories__icon-shell" aria-hidden="true">
+            <i [class]="category.iconClass"></i>
+          </span>
+
+          <div class="explore-categories__copy">
+            <h3>{{ category.name }}</h3>
+            <p>{{ category.description }}</p>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</section>

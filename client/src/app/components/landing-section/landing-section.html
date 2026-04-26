@@ -1,0 +1,42 @@
+<section class="landing-hero">
+  <div class="landing-hero__overlay"></div>
+
+  <div class="container landing-hero__content">
+    <span class="landing-pill landing-hero__eyebrow">LET US GUIDE YOUR NEXT EVENT</span>
+
+    <div class="landing-hero__title-wrap">
+      <h1 class="landing-hero__title">
+        <span #typedHeadline></span>
+      </h1>
+    </div>
+
+    <form class="landing-hero__search" (submit)="$event.preventDefault()">
+      <input type="text" class="landing-hero__search-input" placeholder="Search events, cities, or categories..." />
+      <button type="submit" class="landing-hero__search-btn" aria-label="Search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      </button>
+    </form>
+
+    <div class="landing-hero__actions">
+      <app-button
+        label="Browse Events"
+        variant="primary"
+        size="lg"
+        [rounded]="true"
+        rightIcon="fa-solid fa-arrow-right"
+        customClass="landing-hero__browse-btn diagonal-swipe-hover"
+        [routerLink]="'/events'"
+      ></app-button>
+
+      <app-button
+        label="Create Account"
+        variant="outline"
+        size="lg"
+        [rounded]="true"
+        rightIcon="fa-solid fa-right-to-bracket"
+        customClass="diagonal-swipe-hover"
+        [routerLink]="'/register'"
+      ></app-button>
+    </div>
+  </div>
+</section>

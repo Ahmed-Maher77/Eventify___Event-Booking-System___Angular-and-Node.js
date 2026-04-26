@@ -1,0 +1,63 @@
+@use './effects-shared';
+
+%eventify-how-step-base {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  h3 {
+    margin: 0;
+    color: var(--color-black);
+    font-size: 2.1vh;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-gray);
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 90%;
+  }
+}
+
+%eventify-how-icon-shell {
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  border: 2px solid var(--color-white-stroke);
+  background: var(--color-primary);
+  color: var(--color-black);
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 300ms ease;
+  @include effects-shared.eventify-shine-host(-30% -70%, 980ms, -120%, 4deg);
+  @include effects-shared.eventify-shine-trigger(1.04, 120%, 4deg);
+}
+
+$how-step-delays: (1, 2, 3, 4, 5);
+
+@each $index in $how-step-delays {
+  .how-it-works__step:nth-child(#{$index}) {
+    animation: eventify-how-step-in 480ms ease both;
+    animation-delay: #{$index * 90}ms;
+  }
+}
+
+@keyframes eventify-how-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

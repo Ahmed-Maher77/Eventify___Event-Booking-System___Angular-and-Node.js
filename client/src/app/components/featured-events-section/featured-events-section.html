@@ -1,0 +1,95 @@
+<section class="featured-events">
+  <div class="container featured-events__inner">
+    <app-section-heading
+      title="Featured Events"
+      subtitle="Discover what’s happening soon and what everyone’s booking now."
+      align="center"
+    />
+
+    @if (hasCategories) {
+      <div class="featured-events__chips-shell" [class.is-overflowing]="hasTabsOverflow">
+        @if (hasTabsOverflow) {
+          <button
+            type="button"
+            class="featured-events__tabs-nav featured-events__tabs-nav--left"
+            [disabled]="!canScrollTabsLeft"
+            (click)="scrollTabs('left')"
+            aria-label="Scroll categories left"
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        }
+
+        <div
+          #chipsTrack
+          class="featured-events__chips"
+          role="tablist"
+          aria-label="Event categories"
+          (scroll)="updateTabsOverflowState()"
+        >
+          @for (category of categories; track category) {
+            <button
+              type="button"
+              class="featured-events__chip"
+              [ngClass]="{ 'is-active': activeCategory === category }"
+              (click)="setCategory(category)"
+            >
+              <i class="featured-events__chip-icon" [class]="getCategoryIcon(category)" aria-hidden="true"></i>
+              <span>{{ category }}</span>
+            </button>
+          }
+        </div>
+
+        @if (hasTabsOverflow) {
+          <button
+            type="button"
+            class="featured-events__tabs-nav featured-events__tabs-nav--right"
+            [disabled]="!canScrollTabsRight"
+            (click)="scrollTabs('right')"
+            aria-label="Scroll categories right"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        }
+      </div>
+
+      @if (hasFilteredEvents) {
+        @if (shouldUseSwiper) {
+          <swiper-container #featuredSwiper class="featured-events__slider" [class.is-filtering]="isFiltering" init="false">
+            @for (event of filteredEvents; track event.id) {
+              <swiper-slide>
+                <app-featured-event-card [event]="event"></app-featured-event-card>
+              </swiper-slide>
+            }
+          </swiper-container>
+        } @else {
+          <div class="featured-events__grid">
+            @for (event of filteredEvents; track event.id) {
+              <app-featured-event-card [event]="event"></app-featured-event-card>
+            }
+          </div>
+        }
+
+        @if (shouldUseSwiper) {
+          <div #featuredPagination class="featured-events__pagination swiper-pagination" [class.is-hidden]="!showPagination"></div>
+        }
+      } @else {
+        <div class="featured-events__fallback" role="status" aria-live="polite">
+          <span class="featured-events__fallback-icon" aria-hidden="true">
+            <i class="fa-regular fa-calendar-xmark"></i>
+          </span>
+          <h3>No events in this category yet</h3>
+          <p>We are curating new experiences for this category. Try another one or check back soon.</p>
+        </div>
+      }
+    } @else {
+      <div class="featured-events__fallback" role="status" aria-live="polite">
+        <span class="featured-events__fallback-icon" aria-hidden="true">
+          <i class="fa-regular fa-folder-open"></i>
+        </span>
+        <h3>Categories are being prepared</h3>
+        <p>Event categories will appear here once they are published.</p>
+      </div>
+    }
+  </div>
+</section>

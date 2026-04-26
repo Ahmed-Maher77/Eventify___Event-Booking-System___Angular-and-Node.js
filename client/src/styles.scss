@@ -1,0 +1,86 @@
+@use './sass/abstracts/mixins';
+@use './sass/abstracts/placeholders';
+@use './sass/components/footer-shared';
+@use './sass/components/effects-shared';
+@use './sass/components/explore-categories-shared';
+@use './sass/components/featured-events-shared';
+@use './sass/components/header-shared';
+@use './sass/components/how-it-works-shared';
+@use './sass/components/landing-shared';
+@use './sass/components/trusted-companies-shared';
+
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+// Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --yellow-color: #ffbb00;
+  --color-primary: #e7c873;
+  --color-black: #1a1a1a;
+  --color-brown: #6a4d00;
+  --color-text-light: #d8d8d8;
+  --color-border-soft: rgb(231 200 115 / 13%);
+  --color-white: #ffffff;
+  --form-placeholder-color: #ffe7a58a;
+  --color-header-bg: #6f6f6f;
+  --color-header-text: #ffffff;
+  --color-landing-overlay-top: rgba(0, 0, 0, 0.53);
+  --color-landing-overlay-mid: rgba(0, 0, 0, 0.42);
+  --color-landing-overlay-bottom: rgba(0, 0, 0, 0);
+  --color-landing-search-bg: rgba(255, 255, 255, 0.9);
+  --color-eyebrow-bg: rgb(231 200 115 / 7%);
+  --color-homepage-bg: #f6f8fa;
+  --color-trusted-text: #1a1a1a;
+  --color-gray: #71717a;
+  --color-card-stroke: #e9e9e9;
+  --color-chip-bg: #f4f4f5;
+  --color-chip-border: #e4e4e7;
+  --color-chip-text: #18181b;
+  --color-meta-text: #52525b;
+  --color-meta-icon: #3f3f46;
+  --color-slider-dot: rgba(18, 34, 35, 0.2);
+  --color-slider-dot-active: #122223;
+  --color-slider-nav-bg: rgba(255, 255, 255, 0.9);
+  --color-slider-nav-border: #d4d4d8;
+  --color-category-card-bg: #f6f8fa;
+  --color-category-icon-bg: rgb(231 200 115 / 45%);
+  --color-white-stroke: #f6f8fa;
+  --gradient-bg: linear-gradient(180deg, #f6f8fa 0%, rgb(231 200 115 / 24%) 100%);
+  --gradient-bg-flipped: linear-gradient(180deg, rgb(231 200 115 / 24%) 0%, #f6f8fa 100%);
+  --logo-grayscale: 1;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: var(--color-homepage-bg);
+}
+
+html,
+body {
+  font-family: 'Roboto', sans-serif;
+  background: var(--color-homepage-bg);
+}
+
+app-root {
+  display: block;
+  background: var(--color-homepage-bg);
+  min-height: 100svh;
+}
+
+// ============ Shared Styles ============
+.small-text {
+  font-size: 0.95rem;
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-black);
+}
+
+::-moz-selection {
+  background: var(--color-primary);
+  color: var(--color-black);
+}
