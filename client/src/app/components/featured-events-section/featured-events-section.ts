@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FeaturedEventCard, FeaturedEventCardData } from '../featured-event-card/featured-event-card';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
@@ -13,7 +13,7 @@ register();
   styleUrl: './featured-events-section.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class FeaturedEventsSection implements AfterViewInit, OnDestroy {
+export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('featuredSwiper') private featuredSwiper?: ElementRef<SwiperContainer>;
   @ViewChild('featuredPagination') private featuredPagination?: ElementRef<HTMLElement>;
   @ViewChild('chipsTrack') private chipsTrack?: ElementRef<HTMLElement>;
@@ -154,8 +154,12 @@ export class FeaturedEventsSection implements AfterViewInit, OnDestroy {
     return this.filteredEvents.length > this.currentSlidesPerView;
   }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
+    // Initialize responsive-driven template values before first change detection cycle.
     this.updateResponsiveState();
+  }
+
+  ngAfterViewInit(): void {
     this.configureSwiper();
     queueMicrotask(() => this.updateTabsOverflowState());
   }
