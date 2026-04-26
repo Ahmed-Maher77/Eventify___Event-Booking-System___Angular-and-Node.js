@@ -1,0 +1,23 @@
+<article class="featured-event-card">
+  <figure class="featured-event-card__image-wrap">
+    <img [src]="event.imageUrl" [alt]="event.title" class="featured-event-card__image" loading="lazy" />
+    <span class="featured-event-card__badge">{{ event.category }}</span>
+  </figure>
+
+  <div class="featured-event-card__body">
+    <div class="featured-event-card__heading">
+      <h3 class="featured-event-card__title">{{ event.title }}</h3>
+      <div class="featured-event-card__price">
+        <span class="featured-event-card__price-label">Price from</span>
+        <strong>{{ event.priceFrom }}</strong>
+      </div>
+    </div>
+
+    <div class="featured-event-card__meta">
+      <p><i class="fa-regular fa-calendar"></i>{{ event.dateText }}</p>
+      <p><i class="fa-solid fa-location-dot"></i>{{ event.location }}</p>
+    </div>
+
+    <a class="featured-event-card__action" [routerLink]="['/events', event.id]">View Details</a>
+  </div>
+</article>
