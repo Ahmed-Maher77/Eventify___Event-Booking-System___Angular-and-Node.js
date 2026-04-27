@@ -41,12 +41,22 @@
 }
 
 .not-found-page__search-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-not-found-placeholder);
+  font-size: 0.93rem;
+}
+
+.not-found-page__search-btn {
   position: absolute;
   right: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-not-found-placeholder);
-  font-size: 0.93rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
 }
 
 .not-found-page__note {
