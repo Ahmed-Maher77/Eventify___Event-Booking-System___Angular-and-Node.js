@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 import { HowItWorksStep } from './how-it-works-section.model';
+import { AfterViewInit, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { setupHowItWorksAnimations } from './how-it-works-section.animations';
 
 @Component({
   selector: 'app-how-it-works-section',
@@ -9,7 +11,9 @@ import { HowItWorksStep } from './how-it-works-section.model';
   templateUrl: './how-it-works-section.html',
   styleUrl: './how-it-works-section.scss',
 })
-export class HowItWorksSection {
+export class HowItWorksSection implements AfterViewInit, OnDestroy {
+  @ViewChild('howItWorksRoot') private howItWorksRoot?: ElementRef<HTMLElement>;
+  private howItWorksContext: ReturnType<typeof setupHowItWorksAnimations> | null = null;
   protected readonly steps: HowItWorksStep[] = [
     {
       title: 'Find Event',
@@ -37,4 +41,13 @@ export class HowItWorksSection {
       iconClass: 'fa-solid fa-shield-halved'
     }
   ];
+
+  ngAfterViewInit(): void {
+    this.howItWorksContext = setupHowItWorksAnimations(this.howItWorksRoot?.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.howItWorksContext?.revert();
+    this.howItWorksContext = null;
+  }
 }
