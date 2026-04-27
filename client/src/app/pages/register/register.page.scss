@@ -69,7 +69,7 @@
 }
 
 .auth-page__headline {
-  margin: 1.2rem 0 0;
+  margin: 1.5rem 0 0;
   color: var(--color-black);
   font-size: clamp(1.35rem, 2.7vw, 2rem);
   line-height: 1.25;
@@ -110,6 +110,16 @@
   @media (min-width: 992px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 1rem;
+  }
+}
+
+.auth-page__form > app-button {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+
+  @media (min-width: 992px) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -161,6 +171,10 @@
   font-size: 0.92rem;
 }
 
+.auth-page__required {
+  color: var(--color-danger);
+}
+
 .auth-page__input {
   width: 100%;
   border: 1px solid var(--color-chip-border);
@@ -196,43 +210,51 @@
   border: 0;
 }
 
-.auth-page__file-input {
+.auth-page__upload-dropzone {
   width: 100%;
-  border: 1px solid var(--color-chip-border);
+  border: 2px dashed rgb(171 126 0 / 46%);
   border-radius: 12px;
-  background: var(--color-white);
-  color: var(--color-black);
-  padding: 0.45rem 0.5rem;
+  background: linear-gradient(180deg, rgb(231 200 115 / 10%) 0%, rgb(231 200 115 / 4%) 100%);
+  padding: 0.9rem 0.95rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.65rem;
+  text-align: center;
+  gap: 0.25rem;
   cursor: pointer;
   transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease;
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease;
 
   &:hover {
-    border-color: rgb(231 200 115 / 65%);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgb(231 200 115 / 16%);
   }
 }
 
-.auth-page__file-btn {
-  border-radius: 9px;
-  border: 1px solid var(--color-primary);
-  background: rgb(231 200 115 / 26%);
-  color: var(--color-black);
-  padding: 0.38rem 0.62rem;
-  font-size: 0.84rem;
-  font-weight: 600;
-  white-space: nowrap;
+.auth-page__upload-icon {
+  font-size: 1.1rem;
+  color: var(--color-brown);
+  margin-bottom: 0.05rem;
 }
 
-.auth-page__file-name {
+.auth-page__upload-cta {
+  color: var(--color-black);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.auth-page__upload-instructions {
   color: var(--color-gray);
-  font-size: 0.87rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+
+.auth-page__upload-file-name {
+  color: var(--color-gray);
+  font-size: 0.84rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .auth-page__error {
