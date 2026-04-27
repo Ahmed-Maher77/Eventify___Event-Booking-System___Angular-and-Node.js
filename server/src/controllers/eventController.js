@@ -15,6 +15,7 @@ const getEvents = async (req, res) => {
             page = 1,
             limit = 10,
             search = "",
+            name = "",
             category = "",
             location = "",
             minPrice,
@@ -40,8 +41,25 @@ const getEvents = async (req, res) => {
             ];
         }
 
-        if (category) {
-            filter.category = category;
+        if (name) {
+            filter.title = { $regex: name, $options: "i" };
+        }
+
+        if (category && category.toLowerCase() !== "all") {
+            const normalizedCategory = category.toLowerCase();
+            const featuredCategories = [
+                "concert",
+                "conference",
+                "workshop",
+                "seminar",
+                "sports",
+            ];
+
+            if (normalizedCategory === "other") {
+                filter.category = { $nin: featuredCategories };
+            } else {
+                filter.category = normalizedCategory;
+            }
         }
 
         if (location) {

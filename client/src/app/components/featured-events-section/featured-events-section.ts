@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FeaturedEventCard } from '../featured-event-card/featured-event-card';
 import { FeaturedEventCardData } from '../featured-event-card/featured-event-card.model';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
+import { EventApiItem, EventService } from '../../services/event.service';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
+import { Subscription } from 'rxjs';
 
 register();
 
@@ -22,6 +24,8 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chipsTrack') private chipsTrack?: ElementRef<HTMLElement>;
   private filterAnimationTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private syncUiRafId: number | null = null;
+  private featuredEventsSubscription: Subscription | null = null;
+  private readonly eventService = inject(EventService);
 
   protected readonly categories = [
     'All',
@@ -51,71 +55,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   protected currentSlidesPerView = 1;
   protected showPagination = false;
 
-  protected readonly events: FeaturedEventCardData[] = [
-    {
-      id: 'evt-1',
-      title: 'Neon Nights 2024',
-      category: 'Concert',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Concert.png'
-    },
-    {
-      id: 'evt-2',
-      title: 'Neon Nights 2024',
-      category: 'Workshop',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Workshop.png'
-    },
-    {
-      id: 'evt-3',
-      title: 'Neon Nights 2024',
-      category: 'Conference',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Conference.jpg'
-    },
-    {
-      id: 'evt-4',
-      title: 'Neon Nights 2024',
-      category: 'Seminar',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Seminar.jpg'
-    },
-    {
-      id: 'evt-5',
-      title: 'City Beats Festival',
-      category: 'Concert',
-      dateText: 'Nov 2, 2024 • 19:30',
-      location: 'Staples Center, LA',
-      priceFrom: '$39.00',
-      imageUrl: '/images/Concert-1.png'
-    },
-    {
-      id: 'evt-6',
-      title: 'Championship Fan Day',
-      category: 'Sports',
-      dateText: 'Nov 18, 2024 • 17:00',
-      location: 'National Arena, Chicago',
-      priceFrom: '$32.00',
-      imageUrl: '/images/Sports.jpg'
-    },
-    // {
-    //   id: 'evt-7',
-    //   title: 'Creative Communities Meetup',
-    //   category: 'Other',
-    //   dateText: 'Dec 1, 2024 • 18:30',
-    //   location: 'Downtown Hub, Austin',
-    //   priceFrom: '$18.00',
-    //   imageUrl: 'https://www.figma.com/api/mcp/asset/c057786c-9e8f-48cb-a74a-308d3c9f12b7'
-    // }
-  ];
+  protected events: FeaturedEventCardData[] = [];
 
   protected setCategory(category: (typeof this.categories)[number]): void {
     if (this.activeCategory === category) {
@@ -125,16 +65,11 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     this.activeCategory = category;
     this.isFiltering = true;
     this.updateResponsiveState();
-
-    this.scheduleUiSync();
+    this.loadFeaturedEvents();
   }
 
   protected get filteredEvents(): FeaturedEventCardData[] {
-    if (this.activeCategory === 'All') {
-      return this.events;
-    }
-
-    return this.events.filter((event) => event.category === this.activeCategory);
+    return this.events;
   }
 
   protected get hasCategories(): boolean {
@@ -152,6 +87,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     // Initialize responsive-driven template values before first change detection cycle.
     this.updateResponsiveState();
+    this.loadFeaturedEvents();
   }
 
   ngAfterViewInit(): void {
@@ -169,6 +105,9 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       cancelAnimationFrame(this.syncUiRafId);
       this.syncUiRafId = null;
     }
+
+    this.featuredEventsSubscription?.unsubscribe();
+    this.featuredEventsSubscription = null;
   }
 
   @HostListener('window:resize')
@@ -330,5 +269,79 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
         this.filterAnimationTimeoutId = null;
       }, 420);
     });
+  }
+
+  private loadFeaturedEvents(): void {
+    this.featuredEventsSubscription?.unsubscribe();
+    this.featuredEventsSubscription = this.eventService
+      .getFeaturedEvents({
+        category: this.toApiCategory(this.activeCategory),
+        limit: 12
+      })
+      .subscribe({
+        next: (response) => {
+          this.events = (response.data?.events ?? []).map((event) => this.mapEventToCard(event));
+          this.updateResponsiveState();
+          this.scheduleUiSync();
+        },
+        error: () => {
+          this.events = [];
+          this.updateResponsiveState();
+          this.scheduleUiSync();
+        }
+      });
+  }
+
+  private toApiCategory(category: (typeof this.categories)[number]): string | undefined {
+    if (category === 'All') {
+      return undefined;
+    }
+
+    return category.toLowerCase();
+  }
+
+  private mapEventToCard(event: EventApiItem): FeaturedEventCardData {
+    return {
+      id: event._id,
+      title: event.title,
+      category: this.toDisplayCategory(event.category),
+      dateText: this.formatEventDate(event.date),
+      location: event.location,
+      priceFrom: `$${Number(event.price).toFixed(2)}`,
+      imageUrl: event.image || '/images/event-placeholder.svg'
+    };
+  }
+
+  private toDisplayCategory(rawCategory: string): string {
+    const normalized = rawCategory.trim().toLowerCase();
+    const knownCategories: Record<string, string> = {
+      concert: 'Concert',
+      conference: 'Conference',
+      workshop: 'Workshop',
+      seminar: 'Seminar',
+      sports: 'Sports'
+    };
+
+    return knownCategories[normalized] ?? 'Other';
+  }
+
+  private formatEventDate(dateIso: string): string {
+    const date = new Date(dateIso);
+    if (Number.isNaN(date.getTime())) {
+      return dateIso;
+    }
+
+    const datePart = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
+    const timePart = new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(date);
+
+    return `${datePart} • ${timePart}`;
   }
 }
