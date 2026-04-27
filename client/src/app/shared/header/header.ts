@@ -71,6 +71,10 @@ export class Header {
     this.isProfileMenuOpen.set(false);
   }
 
+  protected onMainHeaderNavCollapsed(): void {
+    this.closeProfileMenu();
+  }
+
   protected logout(): void {
     this.authService.logout();
     this.isProfileMenuOpen.set(false);

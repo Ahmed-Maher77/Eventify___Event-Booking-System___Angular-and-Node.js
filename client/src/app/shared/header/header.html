@@ -21,7 +21,13 @@
       </span>
     </button>
 
-    <div #mainHeaderNavRef id="mainHeaderNav" class="collapse navbar-collapse eventify-header__collapse">
+    <div
+      #mainHeaderNavRef
+      id="mainHeaderNav"
+      class="collapse navbar-collapse eventify-header__collapse"
+      (hide.bs.collapse)="onMainHeaderNavCollapsed()"
+      (hidden.bs.collapse)="onMainHeaderNavCollapsed()"
+    >
       <app-header-nav-links
         [links]="navLinks"
         [isSolidStyle]="!shouldUseHomeHeaderStyle()"
