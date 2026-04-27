@@ -1,8 +1,55 @@
-<section class="static-info-page">
-  <div class="container static-info-page__container">
-    <h1 class="static-info-page__title">Frequently Asked Questions</h1>
-    <p class="static-info-page__subtitle">
-      Find quick answers about booking events, payments, cancellations, and account management.
-    </p>
+<section class="faq-page">
+  <div class="container faq-page__container">
+    <div class="faq-page__content">
+      <header class="faq-page__header">
+        <p class="faq-page__eyebrow">Support</p>
+        <h1 class="faq-page__title">
+          Frequently Ask <span>Questions</span>
+        </h1>
+        <p class="faq-page__subtitle">
+          Find quick answers about bookings, payments, cancellations, and account help.
+        </p>
+      </header>
+
+      <div class="faq-page__list">
+        @for (item of faqs; track item.id; let idx = $index) {
+          <article class="faq-item" [class.is-open]="isOpen(idx)">
+            <button
+              type="button"
+              class="faq-item__question"
+              [attr.aria-expanded]="isOpen(idx)"
+              [attr.aria-controls]="'faq-answer-' + item.id"
+              (click)="toggleFaq(idx)"
+            >
+              <span class="faq-item__index">{{ item.id }}</span>
+              <span class="faq-item__text">{{ item.question }}</span>
+              <span class="faq-item__toggle" aria-hidden="true">{{ isOpen(idx) ? '−' : '+' }}</span>
+            </button>
+
+            <div class="faq-item__answer-wrap" [class.is-open]="isOpen(idx)">
+              <p class="faq-item__answer" [id]="'faq-answer-' + item.id">
+                {{ item.answer }}
+              </p>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+    <aside class="faq-page__aside" aria-label="Eventify support assistant">
+      <div class="faq-page__assistant-card">
+        <div class="faq-page__assistant-glow"></div>
+        <img
+          src="/images/users/sarah-picture.png"
+          alt="Eventify support assistant avatar"
+          class="faq-page__assistant-avatar"
+          loading="lazy"
+        />
+        <div class="faq-page__assistant-badge">
+          <i class="fa-solid fa-headset" aria-hidden="true"></i>
+          <span>Eventify Support</span>
+        </div>
+      </div>
+    </aside>
   </div>
 </section>
