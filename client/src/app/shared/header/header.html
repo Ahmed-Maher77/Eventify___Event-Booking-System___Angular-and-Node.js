@@ -22,21 +22,11 @@
     </button>
 
     <div #mainHeaderNavRef id="mainHeaderNav" class="collapse navbar-collapse eventify-header__collapse">
-      <ul class="navbar-nav eventify-header__nav-list">
-        @for (link of navLinks; track link.route) {
-          <li class="nav-item">
-            <a
-              class="eventify-header__nav-link"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }"
-              [routerLink]="link.route"
-              (click)="onNavItemClick()"
-            >
-              {{ link.label }}
-            </a>
-          </li>
-        }
-      </ul>
+      <app-header-nav-links
+        [links]="navLinks"
+        [isSolidStyle]="!shouldUseHomeHeaderStyle()"
+        (navigate)="onNavItemClick()"
+      />
 
       @if (!isLoggedIn()) {
         <div class="eventify-header__actions">
@@ -61,21 +51,17 @@
         </div>
       } @else {
         <div class="position-relative eventify-header__actions">
-          <button
-            class="header-pill-btn eventify-header__profile-btn"
-            type="button"
-            (click)="toggleProfileMenu()"
-          >
-            <img [src]="profileImageUrl" alt="Profile" class="header-avatar" />
-            <span>Profile</span>
-          </button>
-          @if (isProfileMenuOpen()) {
-            <ul class="dropdown-menu dropdown-menu-end show mt-2">
-              <li><a class="dropdown-item" routerLink="/profile" (click)="onNavItemClick()">My Profile</a></li>
-              <li><a class="dropdown-item" routerLink="/bookings" (click)="onNavItemClick()">My Bookings</a></li>
-              <button class="dropdown-item" (click)="logout()">Logout</button>
-            </ul>
-          }
+          <app-header-user-menu
+            [displayName]="getDisplayName()"
+            [displayEmail]="getDisplayEmail()"
+            [profileImageUrl]="getProfileImageUrl()"
+            [isOpen]="isProfileMenuOpen()"
+            [isSolidStyle]="!shouldUseHomeHeaderStyle()"
+            (toggle)="toggleProfileMenu()"
+            (close)="closeProfileMenu()"
+            (navigate)="onNavItemClick()"
+            (logout)="logout()"
+          />
         </div>
       }
     </div>
