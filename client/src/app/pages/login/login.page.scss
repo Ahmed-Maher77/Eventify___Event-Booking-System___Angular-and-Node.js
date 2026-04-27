@@ -231,11 +231,28 @@
     color: var(--color-brown);
     text-decoration: none;
     font-weight: 500;
+    position: relative;
+    display: inline-block;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: currentcolor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 220ms ease;
+    }
 
     &:hover {
       color: var(--color-black);
-      text-decoration: underline;
-      text-underline-offset: 2px;
+    }
+
+    &:hover::before {
+      transform: scaleX(1);
     }
   }
 }
