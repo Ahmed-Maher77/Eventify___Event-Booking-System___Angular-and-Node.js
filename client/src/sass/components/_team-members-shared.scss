@@ -30,6 +30,16 @@
   display: block;
 }
 
+@media (min-width: 1300px) {
+  %eventify-team-member-card {
+    min-height: 390px;
+  }
+
+  %eventify-team-member-image {
+    height: 390px;
+  }
+}
+
 %eventify-team-member-overlay {
   position: absolute;
   left: 12px;

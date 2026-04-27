@@ -75,7 +75,7 @@ export class AboutPage implements AfterViewInit, OnDestroy {
     {
       name: 'Mohamed Rashad',
       role: 'Mobile Developer',
-      imageUrl: '/images/team_members/mohamed-rashad.jpg',
+      imageUrl: '/images/team_members/mohamed-rashad.jpeg',
       profileUrl: 'https://www.linkedin.com/in/mohamed-rashad-2bb024288/'
     },
     {
