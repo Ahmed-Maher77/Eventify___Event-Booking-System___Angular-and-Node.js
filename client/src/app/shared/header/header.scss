@@ -10,6 +10,8 @@
   left: 0;
   right: 0;
   z-index: 1040;
+  --ev-btn-ghost-color: var(--color-white);
+  --ev-btn-ghost-hover-color: var(--color-primary);
 
   // background: rgba(0, 0, 0, 0.33);
   // backdrop-filter: blur(10px);
@@ -19,10 +21,15 @@
 
 .eventify-header--solid {
   top: 0;
-  background: #00000099;
-  backdrop-filter: blur(6px);
+  background: transparent;
+  backdrop-filter: blur(0px);
+  --ev-btn-ghost-color: var(--color-black);
+  --ev-btn-ghost-hover-color: var(--color-brown);
   // border: 1px solid rgb(26 26 26 / 9%);
-  box-shadow: 0 16px 30px -24px rgb(0 0 0 / 30%);
+  box-shadow: none;
+  .eventify-header__brand-logo {
+    filter: brightness(0) saturate(100%);
+  }
   .eventify-header__nav {
     margin-top: 0.25rem;
     min-height: 60px;
@@ -35,20 +42,27 @@
   }
 
   .eventify-header__nav-link {
-    color: var(--color-header-text);
+    color: var(--color-black);
     font-size: 0.95rem;
     padding: 0.35rem 0.45rem;
 
     &:hover,
     &.active {
-      color: var(--color-primary);
+      color: var(--color-brown);
+      &::before {
+        background: var(--color-brown);
+      }
     }
   }
-
-  .eventify-header__login-btn {
-    color: var(--color-black);
+  :host ::ng-deep .eventify-header__login-btn {
+    color: var(--color-black) !important;
     border-color: rgb(26 26 26 / 16%);
     background: transparent;
+
+    &:hover {
+      color: var(--color-brown) !important;
+      border-color: rgb(106 77 0 / 45%);
+    }
   }
 
   .eventify-header__cta-btn {
