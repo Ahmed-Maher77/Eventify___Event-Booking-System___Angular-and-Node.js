@@ -13,10 +13,33 @@ export interface EventApiItem {
   image?: string;
 }
 
-interface EventsApiResponse {
+export interface EventsApiResponse {
   data: {
     events: EventApiItem[];
+    pagination?: {
+      currentPage: number;
+      totalPages: number;
+      totalEvents: number;
+      limit: number;
+    };
   };
+}
+
+export type EventSortField = 'date' | 'price' | 'title' | 'createdAt';
+export type EventSortOrder = 'asc' | 'desc';
+
+export interface EventQueryOptions {
+  page?: number;
+  limit?: number;
+  name?: string;
+  category?: string;
+  location?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  startDate?: string;
+  endDate?: string;
+  sort?: EventSortField;
+  order?: EventSortOrder;
 }
 
 @Injectable({
@@ -26,11 +49,12 @@ export class EventService {
   private readonly http = inject(HttpClient);
   private readonly eventsApiUrl = `${resolveApiBaseUrl()}/events`;
 
-  getFeaturedEvents(options: { name?: string; category?: string; limit?: number } = {}): Observable<EventsApiResponse> {
+  getEvents(options: EventQueryOptions = {}): Observable<EventsApiResponse> {
     let params = new HttpParams()
+      .set('page', String(options.page ?? 1))
       .set('limit', String(options.limit ?? 12))
-      .set('sort', 'date')
-      .set('order', 'asc');
+      .set('sort', options.sort ?? 'date')
+      .set('order', options.order ?? 'asc');
 
     if (options.name?.trim()) {
       params = params.set('name', options.name.trim());
@@ -41,6 +65,36 @@ export class EventService {
       params = params.set('category', normalizedCategory);
     }
 
+    if (options.location?.trim()) {
+      params = params.set('location', options.location.trim());
+    }
+
+    if (typeof options.minPrice === 'number') {
+      params = params.set('minPrice', String(options.minPrice));
+    }
+
+    if (typeof options.maxPrice === 'number') {
+      params = params.set('maxPrice', String(options.maxPrice));
+    }
+
+    if (options.startDate) {
+      params = params.set('startDate', options.startDate);
+    }
+
+    if (options.endDate) {
+      params = params.set('endDate', options.endDate);
+    }
+
     return this.http.get<EventsApiResponse>(this.eventsApiUrl, { params });
+  }
+
+  getFeaturedEvents(options: { name?: string; category?: string; limit?: number } = {}): Observable<EventsApiResponse> {
+    return this.getEvents({
+      name: options.name,
+      category: options.category,
+      limit: options.limit ?? 12,
+      sort: 'date',
+      order: 'asc'
+    });
   }
 }

@@ -4,5 +4,66 @@
     <p class="static-info-page__subtitle">
       Explore upcoming events and discover experiences tailored to your interests.
     </p>
+
+    <form class="d-flex flex-column flex-md-row gap-2 mt-3" (ngSubmit)="onSearchSubmit()">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by name..."
+        [(ngModel)]="queryState.name"
+        name="eventsSearchName"
+        (ngModelChange)="onSearchInputChanged()"
+      />
+      <select
+        class="form-select"
+        [ngModel]="queryState.sort + ':' + queryState.order"
+        (ngModelChange)="onSortChanged($event)"
+        name="eventsSort"
+      >
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+      <button type="submit" class="btn btn-dark">Search</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">Reset</button>
+    </form>
+
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      @for (category of categoryTabs; track category) {
+        <button
+          type="button"
+          class="btn"
+          [class.btn-dark]="queryState.category === category"
+          [class.btn-outline-dark]="queryState.category !== category"
+          (click)="setCategory(category)"
+        >
+          {{ category }}
+        </button>
+      }
+    </div>
+
+    @if (isLoading) {
+      <p class="mt-3 text-secondary">Loading events...</p>
+    } @else if (errorMessage) {
+      <div class="mt-3">
+        <p class="text-danger mb-2">{{ errorMessage }}</p>
+        <button type="button" class="btn btn-outline-dark btn-sm" (click)="retryLoad()">Try again</button>
+      </div>
+    } @else {
+      <p class="mt-3 text-secondary">Found {{ totalEvents }} event(s).</p>
+      <ul class="list-group mt-2">
+        @for (event of events; track event._id) {
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ event.title }}</strong>
+              <div class="text-muted small">{{ event.location }} • {{ event.category }}</div>
+            </div>
+            <span class="badge text-bg-dark">${{ event.price }}</span>
+          </li>
+        } @empty {
+          <li class="list-group-item text-muted">No events match the current filters.</li>
+        }
+      </ul>
+    }
   </div>
 </section>
