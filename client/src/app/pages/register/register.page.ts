@@ -3,12 +3,14 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Button } from '../../shared/button/button';
 
 @Component({
   selector: 'app-register-page',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './register.page.html'
+  imports: [ReactiveFormsModule, RouterLink, Button],
+  templateUrl: './register.page.html',
+  styleUrl: './register.page.scss'
 })
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);

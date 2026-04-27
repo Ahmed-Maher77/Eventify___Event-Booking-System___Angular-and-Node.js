@@ -1,111 +1,125 @@
-<section class="row justify-content-center">
-  <div class="col-12 col-md-8 col-lg-5">
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-4">
-        <h1 class="h4 mb-3">Create Account</h1>
-        <p class="text-muted mb-4">Join Eventify and start booking your next event.</p>
+<section class="auth-page">
+  <div class="container">
+    <div class="auth-page__shell">
+      <aside class="auth-page__aside">
+        <span class="auth-page__eyebrow">Welcome to Eventify</span>
+        <h1 class="auth-page__headline">Create your account in minutes.</h1>
+        <p class="auth-page__aside-copy">
+          Join Eventify to book events faster, track tickets, and personalize your event experience.
+        </p>
+      </aside>
 
-        @if (errorMessage()) {
-          <div class="alert alert-danger py-2" role="alert">{{ errorMessage() }}</div>
-        }
+      <div class="auth-page__card">
+        <div class="auth-page__body">
+          <h2 class="auth-page__title">Create Account</h2>
+          <p class="auth-page__subtitle">Set up your profile and start exploring events.</p>
 
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-          <div class="mb-3">
-            <label for="register-name" class="form-label">Name</label>
-            <input id="register-name" type="text" class="form-control" formControlName="name" />
-            @if (registerForm.controls.name.touched && registerForm.controls.name.invalid) {
-              <small class="text-danger">Name must be at least 2 characters.</small>
-            }
-          </div>
-
-          <div class="mb-3">
-            <label for="register-email" class="form-label">Email</label>
-            <input id="register-email" type="email" class="form-control" formControlName="email" />
-            @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
-              <small class="text-danger">Please enter a valid email.</small>
-            }
-          </div>
-
-          <div class="mb-3">
-            <label for="register-password" class="form-label">Password</label>
-            <input
-              id="register-password"
-              type="password"
-              class="form-control"
-              formControlName="password"
-            />
-            @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
-              <small class="text-danger">Password must be at least 6 characters.</small>
-            }
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label mb-2 d-block">Profile Picture (optional)</label>
-            <div class="btn-group w-100" role="tablist" aria-label="Picture upload mode">
-              <button
-                type="button"
-                class="btn"
-                [class.btn-warning]="pictureMode() === 'file'"
-                [class.btn-outline-secondary]="pictureMode() !== 'file'"
-                [attr.aria-selected]="pictureMode() === 'file'"
-                (click)="setPictureMode('file')"
-              >
-                Upload File
-              </button>
-              <button
-                type="button"
-                class="btn"
-                [class.btn-warning]="pictureMode() === 'url'"
-                [class.btn-outline-secondary]="pictureMode() !== 'url'"
-                [attr.aria-selected]="pictureMode() === 'url'"
-                (click)="setPictureMode('url')"
-              >
-                Use URL
-              </button>
-            </div>
-          </div>
-
-          @if (pictureMode() === 'file') {
-            <div class="mb-3">
-              <label for="register-image" class="form-label">Upload Picture (optional)</label>
-              <input
-                id="register-image"
-                type="file"
-                class="form-control"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                (change)="onImageSelected($event)"
-              />
-              @if (selectedImageName()) {
-                <small class="text-muted d-block mt-1">Selected: {{ selectedImageName() }}</small>
-              }
-            </div>
-          } @else {
-            <div class="mb-3">
-              <label for="register-picture-url" class="form-label">Picture URL (optional)</label>
-              <input
-                id="register-picture-url"
-                type="url"
-                class="form-control"
-                formControlName="pictureUrl"
-                placeholder="https://example.com/profile.jpg"
-              />
-              @if (registerForm.controls.pictureUrl.touched && registerForm.controls.pictureUrl.invalid) {
-                <small class="text-danger">Enter a valid URL starting with http:// or https://</small>
-              } @else {
-                <small class="text-muted">Paste a direct image URL.</small>
-              }
-            </div>
+          @if (errorMessage()) {
+            <div class="auth-page__alert" role="alert">{{ errorMessage() }}</div>
           }
 
-          <button type="submit" class="btn btn-warning w-100" [disabled]="isSubmitting()">
-            {{ isSubmitting() ? 'Creating account...' : 'Register' }}
-          </button>
-        </form>
+          <form class="auth-page__form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="auth-page__field auth-page__field--half">
+              <label for="register-name" class="auth-page__label">Name</label>
+              <input id="register-name" type="text" class="auth-page__input" formControlName="name" />
+              @if (registerForm.controls.name.touched && registerForm.controls.name.invalid) {
+                <small class="auth-page__error">Name must be at least 2 characters.</small>
+              }
+            </div>
 
-        <p class="mt-3 mb-0 text-center">
-          Already have an account?
-          <a routerLink="/login">Login</a>
-        </p>
+            <div class="auth-page__field auth-page__field--half">
+              <label for="register-email" class="auth-page__label">Email</label>
+              <input id="register-email" type="email" class="auth-page__input" formControlName="email" />
+              @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+                <small class="auth-page__error">Please enter a valid email.</small>
+              }
+            </div>
+
+            <div class="auth-page__field auth-page__field--full">
+              <label for="register-password" class="auth-page__label">Password</label>
+              <input id="register-password" type="password" class="auth-page__input" formControlName="password" />
+              @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+                <small class="auth-page__error">Password must be at least 6 characters.</small>
+              }
+            </div>
+
+            <div class="auth-page__field auth-page__field--full">
+              <label class="auth-page__label">Profile Picture (optional)</label>
+              <div class="auth-page__mode-switch" role="tablist" aria-label="Picture upload mode">
+                <button
+                  type="button"
+                  class="auth-page__mode-btn"
+                  [class.is-active]="pictureMode() === 'file'"
+                  [attr.aria-selected]="pictureMode() === 'file'"
+                  (click)="setPictureMode('file')"
+                >
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  class="auth-page__mode-btn"
+                  [class.is-active]="pictureMode() === 'url'"
+                  [attr.aria-selected]="pictureMode() === 'url'"
+                  (click)="setPictureMode('url')"
+                >
+                  Use URL
+                </button>
+              </div>
+            </div>
+
+            @if (pictureMode() === 'file') {
+              <div class="auth-page__field auth-page__field--full">
+                <label for="register-image" class="auth-page__label">Upload Picture</label>
+                <label class="auth-page__file-input" for="register-image">
+                  <span class="auth-page__file-btn">Choose file</span>
+                  <span class="auth-page__file-name">{{ selectedImageName() || 'No file selected' }}</span>
+                </label>
+                <input
+                  id="register-image"
+                  type="file"
+                  class="auth-page__file-native-input"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  (change)="onImageSelected($event)"
+                />
+                @if (selectedImageName()) {
+                  <small class="auth-page__hint">Selected: {{ selectedImageName() }}</small>
+                }
+              </div>
+            } @else {
+              <div class="auth-page__field auth-page__field--full">
+                <label for="register-picture-url" class="auth-page__label">Picture URL</label>
+                <input
+                  id="register-picture-url"
+                  type="url"
+                  class="auth-page__input"
+                  formControlName="pictureUrl"
+                  placeholder="https://example.com/profile.jpg"
+                />
+                @if (registerForm.controls.pictureUrl.touched && registerForm.controls.pictureUrl.invalid) {
+                  <small class="auth-page__error">Enter a valid URL starting with http:// or https://</small>
+                } @else {
+                  <small class="auth-page__hint">Paste a direct image URL.</small>
+                }
+              </div>
+            }
+
+            <app-button
+              [label]="isSubmitting() ? 'Creating account...' : 'Register'"
+              variant="primary"
+              size="md"
+              [buttonType]="'submit'"
+              [fullWidth]="true"
+              [rounded]="false"
+              [disabled]="isSubmitting()"
+              customClass="auth-page__submit diagonal-swipe-hover rounded-pill"
+            />
+          </form>
+
+          <p class="auth-page__footer">
+            Already have an account?
+            <a routerLink="/login">Login</a>
+          </p>
+        </div>
       </div>
     </div>
   </div>
