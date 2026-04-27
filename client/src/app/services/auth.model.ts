@@ -1,6 +1,9 @@
 export interface UserData {
   id?: string;
   role?: string;
+  name?: string;
+  email?: string;
+  pictureUrl?: string;
 }
 
 export interface AuthResponse {
@@ -19,4 +22,5 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+  pictureUrl?: string;
 }
