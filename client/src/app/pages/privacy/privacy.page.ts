@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-privacy-page',
   standalone: true,
   templateUrl: './privacy.page.html',
-  styleUrl: '../shared/static-info-page.scss'
+  styleUrl: '../../../sass/components/static-info-page.scss'
 })
 export class PrivacyPage {}
