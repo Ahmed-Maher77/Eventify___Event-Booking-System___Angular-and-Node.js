@@ -6,6 +6,7 @@
 @use './sass/components/effects-shared';
 @use './sass/components/explore-categories-shared';
 @use './sass/components/featured-events-shared';
+@use './sass/components/faq-shared';
 @use './sass/components/header-shared';
 @use './sass/components/how-it-works-shared';
 @use './sass/components/landing-shared';
@@ -87,6 +88,21 @@
   --color-about-point-stroke: rgb(231 200 115 / 30%);
   --color-about-point-number: #6a4d00;
   --color-about-gallery-fallback: #f6f8fa;
+  --color-faq-bg-start: #07131c;
+  --color-faq-bg-end: #0a1f2b;
+  --color-faq-bg-glow: rgb(231 200 115 / 12%);
+  --color-faq-accent: #e7c873;
+  --color-faq-muted: rgb(255 255 255 / 78%);
+  --color-faq-border: rgb(231 200 115 / 18%);
+  --color-faq-card-bg: rgb(9 26 36 / 84%);
+  --color-faq-toggle-bg: rgb(255 255 255 / 8%);
+  --color-faq-toggle-text: #ffffff;
+  --color-faq-assistant-border: rgb(231 200 115 / 24%);
+  --color-faq-assistant-bg-start: #102635;
+  --color-faq-assistant-bg-end: #0a1b27;
+  --color-faq-assistant-glow: rgb(231 200 115 / 30%);
+  --color-faq-badge-bg: rgb(10 23 33 / 78%);
+  --color-faq-badge-border: rgb(231 200 115 / 38%);
   --logo-grayscale: 1;
   --bgColor-white: #fff;
 }
