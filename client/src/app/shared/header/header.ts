@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, ViewChild, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Button } from '../button/button';
 
@@ -12,6 +12,7 @@ import { Button } from '../button/button';
 })
 export class Header {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
   @ViewChild('mainHeaderNavRef') private mainHeaderNavRef?: ElementRef<HTMLElement>;
@@ -28,6 +29,12 @@ export class Header {
 
   protected isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
+  }
+
+  protected isHomeRoute(): boolean {
+    const [pathWithoutQuery] = this.router.url.split('?');
+    const [pathWithoutHash] = pathWithoutQuery.split('#');
+    return pathWithoutHash === '/';
   }
 
   protected toggleProfileMenu(): void {
