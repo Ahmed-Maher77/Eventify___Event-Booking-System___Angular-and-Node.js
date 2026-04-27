@@ -1,9 +1,14 @@
-import { Component, ElementRef, HostListener, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Button } from '../button/button';
 import { HeaderNavLinksComponent } from './components/header-nav-links/header-nav-links.component';
 import { HeaderUserMenuComponent } from './components/header-user-menu/header-user-menu.component';
+import {
+  runHeaderNavLinksAnimation,
+  runMainHeaderMenuOpenAnimation,
+  setupHeaderAnimations
+} from './header.animations';
 
 @Component({
   selector: 'app-header',
@@ -12,11 +17,12 @@ import { HeaderUserMenuComponent } from './components/header-user-menu/header-us
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header {
+export class Header implements AfterViewInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
+  private headerContext: ReturnType<typeof setupHeaderAnimations> | null = null;
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly isMainHeaderNavOpen = signal(false);
   protected readonly navLinks = [
@@ -79,6 +85,12 @@ export class Header {
     }
 
     this.isMainHeaderNavOpen.update((value) => !value);
+    if (this.isMainHeaderNavOpen()) {
+      requestAnimationFrame(() => {
+        runMainHeaderMenuOpenAnimation();
+        runHeaderNavLinksAnimation(this.headerNavRoot?.nativeElement);
+      });
+    }
     if (!this.isMainHeaderNavOpen()) {
       this.closeProfileMenu();
     }
@@ -93,6 +105,18 @@ export class Header {
     this.authService.logout();
     this.isProfileMenuOpen.set(false);
     this.closeNavCollapse();
+  }
+
+  ngAfterViewInit(): void {
+    this.headerContext = setupHeaderAnimations(
+      this.hostElement.nativeElement,
+      this.headerNavRoot?.nativeElement
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.headerContext?.revert();
+    this.headerContext = null;
   }
 
   @HostListener('document:click', ['$event'])
@@ -138,4 +162,5 @@ export class Header {
 
     return snapshot?.routeConfig?.path;
   }
+
 }
