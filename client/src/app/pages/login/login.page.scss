@@ -1,0 +1,200 @@
+.auth-page {
+  --auth-space: clamp(0.9rem, 1.8vw, 1.2rem);
+  // min-height: calc(100svh - 73px);
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: clamp(0.75rem, 2.2vw, 1.25rem) 0;
+}
+
+.auth-page__shell {
+  position: relative;
+  max-width: 1040px;
+  margin-inline: auto;
+  min-height: clamp(410px, 56vh, 520px);
+  border: 1px solid var(--color-card-stroke);
+  border-radius: 18px;
+  background: var(--color-white);
+  box-shadow: 0 26px 42px -30px rgb(0 0 0 / 34%);
+  overflow: hidden;
+
+  @media (min-width: 992px) {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+}
+
+.auth-page__aside {
+  background:
+    radial-gradient(circle at top left, rgb(231 200 115 / 28%), transparent 58%),
+    linear-gradient(160deg, #fff 0%, #f8f9fb 100%);
+  border-bottom: 1px solid var(--color-card-stroke);
+  padding: clamp(1.2rem, 3vw, 2rem);
+
+  @media (min-width: 992px) {
+    border-bottom: 0;
+    border-right: 1px solid var(--color-card-stroke);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.auth-page__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid rgb(231 200 115 / 48%);
+  border-radius: 999px;
+  background: rgb(231 200 115 / 16%);
+  color: var(--color-brown);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 0.38rem 0.65rem;
+}
+
+.auth-page__headline {
+  margin: 2rem 0 0;;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2.7vw, 2rem);
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.auth-page__aside-copy {
+  margin: 0.75rem 0 0;
+  color: var(--color-gray);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.auth-page__card {
+  background: var(--color-white);
+}
+
+.auth-page__body {
+  padding: clamp(1.4rem, 3.3vw, 2.3rem);
+
+  @media (min-width: 992px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.auth-page__form {
+  display: grid;
+  gap: var(--auth-space);
+}
+
+.auth-page__title {
+  margin: 0;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2.8vw, 1.7rem);
+  font-weight: 600;
+}
+
+.auth-page__subtitle {
+  margin: 0.5rem 0 var(--auth-space);
+  color: var(--color-gray);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.auth-page__alert {
+  margin-bottom: var(--auth-space);
+  border: 1px solid rgb(220 38 38 / 22%);
+  border-radius: 10px;
+  background: rgb(220 38 38 / 8%);
+  color: var(--color-danger);
+  padding: 0.52rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.auth-page__field {
+  margin: 0;
+}
+
+.auth-page__label {
+  display: inline-block;
+  margin-bottom: 0.42rem;
+  color: var(--color-black);
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.auth-page__input {
+  width: 100%;
+  border: 1px solid var(--color-chip-border);
+  border-radius: 12px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: 0.95rem;
+  padding: 0.7rem 0.82rem;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+
+  &::placeholder {
+    color: var(--color-gray);
+  }
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgb(231 200 115 / 22%);
+  }
+}
+
+.auth-page__error {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--color-danger);
+  font-size: 0.8rem;
+}
+
+.auth-page__submit {
+  width: 100%;
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-black);
+  font-weight: 600;
+  font-size: 0.96rem;
+  padding: 0.74rem 0.9rem;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 20px -16px rgb(0 0 0 / 42%);
+  }
+
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+}
+
+.auth-page__footer {
+  margin: var(--auth-space) 0 0;
+  text-align: center;
+  color: var(--color-gray);
+  font-size: 0.92rem;
+
+  a {
+    color: var(--color-brown);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      color: var(--color-black);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+}
