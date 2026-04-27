@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.static-info-page {
+  min-height: calc(100svh - 73px);
+  padding: 6.25rem 0 3rem;
+}
+
+.static-info-page__container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.static-info-page__title {
+  margin: 0;
+  color: var(--color-black);
+  font-size: clamp(1.85rem, 3vw, 2.5rem);
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.static-info-page__subtitle {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--color-gray);
+  line-height: 1.7;
+  font-size: 1rem;
+}
