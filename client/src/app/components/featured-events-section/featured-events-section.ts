@@ -7,6 +7,10 @@ import { EventApiItem, EventService } from '../../services/event.service';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
 import { Subscription } from 'rxjs';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 register();
 
@@ -26,6 +30,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   private syncUiRafId: number | null = null;
   private featuredEventsSubscription: Subscription | null = null;
   private readonly eventService = inject(EventService);
+  private sectionContext: gsap.Context | null = null;
 
   protected readonly categories = [
     'All',
@@ -93,6 +98,21 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.configureSwiper();
     queueMicrotask(() => this.updateTabsOverflowState());
+
+    this.sectionContext = gsap.context(() => {
+      gsap.from('.featured-events__animatable-item', {
+        y: 32,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+        stagger: 0.12,
+        scrollTrigger: {
+          trigger: '.featured-events',
+          start: 'top 78%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+    }, this.featuredSectionRoot?.nativeElement);
   }
 
   ngOnDestroy(): void {
@@ -108,6 +128,8 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
 
     this.featuredEventsSubscription?.unsubscribe();
     this.featuredEventsSubscription = null;
+    this.sectionContext?.revert();
+    this.sectionContext = null;
   }
 
   @HostListener('window:resize')
