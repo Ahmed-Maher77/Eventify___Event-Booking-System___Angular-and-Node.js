@@ -44,7 +44,7 @@ export class AuthService {
     );
   }
 
-  register(payload: RegisterPayload): Observable<AuthResponse> {
+  register(payload: RegisterPayload | FormData): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.authApiUrl}/register`, payload).pipe(
       tap((response) => this.persistAuthState(response.token, response.data))
     );
