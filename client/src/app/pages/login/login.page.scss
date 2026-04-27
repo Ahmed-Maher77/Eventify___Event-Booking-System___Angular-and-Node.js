@@ -130,6 +130,12 @@
   gap: var(--auth-space);
 }
 
+.auth-page__form > app-button {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+}
+
 .auth-page__title {
   margin: 0;
   color: var(--color-black);
@@ -164,6 +170,10 @@
   color: var(--color-black);
   font-weight: 500;
   font-size: 0.92rem;
+}
+
+.auth-page__required {
+  color: var(--color-danger);
 }
 
 .auth-page__input {

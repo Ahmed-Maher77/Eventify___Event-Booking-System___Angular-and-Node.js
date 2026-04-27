@@ -20,16 +20,30 @@
 
           <form class="auth-page__form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
             <div class="auth-page__field">
-              <label for="login-email" class="auth-page__label">Email</label>
-              <input id="login-email" type="email" class="auth-page__input" formControlName="email" />
+              <label for="login-email" class="auth-page__label">Email <span class="auth-page__required">*</span></label>
+              <input
+                id="login-email"
+                type="email"
+                class="auth-page__input"
+                formControlName="email"
+                placeholder="Enter your email"
+              />
               @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
                 <small class="auth-page__error">Please enter a valid email.</small>
               }
             </div>
 
             <div class="auth-page__field">
-              <label for="login-password" class="auth-page__label">Password</label>
-              <input id="login-password" type="password" class="auth-page__input" formControlName="password" />
+              <label for="login-password" class="auth-page__label"
+                >Password <span class="auth-page__required">*</span></label
+              >
+              <input
+                id="login-password"
+                type="password"
+                class="auth-page__input"
+                formControlName="password"
+                placeholder="Enter your password"
+              />
               @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
                 <small class="auth-page__error">Password must be at least 6 characters.</small>
               }
