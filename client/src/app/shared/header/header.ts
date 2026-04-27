@@ -17,9 +17,8 @@ export class Header {
   private readonly router = inject(Router);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
-  @ViewChild('mainHeaderNavRef') private mainHeaderNavRef?: ElementRef<HTMLElement>;
-  @ViewChild('headerTogglerRef') private headerTogglerRef?: ElementRef<HTMLButtonElement>;
   protected readonly isProfileMenuOpen = signal(false);
+  protected readonly isMainHeaderNavOpen = signal(false);
   protected readonly navLinks = [
     { label: 'Home', route: '/' },
     { label: 'About Us', route: '/about' },
@@ -71,7 +70,21 @@ export class Header {
     this.isProfileMenuOpen.set(false);
   }
 
-  protected onMainHeaderNavCollapsed(): void {
+  protected toggleMainHeaderNav(): void {
+    const isDesktop = window.matchMedia('(min-width: 992px)').matches;
+    if (isDesktop) {
+      this.isMainHeaderNavOpen.set(false);
+      return;
+    }
+
+    this.isMainHeaderNavOpen.update((value) => !value);
+    if (!this.isMainHeaderNavOpen()) {
+      this.closeProfileMenu();
+    }
+  }
+
+  protected closeMainHeaderNav(): void {
+    this.closeNavCollapse();
     this.closeProfileMenu();
   }
 
@@ -107,19 +120,12 @@ export class Header {
   }
 
   private isNavCollapseOpen(): boolean {
-    return this.mainHeaderNavRef?.nativeElement.classList.contains('show') ?? false;
+    return this.isMainHeaderNavOpen();
   }
 
   private closeNavCollapse(): void {
-    const collapseElement = this.mainHeaderNavRef?.nativeElement;
-    if (!collapseElement) {
-      return;
-    }
-
-    collapseElement.classList.remove('show');
-    collapseElement.classList.remove('collapsing');
-
-    this.headerTogglerRef?.nativeElement.setAttribute('aria-expanded', 'false');
+    this.isMainHeaderNavOpen.set(false);
+    this.closeProfileMenu();
   }
 
   private getActiveRoutePath(): string | undefined {

@@ -5,14 +5,12 @@
     </a>
 
     <button
-      #headerTogglerRef
       class="navbar-toggler eventify-header__toggler"
       type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#mainHeaderNav"
       aria-controls="mainHeaderNav"
-      aria-expanded="false"
+      [attr.aria-expanded]="isMainHeaderNavOpen()"
       aria-label="Toggle navigation"
+      (click)="toggleMainHeaderNav()"
     >
       <span class="eventify-header__toggler-lines" aria-hidden="true">
         <span></span>
@@ -25,14 +23,24 @@
       #mainHeaderNavRef
       id="mainHeaderNav"
       class="collapse navbar-collapse eventify-header__collapse"
-      (hide.bs.collapse)="onMainHeaderNavCollapsed()"
-      (hidden.bs.collapse)="onMainHeaderNavCollapsed()"
+      [class.show]="isMainHeaderNavOpen()"
     >
-      <app-header-nav-links
-        [links]="navLinks"
-        [isSolidStyle]="!shouldUseHomeHeaderStyle()"
-        (navigate)="onNavItemClick()"
-      />
+      <div class="eventify-header__mobile-main">
+        <button
+          type="button"
+          class="eventify-header__mobile-close"
+          aria-label="Close navigation menu"
+          (click)="closeMainHeaderNav()"
+        >
+          <span class="fa-solid fa-xmark" aria-hidden="true"></span>
+        </button>
+
+        <app-header-nav-links
+          [links]="navLinks"
+          [isSolidStyle]="!shouldUseHomeHeaderStyle()"
+          (navigate)="onNavItemClick()"
+        />
+      </div>
 
       @if (!isLoggedIn()) {
         <div class="eventify-header__actions">
