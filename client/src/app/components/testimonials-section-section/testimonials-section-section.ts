@@ -3,6 +3,7 @@ import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnDestroy
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
 import { TestimonialItem } from './testimonials-section-section.model';
+import { setupTestimonialsAnimations } from './testimonials-section-section.animations';
 
 register();
 
@@ -14,7 +15,9 @@ register();
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TestimonialsSectionSection implements AfterViewInit, OnDestroy {
+  @ViewChild('testimonialsRoot') private testimonialsRoot?: ElementRef<HTMLElement>;
   @ViewChild('quoteSwiper') private quoteSwiper?: ElementRef<SwiperContainer>;
+  private testimonialsContext: ReturnType<typeof setupTestimonialsAnimations> | null = null;
   protected readonly ratingStars = [1, 2, 3, 4, 5] as const;
 
   protected readonly testimonials: TestimonialItem[] = [
@@ -78,10 +81,14 @@ export class TestimonialsSectionSection implements AfterViewInit, OnDestroy {
 
     swiperElement.initialize();
     swiperElement.addEventListener('swiperslidechange', this.handleSlideChange);
+
+    this.testimonialsContext = setupTestimonialsAnimations(this.testimonialsRoot?.nativeElement);
   }
 
   ngOnDestroy(): void {
     this.quoteSwiper?.nativeElement.removeEventListener('swiperslidechange', this.handleSlideChange);
+    this.testimonialsContext?.revert();
+    this.testimonialsContext = null;
   }
 
   private readonly handleSlideChange = () => {
