@@ -52,6 +52,12 @@ export class App {
   }
 
   protected showAdminSidebar(): boolean {
-    return this.isLoggedIn() && this.isAdmin();
+    return this.isLoggedIn() && this.isAdmin() && this.isAdminRoute();
+  }
+
+  private isAdminRoute(): boolean {
+    const [pathWithoutQuery] = this.router.url.split('?');
+    const [pathWithoutHash] = pathWithoutQuery.split('#');
+    return pathWithoutHash.startsWith('/dashboard');
   }
 }
