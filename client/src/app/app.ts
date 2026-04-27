@@ -13,6 +13,7 @@ import { AdminSidebar } from './shared/admin-sidebar/admin-sidebar';
 import { Footer } from './shared/footer/footer';
 import { Header } from './shared/header/header';
 import { Loader } from './shared/loader/loader';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 @Component({
   selector: 'app-root',
@@ -51,9 +52,11 @@ export class App {
 
         if (remainingMs === 0) {
           this.isNavigating.set(false);
+          this.syncAnimationsAfterLoader();
         } else {
           this.hideLoaderTimeoutId = setTimeout(() => {
             this.isNavigating.set(false);
+            this.syncAnimationsAfterLoader();
             this.hideLoaderTimeoutId = null;
           }, remainingMs);
         }
@@ -126,5 +129,20 @@ export class App {
     };
 
     this.scrollAnimationFrameId = requestAnimationFrame(step);
+  }
+
+  private syncAnimationsAfterLoader(): void {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+
+        // Ensure sections currently in viewport animate after loader disappears.
+        for (const trigger of ScrollTrigger.getAll()) {
+          if (trigger.isActive && trigger.animation) {
+            trigger.animation.restart();
+          }
+        }
+      });
+    });
   }
 }

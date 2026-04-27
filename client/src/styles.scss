@@ -2,6 +2,7 @@
 @use './sass/abstracts/placeholders';
 @use './sass/components/footer-shared';
 @use './sass/components/cta-shared';
+@use './sass/components/about-showcase-shared';
 @use './sass/components/effects-shared';
 @use './sass/components/explore-categories-shared';
 @use './sass/components/featured-events-shared';
@@ -10,6 +11,8 @@
 @use './sass/components/landing-shared';
 @use './sass/components/not-found-shared';
 @use './sass/components/talk-to-ai-shared';
+@use './sass/components/team-members-shared';
+@use './sass/components/static-info-shared';
 @use './sass/components/testimonials-shared';
 @use './sass/components/trusted-companies-shared';
 
@@ -71,6 +74,19 @@
   --color-footer-bg-top: #7e5a07;
   --color-footer-bg-bottom: #5b4000;
   --color-footer-glow: rgb(231 200 115 / 20%);
+  --color-team-card-bg: #ffffff;
+  --color-team-overlay-bg: rgb(255 255 255 / 74%);
+  --color-team-overlay-stroke: rgb(255 255 255 / 68%);
+  --color-team-overlay-shadow: rgb(17 24 39 / 22%);
+  --color-team-link: #0d99ff;
+  --color-team-link-hover: #007be0;
+  --color-about-showcase-bg: rgb(231 200 115 / 14%);
+  --color-about-showcase-stroke: rgb(231 200 115 / 32%);
+  --color-about-heading: #1a1a1a;
+  --color-about-point-bg: rgb(255 255 255 / 88%);
+  --color-about-point-stroke: rgb(231 200 115 / 30%);
+  --color-about-point-number: #6a4d00;
+  --color-about-gallery-fallback: #f6f8fa;
   --logo-grayscale: 1;
   --bgColor-white: #fff;
 }
