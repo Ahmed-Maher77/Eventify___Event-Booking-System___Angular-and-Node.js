@@ -103,5 +103,8 @@ export const routes: Routes = [
   ...publicRoutes,
   ...userProtectedRoutes,
   ...adminProtectedRoutes,
-  { path: '**', redirectTo: '' }
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found/not-found.page').then((m) => m.NotFoundPage)
+  }
 ];

@@ -1,18 +1,16 @@
-<header class="eventify-header">
+<header class="eventify-header" [class.eventify-header--solid]="!shouldUseHomeHeaderStyle()">
   <nav #headerNavRoot class="navbar navbar-expand-lg container eventify-header__nav">
     <a class="eventify-header__brand" routerLink="/" (click)="onNavItemClick()">
       <img src="images/logo.png" alt="Eventify" class="eventify-header__brand-logo" />
     </a>
 
     <button
-      #headerTogglerRef
       class="navbar-toggler eventify-header__toggler"
       type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#mainHeaderNav"
       aria-controls="mainHeaderNav"
-      aria-expanded="false"
+      [attr.aria-expanded]="isMainHeaderNavOpen()"
       aria-label="Toggle navigation"
+      (click)="toggleMainHeaderNav()"
     >
       <span class="eventify-header__toggler-lines" aria-hidden="true">
         <span></span>
@@ -21,21 +19,28 @@
       </span>
     </button>
 
-    <div #mainHeaderNavRef id="mainHeaderNav" class="collapse navbar-collapse eventify-header__collapse">
-      <ul class="navbar-nav eventify-header__nav-list">
-        @for (link of navLinks; track link.route) {
-          <li class="nav-item">
-            <a
-              class="eventify-header__nav-link"
-              routerLinkActive="active"
-              [routerLink]="link.route"
-              (click)="onNavItemClick()"
-            >
-              {{ link.label }}
-            </a>
-          </li>
-        }
-      </ul>
+    <div
+      #mainHeaderNavRef
+      id="mainHeaderNav"
+      class="collapse navbar-collapse eventify-header__collapse"
+      [class.show]="isMainHeaderNavOpen()"
+    >
+      <div class="eventify-header__mobile-main">
+        <button
+          type="button"
+          class="eventify-header__mobile-close"
+          aria-label="Close navigation menu"
+          (click)="closeMainHeaderNav()"
+        >
+          <span class="fa-solid fa-xmark" aria-hidden="true"></span>
+        </button>
+
+        <app-header-nav-links
+          [links]="navLinks"
+          [isSolidStyle]="!shouldUseHomeHeaderStyle()"
+          (navigate)="onNavItemClick()"
+        />
+      </div>
 
       @if (!isLoggedIn()) {
         <div class="eventify-header__actions">
@@ -60,21 +65,17 @@
         </div>
       } @else {
         <div class="position-relative eventify-header__actions">
-          <button
-            class="header-pill-btn eventify-header__profile-btn"
-            type="button"
-            (click)="toggleProfileMenu()"
-          >
-            <img [src]="profileImageUrl" alt="Profile" class="header-avatar" />
-            <span>Profile</span>
-          </button>
-          @if (isProfileMenuOpen()) {
-            <ul class="dropdown-menu dropdown-menu-end show mt-2">
-              <li><a class="dropdown-item" routerLink="/profile" (click)="onNavItemClick()">My Profile</a></li>
-              <li><a class="dropdown-item" routerLink="/bookings" (click)="onNavItemClick()">My Bookings</a></li>
-              <button class="dropdown-item" (click)="logout()">Logout</button>
-            </ul>
-          }
+          <app-header-user-menu
+            [displayName]="getDisplayName()"
+            [displayEmail]="getDisplayEmail()"
+            [profileImageUrl]="getProfileImageUrl()"
+            [isOpen]="isProfileMenuOpen()"
+            [isSolidStyle]="!shouldUseHomeHeaderStyle()"
+            (toggle)="toggleProfileMenu()"
+            (close)="closeProfileMenu()"
+            (navigate)="onNavItemClick()"
+            (logout)="logout()"
+          />
         </div>
       }
     </div>

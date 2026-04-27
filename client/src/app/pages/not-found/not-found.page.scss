@@ -1,0 +1,94 @@
+@use '../../../sass/components/not-found-shared';
+@use '../../../sass/abstracts/mixins';
+
+:host {
+  display: block;
+}
+
+.not-found-page {
+  @extend %eventify-not-found-page;
+}
+
+.not-found-page__focus {
+  @extend %eventify-not-found-focus;
+  display: grid;
+  gap: 1.2rem;
+}
+
+.not-found-page__code {
+  margin: 0;
+  color: var(--color-not-found-text);
+  font-size: clamp(3.3rem, 10vw, 4.6rem);
+  font-weight: 700;
+  line-height: 0.92;
+}
+
+.not-found-page__subtitle {
+  margin: 0;
+  color: var(--color-not-found-subtext);
+  font-size: clamp(1.07rem, 2.7vw, 2rem);
+  line-height: 1.35;
+}
+
+.not-found-page__search-wrap {
+  width: min(100%, 25rem);
+  margin-inline: auto;
+  position: relative;
+}
+
+.not-found-page__search-input {
+  @extend %eventify-not-found-search;
+}
+
+.not-found-page__search-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-not-found-placeholder);
+  font-size: 0.93rem;
+}
+
+.not-found-page__search-btn {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.not-found-page__note {
+  margin: 0;
+  color: var(--color-not-found-subtext);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.not-found-page__link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 400;
+  @include mixins.link-underline-base($height: 1px);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+
+  @include mixins.link-underline-trigger();
+}
+
+@media (max-width: 767.98px) {
+  .not-found-page {
+    padding: 5rem 0 2.4rem;
+  }
+
+  .not-found-page__focus {
+    gap: 1rem;
+  }
+
+  .not-found-page__note {
+    font-size: 0.95rem;
+  }
+}

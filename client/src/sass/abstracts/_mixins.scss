@@ -16,3 +16,34 @@ $breakpoints: (
     @warn "Unknown breakpoint `#{$breakpoint}`.";
   }
 }
+
+@mixin link-underline-base(
+  $left: 0,
+  $bottom: -2px,
+  $width: 100%,
+  $height: 2px,
+  $color: currentcolor,
+  $duration: 220ms,
+  $timing: ease
+) {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: $left;
+    bottom: $bottom;
+    width: $width;
+    height: $height;
+    background: $color;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform $duration $timing;
+  }
+}
+
+@mixin link-underline-trigger($hover-selector: '&:hover::before') {
+  #{$hover-selector} {
+    transform: scaleX(1);
+  }
+}

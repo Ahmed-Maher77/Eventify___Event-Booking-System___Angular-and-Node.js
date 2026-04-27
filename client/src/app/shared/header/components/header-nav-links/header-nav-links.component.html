@@ -1,0 +1,15 @@
+<ul class="navbar-nav eventify-header__nav-list" [class.eventify-header__nav-list--solid]="isSolidStyle">
+  @for (link of links; track link.route) {
+    <li class="nav-item">
+      <a
+        class="eventify-header__nav-link"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="link.route"
+        (click)="navigate.emit()"
+      >
+        {{ link.label }}
+      </a>
+    </li>
+  }
+</ul>

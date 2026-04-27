@@ -8,6 +8,7 @@
 @use './sass/components/header-shared';
 @use './sass/components/how-it-works-shared';
 @use './sass/components/landing-shared';
+@use './sass/components/not-found-shared';
 @use './sass/components/talk-to-ai-shared';
 @use './sass/components/testimonials-shared';
 @use './sass/components/trusted-companies-shared';
@@ -60,6 +61,16 @@
   --color-light-brown: #ab7e00;
   --color-success: #16a34a;
   --color-danger: #dc2626;
+  --color-not-found-overlay-top: rgb(0 8 23 / 72%);
+  --color-not-found-overlay-bottom: rgb(1 7 20 / 90%);
+  --color-not-found-text: #f8fafc;
+  --color-not-found-subtext: rgb(248 250 252 / 90%);
+  --color-not-found-search-border: rgb(248 250 252 / 68%);
+  --color-not-found-placeholder: rgb(248 250 252 / 58%);
+  --color-not-found-link: #ffffff;
+  --color-footer-bg-top: #7e5a07;
+  --color-footer-bg-bottom: #5b4000;
+  --color-footer-glow: rgb(231 200 115 / 20%);
   --logo-grayscale: 1;
   --bgColor-white: #fff;
 }

@@ -28,6 +28,16 @@ const userSchema = mongoose.Schema({
         enum: ["admin", "user"],
         default: "user"
     },
+    pictureUrl: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    picturePublicId: {
+        type: String,
+        trim: true,
+        default: ""
+    },
 });
 
 userSchema.pre("save", async function () {

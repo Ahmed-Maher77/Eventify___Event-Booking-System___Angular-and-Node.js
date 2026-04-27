@@ -1,0 +1,58 @@
+<div class="eventify-header-user-menu" [class.eventify-header-user-menu--solid]="isSolidStyle">
+  <button
+    class="eventify-header__user-trigger"
+    type="button"
+    [attr.aria-expanded]="isOpen"
+    aria-haspopup="menu"
+    (click)="toggle.emit()"
+  >
+    <span class="eventify-header__user-name">{{ displayName }}</span>
+    <img [src]="profileImageUrl" [alt]="displayName" class="header-avatar" />
+    <span class="fa-solid fa-chevron-down eventify-header__user-arrow" aria-hidden="true"></span>
+  </button>
+
+  <button
+    class="eventify-header__profile-overlay"
+    [class.is-open]="isOpen"
+    type="button"
+    aria-label="Close profile menu"
+    (click)="close.emit()"
+  ></button>
+
+  <div class="eventify-header__profile-menu" [class.is-open]="isOpen" role="menu">
+    <div class="eventify-header__profile-menu-head">
+      <img [src]="profileImageUrl" [alt]="displayName" class="header-avatar" />
+      <div class="eventify-header__profile-head-text">
+        <span class="eventify-header__profile-title">{{ displayName }}</span>
+        <span class="eventify-header__profile-subtitle">{{ displayEmail }}</span>
+      </div>
+    </div>
+
+    <a
+      class="eventify-header__profile-link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLink="/profile"
+      (click)="navigate.emit()"
+    >
+      <span class="fa-regular fa-user eventify-header__profile-link-icon" aria-hidden="true"></span>
+      <span>My Profile</span>
+    </a>
+
+    <a
+      class="eventify-header__profile-link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLink="/bookings"
+      (click)="navigate.emit()"
+    >
+      <span class="fa-solid fa-ticket eventify-header__profile-link-icon" aria-hidden="true"></span>
+      <span>My Bookings</span>
+    </a>
+
+    <button class="eventify-header__profile-link eventify-header__profile-link--danger" (click)="logout.emit()">
+      <span class="fa-solid fa-right-from-bracket eventify-header__profile-link-icon" aria-hidden="true"></span>
+      <span>Logout</span>
+    </button>
+  </div>
+</div>

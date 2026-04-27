@@ -10,10 +10,62 @@
   left: 0;
   right: 0;
   z-index: 1040;
+  --ev-btn-ghost-color: var(--color-white);
+  --ev-btn-ghost-hover-color: var(--color-primary);
+
   // background: rgba(0, 0, 0, 0.33);
   // backdrop-filter: blur(10px);
   // -webkit-backdrop-filter: blur(10px);
   // border-bottom: 1px solid rgb(255 255 255 / 16%);
+}
+
+.eventify-header--solid {
+  top: 0;
+  background: transparent;
+  backdrop-filter: blur(0px);
+  --ev-btn-ghost-color: var(--color-black);
+  --ev-btn-ghost-hover-color: var(--color-brown);
+  // border: 1px solid rgb(26 26 26 / 9%);
+  box-shadow: none;
+  .eventify-header__brand-logo {
+    filter: brightness(0) saturate(100%);
+  }
+  .eventify-header__nav {
+    margin-top: 0.25rem;
+    min-height: 60px;
+    border-radius: 18px;
+    // background: rgb(255 255 255 / 96%);
+
+    // backdrop-filter: blur(8px);
+    // -webkit-backdrop-filter: blur(8px);
+    padding-inline: clamp(0.8rem, 1.9vw, 1.1rem);
+  }
+
+  :host ::ng-deep .eventify-header__login-btn {
+    color: var(--color-black) !important;
+    border-color: rgb(26 26 26 / 16%);
+    background: transparent;
+
+    &:hover {
+      color: var(--color-brown) !important;
+      border-color: rgb(106 77 0 / 45%);
+    }
+  }
+
+  .eventify-header__cta-btn {
+    box-shadow: 0 10px 20px -16px rgb(0 0 0 / 45%);
+  }
+
+  .eventify-header__toggler-lines span {
+    background: var(--color-black);
+  }
+
+  @media (max-width: 991.98px) {
+    .eventify-header__nav {
+      border-radius: 14px;
+      padding-inline: 0.7rem;
+    }
+  }
 }
 
 .navbar-toggler {
@@ -24,8 +76,8 @@
 .eventify-header__nav {
   position: relative;
   min-height: 64px;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
+  padding-top: 0.7rem;
+  padding-bottom: 0.9rem;
 }
 
 @media (max-width: 500px) {
@@ -106,7 +158,6 @@
   left: 0;
   right: 0;
   z-index: 1050;
-  margin-top: 0.7rem;
   padding: 0.85rem;
   border-radius: 14px;
   background: rgb(14 18 24 / 84%);
@@ -134,58 +185,89 @@
   }
 }
 
-.eventify-header__nav-list {
-  margin: 1rem 0 0;
-  // gap: 0.25rem;
-  gap: 0.9rem;
+.eventify-header__mobile-close {
+  display: none;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 82%);
+  font-size: 1.45rem;
+  line-height: 1;
+  padding: 0.2rem;
+  margin: 0 0 0 auto;
+  transition: color 180ms ease;
 
-  @include mixins.respond(lg) {
-    margin: 0;
-    justify-self: center;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
+  &:hover {
+    color: var(--color-primary);
   }
 }
 
-.eventify-header__nav-link {
-  color: var(--color-header-text);
-  font-size: 1rem;
-  text-decoration: none;
-  display: inline-flex;
-  padding: 0.4rem 0.5rem;
-  position: relative;
-  opacity: 0.95;
-  transition:
-    color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    bottom: -0.2rem;
-    width: 20px;
-    height: 2px;
-    background: var(--color-primary);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+@media (max-width: 991.98px) {
+  .eventify-header__collapse {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    margin-top: 0;
+    padding: 1.5rem clamp(1.05rem, 4vw, 1.7rem);
+    border-radius: 0;
+    border: 0;
+    background:
+      radial-gradient(circle at 14% 9%, rgb(231 200 115 / 16%), transparent 34%),
+      linear-gradient(180deg, rgb(6 11 21 / 88%), rgb(8 13 24 / 92%));
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 100svh;
+    max-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(18px);
+    transition:
+      opacity 260ms ease,
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0ms linear 300ms;
   }
 
-  &:hover,
-  &.active {
+  .eventify-header__collapse.show,
+  .eventify-header__collapse.collapsing {
     opacity: 1;
-    color: var(--color-primary);
-    font-weight: 600;
-  }
-  &.active {
-    scale: 1.03;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition:
+      opacity 260ms ease,
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0ms linear 0ms;
   }
 
-  &:hover::before,
-  &.active::before {
-    transform: scaleX(1);
+  .eventify-header__mobile-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding-top: 2rem;
+  }
+
+  .eventify-header__mobile-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 1rem;
+    right: clamp(1.05rem, 4vw, 1.7rem);
+    margin: 0;
+    z-index: 2;
+  }
+
+  .eventify-header__actions {
+    margin-top: 1.15rem;
+    padding-top: 0.9rem;
+    gap: 0.8rem !important;
+    // border-top: 1px solid rgb(255 255 255 / 12%);
   }
 }
 
@@ -194,7 +276,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0.6rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 
   app-button {
     width: 100%;
@@ -236,20 +318,14 @@
   }
 
   :host ::ng-deep .eventify-header__login-btn {
+    background: rgb(255 255 255 / 8%) !important;
+    border: 1px solid rgb(255 255 255 / 32%) !important;
+    color: var(--color-white) !important;
+  }
+
+  :host ::ng-deep .eventify-header__login-btn:not(.ev-btn--inactive):hover {
     background: rgb(255 255 255 / 8%);
-    border: 1px solid rgb(255 255 255 / 32%);
+    border-color: rgb(255 255 255 / 42%);
     color: var(--color-white);
   }
-}
-
-.eventify-header__profile-btn {
-  background: var(--color-primary);
-  color: var(--color-black);
-  min-height: 2.8rem;
-  padding: 0.3rem 0.7rem;
-  gap: 0.5rem;
-}
-
-.dropdown-menu {
-  min-width: 12rem;
 }

@@ -1,0 +1,72 @@
+@use '../../../../../sass/abstracts/mixins';
+
+:host {
+  display: block;
+}
+
+.eventify-header__nav-list {
+  margin: 1rem 0 0;
+  gap: 0.9rem;
+
+  @include mixins.respond(lg) {
+    margin: 0;
+    justify-self: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.eventify-header__nav-link {
+  color: var(--color-header-text);
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-flex;
+  padding: 0.4rem 0.5rem;
+  opacity: 0.95;
+  transition:
+    color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  @include mixins.link-underline-base(
+    $left: 0.5rem,
+    $bottom: -0.2rem,
+    $width: 20px,
+    $height: 2px,
+    $color: var(--color-primary),
+    $duration: 0.35s,
+    $timing: cubic-bezier(0.22, 1, 0.36, 1)
+  );
+
+  &:hover,
+  &.active {
+    opacity: 1;
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  &.active {
+    scale: 1.03;
+  }
+
+  @include mixins.link-underline-trigger('&:hover::before, &.active::before');
+}
+
+.eventify-header__nav-list--solid {
+  @include mixins.respond(lg) {
+    .eventify-header__nav-link {
+      color: var(--color-black);
+      font-size: 0.95rem;
+      padding: 0.35rem 0.45rem;
+
+      &:hover,
+      &.active {
+        color: var(--color-brown);
+      }
+
+      &:hover::before,
+      &.active::before {
+        background: var(--color-brown);
+      }
+    }
+  }
+}

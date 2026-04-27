@@ -61,7 +61,7 @@
 .ev-btn--ghost {
   background: transparent;
   border-color: transparent;
-  color: var(--color-white);
+  color: var(--ev-btn-ghost-color, var(--color-white));
 }
 
 .ev-btn--dark {
@@ -181,7 +181,7 @@
 }
 
 .eventify-header__login-btn {
-  color: var(--color-header-text);
+  color: var(--ev-btn-ghost-color, var(--color-header-text));
   background: transparent;
   min-width: 100px;
   border: 1px solid transparent;
@@ -195,6 +195,10 @@
     border-color: rgba(231, 200, 115, 0.7);
     color: var(--color-primary);
   }
+}
+
+.eventify-header__login-btn.laser-sweep-hover:not(.ev-btn--inactive):hover {
+  color: var(--ev-btn-ghost-hover-color, var(--color-primary));
 }
 
 .eventify-header__cta-btn {
