@@ -39,6 +39,64 @@
             }
           </div>
 
+          <div class="mb-3">
+            <label class="form-label mb-2 d-block">Profile Picture (optional)</label>
+            <div class="btn-group w-100" role="tablist" aria-label="Picture upload mode">
+              <button
+                type="button"
+                class="btn"
+                [class.btn-warning]="pictureMode() === 'file'"
+                [class.btn-outline-secondary]="pictureMode() !== 'file'"
+                [attr.aria-selected]="pictureMode() === 'file'"
+                (click)="setPictureMode('file')"
+              >
+                Upload File
+              </button>
+              <button
+                type="button"
+                class="btn"
+                [class.btn-warning]="pictureMode() === 'url'"
+                [class.btn-outline-secondary]="pictureMode() !== 'url'"
+                [attr.aria-selected]="pictureMode() === 'url'"
+                (click)="setPictureMode('url')"
+              >
+                Use URL
+              </button>
+            </div>
+          </div>
+
+          @if (pictureMode() === 'file') {
+            <div class="mb-3">
+              <label for="register-image" class="form-label">Upload Picture (optional)</label>
+              <input
+                id="register-image"
+                type="file"
+                class="form-control"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                (change)="onImageSelected($event)"
+              />
+              @if (selectedImageName()) {
+                <small class="text-muted d-block mt-1">Selected: {{ selectedImageName() }}</small>
+              }
+            </div>
+          } @else {
+            <div class="mb-3">
+              <label for="register-picture-url" class="form-label">Picture URL (optional)</label>
+              <input
+                id="register-picture-url"
+                type="url"
+                class="form-control"
+                formControlName="pictureUrl"
+                placeholder="https://example.com/profile.jpg"
+              />
+              @if (registerForm.controls.pictureUrl.touched && registerForm.controls.pictureUrl.invalid) {
+                <small class="text-danger">Enter a valid URL starting with http:// or https://</small>
+              } @else {
+                <small class="text-muted">Paste a direct image URL.</small>
+              }
+            </div>
+          }
+
           <button type="submit" class="btn btn-warning w-100" [disabled]="isSubmitting()">
             {{ isSubmitting() ? 'Creating account...' : 'Register' }}
           </button>
