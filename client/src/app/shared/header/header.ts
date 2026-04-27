@@ -21,6 +21,7 @@ export class Header {
   protected readonly isMainHeaderNavOpen = signal(false);
   protected readonly navLinks = [
     { label: 'Home', route: '/' },
+    { label: 'Events', route: '/events' },
     { label: 'About Us', route: '/about' },
     { label: 'FAQ', route: '/faq' },
     { label: 'Contact', route: '/contact' },
