@@ -265,10 +265,14 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     const paginationElement = this.featuredPagination?.nativeElement;
 
     Object.assign(swiperElement, {
-      slidesPerView: 1,
+      slidesPerView: this.currentSlidesPerView,
       spaceBetween: 16,
       loop: false,
       watchOverflow: true,
+      updateOnWindowResize: true,
+      observer: true,
+      observeParents: true,
+      resizeObserver: true,
       centerInsufficientSlides: false,
       pagination: paginationElement
         ? {
@@ -286,6 +290,9 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     });
 
     if (swiperElement.swiper) {
+      swiperElement.swiper.params.slidesPerView = this.currentSlidesPerView;
+      swiperElement.swiper.updateSize();
+      swiperElement.swiper.updateSlides();
       swiperElement.swiper.update();
       return;
     }
