@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { Button } from '../../shared/button/button';
 import Typed, { type TypedOptions } from 'typed.js';
 import { TypingPreset } from './landing-section.model';
+import { setupLandingSectionAnimations } from './landing-section.animations';
 
 @Component({
   selector: 'app-landing-section',
@@ -11,8 +12,10 @@ import { TypingPreset } from './landing-section.model';
   styleUrl: './landing-section.scss',
 })
 export class LandingSection implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('landingHeroRoot', { static: true }) private landingHeroRoot!: ElementRef<HTMLElement>;
   @ViewChild('typedHeadline', { static: true }) private typedHeadlineRef!: ElementRef<HTMLElement>;
   private typedInstance: Typed | null = null;
+  private landingContext: ReturnType<typeof setupLandingSectionAnimations> | null = null;
   protected searchPlaceholder = 'Search events, cities, or categories...';
 
   // Change this value to switch animation style quickly.
@@ -78,11 +81,15 @@ export class LandingSection implements OnInit, AfterViewInit, OnDestroy {
       ...this.typingPresets[this.activePreset],
       loop: true,
     });
+
+    this.landingContext = setupLandingSectionAnimations(this.landingHeroRoot.nativeElement);
   }
 
   ngOnDestroy(): void {
     this.typedInstance?.destroy();
     this.typedInstance = null;
+    this.landingContext?.revert();
+    this.landingContext = null;
   }
 
   @HostListener('window:resize')
