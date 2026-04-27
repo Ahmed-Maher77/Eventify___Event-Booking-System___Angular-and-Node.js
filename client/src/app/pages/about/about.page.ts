@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-about-page',
   standalone: true,
   templateUrl: './about.page.html',
-  styleUrl: '../shared/static-info-page.scss'
+  styleUrl: '../../../sass/components/static-info-page.scss'
 })
 export class AboutPage {}
