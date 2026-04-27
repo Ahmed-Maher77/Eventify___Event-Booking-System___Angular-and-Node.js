@@ -6,6 +6,20 @@ This document describes a **real-world, production-oriented** information archit
 
 ---
 
+## Client environment setup
+
+Create `client/.env` and define the backend base URL used by the frontend:
+
+```env
+BACKEND_API=http://localhost:5000/api
+```
+
+Notes:
+- Use a full URL (including `http://` or `https://`), for example `https://api.example.com/api`.
+- Keep this value without a trailing `/` for clean endpoint joins.
+
+---
+
 ## 1. Design goals
 
 - **Trust:** Clear pricing, capacity, cancellation policy, and booking status at every step.
