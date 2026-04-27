@@ -1,3 +1,5 @@
+@use '../../../sass/abstracts/mixins';
+
 .auth-page {
   --auth-space: clamp(1.05rem, 2.1vw, 1.4rem);
   // min-height: calc(100svh - 73px);
@@ -241,28 +243,13 @@
     color: var(--color-brown);
     text-decoration: none;
     font-weight: 500;
-    position: relative;
     display: inline-block;
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -2px;
-      width: 100%;
-      height: 2px;
-      background: currentcolor;
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 220ms ease;
-    }
+    @include mixins.link-underline-base();
 
     &:hover {
       color: var(--color-black);
     }
 
-    &:hover::before {
-      transform: scaleX(1);
-    }
+    @include mixins.link-underline-trigger();
   }
 }
