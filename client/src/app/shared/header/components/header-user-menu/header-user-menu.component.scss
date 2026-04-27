@@ -211,15 +211,24 @@
     width: 100%;
     max-height: min(62vh, 430px);
     margin-top: 0.75rem;
-    border: 1px solid rgb(255 255 255 / 16%);
+    border: 0;
     border-radius: 14px;
     overflow: auto;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0 0 0 0.45rem;
     transform: none;
     transform-origin: center;
   }
 
   .eventify-header__profile-menu.is-open {
     transform: none;
+  }
+
+  .eventify-header__profile-menu-head {
+    display: none;
   }
 }
 
