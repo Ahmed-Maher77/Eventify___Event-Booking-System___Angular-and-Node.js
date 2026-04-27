@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import Cookies from 'js-cookie';
 import { Observable, tap } from 'rxjs';
 import { AuthResponse, LoginPayload, RegisterPayload, UserData } from './auth.model';
+import { resolveApiBaseUrl } from './api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { AuthResponse, LoginPayload, RegisterPayload, UserData } from './auth.mo
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly accessTokenCookieName = 'Eventify_AcessToken';
-  private readonly authApiUrl = '/api/auth';
+  private readonly authApiUrl = `${resolveApiBaseUrl()}/auth`;
   userData: UserData | null = null;
 
   constructor() {
@@ -18,6 +19,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
+    // return true;
     // Authentication is based on the access token stored in cookies.
     const token = Cookies.get(this.accessTokenCookieName);
     if (!token) {
@@ -63,10 +65,25 @@ export class AuthService {
     }
 
     const payload = this.decodeJwtPayload(token);
-    this.userData = payload ? { id: payload.id, role: payload.role } : null;
+    this.userData = payload
+      ? {
+          id: payload.id,
+          role: payload.role,
+          name: payload.name,
+          email: payload.email,
+          pictureUrl: payload.pictureUrl
+        }
+      : null;
   }
 
-  private decodeJwtPayload(token: string): { id?: string; role?: string; exp?: number } | null {
+  private decodeJwtPayload(token: string): {
+    id?: string;
+    role?: string;
+    exp?: number;
+    name?: string;
+    email?: string;
+    pictureUrl?: string;
+  } | null {
     try {
       const [, payload] = token.split('.');
       if (!payload) {
@@ -77,7 +94,14 @@ export class AuthService {
       const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
       const paddedBase64 = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
       const decodedPayload = atob(paddedBase64);
-      return JSON.parse(decodedPayload) as { id?: string; role?: string; exp?: number };
+      return JSON.parse(decodedPayload) as {
+        id?: string;
+        role?: string;
+        exp?: number;
+        name?: string;
+        email?: string;
+        pictureUrl?: string;
+      };
     } catch {
       return null;
     }
@@ -90,6 +114,12 @@ export class AuthService {
 
   private persistAuthState(token: string, user: UserData): void {
     Cookies.set(this.accessTokenCookieName, token);
-    this.userData = { id: user.id, role: user.role };
+    this.userData = {
+      id: user.id,
+      role: user.role,
+      name: user.name,
+      email: user.email,
+      pictureUrl: user.pictureUrl
+    };
   }
 }
