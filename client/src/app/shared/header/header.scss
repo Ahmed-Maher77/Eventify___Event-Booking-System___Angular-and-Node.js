@@ -219,24 +219,19 @@
   text-decoration: none;
   display: inline-flex;
   padding: 0.4rem 0.5rem;
-  position: relative;
   opacity: 0.95;
   transition:
     color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    bottom: -0.2rem;
-    width: 20px;
-    height: 2px;
-    background: var(--color-primary);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  }
+  @include mixins.link-underline-base(
+    $left: 0.5rem,
+    $bottom: -0.2rem,
+    $width: 20px,
+    $height: 2px,
+    $color: var(--color-primary),
+    $duration: 0.35s,
+    $timing: cubic-bezier(0.22, 1, 0.36, 1)
+  );
 
   &:hover,
   &.active {
@@ -248,10 +243,7 @@
     scale: 1.03;
   }
 
-  &:hover::before,
-  &.active::before {
-    transform: scaleX(1);
-  }
+  @include mixins.link-underline-trigger('&:hover::before, &.active::before');
 }
 
 .eventify-header__actions {

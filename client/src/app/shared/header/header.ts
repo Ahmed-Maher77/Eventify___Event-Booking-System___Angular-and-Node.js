@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, ViewChild, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Button } from '../button/button';
 
@@ -35,6 +35,10 @@ export class Header {
     const [pathWithoutQuery] = this.router.url.split('?');
     const [pathWithoutHash] = pathWithoutQuery.split('#');
     return pathWithoutHash === '/';
+  }
+
+  protected shouldUseHomeHeaderStyle(): boolean {
+    return this.isHomeRoute() || this.getActiveRoutePath() === '**';
   }
 
   protected toggleProfileMenu(): void {
@@ -87,5 +91,15 @@ export class Header {
     collapseElement.classList.remove('collapsing');
 
     this.headerTogglerRef?.nativeElement.setAttribute('aria-expanded', 'false');
+  }
+
+  private getActiveRoutePath(): string | undefined {
+    let snapshot: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
+
+    while (snapshot?.firstChild) {
+      snapshot = snapshot.firstChild;
+    }
+
+    return snapshot?.routeConfig?.path;
   }
 }

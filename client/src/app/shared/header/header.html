@@ -1,4 +1,4 @@
-<header class="eventify-header" [class.eventify-header--solid]="!isHomeRoute()">
+<header class="eventify-header" [class.eventify-header--solid]="!shouldUseHomeHeaderStyle()">
   <nav #headerNavRoot class="navbar navbar-expand-lg container eventify-header__nav">
     <a class="eventify-header__brand" routerLink="/" (click)="onNavItemClick()">
       <img src="images/logo.png" alt="Eventify" class="eventify-header__brand-logo" />
@@ -28,6 +28,7 @@
             <a
               class="eventify-header__nav-link"
               routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
               [routerLink]="link.route"
               (click)="onNavItemClick()"
             >
