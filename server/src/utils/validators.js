@@ -201,6 +201,52 @@ const validateBooking = [
 ];
 
 /**
+ * Validate contact message submission
+ */
+const validateContactMessage = [
+  body('fullName')
+    .trim()
+    .notEmpty().withMessage('Full name is required')
+    .bail()
+    .isLength({ min: 2, max: 80 }).withMessage('Full name must be between 2 and 80 characters'),
+
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .bail()
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+
+  body('subject')
+    .trim()
+    .notEmpty().withMessage('Subject is required')
+    .bail()
+    .isLength({ min: 4, max: 140 }).withMessage('Subject must be between 4 and 140 characters'),
+
+  body('message')
+    .trim()
+    .notEmpty().withMessage('Message is required')
+    .bail()
+    .isLength({ min: 10, max: 2000 }).withMessage('Message must be between 10 and 2000 characters'),
+
+  handleValidationErrors
+];
+
+/**
+ * Validate newsletter subscription submission
+ */
+const validateNewsletterSubscription = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .bail()
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+
+  handleValidationErrors
+];
+
+/**
  * Validate MongoDB ObjectId parameter
  */
 const validateObjectId = (paramName = 'id') => {
@@ -260,6 +306,8 @@ export {
   validateCreateEvent,
   validateUpdateEvent,
   validateBooking,
+  validateContactMessage,
+  validateNewsletterSubscription,
   validateObjectId,
   validateQuery,
   handleValidationErrors,
