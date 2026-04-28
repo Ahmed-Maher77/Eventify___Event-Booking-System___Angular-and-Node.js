@@ -181,6 +181,49 @@
               <p class="text-muted">No events match the current filters.</p>
             }
           </div>
+
+          @if (totalEvents > 0) {
+            <nav class="events-page__pagination" aria-label="Events pagination">
+              <button
+                type="button"
+                class="events-page__page-btn"
+                [disabled]="!hasPreviousPage"
+                (click)="goToPreviousPage()"
+              >
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                Prev
+              </button>
+
+              <div class="events-page__page-numbers">
+                @for (token of paginationTokens; track token + '-' + $index) {
+                  @if (token === 'ellipsis-left' || token === 'ellipsis-right') {
+                    <span class="events-page__page-ellipsis" aria-hidden="true">...</span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="events-page__page-btn events-page__page-btn--number"
+                      [class.is-active]="queryState.page === token"
+                      (click)="goToPage(token)"
+                    >
+                      {{ token }}
+                    </button>
+                  }
+                }
+              </div>
+
+              <button
+                type="button"
+                class="events-page__page-btn"
+                [disabled]="!hasNextPage"
+                (click)="goToNextPage()"
+              >
+                Next
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+
+              <span class="events-page__page-state">Page {{ queryState.page }} of {{ totalPages }}</span>
+            </nav>
+          }
         }
       </div>
     </div>

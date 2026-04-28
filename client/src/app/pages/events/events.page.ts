@@ -10,6 +10,7 @@ import { Button } from '../../shared/button/button';
 import { EventApiItem, EventQueryOptions, EventService, EventSortField, EventSortOrder } from '../../services/event.service';
 
 type EventCategoryTab = 'all' | 'concert' | 'conference' | 'workshop' | 'seminar' | 'sports' | 'other';
+type PaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
 
 interface EventsQueryState {
   name: string;
@@ -35,6 +36,7 @@ export class EventsPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
+  private readonly defaultPageLimit = 3;
   protected readonly minAllowedPrice = 0;
   protected readonly maxAllowedPrice = 1000;
   protected readonly priceStep = 10;
@@ -62,6 +64,7 @@ export class EventsPage implements OnInit, OnDestroy {
   protected isLoading = false;
   protected errorMessage = '';
   protected totalEvents = 0;
+  protected totalPages = 1;
   protected areFiltersVisibleOnMobile = false;
   protected animationSeed = 0;
   protected readonly fallbackEvents: EventApiItem[] = [
@@ -101,6 +104,123 @@ export class EventsPage implements OnInit, OnDestroy {
       price: 40,
       image: '/images/Conference.jpg'
     }
+    ,{
+      _id: 'dummy-5',
+      title: 'Sunset Jazz Night',
+      date: new Date().toISOString(),
+      location: 'Cairo Opera House',
+      category: 'concert',
+      price: 35,
+      image: '/images/Concert.png'
+    },
+    {
+      _id: 'dummy-6',
+      title: 'Future of Web Conference',
+      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Alexandria Convention Center',
+      category: 'conference',
+      price: 120,
+      image: '/images/Seminar.jpg'
+    },
+    {
+      _id: 'dummy-7',
+      title: 'Creative Design Workshop',
+      date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Giza Innovation Hub',
+      category: 'workshop',
+      price: 55,
+      image: '/images/Workshop.png'
+    },
+    {
+      _id: 'dummy-8',
+      title: 'Startup Growth Seminar',
+      date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Mansoura Business Hall',
+      category: 'seminar',
+      price: 40,
+      image: '/images/Conference.jpg'
+    }
+    ,{
+      _id: 'dummy-9',
+      title: 'Sunset Jazz Night',
+      date: new Date().toISOString(),
+      location: 'Cairo Opera House',
+      category: 'concert',
+      price: 35,
+      image: '/images/Concert.png'
+    },
+    {
+      _id: 'dummy-10',
+      title: 'Future of Web Conference',
+      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Alexandria Convention Center',
+      category: 'conference',
+      price: 120,
+      image: '/images/Seminar.jpg'
+    },
+    {
+      _id: 'dummy-11',
+      title: 'Creative Design Workshop',
+      date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Giza Innovation Hub',
+      category: 'workshop',
+      price: 55,
+      image: '/images/Workshop.png'
+    },
+    {
+      _id: 'dummy-12',
+      title: 'Startup Growth Seminar',
+      date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Mansoura Business Hall',
+      category: 'seminar',
+      price: 40,
+      image: '/images/Conference.jpg'
+    },
+    {
+      _id: 'dummy-13',
+      title: 'Sunset Jazz Night',
+      date: new Date().toISOString(),
+      location: 'Cairo Opera House',
+      category: 'concert',
+      price: 35,
+      image: '/images/Concert.png'
+    }
+    ,{
+      _id: 'dummy-14',
+      title: 'Future of Web Conference',
+      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Alexandria Convention Center',
+      category: 'conference',
+      price: 120,
+      image: '/images/Seminar.jpg'
+    }
+    ,{
+      _id: 'dummy-15',
+      title: 'Creative Design Workshop',
+      date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Giza Innovation Hub',
+      category: 'workshop',
+      price: 55,
+      image: '/images/Workshop.png'
+    },
+    {
+      _id: 'dummy-16',
+      title: 'Startup Growth Seminar',
+      date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Mansoura Business Hall',
+      category: 'seminar',
+      price: 40,
+      image: '/images/Conference.jpg'
+    },
+    {
+      _id: 'dummy-17',
+      title: 'Sunset Jazz Night',
+      date: new Date().toISOString(),
+      location: 'Cairo Opera House',
+      category: 'concert',
+      price: 35,
+      image: '/images/Concert.png'
+    }
   ];
 
   // Template-bound state for search/filter/sort controls.
@@ -113,7 +233,7 @@ export class EventsPage implements OnInit, OnDestroy {
     sort: 'date',
     order: 'asc',
     page: 1,
-    limit: 12
+    limit: this.defaultPageLimit
   };
 
   ngOnInit(): void {
@@ -221,6 +341,63 @@ export class EventsPage implements OnInit, OnDestroy {
     this.loadEvents();
   }
 
+  protected goToPage(page: number): void {
+    const targetPage = Math.max(1, Math.min(page, this.totalPages));
+    if (targetPage === this.queryState.page) {
+      return;
+    }
+
+    this.queryState.page = targetPage;
+    this.updateUrlFromQueryState();
+  }
+
+  protected goToNextPage(): void {
+    this.goToPage(this.queryState.page + 1);
+  }
+
+  protected goToPreviousPage(): void {
+    this.goToPage(this.queryState.page - 1);
+  }
+
+  protected get hasPreviousPage(): boolean {
+    return this.queryState.page > 1;
+  }
+
+  protected get hasNextPage(): boolean {
+    return this.queryState.page < this.totalPages;
+  }
+
+  protected get paginationTokens(): PaginationToken[] {
+    const total = this.totalPages;
+    const current = this.queryState.page;
+    if (total <= 0) {
+      return [];
+    }
+
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, idx) => idx + 1);
+    }
+
+    const tokens: PaginationToken[] = [1];
+    const middleStart = Math.max(2, current - 1);
+    const middleEnd = Math.min(total - 1, current + 1);
+
+    if (middleStart > 2) {
+      tokens.push('ellipsis-left');
+    }
+
+    for (let page = middleStart; page <= middleEnd; page += 1) {
+      tokens.push(page);
+    }
+
+    if (middleEnd < total - 1) {
+      tokens.push('ellipsis-right');
+    }
+
+    tokens.push(total);
+    return tokens;
+  }
+
   private updateUrlFromQueryState(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -233,7 +410,7 @@ export class EventsPage implements OnInit, OnDestroy {
         sort: this.queryState.sort === 'date' ? null : this.queryState.sort,
         order: this.queryState.order === 'asc' ? null : this.queryState.order,
         page: this.queryState.page > 1 ? this.queryState.page : null,
-        limit: this.queryState.limit !== 12 ? this.queryState.limit : null
+        limit: null
       },
       queryParamsHandling: ''
     });
@@ -247,7 +424,6 @@ export class EventsPage implements OnInit, OnDestroy {
     const sortFromUrl = (params.get('sort') ?? 'date').toLowerCase();
     const orderFromUrl = (params.get('order') ?? 'asc').toLowerCase();
     const pageFromUrl = Number(params.get('page') ?? '1');
-    const limitFromUrl = Number(params.get('limit') ?? '12');
     const minPriceFromUrl = Number(params.get('minPrice') ?? `${this.minAllowedPrice}`);
     const maxPriceFromUrl = Number(params.get('maxPrice') ?? `${this.maxAllowedPrice}`);
 
@@ -262,7 +438,7 @@ export class EventsPage implements OnInit, OnDestroy {
 
     const order: EventSortOrder = orderFromUrl === 'desc' ? 'desc' : 'asc';
     const page = Number.isFinite(pageFromUrl) && pageFromUrl > 0 ? Math.floor(pageFromUrl) : 1;
-    const limit = Number.isFinite(limitFromUrl) && limitFromUrl > 0 ? Math.floor(limitFromUrl) : 12;
+    const limit = this.defaultPageLimit;
 
     return {
       name: (params.get('name') ?? '').trim(),
@@ -298,6 +474,12 @@ export class EventsPage implements OnInit, OnDestroy {
       page: this.queryState.page,
       limit: this.queryState.limit
     };
+    console.log('[EventsPage][pagination] request', {
+      page: query.page,
+      limit: query.limit,
+      category: query.category ?? 'none',
+      name: query.name ?? ''
+    });
 
     this.eventService
       .getEvents(query)
@@ -311,29 +493,118 @@ export class EventsPage implements OnInit, OnDestroy {
         next: (response) => {
           try {
             const apiEvents = response.data?.events ?? [];
+            const pagination = response.data?.pagination;
             const filteredEvents =
               this.queryState.categories.length > 1
                 ? apiEvents.filter((event) =>
                     this.queryState.categories.includes(event.category as EventCategoryTab),
                   )
                 : apiEvents;
+            const hasServerPagination =
+              typeof pagination?.totalPages === 'number' &&
+              typeof pagination?.totalEvents === 'number' &&
+              typeof pagination?.currentPage === 'number';
+            const serverLimit = Number(pagination?.limit ?? this.queryState.limit);
+            const serverCurrentPage = Number(pagination?.currentPage ?? this.queryState.page);
+            const serverReturnsPagedChunk =
+              hasServerPagination &&
+              Number.isFinite(serverLimit) &&
+              serverLimit > 0 &&
+              serverCurrentPage === this.queryState.page &&
+              filteredEvents.length <= serverLimit;
+            const isClientSideMultiCategoryFilter = this.queryState.categories.length > 1;
+            const shouldUseClientPagination =
+              isClientSideMultiCategoryFilter || !serverReturnsPagedChunk;
+
             const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
-            this.events = sourceEvents.map((event) => mapEventApiItemToFeaturedCard(event));
-            this.totalEvents = this.events.length;
+            const normalizedLimit = Math.max(1, this.queryState.limit);
+            const computedTotalEvents = shouldUseClientPagination
+              ? sourceEvents.length
+              : (pagination?.totalEvents ?? sourceEvents.length);
+            const computedTotalPages = Math.max(
+              1,
+              shouldUseClientPagination
+                ? Math.ceil(computedTotalEvents / normalizedLimit)
+                : (pagination?.totalPages ?? Math.ceil(computedTotalEvents / normalizedLimit))
+            );
+
+            this.totalEvents = computedTotalEvents;
+            this.totalPages = computedTotalPages;
+
+            console.log('[EventsPage][pagination] response', {
+              queryPage: this.queryState.page,
+              queryLimit: this.queryState.limit,
+              apiEventsCount: apiEvents.length,
+              filteredEventsCount: filteredEvents.length,
+              sourceEventsCount: sourceEvents.length,
+              serverCurrentPage: pagination?.currentPage ?? null,
+              serverLimit: pagination?.limit ?? null,
+              serverTotalPages: pagination?.totalPages ?? null,
+              serverTotalEvents: pagination?.totalEvents ?? null,
+              hasServerPagination,
+              serverReturnsPagedChunk,
+              shouldUseClientPagination,
+              computedTotalEvents,
+              computedTotalPages
+            });
+
+            if (this.queryState.page > this.totalPages) {
+              console.log('[EventsPage][pagination] page overflow -> correcting', {
+                currentPage: this.queryState.page,
+                correctedPage: this.totalPages
+              });
+              this.queryState.page = this.totalPages;
+              this.updateUrlFromQueryState();
+              return;
+            }
+
+            const pagedEvents = shouldUseClientPagination
+              ? sourceEvents.slice(
+                  (this.queryState.page - 1) * normalizedLimit,
+                  this.queryState.page * normalizedLimit
+                )
+              : sourceEvents;
+            this.events = pagedEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+            console.log('[EventsPage][pagination] render', {
+              page: this.queryState.page,
+              limit: normalizedLimit,
+              totalPages: this.totalPages,
+              renderedEventsCount: this.events.length,
+              pagedEventsCount: pagedEvents.length
+            });
             this.animationSeed += 1;
-          } catch {
-            this.events = this.fallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
-            this.totalEvents = this.events.length;
+          } catch (err) {
+            console.error('[EventsPage][pagination] catch-path fallback', err);
+            this.applyFallbackPagination();
             this.errorMessage = '';
             this.animationSeed += 1;
           }
         },
-        error: () => {
-          this.events = this.fallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
-          this.totalEvents = this.events.length;
+        error: (err) => {
+          console.error('[EventsPage][pagination] request error-path fallback', err);
+          this.applyFallbackPagination();
           this.errorMessage = '';
           this.animationSeed += 1;
         }
       });
+  }
+
+  private applyFallbackPagination(): void {
+    const normalizedLimit = Math.max(1, this.queryState.limit);
+    const totalFallbackEvents = this.fallbackEvents.length;
+    this.totalEvents = totalFallbackEvents;
+    this.totalPages = Math.max(1, Math.ceil(totalFallbackEvents / normalizedLimit));
+
+    if (this.queryState.page > this.totalPages) {
+      this.queryState.page = this.totalPages;
+      this.updateUrlFromQueryState();
+      return;
+    }
+
+    const pagedFallbackEvents = this.fallbackEvents.slice(
+      (this.queryState.page - 1) * normalizedLimit,
+      this.queryState.page * normalizedLimit
+    );
+    this.events = pagedFallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
   }
 }

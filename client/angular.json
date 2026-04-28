@@ -68,7 +68,8 @@
               "buildTarget": "eventify-client:build:production"
             },
             "development": {
-              "buildTarget": "eventify-client:build:development"
+              "buildTarget": "eventify-client:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
