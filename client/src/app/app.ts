@@ -44,6 +44,10 @@ export class App {
   constructor() {
     this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event instanceof NavigationStart) {
+        if (!this.shouldShowGlobalLoaderForNavigation(event.url)) {
+          return;
+        }
+
         if (this.hideLoaderTimeoutId) {
           clearTimeout(this.hideLoaderTimeoutId);
           this.hideLoaderTimeoutId = null;
@@ -63,6 +67,10 @@ export class App {
         event instanceof NavigationCancel ||
         event instanceof NavigationError
       ) {
+        if (!this.isNavigating()) {
+          return;
+        }
+
         const elapsedMs = performance.now() - this.loaderShownAtMs;
         const remainingMs = Math.max(0, 250 - elapsedMs);
 
@@ -253,5 +261,15 @@ export class App {
     }
 
     return node.routeConfig?.path ?? null;
+  }
+
+  private shouldShowGlobalLoaderForNavigation(nextUrl: string): boolean {
+    const normalizePath = (url: string): string => {
+      const [withoutQuery] = url.split('?');
+      const [withoutHash] = withoutQuery.split('#');
+      return withoutHash;
+    };
+
+    return normalizePath(this.router.url) !== normalizePath(nextUrl);
   }
 }
