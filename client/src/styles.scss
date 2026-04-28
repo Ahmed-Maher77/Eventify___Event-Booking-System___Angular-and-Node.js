@@ -14,6 +14,7 @@
 @use './sass/components/talk-to-ai-shared';
 @use './sass/components/team-members-shared';
 @use './sass/components/static-info-shared';
+@use './sass/components/contact-shared';
 @use './sass/components/testimonials-shared';
 @use './sass/components/trusted-companies-shared';
 
@@ -101,6 +102,17 @@
   --color-faq-assistant-glow: rgb(231 200 115 / 40%);
   --color-faq-badge-bg: rgb(255 255 255 / 86%);
   --color-faq-badge-border: rgb(231 200 115 / 46%);
+  --color-contact-card-bg: rgb(255 255 255 / 82%);
+  --color-contact-card-border: rgb(231 200 115 / 34%);
+  --color-contact-shadow: rgb(106 77 0 / 9%);
+  --color-contact-muted: #5b6472;
+  --color-contact-link: #1f2937;
+  --color-contact-input-bg: #ffffff;
+  --color-contact-input-border: #e9e5d8;
+  --color-contact-input-placeholder: #9ca3af;
+  --color-contact-focus-ring: rgb(231 200 115 / 30%);
+  --color-contact-social-hover-bg: rgb(231 200 115 / 12%);
+  --color-contact-divider: rgb(231 200 115 / 38%);
   --logo-grayscale: 1;
   --bgColor-white: #fff;
 }
