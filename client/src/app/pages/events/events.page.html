@@ -7,7 +7,19 @@
 
     <div class="events-page row g-4 mt-1">
       <aside class="col-12 col-lg-4 col-xl-3">
-        <form class="events-page__filters" (ngSubmit)="applySidebarFilters()">
+        <button
+          type="button"
+          class="events-page__mobile-toggle btn btn-outline-dark diagonal-swipe-hover"
+          (click)="toggleMobileFilters()"
+        >
+          {{ areFiltersVisibleOnMobile ? 'Hide filters' : 'Show filters' }}
+        </button>
+
+        <form
+          class="events-page__filters"
+          [class.is-collapsed]="!areFiltersVisibleOnMobile"
+          (ngSubmit)="applySidebarFilters()"
+        >
           <div class="events-page__filter-group">
             <label class="events-page__label" for="events-search">Search</label>
             <input
@@ -87,7 +99,7 @@
         @if (isLoading) {
           <p class="mt-3 text-secondary">Loading events...</p>
         } @else if (errorMessage) {
-          <div class="mt-3">
+          <div class="mt-3 fallback-error-message">
             <p class="text-danger mb-2">{{ errorMessage }}</p>
             <button type="button" class="btn btn-outline-dark btn-sm" (click)="retryLoad()">Try again</button>
           </div>

@@ -55,6 +55,7 @@ export class EventsPage implements OnInit, OnDestroy {
   protected isLoading = false;
   protected errorMessage = '';
   protected totalEvents = 0;
+  protected areFiltersVisibleOnMobile = false;
 
   // Template-bound state for search/filter/sort controls.
   protected queryState: EventsQueryState = {
@@ -118,6 +119,11 @@ export class EventsPage implements OnInit, OnDestroy {
   protected applySidebarFilters(): void {
     this.queryState.page = 1;
     this.updateUrlFromQueryState();
+    this.areFiltersVisibleOnMobile = false;
+  }
+
+  protected toggleMobileFilters(): void {
+    this.areFiltersVisibleOnMobile = !this.areFiltersVisibleOnMobile;
   }
 
   protected onSortChanged(combinedValue: `${EventSortField}:${EventSortOrder}`): void {

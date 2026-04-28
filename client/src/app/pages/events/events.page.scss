@@ -15,6 +15,15 @@
   border-bottom: 1px solid rgb(231 200 115 / 24%);
 }
 
+.fallback-error-message {
+  text-align: center;
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
 .events-page__filter-group:last-of-type {
   border-bottom: 0;
   padding-bottom: 0.25rem;
@@ -60,12 +69,58 @@
   max-width: 280px;
 }
 
+.events-page__mobile-toggle {
+  display: none;
+  width: 100%;
+
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  z-index: 0;
+  transition:
+    color 0.45s ease,
+    border-color 0.45s ease,
+    background-color 0.45s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 0;
+    left: -40px;
+    transform: skewX(45deg);
+    background-color: var(--color-black);
+    z-index: -1;
+    transition: width 0.55s ease;
+  }
+
+  &:hover {
+    color: var(--color-white);
+    border-color: var(--color-black);
+  }
+
+  &:hover::before {
+    width: 160%;
+  }
+}
+
 @media (max-width: 991.98px) {
+  .events-page__mobile-toggle {
+    display: inline-flex;
+    justify-content: center;
+    margin-bottom: 0.7rem;
+    width: 100%;
+  }
+
   .events-page__filters {
     padding: 0.8rem;
     border: 1px solid rgb(231 200 115 / 24%);
     border-radius: 12px;
     background: rgb(255 255 255 / 72%);
+
+    &.is-collapsed {
+      display: none;
+    }
   }
 
   .events-page__checkbox-list {
