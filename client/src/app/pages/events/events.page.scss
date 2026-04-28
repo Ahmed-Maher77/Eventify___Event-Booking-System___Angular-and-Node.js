@@ -17,11 +17,38 @@
 
 .fallback-error-message {
   text-align: center;
-  padding-top: 30px;
+  padding-top: 1.4rem;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.55rem;
   align-items: center;
+}
+
+.events-page__retry-btn {
+  border: 1px solid var(--color-black);
+  border-radius: 999px;
+  background: var(--color-black);
+  color: var(--color-white);
+  min-height: 2.25rem;
+  padding: 0.35rem 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  transition:
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.22s ease;
+
+  &:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-black);
+    transform: translateY(-1px);
+  }
 }
 
 .events-page__filter-group:last-of-type {

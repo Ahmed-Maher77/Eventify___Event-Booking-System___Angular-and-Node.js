@@ -101,7 +101,10 @@
         } @else if (errorMessage) {
           <div class="mt-3 fallback-error-message">
             <p class="text-danger mb-2">{{ errorMessage }}</p>
-            <button type="button" class="btn btn-outline-dark btn-sm" (click)="retryLoad()">Try again</button>
+            <button type="button" class="events-page__retry-btn" (click)="retryLoad()">
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+              Try again
+            </button>
           </div>
         } @else {
           <ul class="list-group mt-2">
