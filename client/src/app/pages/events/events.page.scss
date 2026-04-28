@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+.events-page__filters {
+  padding: 0.15rem 0.1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.events-page__filter-group {
+  display: grid;
+  gap: 0.45rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgb(231 200 115 / 24%);
+}
+
+.events-page__filter-group:last-of-type {
+  border-bottom: 0;
+  padding-bottom: 0.25rem;
+}
+
+.events-page__label {
+  color: var(--color-black);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.events-page__checkbox-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.events-page__checkbox-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-gray);
+  font-size: 0.92rem;
+}
+
+.events-page__actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.events-page__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.events-page__result-count {
+  margin: 0;
+  color: var(--color-gray);
+}
+
+.events-page__sort {
+  max-width: 280px;
+}
+
+@media (max-width: 991.98px) {
+  .events-page__filters {
+    padding: 0.8rem;
+    border: 1px solid rgb(231 200 115 / 24%);
+    border-radius: 12px;
+    background: rgb(255 255 255 / 72%);
+  }
+
+  .events-page__checkbox-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 0.75rem;
+  }
+
+  .events-page__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .events-page__actions .btn {
+    width: 100%;
+  }
+}

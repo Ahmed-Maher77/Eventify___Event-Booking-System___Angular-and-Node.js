@@ -9,7 +9,10 @@ type EventCategoryTab = 'all' | 'concert' | 'conference' | 'workshop' | 'seminar
 
 interface EventsQueryState {
   name: string;
-  category: EventCategoryTab;
+  categories: EventCategoryTab[];
+  location: string;
+  minPrice: number;
+  maxPrice: number;
   sort: EventSortField;
   order: EventSortOrder;
   page: number;
@@ -21,7 +24,7 @@ interface EventsQueryState {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './events.page.html',
-  styleUrl: '../../../sass/components/static-info-page.scss'
+  styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss']
 })
 export class EventsPage implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
@@ -56,7 +59,10 @@ export class EventsPage implements OnInit, OnDestroy {
   // Template-bound state for search/filter/sort controls.
   protected queryState: EventsQueryState = {
     name: '',
-    category: 'all',
+    categories: [],
+    location: '',
+    minPrice: 0,
+    maxPrice: 1000,
     sort: 'date',
     order: 'asc',
     page: 1,
@@ -85,12 +91,31 @@ export class EventsPage implements OnInit, OnDestroy {
     // Template hook: call on input change if you want live search.
   }
 
-  protected setCategory(category: EventCategoryTab): void {
-    if (this.queryState.category === category) {
+  protected toggleCategory(category: EventCategoryTab): void {
+    if (category === 'all') {
+      this.queryState.categories = [];
+      this.queryState.page = 1;
+      this.updateUrlFromQueryState();
       return;
     }
 
-    this.queryState.category = category;
+    const hasCategory = this.queryState.categories.includes(category);
+    this.queryState.categories = hasCategory
+      ? this.queryState.categories.filter((item) => item !== category)
+      : [...this.queryState.categories, category];
+    this.queryState.page = 1;
+    this.updateUrlFromQueryState();
+  }
+
+  protected isCategoryChecked(category: EventCategoryTab): boolean {
+    if (category === 'all') {
+      return this.queryState.categories.length === 0;
+    }
+
+    return this.queryState.categories.includes(category);
+  }
+
+  protected applySidebarFilters(): void {
     this.queryState.page = 1;
     this.updateUrlFromQueryState();
   }
@@ -108,7 +133,10 @@ export class EventsPage implements OnInit, OnDestroy {
     this.queryState = {
       ...this.queryState,
       name: '',
-      category: 'all',
+      categories: [],
+      location: '',
+      minPrice: 0,
+      maxPrice: 1000,
       sort: 'date',
       order: 'asc',
       page: 1
@@ -125,7 +153,10 @@ export class EventsPage implements OnInit, OnDestroy {
       relativeTo: this.route,
       queryParams: {
         name: this.queryState.name || null,
-        category: this.queryState.category === 'all' ? null : this.queryState.category,
+        categories: this.queryState.categories.length ? this.queryState.categories.join(',') : null,
+        location: this.queryState.location || null,
+        minPrice: this.queryState.minPrice > 0 ? this.queryState.minPrice : null,
+        maxPrice: this.queryState.maxPrice < 1000 ? this.queryState.maxPrice : null,
         sort: this.queryState.sort === 'date' ? null : this.queryState.sort,
         order: this.queryState.order === 'asc' ? null : this.queryState.order,
         page: this.queryState.page > 1 ? this.queryState.page : null,
@@ -136,15 +167,20 @@ export class EventsPage implements OnInit, OnDestroy {
   }
 
   private mapParamsToQueryState(params: import('@angular/router').ParamMap): EventsQueryState {
-    const categoryFromUrl = (params.get('category') ?? 'all').toLowerCase();
+    const categoriesFromUrl = (params.get('categories') ?? '')
+      .split(',')
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean);
     const sortFromUrl = (params.get('sort') ?? 'date').toLowerCase();
     const orderFromUrl = (params.get('order') ?? 'asc').toLowerCase();
     const pageFromUrl = Number(params.get('page') ?? '1');
     const limitFromUrl = Number(params.get('limit') ?? '12');
+    const minPriceFromUrl = Number(params.get('minPrice') ?? '0');
+    const maxPriceFromUrl = Number(params.get('maxPrice') ?? '1000');
 
-    const category = this.categoryTabs.includes(categoryFromUrl as EventCategoryTab)
-      ? (categoryFromUrl as EventCategoryTab)
-      : 'all';
+    const categories = categoriesFromUrl.filter((category) =>
+      this.categoryTabs.includes(category as EventCategoryTab) && category !== 'all',
+    ) as EventCategoryTab[];
 
     const allowedSorts: readonly EventSortField[] = ['date', 'price', 'title', 'createdAt'];
     const sort: EventSortField = allowedSorts.includes(sortFromUrl as EventSortField)
@@ -157,7 +193,14 @@ export class EventsPage implements OnInit, OnDestroy {
 
     return {
       name: (params.get('name') ?? '').trim(),
-      category,
+      categories,
+      location: (params.get('location') ?? '').trim(),
+      minPrice:
+        Number.isFinite(minPriceFromUrl) && minPriceFromUrl >= 0 ? Math.floor(minPriceFromUrl) : 0,
+      maxPrice:
+        Number.isFinite(maxPriceFromUrl) && maxPriceFromUrl >= 0
+          ? Math.floor(maxPriceFromUrl)
+          : 1000,
       sort,
       order,
       page,
@@ -171,7 +214,10 @@ export class EventsPage implements OnInit, OnDestroy {
 
     const query: EventQueryOptions = {
       name: this.queryState.name,
-      category: this.queryState.category,
+      category: this.queryState.categories.length === 1 ? this.queryState.categories[0] : undefined,
+      location: this.queryState.location,
+      minPrice: this.queryState.minPrice,
+      maxPrice: this.queryState.maxPrice,
       sort: this.queryState.sort,
       order: this.queryState.order,
       page: this.queryState.page,
@@ -183,8 +229,17 @@ export class EventsPage implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          this.events = response.data?.events ?? [];
+          const apiEvents = response.data?.events ?? [];
+          this.events =
+            this.queryState.categories.length > 1
+              ? apiEvents.filter((event) =>
+                  this.queryState.categories.includes(event.category as EventCategoryTab),
+                )
+              : apiEvents;
           this.totalEvents = response.data?.pagination?.totalEvents ?? this.events.length;
+          if (this.queryState.categories.length > 1) {
+            this.totalEvents = this.events.length;
+          }
           this.isLoading = false;
         },
         error: () => {

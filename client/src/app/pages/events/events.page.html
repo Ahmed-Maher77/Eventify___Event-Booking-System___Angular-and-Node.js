@@ -5,65 +5,108 @@
       Explore upcoming events and discover experiences tailored to your interests.
     </p>
 
-    <form class="d-flex flex-column flex-md-row gap-2 mt-3" (ngSubmit)="onSearchSubmit()">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Search by name..."
-        [(ngModel)]="queryState.name"
-        name="eventsSearchName"
-        (ngModelChange)="onSearchInputChanged()"
-      />
-      <select
-        class="form-select"
-        [ngModel]="queryState.sort + ':' + queryState.order"
-        (ngModelChange)="onSortChanged($event)"
-        name="eventsSort"
-      >
-        @for (option of sortOptions; track option.value) {
-          <option [value]="option.value">{{ option.label }}</option>
-        }
-      </select>
-      <button type="submit" class="btn btn-dark">Search</button>
-      <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">Reset</button>
-    </form>
+    <div class="events-page row g-4 mt-1">
+      <aside class="col-12 col-lg-4 col-xl-3">
+        <form class="events-page__filters" (ngSubmit)="applySidebarFilters()">
+          <div class="events-page__filter-group">
+            <label class="events-page__label" for="events-search">Search</label>
+            <input
+              id="events-search"
+              type="text"
+              class="form-control"
+              placeholder="Search by name..."
+              [(ngModel)]="queryState.name"
+              name="eventsSearchName"
+            />
+          </div>
 
-    <div class="d-flex flex-wrap gap-2 mt-3">
-      @for (category of categoryTabs; track category) {
-        <button
-          type="button"
-          class="btn"
-          [class.btn-dark]="queryState.category === category"
-          [class.btn-outline-dark]="queryState.category !== category"
-          (click)="setCategory(category)"
-        >
-          {{ category }}
-        </button>
-      }
-    </div>
-
-    @if (isLoading) {
-      <p class="mt-3 text-secondary">Loading events...</p>
-    } @else if (errorMessage) {
-      <div class="mt-3">
-        <p class="text-danger mb-2">{{ errorMessage }}</p>
-        <button type="button" class="btn btn-outline-dark btn-sm" (click)="retryLoad()">Try again</button>
-      </div>
-    } @else {
-      <p class="mt-3 text-secondary">Found {{ totalEvents }} event(s).</p>
-      <ul class="list-group mt-2">
-        @for (event of events; track event._id) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <strong>{{ event.title }}</strong>
-              <div class="text-muted small">{{ event.location }} • {{ event.category }}</div>
+          <div class="events-page__filter-group">
+            <label class="events-page__label">Category</label>
+            <div class="events-page__checkbox-list">
+              @for (category of categoryTabs; track category) {
+                <label class="events-page__checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isCategoryChecked(category)"
+                    (change)="toggleCategory(category)"
+                  />
+                  <span>{{ category }}</span>
+                </label>
+              }
             </div>
-            <span class="badge text-bg-dark">${{ event.price }}</span>
-          </li>
-        } @empty {
-          <li class="list-group-item text-muted">No events match the current filters.</li>
+          </div>
+
+          <div class="events-page__filter-group">
+            <label class="events-page__label" for="events-location">Location</label>
+            <input
+              id="events-location"
+              type="text"
+              class="form-control"
+              placeholder="City or venue..."
+              [(ngModel)]="queryState.location"
+              name="eventsLocation"
+            />
+          </div>
+
+          <div class="events-page__filter-group">
+            <label class="events-page__label" for="events-price-range">Max Price: ${{ queryState.maxPrice }}</label>
+            <input
+              id="events-price-range"
+              class="form-range"
+              type="range"
+              min="0"
+              max="1000"
+              step="10"
+              [(ngModel)]="queryState.maxPrice"
+              name="eventsPriceRange"
+            />
+          </div>
+
+          <div class="events-page__actions">
+            <button type="submit" class="btn btn-dark">Apply</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">Reset</button>
+          </div>
+        </form>
+      </aside>
+
+      <div class="col-12 col-lg-8 col-xl-9">
+        <div class="events-page__toolbar">
+          <p class="events-page__result-count">Found {{ totalEvents }} event(s).</p>
+          <select
+            class="form-select events-page__sort"
+            [ngModel]="queryState.sort + ':' + queryState.order"
+            (ngModelChange)="onSortChanged($event)"
+            name="eventsSort"
+          >
+            @for (option of sortOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        @if (isLoading) {
+          <p class="mt-3 text-secondary">Loading events...</p>
+        } @else if (errorMessage) {
+          <div class="mt-3">
+            <p class="text-danger mb-2">{{ errorMessage }}</p>
+            <button type="button" class="btn btn-outline-dark btn-sm" (click)="retryLoad()">Try again</button>
+          </div>
+        } @else {
+          <ul class="list-group mt-2">
+            @for (event of events; track event._id) {
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ event.title }}</strong>
+                  <div class="text-muted small">{{ event.location }} • {{ event.category }}</div>
+                </div>
+                <span class="badge text-bg-dark">${{ event.price }}</span>
+              </li>
+            } @empty {
+              <li class="list-group-item text-muted">No events match the current filters.</li>
+            }
+          </ul>
         }
-      </ul>
-    }
+      </div>
+    </div>
   </div>
 </section>
