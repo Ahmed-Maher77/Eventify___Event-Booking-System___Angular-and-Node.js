@@ -37,6 +37,7 @@ export class App {
   protected readonly useFaqTheme = signal(false);
   protected readonly chatMessages = this.chatStoreService.messages;
   protected readonly isChatScreenActive = this.chatStoreService.isChatScreenActive;
+  protected readonly isAssistantOnline = this.chatStoreService.isAssistantOnline;
   protected readonly chatDraftMessage = signal('');
   protected readonly showChatbotHint = signal(false);
 

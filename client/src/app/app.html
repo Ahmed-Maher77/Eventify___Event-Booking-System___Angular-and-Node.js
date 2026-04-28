@@ -40,7 +40,9 @@
           </span>
           <div>
             <strong>Eventify AI Assistant</strong>
-            <span>Online</span>
+            <span class="chatbot-panel__status" [class.is-offline]="!isAssistantOnline()">
+              {{ isAssistantOnline() ? 'Online' : 'Offline' }}
+            </span>
           </div>
         </div>
         <button type="button" class="chatbot-panel__close" (click)="closeFloatingChat()" aria-label="Close chat">
