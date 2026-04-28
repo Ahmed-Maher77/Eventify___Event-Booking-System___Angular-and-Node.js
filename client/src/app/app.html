@@ -6,14 +6,14 @@
   <app-header></app-header>
 
   <!-- <main class="container py-4 page-main page-main--with-fixed-header"> -->
-  <main class="page-main">
+  <main class="page-main" [class.page-main--faq-theme]="useFaqTheme()">
       <router-outlet></router-outlet>
   </main>
 } @else {
   <div class="admin-layout">
     <app-admin-sidebar></app-admin-sidebar>
 
-    <main class="admin-content p-4 page-main">
+    <main class="admin-content p-4 page-main" [class.page-main--faq-theme]="useFaqTheme()">
       <router-outlet></router-outlet>
     </main>
   </div>

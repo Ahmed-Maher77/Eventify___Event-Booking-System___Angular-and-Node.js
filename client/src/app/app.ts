@@ -30,6 +30,7 @@ export class App {
   private hideLoaderTimeoutId: ReturnType<typeof setTimeout> | null = null;
   protected readonly title = signal('eventify-client');
   protected readonly isNavigating = signal(false);
+  protected readonly useFaqTheme = signal(false);
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
@@ -44,6 +45,7 @@ export class App {
 
       if (event instanceof NavigationEnd) {
         this.animateScrollToTop();
+        this.updateRouteThemeFlags();
       }
 
       if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
@@ -62,6 +64,8 @@ export class App {
         }
       }
     });
+
+    this.updateRouteThemeFlags();
   }
 
   ngOnDestroy(): void {
@@ -144,5 +148,21 @@ export class App {
         }
       });
     });
+  }
+
+  private updateRouteThemeFlags(): void {
+    const isHomeRoute = this.router.url === '/' || this.router.url.startsWith('/?');
+    const isNotFoundRoute = this.getActiveLeafRoutePath() === '**';
+    this.useFaqTheme.set(!isHomeRoute && !isNotFoundRoute);
+  }
+
+  private getActiveLeafRoutePath(): string | null {
+    let node = this.router.routerState.snapshot.root;
+
+    while (node.firstChild) {
+      node = node.firstChild;
+    }
+
+    return node.routeConfig?.path ?? null;
   }
 }

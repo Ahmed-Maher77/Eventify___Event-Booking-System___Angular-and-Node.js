@@ -36,6 +36,12 @@
   min-height: 100svh;
 }
 
+.page-main--faq-theme {
+  background:
+    radial-gradient(85% 70% at 86% 18%, var(--color-faq-bg-glow) 0%, transparent 68%),
+    var(--gradient-bg-flipped);
+}
+
 .page-main--with-fixed-header {
   padding-top: 5.6rem !important;
 }
