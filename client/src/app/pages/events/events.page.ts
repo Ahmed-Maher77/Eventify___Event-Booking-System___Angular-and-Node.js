@@ -7,9 +7,22 @@ import { FeaturedEventCard } from '../../components/featured-event-card/featured
 import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
 import { Button } from '../../shared/button/button';
-import { EventApiItem, EventQueryOptions, EventService, EventSortField, EventSortOrder } from '../../services/event.service';
+import {
+  EventApiItem,
+  EventQueryOptions,
+  EventService,
+  EventSortField,
+  EventSortOrder,
+} from '../../services/event.service';
 
-type EventCategoryTab = 'all' | 'concert' | 'conference' | 'workshop' | 'seminar' | 'sports' | 'other';
+type EventCategoryTab =
+  | 'all'
+  | 'concert'
+  | 'conference'
+  | 'workshop'
+  | 'seminar'
+  | 'sports'
+  | 'other';
 type PaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
 
 interface EventsQueryState {
@@ -29,7 +42,7 @@ interface EventsQueryState {
   standalone: true,
   imports: [CommonModule, FormsModule, FeaturedEventCard, Button],
   templateUrl: './events.page.html',
-  styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss']
+  styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss'],
 })
 export class EventsPage implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
@@ -48,16 +61,19 @@ export class EventsPage implements OnInit, OnDestroy {
     'workshop',
     'seminar',
     'sports',
-    'other'
+    'other',
   ] as const;
 
-  protected readonly sortOptions: readonly { label: string; value: `${EventSortField}:${EventSortOrder}` }[] = [
+  protected readonly sortOptions: readonly {
+    label: string;
+    value: `${EventSortField}:${EventSortOrder}`;
+  }[] = [
     { label: 'Date (Soonest)', value: 'date:asc' },
     { label: 'Date (Latest)', value: 'date:desc' },
     { label: 'Price (Low to High)', value: 'price:asc' },
     { label: 'Price (High to Low)', value: 'price:desc' },
     { label: 'Title (A-Z)', value: 'title:asc' },
-    { label: 'Title (Z-A)', value: 'title:desc' }
+    { label: 'Title (Z-A)', value: 'title:desc' },
   ] as const;
 
   protected events: FeaturedEventCardData[] = [];
@@ -75,7 +91,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Cairo Opera House',
       category: 'concert',
       price: 35,
-      image: '/images/Concert.png'
+      image: '/images/Concert.png',
     },
     {
       _id: 'dummy-2',
@@ -84,7 +100,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Alexandria Convention Center',
       category: 'conference',
       price: 120,
-      image: '/images/Seminar.jpg'
+      image: '/images/Seminar.jpg',
     },
     {
       _id: 'dummy-3',
@@ -93,7 +109,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Giza Innovation Hub',
       category: 'workshop',
       price: 55,
-      image: '/images/Workshop.png'
+      image: '/images/Workshop.png',
     },
     {
       _id: 'dummy-4',
@@ -102,16 +118,16 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Mansoura Business Hall',
       category: 'seminar',
       price: 40,
-      image: '/images/Conference.jpg'
-    }
-    ,{
+      image: '/images/Conference.jpg',
+    },
+    {
       _id: 'dummy-5',
       title: 'Sunset Jazz Night',
       date: new Date().toISOString(),
       location: 'Cairo Opera House',
       category: 'concert',
       price: 35,
-      image: '/images/Concert.png'
+      image: '/images/Concert.png',
     },
     {
       _id: 'dummy-6',
@@ -120,7 +136,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Alexandria Convention Center',
       category: 'conference',
       price: 120,
-      image: '/images/Seminar.jpg'
+      image: '/images/Seminar.jpg',
     },
     {
       _id: 'dummy-7',
@@ -129,7 +145,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Giza Innovation Hub',
       category: 'workshop',
       price: 55,
-      image: '/images/Workshop.png'
+      image: '/images/Workshop.png',
     },
     {
       _id: 'dummy-8',
@@ -138,16 +154,16 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Mansoura Business Hall',
       category: 'seminar',
       price: 40,
-      image: '/images/Conference.jpg'
-    }
-    ,{
+      image: '/images/Conference.jpg',
+    },
+    {
       _id: 'dummy-9',
       title: 'Sunset Jazz Night',
       date: new Date().toISOString(),
       location: 'Cairo Opera House',
       category: 'concert',
       price: 35,
-      image: '/images/Concert.png'
+      image: '/images/Concert.png',
     },
     {
       _id: 'dummy-10',
@@ -156,7 +172,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Alexandria Convention Center',
       category: 'conference',
       price: 120,
-      image: '/images/Seminar.jpg'
+      image: '/images/Seminar.jpg',
     },
     {
       _id: 'dummy-11',
@@ -165,7 +181,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Giza Innovation Hub',
       category: 'workshop',
       price: 55,
-      image: '/images/Workshop.png'
+      image: '/images/Workshop.png',
     },
     {
       _id: 'dummy-12',
@@ -174,7 +190,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Mansoura Business Hall',
       category: 'seminar',
       price: 40,
-      image: '/images/Conference.jpg'
+      image: '/images/Conference.jpg',
     },
     {
       _id: 'dummy-13',
@@ -183,25 +199,25 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Cairo Opera House',
       category: 'concert',
       price: 35,
-      image: '/images/Concert.png'
-    }
-    ,{
+      image: '/images/Concert.png',
+    },
+    {
       _id: 'dummy-14',
       title: 'Future of Web Conference',
       date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       location: 'Alexandria Convention Center',
       category: 'conference',
       price: 120,
-      image: '/images/Seminar.jpg'
-    }
-    ,{
+      image: '/images/Seminar.jpg',
+    },
+    {
       _id: 'dummy-15',
       title: 'Creative Design Workshop',
       date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       location: 'Giza Innovation Hub',
       category: 'workshop',
       price: 55,
-      image: '/images/Workshop.png'
+      image: '/images/Workshop.png',
     },
     {
       _id: 'dummy-16',
@@ -210,7 +226,7 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Mansoura Business Hall',
       category: 'seminar',
       price: 40,
-      image: '/images/Conference.jpg'
+      image: '/images/Conference.jpg',
     },
     {
       _id: 'dummy-17',
@@ -219,8 +235,8 @@ export class EventsPage implements OnInit, OnDestroy {
       location: 'Cairo Opera House',
       category: 'concert',
       price: 35,
-      image: '/images/Concert.png'
-    }
+      image: '/images/Concert.png',
+    },
   ];
 
   // Template-bound state for search/filter/sort controls.
@@ -233,7 +249,7 @@ export class EventsPage implements OnInit, OnDestroy {
     sort: 'date',
     order: 'asc',
     page: 1,
-    limit: this.defaultPageLimit
+    limit: this.defaultPageLimit,
   };
 
   ngOnInit(): void {
@@ -311,7 +327,7 @@ export class EventsPage implements OnInit, OnDestroy {
       maxPrice: this.maxAllowedPrice,
       sort: 'date',
       order: 'asc',
-      page: 1
+      page: 1,
     };
     this.updateUrlFromQueryState();
   }
@@ -410,9 +426,9 @@ export class EventsPage implements OnInit, OnDestroy {
         sort: this.queryState.sort === 'date' ? null : this.queryState.sort,
         order: this.queryState.order === 'asc' ? null : this.queryState.order,
         page: this.queryState.page > 1 ? this.queryState.page : null,
-        limit: null
+        limit: null,
       },
-      queryParamsHandling: ''
+      queryParamsHandling: '',
     });
   }
 
@@ -427,8 +443,8 @@ export class EventsPage implements OnInit, OnDestroy {
     const minPriceFromUrl = Number(params.get('minPrice') ?? `${this.minAllowedPrice}`);
     const maxPriceFromUrl = Number(params.get('maxPrice') ?? `${this.maxAllowedPrice}`);
 
-    const categories = categoriesFromUrl.filter((category) =>
-      this.categoryTabs.includes(category as EventCategoryTab) && category !== 'all',
+    const categories = categoriesFromUrl.filter(
+      (category) => this.categoryTabs.includes(category as EventCategoryTab) && category !== 'all',
     ) as EventCategoryTab[];
 
     const allowedSorts: readonly EventSortField[] = ['date', 'price', 'title', 'createdAt'];
@@ -455,7 +471,7 @@ export class EventsPage implements OnInit, OnDestroy {
       sort,
       order,
       page,
-      limit
+      limit,
     };
   }
 
@@ -472,13 +488,13 @@ export class EventsPage implements OnInit, OnDestroy {
       sort: this.queryState.sort,
       order: this.queryState.order,
       page: this.queryState.page,
-      limit: this.queryState.limit
+      limit: this.queryState.limit,
     };
     console.log('[EventsPage][pagination] request', {
       page: query.page,
       limit: query.limit,
       category: query.category ?? 'none',
-      name: query.name ?? ''
+      name: query.name ?? '',
     });
 
     this.eventService
@@ -531,7 +547,7 @@ export class EventsPage implements OnInit, OnDestroy {
               1,
               shouldUseClientPagination
                 ? Math.ceil(computedTotalEvents / normalizedLimit)
-                : (pagination?.totalPages ?? Math.ceil(computedTotalEvents / normalizedLimit))
+                : (pagination?.totalPages ?? Math.ceil(computedTotalEvents / normalizedLimit)),
             );
 
             this.totalEvents = computedTotalEvents;
@@ -551,13 +567,13 @@ export class EventsPage implements OnInit, OnDestroy {
               serverReturnsPagedChunk,
               shouldUseClientPagination,
               computedTotalEvents,
-              computedTotalPages
+              computedTotalPages,
             });
 
             if (this.queryState.page > this.totalPages) {
               console.log('[EventsPage][pagination] page overflow -> correcting', {
                 currentPage: this.queryState.page,
-                correctedPage: this.totalPages
+                correctedPage: this.totalPages,
               });
               this.queryState.page = this.totalPages;
               this.updateUrlFromQueryState();
@@ -567,7 +583,7 @@ export class EventsPage implements OnInit, OnDestroy {
             const pagedEvents = shouldUseClientPagination
               ? sourceEvents.slice(
                   (this.queryState.page - 1) * normalizedLimit,
-                  this.queryState.page * normalizedLimit
+                  this.queryState.page * normalizedLimit,
                 )
               : sourceEvents;
             this.events = pagedEvents.map((event) => mapEventApiItemToFeaturedCard(event));
@@ -576,7 +592,7 @@ export class EventsPage implements OnInit, OnDestroy {
               limit: normalizedLimit,
               totalPages: this.totalPages,
               renderedEventsCount: this.events.length,
-              pagedEventsCount: pagedEvents.length
+              pagedEventsCount: pagedEvents.length,
             });
             this.animationSeed += 1;
           } catch (err) {
@@ -591,7 +607,7 @@ export class EventsPage implements OnInit, OnDestroy {
           this.applyFallbackPagination();
           this.errorMessage = '';
           this.animationSeed += 1;
-        }
+        },
       });
   }
 
@@ -609,7 +625,7 @@ export class EventsPage implements OnInit, OnDestroy {
 
     const pagedFallbackEvents = this.fallbackEvents.slice(
       (this.queryState.page - 1) * normalizedLimit,
-      this.queryState.page * normalizedLimit
+      this.queryState.page * normalizedLimit,
     );
     this.events = pagedFallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
   }
