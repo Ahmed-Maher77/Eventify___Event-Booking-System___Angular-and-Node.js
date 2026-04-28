@@ -36,7 +36,7 @@ export class EventsPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
-  private readonly defaultPageLimit = 3;
+  private readonly defaultPageLimit = 9;
   protected readonly minAllowedPrice = 0;
   protected readonly maxAllowedPrice = 1000;
   protected readonly priceStep = 10;
@@ -504,7 +504,13 @@ export class EventsPage implements OnInit, OnDestroy {
               typeof pagination?.totalPages === 'number' &&
               typeof pagination?.totalEvents === 'number' &&
               typeof pagination?.currentPage === 'number';
-            const serverLimit = Number(pagination?.limit ?? this.queryState.limit);
+            const responseLimit = Number(pagination?.limit);
+            const effectiveLimit =
+              Number.isFinite(responseLimit) && responseLimit > 0
+                ? Math.floor(responseLimit)
+                : this.queryState.limit;
+            this.queryState.limit = effectiveLimit;
+            const serverLimit = Number(pagination?.limit ?? effectiveLimit);
             const serverCurrentPage = Number(pagination?.currentPage ?? this.queryState.page);
             const serverReturnsPagedChunk =
               hasServerPagination &&
@@ -517,7 +523,7 @@ export class EventsPage implements OnInit, OnDestroy {
               isClientSideMultiCategoryFilter || !serverReturnsPagedChunk;
 
             const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
-            const normalizedLimit = Math.max(1, this.queryState.limit);
+            const normalizedLimit = Math.max(1, effectiveLimit);
             const computedTotalEvents = shouldUseClientPagination
               ? sourceEvents.length
               : (pagination?.totalEvents ?? sourceEvents.length);
