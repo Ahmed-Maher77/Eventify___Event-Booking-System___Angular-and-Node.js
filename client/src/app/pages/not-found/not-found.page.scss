@@ -59,6 +59,10 @@
   cursor: pointer;
 }
 
+.not-found-page__search-btn--clear .not-found-page__search-icon {
+  color: var(--color-black);
+}
+
 .not-found-page__note {
   margin: 0;
   color: var(--color-not-found-subtext);

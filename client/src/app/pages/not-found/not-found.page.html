@@ -4,18 +4,30 @@
       <h1 class="not-found-page__code">404</h1>
       <p class="not-found-page__subtitle">Sorry, we were unable to find that page</p>
 
-      <form class="not-found-page__search-wrap" (submit)="onSearch($event, searchInput.value)">
+      <form class="not-found-page__search-wrap" (submit)="onSearch($event, searchQuery())">
         <input
-          #searchInput
           id="not-found-search-input"
           class="not-found-page__search-input"
           type="text"
           placeholder="Search events..."
           aria-label="Search events"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
         />
-        <button class="not-found-page__search-btn" type="submit" aria-label="Search events">
-          <span class="not-found-page__search-icon fa-solid fa-magnifying-glass" aria-hidden="true"></span>
-        </button>
+        @if (searchQuery().trim()) {
+          <button
+            class="not-found-page__search-btn not-found-page__search-btn--clear"
+            type="button"
+            aria-label="Clear search text"
+            (click)="clearSearch()"
+          >
+            <span class="not-found-page__search-icon fa-solid fa-xmark" aria-hidden="true"></span>
+          </button>
+        } @else {
+          <button class="not-found-page__search-btn" type="submit" aria-label="Search events">
+            <span class="not-found-page__search-icon fa-solid fa-magnifying-glass" aria-hidden="true"></span>
+          </button>
+        }
       </form>
 
       <p class="not-found-page__note">
