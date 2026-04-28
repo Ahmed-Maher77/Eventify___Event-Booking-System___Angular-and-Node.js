@@ -113,7 +113,9 @@
 
       <div class="col-12 col-lg-8 col-xl-9">
         <div class="events-page__toolbar">
-          <p class="events-page__result-count">Found {{ totalEvents }} event(s).</p>
+          <p class="events-page__result-count">
+            Found <span class="events-page__result-mark">{{ totalEvents }}</span> events
+          </p>
           <select
             class="form-select events-page__sort"
             [ngModel]="queryState.sort + ':' + queryState.order"
