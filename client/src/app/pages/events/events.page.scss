@@ -331,9 +331,9 @@
 
 :host ::ng-deep .events-page__action-btn--reset {
   border-width: 1px;
-  border-color: var(--color-chip-border);
+  border-color: var(--color-black) !important;
   background: transparent;
-  color: var(--color-chip-text);
+  color: var(--color-black) !important;
   transition:
     border-color 0.25s ease,
     background-color 0.25s ease,
@@ -341,9 +341,9 @@
 }
 
 :host ::ng-deep .events-page__action-btn--reset:not(.ev-btn--inactive):hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary) !important;
+  color: var(--color-brown) !important;
   background: rgba(26, 26, 26, 0.04);
-  color: var(--color-brown);
 }
 
 .events-page__toolbar {
@@ -351,7 +351,8 @@
   align-items: end;
   justify-content: space-between;
   gap: 0.9rem;
-  padding-bottom: 0.45rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
   border-bottom: 1px solid rgb(231 200 115 / 24%);
 }
 
@@ -375,7 +376,7 @@
   height: 1.75rem;
   margin-inline: 0.2rem;
   padding-inline: 0.45rem;
-  border-radius: 0.5rem;
+  border-radius: 57.5rem;
   border: 1px solid rgb(231 200 115 / 52%);
   background: linear-gradient(180deg, rgb(231 200 115 / 38%), rgb(231 200 115 / 18%));
   color: var(--color-black);
@@ -432,6 +433,7 @@
     align-items: stretch;
     border-bottom: 0;
     padding-bottom: 0;
+    margin-bottom: 0.45rem;
   }
 
   .events-page__toolbar-hint {
@@ -518,8 +520,10 @@
 }
 
 :host ::ng-deep .events-page__event-card .featured-event-card__title {
-  white-space: normal;
-  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
 }
 
 :host ::ng-deep .events-page__event-card {
