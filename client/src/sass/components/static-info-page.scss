@@ -119,6 +119,7 @@
 .static-info-page__about-gallery-item {
   @extend %eventify-about-showcase-gallery-tile;
   margin: 0;
+  height: 100%;
   transition: transform 220ms ease, box-shadow 220ms ease;
 
   img {
@@ -147,23 +148,18 @@
 
 .static-info-page__about-gallery-item--1 {
   grid-area: tile1;
-  align-self: end;
 }
 
 .static-info-page__about-gallery-item--2 {
   grid-area: tile2;
-  align-self: stretch;
-  height: 100%;
 }
 
 .static-info-page__about-gallery-item--3 {
   grid-area: tile3;
-  align-self: start;
 }
 
 .static-info-page__about-gallery-item--4 {
   grid-area: tile4;
-  align-self: start;
 }
 
 .static-info-page__about-gallery-item--1,
