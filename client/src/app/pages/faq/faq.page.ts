@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { FaqAccordion, FaqAccordionItem } from '../../components/faq-accordion/faq-accordion';
+import { Button } from '../../shared/button/button';
 
 @Component({
   selector: 'app-faq-page',
-  imports: [FaqAccordion],
+  imports: [FaqAccordion, Button],
   standalone: true,
   templateUrl: './faq.page.html',
   styleUrl: '../../../sass/components/faq-page.scss'
 })
 export class FaqPage {
+  protected readonly supportWhatsappUrl = 'https://wa.me/+201150383416';
   protected readonly faqs: FaqAccordionItem[] = [
     {
       id: '01',

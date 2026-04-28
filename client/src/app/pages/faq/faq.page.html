@@ -25,10 +25,17 @@
           class="faq-page__assistant-avatar"
           loading="lazy"
         />
-        <div class="faq-page__assistant-badge">
-          <i class="fa-solid fa-headset" aria-hidden="true"></i>
-          <span>Eventify Support</span>
-        </div>
+        <app-button
+          label="Eventify Support"
+          variant="primary"
+          size="sm"
+          [rounded]="true"
+          leftIcon="fa-solid fa-headset"
+          [href]="supportWhatsappUrl"
+          target="_blank"
+          rel="noreferrer noopener"
+          customClass="faq-page__assistant-badge diagonal-swipe-hover faq-page__assistant-badge-btn"
+        />
       </div>
     </aside>
   </div>
