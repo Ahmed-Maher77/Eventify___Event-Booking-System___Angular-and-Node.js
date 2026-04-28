@@ -136,8 +136,8 @@
 }
 
 .chatbot-panel {
-  width: min(360px, calc(100vw - 1.5rem));
-  max-height: min(72vh, 560px);
+  width: min(430px, calc(100vw - 1.3rem));
+  max-height: min(78vh, 680px);
   border-radius: 18px;
   border: 1px solid var(--color-chip-border);
   background: var(--color-white);
@@ -168,10 +168,11 @@
     line-height: 1.2;
   }
 
-  span {
-    font-size: 0.72rem;
-    color: var(--color-success);
-  }
+}
+
+.chatbot-panel__status {
+  font-size: 0.72rem;
+  color: var(--color-success);
 }
 
 .chatbot-panel__status.is-offline {
@@ -208,8 +209,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 0.85rem 0.8rem;
+  gap: 0.8rem;
+  padding: 1rem 0.95rem;
   background: linear-gradient(180deg, rgb(246 248 250 / 56%) 0%, rgb(255 255 255 / 100%) 45%);
   scrollbar-width: thin;
   scrollbar-color: rgb(231 200 115 / 72%) rgb(231 200 115 / 18%);
@@ -236,15 +237,15 @@
 
 .chatbot-message {
   display: flex;
-  gap: 0.42rem;
+  gap: 0.55rem;
 
   p {
     margin: 0;
-    padding: 0.58rem 0.68rem;
+    padding: 0.7rem 0.8rem;
     border-radius: 10px;
-    font-size: 0.84rem;
+    font-size: 0.9rem;
     line-height: 1.4;
-    max-width: 82%;
+    max-width: 84%;
   }
 }
 
@@ -283,7 +284,7 @@
 
 .chatbot-panel__input {
   border-top: 1px solid var(--color-chip-border);
-  padding: 0.65rem 0.75rem;
+  padding: 0.8rem 0.9rem;
   display: flex;
   align-items: center;
   gap: 0.48rem;
@@ -294,7 +295,7 @@
     border-radius: 8px;
     background: var(--color-chip-bg);
     color: var(--color-chip-text);
-    padding: 0.46rem 0.62rem;
+    padding: 0.58rem 0.72rem;
     outline: none;
 
     &:focus {
@@ -304,8 +305,8 @@
   }
 
   button {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
     border: 0;
     border-radius: 8px;
     background: var(--color-light-brown);
@@ -313,5 +314,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .chatbot-panel {
+    width: min(100vw - 1rem, 420px);
+    max-height: 76vh;
   }
 }
