@@ -72,4 +72,62 @@ const getAllContactMessages = async (req, res, next) => {
   }
 };
 
-export { createContactMessage, getAllContactMessages };
+//              ==> PATCH <==
+// ---- Update Contact Message Status [Admin ONLY] ----
+const updateContactMessageStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const message = await ContactMessage.findById(id);
+    if (!message) throw AppError.notFound("Contact message not found.");
+
+    message.status = status;
+    await message.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Contact message status updated successfully.",
+      data: message,
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(
+      AppError.internalError(
+        "An error occurred when updating contact message status.",
+      ),
+    );
+  }
+};
+
+//              ==> DELETE <==
+// ---- Delete Contact Message [Admin ONLY] ----
+const deleteContactMessage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const message = await ContactMessage.findById(id);
+    if (!message) throw AppError.notFound("Contact message not found.");
+
+    await message.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Contact message deleted successfully.",
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(
+      AppError.internalError(
+        "An error occurred when deleting contact message.",
+      ),
+    );
+  }
+};
+
+export {
+  createContactMessage,
+  getAllContactMessages,
+  updateContactMessageStatus,
+  deleteContactMessage,
+};

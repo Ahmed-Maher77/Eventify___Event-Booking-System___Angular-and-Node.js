@@ -247,6 +247,28 @@ const validateNewsletterSubscription = [
 ];
 
 /**
+ * Validate contact message status update (admin)
+ */
+const validateContactMessageStatusUpdate = [
+  body('status')
+    .notEmpty().withMessage('Status is required')
+    .bail()
+    .isIn(['new', 'reviewed']).withMessage('Status must be either new or reviewed'),
+  handleValidationErrors
+];
+
+/**
+ * Validate newsletter subscriber status update (admin)
+ */
+const validateNewsletterSubscriberStatusUpdate = [
+  body('status')
+    .notEmpty().withMessage('Status is required')
+    .bail()
+    .isIn(['active', 'unsubscribed']).withMessage('Status must be either active or unsubscribed'),
+  handleValidationErrors
+];
+
+/**
  * Validate MongoDB ObjectId parameter
  */
 const validateObjectId = (paramName = 'id') => {
@@ -308,6 +330,8 @@ export {
   validateBooking,
   validateContactMessage,
   validateNewsletterSubscription,
+  validateContactMessageStatusUpdate,
+  validateNewsletterSubscriberStatusUpdate,
   validateObjectId,
   validateQuery,
   handleValidationErrors,

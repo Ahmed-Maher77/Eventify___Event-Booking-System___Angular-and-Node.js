@@ -83,4 +83,62 @@ const getAllNewsletterSubscribers = async (req, res, next) => {
   }
 };
 
-export { createNewsletterSubscription, getAllNewsletterSubscribers };
+//              ==> PATCH <==
+// ---- Update Newsletter Subscriber Status [Admin ONLY] ----
+const updateNewsletterSubscriberStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const subscriber = await NewsletterSubscriber.findById(id);
+    if (!subscriber) throw AppError.notFound("Newsletter subscriber not found.");
+
+    subscriber.status = status;
+    await subscriber.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Newsletter subscriber status updated successfully.",
+      data: subscriber,
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(
+      AppError.internalError(
+        "An error occurred when updating newsletter subscriber status.",
+      ),
+    );
+  }
+};
+
+//              ==> DELETE <==
+// ---- Delete Newsletter Subscriber [Admin ONLY] ----
+const deleteNewsletterSubscriber = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const subscriber = await NewsletterSubscriber.findById(id);
+    if (!subscriber) throw AppError.notFound("Newsletter subscriber not found.");
+
+    await subscriber.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Newsletter subscriber deleted successfully.",
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(
+      AppError.internalError(
+        "An error occurred when deleting newsletter subscriber.",
+      ),
+    );
+  }
+};
+
+export {
+  createNewsletterSubscription,
+  getAllNewsletterSubscribers,
+  updateNewsletterSubscriberStatus,
+  deleteNewsletterSubscriber,
+};
