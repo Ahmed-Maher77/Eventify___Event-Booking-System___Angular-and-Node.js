@@ -34,6 +34,16 @@
   font-size: 0.95rem;
 }
 
+.faq-page__assistant-badge-btn {
+  width: 84%;
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: 13px !important;
+  padding-block: 13px !important;
+  z-index: 1 !important;
+}
+
 .ev-btn--lg {
   min-height: 3.25rem;
   padding: 0 2rem;
