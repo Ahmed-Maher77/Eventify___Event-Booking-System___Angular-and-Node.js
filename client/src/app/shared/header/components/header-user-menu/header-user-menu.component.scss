@@ -82,7 +82,7 @@
   bottom: 0;
   width: min(100vw, 420px);
   border-left: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, rgb(17 24 39 / 69%), rgb(0 0 0 / 67%));
+  background: linear-gradient(180deg, rgb(17 24 39 / 80%), rgb(0 0 0 / 81%));
   box-shadow: 0px 0 40px -16px rgba(0, 0, 0, 0.55);
   padding: 1rem;
   display: none;
@@ -239,8 +239,8 @@
   }
 
   .eventify-header__profile-menu {
-    top: 66px;
-    right: 0px;
+    top: 75px;
+    right: 89px;
     bottom: auto;
     width: 355px;
     max-height: min(72vh, 560px);

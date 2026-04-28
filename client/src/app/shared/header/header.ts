@@ -81,10 +81,12 @@ export class Header implements AfterViewInit, OnDestroy {
     const isDesktop = window.matchMedia('(min-width: 992px)').matches;
     if (isDesktop) {
       this.isMainHeaderNavOpen.set(false);
+      this.syncBodyScrollLock();
       return;
     }
 
     this.isMainHeaderNavOpen.update((value) => !value);
+    this.syncBodyScrollLock();
     if (this.isMainHeaderNavOpen()) {
       requestAnimationFrame(() => {
         runMainHeaderMenuOpenAnimation();
@@ -115,6 +117,7 @@ export class Header implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.body.style.overflow = '';
     this.headerContext?.revert();
     this.headerContext = null;
   }
@@ -151,6 +154,11 @@ export class Header implements AfterViewInit, OnDestroy {
   private closeNavCollapse(): void {
     this.isMainHeaderNavOpen.set(false);
     this.closeProfileMenu();
+    this.syncBodyScrollLock();
+  }
+
+  private syncBodyScrollLock(): void {
+    document.body.style.overflow = this.isMainHeaderNavOpen() ? 'hidden' : '';
   }
 
   private getActiveRoutePath(): string | undefined {

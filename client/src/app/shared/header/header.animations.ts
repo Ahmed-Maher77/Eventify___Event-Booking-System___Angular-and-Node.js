@@ -6,7 +6,7 @@ export function runHeaderNavLinksAnimation(navRoot?: HTMLElement): void {
   }
 
   const targets = navRoot.querySelectorAll(
-    '.eventify-header__mobile-close, .eventify-header__nav-link, .eventify-header__actions > *'
+    '.eventify-header__mobile-close, .eventify-header__nav-link, .eventify-header__actions > app-button, .eventify-header__actions .eventify-header__user-trigger'
   );
 
   if (!targets.length) {
@@ -22,7 +22,8 @@ export function runHeaderNavLinksAnimation(navRoot?: HTMLElement): void {
       duration: 0.5,
       ease: 'power3.out',
       stagger: 0.08,
-      overwrite: 'auto'
+      overwrite: 'auto',
+      clearProps: 'transform'
     }
   );
 }
