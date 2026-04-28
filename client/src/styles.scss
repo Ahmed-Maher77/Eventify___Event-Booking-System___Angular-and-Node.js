@@ -166,3 +166,15 @@ app-root {
 .page-main--faq-theme :is(h1, h2) span {
   color: var(--color-faq-accent);
 }
+
+/* Reusable heading shape for highlighted page titles. */
+.eventify-title-shape {
+  margin: 0;
+  color: var(--color-black);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.eventify-title-shape span {
+  color: var(--color-faq-accent);
+}
