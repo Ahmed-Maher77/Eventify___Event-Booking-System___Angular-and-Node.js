@@ -113,19 +113,30 @@
 
       <div class="col-12 col-lg-8 col-xl-9">
         <div class="events-page__toolbar">
-          <p class="events-page__result-count">
-            Found <span class="events-page__result-mark">{{ totalEvents }}</span> events
-          </p>
-          <select
-            class="form-select events-page__sort"
-            [ngModel]="queryState.sort + ':' + queryState.order"
-            (ngModelChange)="onSortChanged($event)"
-            name="eventsSort"
-          >
-            @for (option of sortOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
+          <div class="events-page__toolbar-meta">
+            <p class="events-page__result-count">
+              Showing <span class="events-page__result-mark">{{ totalEvents }}</span> events
+            </p>
+            <p class="events-page__toolbar-hint">Refine filters or sorting to narrow results.</p>
+          </div>
+
+          <label class="events-page__sort-wrap" for="events-sort-select">
+            <span class="events-page__sort-label">
+              <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+              Sort by
+            </span>
+            <select
+              id="events-sort-select"
+              class="form-select events-page__sort"
+              [ngModel]="queryState.sort + ':' + queryState.order"
+              (ngModelChange)="onSortChanged($event)"
+              name="eventsSort"
+            >
+              @for (option of sortOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
         </div>
 
         @if (isLoading) {
