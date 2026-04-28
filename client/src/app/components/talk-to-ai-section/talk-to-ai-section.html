@@ -4,7 +4,7 @@
       <div class="talk-to-ai__left">
         <div class="talk-to-ai__badge">
           <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
-          <span>Powered by EventFlow AI</span>
+          <span>Powered by Eventify AI</span>
         </div>
 
         <h2>Talk to AI, Find Events Faster</h2>
@@ -44,10 +44,10 @@
           <header class="talk-to-ai__mockup-header">
             <div class="talk-to-ai__assistant">
               <span class="talk-to-ai__assistant-icon">
-                <i class="fa-solid fa-briefcase"></i>
+                <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
               </span>
               <div>
-                <strong>EventFlow Assistant</strong>
+                <strong>Eventify AI Assistant</strong>
                 <span class="talk-to-ai__online" [class.is-offline]="!isAssistantOnline()">
                   {{ isAssistantOnline() ? 'Online' : 'Offline' }}
                 </span>
@@ -74,7 +74,10 @@
 
           <div class="talk-to-ai__chat">
             <div class="talk-to-ai__bubble talk-to-ai__bubble--assistant">
-              Hi! Looking for something fun to do? Tell me what you’re in the mood for.
+              <span class="talk-to-ai__bubble-icon" aria-hidden="true">
+                <img src="/images/chatIcon.png" alt="" />
+              </span>
+              <p>Hi! Looking for something fun to do? Tell me what you’re in the mood for.</p>
             </div>
             <div class="talk-to-ai__bubble talk-to-ai__bubble--user">
               I’m looking for a jazz concert this Saturday under $50.

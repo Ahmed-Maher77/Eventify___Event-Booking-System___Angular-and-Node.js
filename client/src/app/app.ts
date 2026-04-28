@@ -9,6 +9,7 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { ChatStoreService } from './services/chat-store.service';
 import { AdminSidebar } from './shared/admin-sidebar/admin-sidebar';
 import { Footer } from './shared/footer/footer';
 import { Header } from './shared/header/header';
@@ -25,12 +26,19 @@ export class App {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
+  private readonly chatStoreService = inject(ChatStoreService);
   private scrollAnimationFrameId: number | null = null;
   private loaderShownAtMs = 0;
   private hideLoaderTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private assistantReplyTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private readonly chatbotHintStorageKey = 'eventifyChatbotHintDismissed';
   protected readonly title = signal('eventify-client');
   protected readonly isNavigating = signal(false);
   protected readonly useFaqTheme = signal(false);
+  protected readonly chatMessages = this.chatStoreService.messages;
+  protected readonly isChatScreenActive = this.chatStoreService.isChatScreenActive;
+  protected readonly chatDraftMessage = signal('');
+  protected readonly showChatbotHint = signal(false);
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
@@ -49,7 +57,11 @@ export class App {
         this.updateRouteThemeFlags();
       }
 
-      if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
+      if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
         const elapsedMs = performance.now() - this.loaderShownAtMs;
         const remainingMs = Math.max(0, 250 - elapsedMs);
 
@@ -68,6 +80,7 @@ export class App {
 
     this.redirectAdminToDashboardIfNeeded();
     this.updateRouteThemeFlags();
+    this.initializeChatbotHintState();
   }
 
   ngOnDestroy(): void {
@@ -78,6 +91,10 @@ export class App {
     if (this.hideLoaderTimeoutId) {
       clearTimeout(this.hideLoaderTimeoutId);
       this.hideLoaderTimeoutId = null;
+    }
+    if (this.assistantReplyTimeoutId) {
+      clearTimeout(this.assistantReplyTimeoutId);
+      this.assistantReplyTimeoutId = null;
     }
   }
 
@@ -91,6 +108,57 @@ export class App {
 
   protected showAdminSidebar(): boolean {
     return this.isLoggedIn() && this.isAdmin() && this.isAdminRoute();
+  }
+
+  protected openFloatingChat(): void {
+    this.chatStoreService.activateChatScreen();
+    this.dismissChatbotHint();
+  }
+
+  protected closeFloatingChat(): void {
+    this.chatStoreService.deactivateChatScreen();
+  }
+
+  protected submitFloatingChatMessage(): void {
+    const message = this.chatDraftMessage().trim();
+    if (!message) {
+      return;
+    }
+
+    this.chatStoreService.addUserMessage(message);
+    this.chatDraftMessage.set('');
+
+    if (this.assistantReplyTimeoutId) {
+      clearTimeout(this.assistantReplyTimeoutId);
+    }
+
+    this.assistantReplyTimeoutId = setTimeout(() => {
+      this.chatStoreService.addAssistantMessage(
+        'I can help you discover events by date, category, budget, or location. Tell me what you want and I will suggest the best options.',
+      );
+      this.assistantReplyTimeoutId = null;
+    }, 700);
+  }
+
+  protected onFloatingChatSubmit(event: Event): void {
+    event.preventDefault();
+    this.submitFloatingChatMessage();
+  }
+
+  protected onChatDraftInput(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.chatDraftMessage.set(input?.value ?? '');
+  }
+
+  protected dismissChatbotHint(): void {
+    if (!this.showChatbotHint()) {
+      return;
+    }
+
+    this.showChatbotHint.set(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.chatbotHintStorageKey, 'true');
+    }
   }
 
   private isAdminRoute(): boolean {
@@ -156,6 +224,16 @@ export class App {
     const isHomeRoute = this.router.url === '/' || this.router.url.startsWith('/?');
     const isNotFoundRoute = this.getActiveLeafRoutePath() === '**';
     this.useFaqTheme.set(!isHomeRoute && !isNotFoundRoute);
+  }
+
+  private initializeChatbotHintState(): void {
+    if (typeof window === 'undefined') {
+      this.showChatbotHint.set(false);
+      return;
+    }
+
+    const wasDismissed = localStorage.getItem(this.chatbotHintStorageKey) === 'true';
+    this.showChatbotHint.set(!wasDismissed);
   }
 
   private redirectAdminToDashboardIfNeeded(): void {

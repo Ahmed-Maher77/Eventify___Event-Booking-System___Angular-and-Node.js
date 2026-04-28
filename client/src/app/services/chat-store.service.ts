@@ -18,6 +18,10 @@ export class ChatStoreService {
     this.isChatScreenActive.set(true);
   }
 
+  deactivateChatScreen(): void {
+    this.isChatScreenActive.set(false);
+  }
+
   addUserMessage(content: string): void {
     const normalizedContent = content.trim();
     if (!normalizedContent) {
@@ -30,6 +34,23 @@ export class ChatStoreService {
         id: this.generateMessageId(),
         content: normalizedContent,
         role: 'user',
+        createdAt: new Date().toISOString()
+      }
+    ]);
+  }
+
+  addAssistantMessage(content: string): void {
+    const normalizedContent = content.trim();
+    if (!normalizedContent) {
+      return;
+    }
+
+    this.messages.update((current) => [
+      ...current,
+      {
+        id: this.generateMessageId(),
+        content: normalizedContent,
+        role: 'assistant',
         createdAt: new Date().toISOString()
       }
     ]);
