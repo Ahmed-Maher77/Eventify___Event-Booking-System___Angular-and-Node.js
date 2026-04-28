@@ -1,8 +1,8 @@
 import { EventApiItem } from '../../services/event.service';
 import { FeaturedEventCardData } from './featured-event-card.model';
 
-function toDisplayCategory(rawCategory: string): string {
-  const normalized = rawCategory.trim().toLowerCase();
+function toDisplayCategory(rawCategory: string | null | undefined): string {
+  const normalized = (rawCategory ?? '').trim().toLowerCase();
   const knownCategories: Record<string, string> = {
     concert: 'Concert',
     conference: 'Conference',
@@ -11,10 +11,14 @@ function toDisplayCategory(rawCategory: string): string {
     sports: 'Sports',
   };
 
-  return knownCategories[normalized] ?? 'Other';
+  return normalized ? knownCategories[normalized] ?? 'Other' : 'Other';
 }
 
-function formatEventDate(dateIso: string): string {
+function formatEventDate(dateIso: string | null | undefined): string {
+  if (!dateIso) {
+    return 'Date not specified';
+  }
+
   const date = new Date(dateIso);
   if (Number.isNaN(date.getTime())) {
     return dateIso;
@@ -35,13 +39,15 @@ function formatEventDate(dateIso: string): string {
 }
 
 export function mapEventApiItemToFeaturedCard(event: EventApiItem): FeaturedEventCardData {
+  const numericPrice = Number(event?.price);
+
   return {
-    id: event._id,
-    title: event.title,
-    category: toDisplayCategory(event.category),
-    dateText: formatEventDate(event.date),
-    location: event.location,
-    priceFrom: `$${Number(event.price).toFixed(2)}`,
+    id: event?._id || crypto.randomUUID(),
+    title: event?.title?.trim() || 'Untitled Event',
+    category: toDisplayCategory(event?.category),
+    dateText: formatEventDate(event?.date),
+    location: event?.location?.trim() || 'Location not specified',
+    priceFrom: `$${Number.isFinite(numericPrice) ? numericPrice.toFixed(2) : '0.00'}`,
     imageUrl: event.image || '/images/event-placeholder.svg',
   };
 }
