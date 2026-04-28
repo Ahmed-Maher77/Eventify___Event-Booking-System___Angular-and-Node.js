@@ -61,7 +61,9 @@
           </div>
 
           <div class="events-page__filter-group">
-            <label class="events-page__label" for="events-price-range">Max Price: ${{ queryState.maxPrice }}</label>
+            <label class="events-page__label" for="events-price-range"
+              >Max Price: ${{ queryState.maxPrice }}</label
+            >
             <input
               id="events-price-range"
               class="form-range"
@@ -75,8 +77,27 @@
           </div>
 
           <div class="events-page__actions">
-            <button type="submit" class="btn btn-dark">Apply</button>
-            <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">Reset</button>
+            <app-button
+              label="Apply Filters"
+              variant="primary"
+              size="sm"
+              buttonType="submit"
+              leftIcon="fa-solid fa-filter"
+              [fullWidth]="true"
+              [rounded]="true"
+              customClass="events-page__action-btn events-page__action-btn--apply diagonal-swipe-hover"
+            ></app-button>
+            <app-button
+              label="Reset Filters"
+              variant="outline"
+              size="sm"
+              buttonType="button"
+              leftIcon="fa-solid fa-rotate-left"
+              [fullWidth]="true"
+              [rounded]="true"
+              customClass="events-page__action-btn events-page__action-btn--reset"
+              (pressed)="clearFilters()"
+            ></app-button>
           </div>
         </form>
       </aside>
@@ -97,14 +118,19 @@
         </div>
 
         @if (isLoading) {
-          <div class="events-page__cards events-page__cards--skeleton mt-2" aria-label="Loading events">
+          <div
+            class="events-page__cards events-page__cards--skeleton mt-2"
+            aria-label="Loading events"
+          >
             @for (item of [1, 2, 3, 4, 5, 6]; track item) {
               <article class="events-skeleton-card">
                 <div class="events-skeleton-card__media"></div>
                 <div class="events-skeleton-card__body">
                   <div class="events-skeleton-card__line events-skeleton-card__line--title"></div>
                   <div class="events-skeleton-card__line events-skeleton-card__line--meta"></div>
-                  <div class="events-skeleton-card__line events-skeleton-card__line--meta-short"></div>
+                  <div
+                    class="events-skeleton-card__line events-skeleton-card__line--meta-short"
+                  ></div>
                   <div class="events-skeleton-card__action"></div>
                 </div>
               </article>

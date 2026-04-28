@@ -150,8 +150,57 @@
 }
 
 .events-page__actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.45rem;
+  align-items: stretch;
+}
+
+.events-page__action-btn {
+  width: 100%;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .events-page__action-btn {
+  width: 100%;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  min-height: 2.2rem;
+  padding-inline: 0.75rem;
+  font-size: 0.82rem;
+}
+
+:host ::ng-deep .events-page__action-btn--apply {
+  border-width: 1px;
+  border-color: var(--color-black);
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+:host ::ng-deep .events-page__action-btn--apply.diagonal-swipe-hover::before {
+  background-color: var(--color-primary);
+}
+
+:host ::ng-deep .events-page__action-btn--apply.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  color: var(--color-black);
+  border-color: var(--color-primary);
+}
+
+:host ::ng-deep .events-page__action-btn--reset {
+  border-width: 1px;
+  border-color: var(--color-chip-border);
+  background: transparent;
+  color: var(--color-chip-text);
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+:host ::ng-deep .events-page__action-btn--reset:not(.ev-btn--inactive):hover {
+  border-color: var(--color-primary);
+  background: rgba(26, 26, 26, 0.04);
+  color: var(--color-brown);
 }
 
 .events-page__toolbar {
@@ -379,11 +428,6 @@
   }
 
   .events-page__actions {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .events-page__actions .btn {
-    width: 100%;
   }
 }

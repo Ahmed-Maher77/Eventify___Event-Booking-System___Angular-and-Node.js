@@ -6,6 +6,7 @@ import { Subject, finalize, takeUntil } from 'rxjs';
 import { FeaturedEventCard } from '../../components/featured-event-card/featured-event-card';
 import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
+import { Button } from '../../shared/button/button';
 import { EventApiItem, EventQueryOptions, EventService, EventSortField, EventSortOrder } from '../../services/event.service';
 
 type EventCategoryTab = 'all' | 'concert' | 'conference' | 'workshop' | 'seminar' | 'sports' | 'other';
@@ -25,7 +26,7 @@ interface EventsQueryState {
 @Component({
   selector: 'app-events-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, FeaturedEventCard],
+  imports: [CommonModule, FormsModule, FeaturedEventCard, Button],
   templateUrl: './events.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss']
 })
