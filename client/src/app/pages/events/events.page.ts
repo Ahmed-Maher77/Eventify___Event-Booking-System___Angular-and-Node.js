@@ -3,6 +3,9 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { FeaturedEventCard } from '../../components/featured-event-card/featured-event-card';
+import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
+import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
 import { EventApiItem, EventQueryOptions, EventService, EventSortField, EventSortOrder } from '../../services/event.service';
 
 type EventCategoryTab = 'all' | 'concert' | 'conference' | 'workshop' | 'seminar' | 'sports' | 'other';
@@ -22,7 +25,7 @@ interface EventsQueryState {
 @Component({
   selector: 'app-events-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FeaturedEventCard],
   templateUrl: './events.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss']
 })
@@ -51,11 +54,49 @@ export class EventsPage implements OnInit, OnDestroy {
     { label: 'Title (Z-A)', value: 'title:desc' }
   ] as const;
 
-  protected events: EventApiItem[] = [];
+  protected events: FeaturedEventCardData[] = [];
   protected isLoading = false;
   protected errorMessage = '';
   protected totalEvents = 0;
   protected areFiltersVisibleOnMobile = false;
+  protected readonly fallbackEvents: EventApiItem[] = [
+    {
+      _id: 'dummy-1',
+      title: 'Sunset Jazz Night',
+      date: new Date().toISOString(),
+      location: 'Cairo Opera House',
+      category: 'concert',
+      price: 35,
+      image: '/images/Concert.png'
+    },
+    {
+      _id: 'dummy-2',
+      title: 'Future of Web Conference',
+      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Alexandria Convention Center',
+      category: 'conference',
+      price: 120,
+      image: '/images/Seminar.jpg'
+    },
+    {
+      _id: 'dummy-3',
+      title: 'Creative Design Workshop',
+      date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Giza Innovation Hub',
+      category: 'workshop',
+      price: 55,
+      image: '/images/Workshop.png'
+    },
+    {
+      _id: 'dummy-4',
+      title: 'Startup Growth Seminar',
+      date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+      location: 'Mansoura Business Hall',
+      category: 'seminar',
+      price: 40,
+      image: '/images/Conference.jpg'
+    }
+  ];
 
   // Template-bound state for search/filter/sort controls.
   protected queryState: EventsQueryState = {
@@ -236,22 +277,21 @@ export class EventsPage implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           const apiEvents = response.data?.events ?? [];
-          this.events =
+          const filteredEvents =
             this.queryState.categories.length > 1
               ? apiEvents.filter((event) =>
                   this.queryState.categories.includes(event.category as EventCategoryTab),
                 )
               : apiEvents;
-          this.totalEvents = response.data?.pagination?.totalEvents ?? this.events.length;
-          if (this.queryState.categories.length > 1) {
-            this.totalEvents = this.events.length;
-          }
+          const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
+          this.events = sourceEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+          this.totalEvents = this.events.length;
           this.isLoading = false;
         },
         error: () => {
-          this.events = [];
-          this.totalEvents = 0;
-          this.errorMessage = 'Unable to load events right now. Please try again.';
+          this.events = this.fallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+          this.totalEvents = this.events.length;
+          this.errorMessage = '';
           this.isLoading = false;
         }
       });

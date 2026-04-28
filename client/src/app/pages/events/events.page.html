@@ -107,19 +107,13 @@
             </button>
           </div>
         } @else {
-          <ul class="list-group mt-2">
-            @for (event of events; track event._id) {
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <strong>{{ event.title }}</strong>
-                  <div class="text-muted small">{{ event.location }} • {{ event.category }}</div>
-                </div>
-                <span class="badge text-bg-dark">${{ event.price }}</span>
-              </li>
+          <div class="events-page__cards mt-2">
+            @for (event of events; track event.id) {
+              <app-featured-event-card [event]="event"></app-featured-event-card>
             } @empty {
-              <li class="list-group-item text-muted">No events match the current filters.</li>
+              <p class="text-muted">No events match the current filters.</p>
             }
-          </ul>
+          </div>
         }
       </div>
     </div>

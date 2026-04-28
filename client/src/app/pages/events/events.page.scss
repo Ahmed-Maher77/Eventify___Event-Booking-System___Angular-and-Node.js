@@ -96,6 +96,19 @@
   max-width: 280px;
 }
 
+.events-page__cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .events-page__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
 .events-page__mobile-toggle {
   display: none;
   width: 100%;

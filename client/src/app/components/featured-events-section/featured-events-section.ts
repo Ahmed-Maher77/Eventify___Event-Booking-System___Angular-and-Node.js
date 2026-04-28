@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FeaturedEventCard } from '../featured-event-card/featured-event-card';
 import { FeaturedEventCardData } from '../featured-event-card/featured-event-card.model';
+import { mapEventApiItemToFeaturedCard } from '../featured-event-card/featured-event-card.mapper';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 import { EventApiItem, EventService } from '../../services/event.service';
 import { register } from 'swiper/element/bundle';
@@ -302,7 +303,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       })
       .subscribe({
         next: (response) => {
-          this.events = (response.data?.events ?? []).map((event) => this.mapEventToCard(event));
+          this.events = (response.data?.events ?? []).map((event) => mapEventApiItemToFeaturedCard(event));
           this.updateResponsiveState();
           this.scheduleUiSync();
         },
@@ -322,48 +323,4 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     return category.toLowerCase();
   }
 
-  private mapEventToCard(event: EventApiItem): FeaturedEventCardData {
-    return {
-      id: event._id,
-      title: event.title,
-      category: this.toDisplayCategory(event.category),
-      dateText: this.formatEventDate(event.date),
-      location: event.location,
-      priceFrom: `$${Number(event.price).toFixed(2)}`,
-      imageUrl: event.image || '/images/event-placeholder.svg'
-    };
-  }
-
-  private toDisplayCategory(rawCategory: string): string {
-    const normalized = rawCategory.trim().toLowerCase();
-    const knownCategories: Record<string, string> = {
-      concert: 'Concert',
-      conference: 'Conference',
-      workshop: 'Workshop',
-      seminar: 'Seminar',
-      sports: 'Sports'
-    };
-
-    return knownCategories[normalized] ?? 'Other';
-  }
-
-  private formatEventDate(dateIso: string): string {
-    const date = new Date(dateIso);
-    if (Number.isNaN(date.getTime())) {
-      return dateIso;
-    }
-
-    const datePart = new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(date);
-
-    return `${datePart} • ${timePart}`;
-  }
 }
