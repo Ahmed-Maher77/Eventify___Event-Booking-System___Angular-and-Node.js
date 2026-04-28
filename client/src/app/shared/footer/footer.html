@@ -32,7 +32,11 @@
             placeholder="e.g. your@email.com"
             aria-label="Email address"
           />
-          <button type="submit" class="site-footer__button" [disabled]="subscribeForm.invalid">
+          <button
+            type="submit"
+            class="site-footer__button"
+            [disabled]="subscribeForm.invalid || isSubmitting()"
+          >
             Send
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </button>
@@ -45,6 +49,11 @@
         @if (isSubmitted()) {
           <small class="site-footer__feedback site-footer__feedback--success">
             Thanks! You are subscribed.
+          </small>
+        }
+        @if (errorMessage()) {
+          <small class="site-footer__feedback site-footer__feedback--error">
+            {{ errorMessage() }}
           </small>
         }
         <p class="site-footer__subscribe-note footer-muted-text small-text">
