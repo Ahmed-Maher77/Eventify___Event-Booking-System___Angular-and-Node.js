@@ -10,8 +10,15 @@
       </h1>
     </div>
 
-    <form class="landing-hero__search" (submit)="$event.preventDefault()">
-      <input type="text" class="landing-hero__search-input" [attr.placeholder]="searchPlaceholder" />
+    <form class="landing-hero__search" (submit)="submitSearch()">
+      <input
+        type="text"
+        class="landing-hero__search-input"
+        [attr.placeholder]="searchPlaceholder"
+        [ngModel]="searchQuery"
+        (ngModelChange)="searchQuery = $event"
+        name="landingSearch"
+      />
       <button type="submit" class="landing-hero__search-btn" aria-label="Search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
       </button>

@@ -1,5 +1,6 @@
-import { AfterViewInit, Component, HostListener, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { AfterViewInit, Component, HostListener, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { Button } from '../../shared/button/button';
 import Typed, { type TypedOptions } from 'typed.js';
 import { TypingPreset } from './landing-section.model';
@@ -7,16 +8,18 @@ import { setupLandingSectionAnimations } from './landing-section.animations';
 
 @Component({
   selector: 'app-landing-section',
-  imports: [RouterLink, Button],
+  imports: [RouterLink, Button, FormsModule],
   templateUrl: './landing-section.html',
   styleUrl: './landing-section.scss',
 })
 export class LandingSection implements OnInit, AfterViewInit, OnDestroy {
+  private readonly router = inject(Router);
   @ViewChild('landingHeroRoot', { static: true }) private landingHeroRoot!: ElementRef<HTMLElement>;
   @ViewChild('typedHeadline', { static: true }) private typedHeadlineRef!: ElementRef<HTMLElement>;
   private typedInstance: Typed | null = null;
   private landingContext: ReturnType<typeof setupLandingSectionAnimations> | null = null;
   protected searchPlaceholder = 'Search events, cities, or categories...';
+  protected searchQuery = '';
 
   // Change this value to switch animation style quickly.
   private readonly activePreset: TypingPreset = 'ai_stream';
@@ -95,6 +98,13 @@ export class LandingSection implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('window:resize')
   protected onWindowResize(): void {
     this.updateSearchPlaceholder();
+  }
+
+  protected submitSearch(): void {
+    const query = this.searchQuery.trim();
+    void this.router.navigate(['/events'], {
+      queryParams: query ? { name: query } : {}
+    });
   }
 
   private updateSearchPlaceholder(): void {
