@@ -61,19 +61,28 @@
           </div>
 
           <div class="events-page__filter-group">
-            <label class="events-page__label" for="events-price-range"
-              >Max Price: ${{ queryState.maxPrice }}</label
-            >
-            <input
-              id="events-price-range"
-              class="form-range"
-              type="range"
-              min="0"
-              max="1000"
-              step="10"
-              [(ngModel)]="queryState.maxPrice"
-              name="eventsPriceRange"
-            />
+            <div class="events-page__price-header">
+              <label class="events-page__label" for="events-price-range">Max Price</label>
+              <span class="events-page__price-badge">{{ formattedMaxPrice }}</span>
+            </div>
+            <div class="events-page__range-wrap">
+              <input
+                id="events-price-range"
+                class="form-range events-page__price-range"
+                type="range"
+                [min]="minAllowedPrice"
+                [max]="maxAllowedPrice"
+                [step]="priceStep"
+                [(ngModel)]="queryState.maxPrice"
+                (ngModelChange)="onMaxPriceChanged($event)"
+                [style.--range-progress]="maxPriceProgress + '%'"
+                name="eventsPriceRange"
+              />
+              <div class="events-page__range-values" aria-hidden="true">
+                <span>${{ minAllowedPrice }}</span>
+                <span>${{ maxAllowedPrice }}</span>
+              </div>
+            </div>
           </div>
 
           <div class="events-page__actions">

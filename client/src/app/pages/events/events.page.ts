@@ -35,6 +35,9 @@ export class EventsPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
+  protected readonly minAllowedPrice = 0;
+  protected readonly maxAllowedPrice = 1000;
+  protected readonly priceStep = 10;
 
   protected readonly categoryTabs: readonly EventCategoryTab[] = [
     'all',
@@ -184,13 +187,34 @@ export class EventsPage implements OnInit, OnDestroy {
       name: '',
       categories: [],
       location: '',
-      minPrice: 0,
-      maxPrice: 1000,
+      minPrice: this.minAllowedPrice,
+      maxPrice: this.maxAllowedPrice,
       sort: 'date',
       order: 'asc',
       page: 1
     };
     this.updateUrlFromQueryState();
+  }
+
+  protected onMaxPriceChanged(value: number | string): void {
+    const parsed = typeof value === 'string' ? Number(value) : value;
+    const fallback = Number.isFinite(parsed) ? parsed : this.maxAllowedPrice;
+    const snapped = Math.round(fallback / this.priceStep) * this.priceStep;
+    const clamped = Math.min(this.maxAllowedPrice, Math.max(this.minAllowedPrice, snapped));
+    this.queryState.maxPrice = clamped;
+  }
+
+  protected get maxPriceProgress(): number {
+    const range = this.maxAllowedPrice - this.minAllowedPrice;
+    if (range <= 0) {
+      return 0;
+    }
+
+    return ((this.queryState.maxPrice - this.minAllowedPrice) / range) * 100;
+  }
+
+  protected get formattedMaxPrice(): string {
+    return `$${this.queryState.maxPrice.toLocaleString()}`;
   }
 
   protected retryLoad(): void {
@@ -204,8 +228,8 @@ export class EventsPage implements OnInit, OnDestroy {
         name: this.queryState.name || null,
         categories: this.queryState.categories.length ? this.queryState.categories.join(',') : null,
         location: this.queryState.location || null,
-        minPrice: this.queryState.minPrice > 0 ? this.queryState.minPrice : null,
-        maxPrice: this.queryState.maxPrice < 1000 ? this.queryState.maxPrice : null,
+        minPrice: this.queryState.minPrice > this.minAllowedPrice ? this.queryState.minPrice : null,
+        maxPrice: this.queryState.maxPrice < this.maxAllowedPrice ? this.queryState.maxPrice : null,
         sort: this.queryState.sort === 'date' ? null : this.queryState.sort,
         order: this.queryState.order === 'asc' ? null : this.queryState.order,
         page: this.queryState.page > 1 ? this.queryState.page : null,
@@ -224,8 +248,8 @@ export class EventsPage implements OnInit, OnDestroy {
     const orderFromUrl = (params.get('order') ?? 'asc').toLowerCase();
     const pageFromUrl = Number(params.get('page') ?? '1');
     const limitFromUrl = Number(params.get('limit') ?? '12');
-    const minPriceFromUrl = Number(params.get('minPrice') ?? '0');
-    const maxPriceFromUrl = Number(params.get('maxPrice') ?? '1000');
+    const minPriceFromUrl = Number(params.get('minPrice') ?? `${this.minAllowedPrice}`);
+    const maxPriceFromUrl = Number(params.get('maxPrice') ?? `${this.maxAllowedPrice}`);
 
     const categories = categoriesFromUrl.filter((category) =>
       this.categoryTabs.includes(category as EventCategoryTab) && category !== 'all',
@@ -245,11 +269,13 @@ export class EventsPage implements OnInit, OnDestroy {
       categories,
       location: (params.get('location') ?? '').trim(),
       minPrice:
-        Number.isFinite(minPriceFromUrl) && minPriceFromUrl >= 0 ? Math.floor(minPriceFromUrl) : 0,
+        Number.isFinite(minPriceFromUrl) && minPriceFromUrl >= this.minAllowedPrice
+          ? Math.min(this.maxAllowedPrice, Math.floor(minPriceFromUrl))
+          : this.minAllowedPrice,
       maxPrice:
-        Number.isFinite(maxPriceFromUrl) && maxPriceFromUrl >= 0
-          ? Math.floor(maxPriceFromUrl)
-          : 1000,
+        Number.isFinite(maxPriceFromUrl) && maxPriceFromUrl >= this.minAllowedPrice
+          ? Math.min(this.maxAllowedPrice, Math.floor(maxPriceFromUrl))
+          : this.maxAllowedPrice,
       sort,
       order,
       page,

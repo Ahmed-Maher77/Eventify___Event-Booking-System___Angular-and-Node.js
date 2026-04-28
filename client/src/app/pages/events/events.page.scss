@@ -95,6 +95,114 @@
   }
 }
 
+.events-page__price-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.events-page__price-badge {
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--color-black);
+  background: rgb(231 200 115 / 22%);
+  border: 1px solid rgb(231 200 115 / 46%);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.events-page__range-wrap {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.events-page__price-range {
+  --range-progress: 100%;
+  appearance: none;
+  height: 0.48rem;
+  margin: 0.35rem 0 0.1rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary) var(--range-progress),
+    rgb(231 200 115 / 22%) var(--range-progress),
+    rgb(231 200 115 / 22%) 100%
+  );
+
+  &::-webkit-slider-runnable-track {
+    height: 0.48rem;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  &::-moz-range-track {
+    height: 0.48rem;
+    border-radius: 999px;
+    background: rgb(231 200 115 / 22%);
+  }
+
+  &::-moz-range-progress {
+    height: 0.48rem;
+    border-radius: 999px;
+    background: var(--color-primary);
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: -0.29rem;
+    border-radius: 50%;
+    background: var(--color-black);
+    border: 2px solid var(--color-primary);
+    box-shadow: none;
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  &::-moz-range-thumb {
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 50%;
+    background: var(--color-black);
+    border: 2px solid var(--color-primary);
+    box-shadow: none;
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  &:hover::-webkit-slider-thumb,
+  &:focus-visible::-webkit-slider-thumb {
+    transform: scale(1.06);
+    background: var(--color-brown);
+  }
+
+  &:hover::-moz-range-thumb,
+  &:focus-visible::-moz-range-thumb {
+    transform: scale(1.06);
+    background: var(--color-brown);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(231 200 115 / 22%);
+  }
+}
+
+.events-page__range-values {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--color-gray);
+  line-height: 1;
+}
+
 .events-page__checkbox-list {
   display: grid;
   gap: 0.35rem;
