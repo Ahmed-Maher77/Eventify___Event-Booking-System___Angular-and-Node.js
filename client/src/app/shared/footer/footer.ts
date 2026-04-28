@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { setupFooterAnimations } from './footer.animations';
@@ -59,6 +67,10 @@ export class Footer implements AfterViewInit, OnDestroy {
     this.subscribeForm.reset();
     this.isSubmitted.set(true);
     this.startSuccessMessageTimer();
+  }
+
+  protected scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   ngAfterViewInit(): void {
