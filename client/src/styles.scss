@@ -145,3 +145,12 @@ app-root {
   background: var(--color-primary);
   color: var(--color-black);
 }
+
+/* Shared page-title treatment used on all non-home, non-404 routes. */
+.page-main--faq-theme :is(h1, h2) {
+  color: var(--color-black);
+}
+
+.page-main--faq-theme :is(h1, h2) span {
+  color: var(--color-faq-accent);
+}
