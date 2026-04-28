@@ -59,6 +59,7 @@ export class EventsPage implements OnInit, OnDestroy {
   protected errorMessage = '';
   protected totalEvents = 0;
   protected areFiltersVisibleOnMobile = false;
+  protected animationSeed = 0;
   protected readonly fallbackEvents: EventApiItem[] = [
     {
       _id: 'dummy-1',
@@ -286,12 +287,14 @@ export class EventsPage implements OnInit, OnDestroy {
           const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
           this.events = sourceEvents.map((event) => mapEventApiItemToFeaturedCard(event));
           this.totalEvents = this.events.length;
+          this.animationSeed += 1;
           this.isLoading = false;
         },
         error: () => {
           this.events = this.fallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
           this.totalEvents = this.events.length;
           this.errorMessage = '';
+          this.animationSeed += 1;
           this.isLoading = false;
         }
       });

@@ -120,6 +120,28 @@
   line-height: 1.45;
 }
 
+:host ::ng-deep .events-page__event-card {
+  opacity: 0;
+  transform: translateY(14px) scale(0.99);
+  animation: events-card-reveal 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--event-stagger, 0) * 75ms);
+}
+
+@keyframes events-card-reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .events-page__event-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 @media (max-width: 575.98px) {
   :host ::ng-deep .events-page__event-card .featured-event-card {
     gap: 12px;
