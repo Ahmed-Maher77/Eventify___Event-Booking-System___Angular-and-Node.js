@@ -15,7 +15,9 @@ import { apiLimiter } from "./middlewares/rateLimiter.js";
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 dns.setServers(["8.8.8.8"]);
 
@@ -94,6 +96,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Error handling middleware (must be last)
