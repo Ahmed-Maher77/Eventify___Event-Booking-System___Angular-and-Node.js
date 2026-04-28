@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, finalize, takeUntil } from 'rxjs';
 import { FeaturedEventCard } from '../../components/featured-event-card/featured-event-card';
 import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
@@ -274,28 +274,38 @@ export class EventsPage implements OnInit, OnDestroy {
 
     this.eventService
       .getEvents(query)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
       .subscribe({
         next: (response) => {
-          const apiEvents = response.data?.events ?? [];
-          const filteredEvents =
-            this.queryState.categories.length > 1
-              ? apiEvents.filter((event) =>
-                  this.queryState.categories.includes(event.category as EventCategoryTab),
-                )
-              : apiEvents;
-          const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
-          this.events = sourceEvents.map((event) => mapEventApiItemToFeaturedCard(event));
-          this.totalEvents = this.events.length;
-          this.animationSeed += 1;
-          this.isLoading = false;
+          try {
+            const apiEvents = response.data?.events ?? [];
+            const filteredEvents =
+              this.queryState.categories.length > 1
+                ? apiEvents.filter((event) =>
+                    this.queryState.categories.includes(event.category as EventCategoryTab),
+                  )
+                : apiEvents;
+            const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
+            this.events = sourceEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+            this.totalEvents = this.events.length;
+            this.animationSeed += 1;
+          } catch {
+            this.events = this.fallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+            this.totalEvents = this.events.length;
+            this.errorMessage = '';
+            this.animationSeed += 1;
+          }
         },
         error: () => {
           this.events = this.fallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
           this.totalEvents = this.events.length;
           this.errorMessage = '';
           this.animationSeed += 1;
-          this.isLoading = false;
         }
       });
   }
