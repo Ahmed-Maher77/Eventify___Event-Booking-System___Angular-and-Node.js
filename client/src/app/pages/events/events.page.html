@@ -109,7 +109,7 @@
         } @else {
           <div class="events-page__cards mt-2">
             @for (event of events; track event.id) {
-              <app-featured-event-card [event]="event"></app-featured-event-card>
+              <app-featured-event-card class="events-page__event-card" [event]="event"></app-featured-event-card>
             } @empty {
               <p class="text-muted">No events match the current filters.</p>
             }

@@ -109,6 +109,33 @@
   }
 }
 
+@media (min-width: 1200px) {
+  .events-page__cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+:host ::ng-deep .events-page__event-card .featured-event-card__title {
+  white-space: normal;
+  line-height: 1.45;
+}
+
+@media (max-width: 575.98px) {
+  :host ::ng-deep .events-page__event-card .featured-event-card {
+    gap: 12px;
+    padding: 6px;
+  }
+
+  :host ::ng-deep .events-page__event-card .featured-event-card__image-wrap {
+    height: 150px;
+  }
+
+  :host ::ng-deep .events-page__event-card .featured-event-card__body {
+    padding: 8px 10px;
+    gap: 14px;
+  }
+}
+
 .events-page__mobile-toggle {
   display: none;
   width: 100%;
