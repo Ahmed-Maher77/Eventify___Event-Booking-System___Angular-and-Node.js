@@ -12,27 +12,7 @@
       </header>
 
       <div class="faq-page__list">
-        @for (item of faqs; track item.id; let idx = $index) {
-          <article class="faq-item" [class.is-open]="isOpen(idx)">
-            <button
-              type="button"
-              class="faq-item__question"
-              [attr.aria-expanded]="isOpen(idx)"
-              [attr.aria-controls]="'faq-answer-' + item.id"
-              (click)="toggleFaq(idx)"
-            >
-              <span class="faq-item__index">{{ item.id }}</span>
-              <span class="faq-item__text">{{ item.question }}</span>
-              <span class="faq-item__toggle" aria-hidden="true">{{ isOpen(idx) ? '−' : '+' }}</span>
-            </button>
-
-            <div class="faq-item__answer-wrap" [class.is-open]="isOpen(idx)">
-              <p class="faq-item__answer" [id]="'faq-answer-' + item.id">
-                {{ item.answer }}
-              </p>
-            </div>
-          </article>
-        }
+        <app-faq-accordion [items]="faqs"></app-faq-accordion>
       </div>
     </div>
 
@@ -40,8 +20,8 @@
       <div class="faq-page__assistant-card">
         <div class="faq-page__assistant-glow"></div>
         <img
-          src="/images/users/sarah-picture.png"
-          alt="Eventify support assistant avatar"
+          src="/images/tourist-boy-with-hat.png"
+          alt="Tourist boy with hat"
           class="faq-page__assistant-avatar"
           loading="lazy"
         />

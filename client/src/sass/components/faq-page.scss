@@ -5,8 +5,8 @@
 }
 
 .faq-page {
-  min-height: calc(100svh - 73px);
-  padding: 6.25rem 0 3rem;
+  min-height: 100svh;
+  padding: 7.25rem 0 3rem;
   background:
     radial-gradient(85% 70% at 86% 18%, var(--color-faq-bg-glow) 0%, transparent 68%),
     var(--gradient-bg-flipped);
@@ -59,67 +59,7 @@
 }
 
 .faq-page__list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.faq-item {
-  @extend %eventify-faq-shell;
-}
-
-.faq-item__question {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.95rem 1rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.faq-item__index {
-  color: var(--color-black);
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.faq-item__text {
-  color: var(--color-black);
-  font-size: 1rem;
-  line-height: 1.45;
-  font-weight: 500;
-}
-
-.faq-item__toggle {
-  @extend %eventify-faq-toggle;
-}
-
-.faq-item.is-open .faq-item__toggle {
-  background: var(--color-faq-accent);
-  color: var(--color-brown);
-}
-
-.faq-item__answer-wrap {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 240ms ease;
-}
-
-.faq-item__answer-wrap.is-open {
-  grid-template-rows: 1fr;
-}
-
-.faq-item__answer {
-  margin: 0;
-  overflow: hidden;
-  padding: 0 1rem 1rem 3.35rem;
-  color: var(--color-faq-muted);
-  line-height: 1.75;
+  min-width: 0;
 }
 
 .faq-page__aside {
@@ -133,9 +73,9 @@
   width: min(100%, 340px);
   min-height: 440px;
   border-radius: 20px;
-  border: 1px solid var(--color-faq-assistant-border);
-  background: linear-gradient(170deg, var(--color-faq-assistant-bg-start) 0%, var(--color-faq-assistant-bg-end) 100%);
-  box-shadow: 0 20px 36px rgb(0 0 0 / 16%);
+  // border: 1px solid var(--color-faq-assistant-border);
+  // background: linear-gradient(170deg, var(--color-faq-assistant-bg-start) 0%, var(--color-faq-assistant-bg-end) 100%);
+  // box-shadow: 0 20px 36px rgb(0 0 0 / 16%);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
@@ -145,8 +85,13 @@
 .faq-page__assistant-glow {
   position: absolute;
   inset: auto -20% -20% -20%;
-  height: 70%;
-  background: radial-gradient(circle at 50% 20%, var(--color-faq-assistant-glow) 0%, transparent 72%);
+  height: 50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 20%,
+    var(--color-faq-assistant-glow) 0%,
+    transparent 72%
+  );
   pointer-events: none;
 }
 

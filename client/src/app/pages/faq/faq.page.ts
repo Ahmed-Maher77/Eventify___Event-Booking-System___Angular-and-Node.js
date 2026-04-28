@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
+import { FaqAccordion, FaqAccordionItem } from '../../components/faq-accordion/faq-accordion';
 
 @Component({
   selector: 'app-faq-page',
+  imports: [FaqAccordion],
   standalone: true,
   templateUrl: './faq.page.html',
   styleUrl: '../../../sass/components/faq-page.scss'
 })
 export class FaqPage {
-  protected readonly faqs = [
+  protected readonly faqs: FaqAccordionItem[] = [
     {
       id: '01',
       question: 'How do I book a ticket on Eventify?',
@@ -38,15 +40,5 @@ export class FaqPage {
       answer:
         'Use the Contact page or in-app support channels. Include your booking reference so our team can resolve your request faster.'
     }
-  ] as const;
-
-  protected openFaqIndex = 0;
-
-  protected isOpen(index: number): boolean {
-    return this.openFaqIndex === index;
-  }
-
-  protected toggleFaq(index: number): void {
-    this.openFaqIndex = this.openFaqIndex === index ? -1 : index;
-  }
+  ];
 }
