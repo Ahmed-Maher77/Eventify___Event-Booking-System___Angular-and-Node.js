@@ -44,6 +44,7 @@ export class App {
       }
 
       if (event instanceof NavigationEnd) {
+        this.redirectAdminToDashboardIfNeeded();
         this.animateScrollToTop();
         this.updateRouteThemeFlags();
       }
@@ -65,6 +66,7 @@ export class App {
       }
     });
 
+    this.redirectAdminToDashboardIfNeeded();
     this.updateRouteThemeFlags();
   }
 
@@ -154,6 +156,14 @@ export class App {
     const isHomeRoute = this.router.url === '/' || this.router.url.startsWith('/?');
     const isNotFoundRoute = this.getActiveLeafRoutePath() === '**';
     this.useFaqTheme.set(!isHomeRoute && !isNotFoundRoute);
+  }
+
+  private redirectAdminToDashboardIfNeeded(): void {
+    if (!this.isLoggedIn() || !this.isAdmin() || this.isAdminRoute()) {
+      return;
+    }
+
+    void this.router.navigate(['/dashboard']);
   }
 
   private getActiveLeafRoutePath(): string | null {
