@@ -420,6 +420,42 @@
   }
 }
 
+@media (max-width: 991.98px) {
+  .events-page__toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+    align-items: end;
+    gap: 0.8rem 0.9rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .events-page__toolbar-meta {
+    min-width: 0;
+  }
+
+  .events-page__sort-wrap {
+    width: 100%;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 567px) {
+  .events-page__toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  .events-page__sort-wrap {
+    justify-self: stretch;
+  }
+
+  .events-page__sort {
+    min-height: 2.35rem;
+  }
+}
+
 @media (max-width: 575.98px) {
   .events-page__hero {
     margin-bottom: 0.8rem;
