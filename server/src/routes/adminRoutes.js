@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getAllUsers } from "../controllers/adminUserController.js";
 import { getAllBookings } from "../controllers/bookingController.js";
 import {
   deleteContactMessage,
@@ -14,6 +15,7 @@ import { authorize, protect } from "../middlewares/authMiddleware.js";
 import {
   validateContactMessageStatusUpdate,
   validateNewsletterSubscriberStatusUpdate,
+  validateAdminUsersQuery,
   validateObjectId,
 } from "../utils/validators.js";
 
@@ -24,6 +26,7 @@ router.use(protect, authorize(["admin"]));
 //             ==> GET <==
 // ---- Get All Bookings [Admin ONLY] ----
 router.get("/bookings", getAllBookings);
+router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/contact-messages", getAllContactMessages);
 router.get("/newsletter-subscribers", getAllNewsletterSubscribers);
 

@@ -303,6 +303,39 @@ const validateQuery = [
 ];
 
 /**
+ * Validate admin users list query (search/filter/sort)
+ */
+const validateAdminUsersQuery = [
+  query('page')
+    .optional()
+    .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+
+  query('role')
+    .optional()
+    .isIn(['admin', 'user']).withMessage('Role must be either admin or user'),
+
+  query('search')
+    .optional()
+    .isString().withMessage('Search must be a string')
+    .trim()
+    .isLength({ min: 1, max: 80 }).withMessage('Search must be between 1 and 80 characters'),
+
+  query('sort')
+    .optional()
+    .isIn(['createdAt', 'name', 'email', 'role']).withMessage('Sort must be one of: createdAt, name, email, role'),
+
+  query('order')
+    .optional()
+    .isIn(['asc', 'desc']).withMessage('Order must be either asc or desc'),
+
+  handleValidationErrors
+];
+
+/**
  * Sanitize string input
  * @param {string} str - String to sanitize
  * @returns {string} Sanitized string
@@ -332,6 +365,7 @@ export {
   validateNewsletterSubscription,
   validateContactMessageStatusUpdate,
   validateNewsletterSubscriberStatusUpdate,
+  validateAdminUsersQuery,
   validateObjectId,
   validateQuery,
   handleValidationErrors,
