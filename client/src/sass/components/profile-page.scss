@@ -3,10 +3,10 @@
 @use './static-info-shared';
 
 %profile-surface-card {
-  border: 1px solid var(--color-profile-card-border);
-  border-radius: 1rem;
-  background: var(--color-profile-card-bg);
-  box-shadow: 0 10px 25px var(--color-profile-card-shadow);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 @mixin profile-card-accent($tone) {
@@ -35,7 +35,7 @@ $stat-chip-tones: (
 );
 
 .profile-page__layout {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .profile-page__content-stack {
@@ -45,7 +45,18 @@ $stat-chip-tones: (
 
 .profile-page__card {
   @extend %profile-surface-card;
-  padding: 1rem;
+  position: relative;
+  padding: 1rem 0;
+}
+
+.profile-page__card:not(:first-of-type)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-profile-card-border);
 }
 
 .profile-page__card--sidebar {
@@ -55,6 +66,8 @@ $stat-chip-tones: (
   justify-items: center;
   text-align: center;
   gap: 0.85rem;
+  border-top: 0;
+  padding-top: 0.25rem;
 }
 
 .profile-page__avatar {
@@ -62,12 +75,15 @@ $stat-chip-tones: (
   height: 4.75rem;
   border-radius: 999px;
   background: linear-gradient(150deg, var(--color-profile-avatar-start), var(--color-profile-avatar-end));
-  color: var(--color-profile-avatar-text);
-  font-size: 1.25rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgb(231 200 115 / 44%);
+}
+
+.profile-page__avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .profile-page__name,
@@ -244,8 +260,8 @@ $stat-chip-tones: (
 }
 
 .profile-page__toggle {
-  border: 1px solid var(--color-profile-card-border);
-  background: var(--color-white);
+  border: 1px solid rgb(231 200 115 / 22%);
+  background: rgb(255 255 255 / 55%);
   border-radius: 0.72rem;
   padding: 0.65rem 0.8rem;
   display: flex;
@@ -264,6 +280,15 @@ $stat-chip-tones: (
 
 .profile-page__card--danger {
   @include profile-card-accent('danger');
+}
+
+.profile-page__card--danger:not(:first-of-type)::before {
+  background: linear-gradient(
+    to right,
+    var(--color-profile-danger-border) 0 45%,
+    transparent 45% 55%,
+    var(--color-profile-danger-border) 55% 100%
+  );
 }
 
 .profile-page__btn--danger {

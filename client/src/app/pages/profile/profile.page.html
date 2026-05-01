@@ -11,7 +11,13 @@
     <div class="row g-4 profile-page__layout">
       <aside class="col-12 col-lg-4">
         <section class="profile-page__card profile-page__card--sidebar">
-          <div class="profile-page__avatar" aria-hidden="true">{{ initials() }}</div>
+          <div class="profile-page__avatar">
+            <img
+              class="profile-page__avatar-image"
+              [src]="getProfileImageUrl()"
+              [alt]="(profileForm.controls.fullName.value || 'User') + ' profile picture'"
+            />
+          </div>
           <h2 class="profile-page__name">{{ profileForm.controls.fullName.value }}</h2>
           <p class="profile-page__email">{{ profileForm.controls.email.value }}</p>
           <span class="profile-page__role-badge">{{ authService.userData?.role ?? 'user' }}</span>

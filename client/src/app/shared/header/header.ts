@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { resolveAvatarUrl } from '../../utils/avatar-url';
 import { Button } from '../button/button';
 import { HeaderNavLinksComponent } from './components/header-nav-links/header-nav-links.component';
 import { HeaderUserMenuComponent } from './components/header-user-menu/header-user-menu.component';
@@ -45,13 +46,7 @@ export class Header implements AfterViewInit, OnDestroy {
   }
 
   protected getProfileImageUrl(): string {
-    const pictureUrl = this.authService.userData?.pictureUrl?.trim();
-    if (pictureUrl) {
-      return pictureUrl;
-    }
-
-    const encodedName = encodeURIComponent(this.getDisplayName());
-    return `https://ui-avatars.com/api/?name=${encodedName}&background=E7C873&color=1A1A1A&bold=true`;
+    return resolveAvatarUrl(this.getDisplayName(), this.authService.userData?.pictureUrl);
   }
 
   protected isHomeRoute(): boolean {

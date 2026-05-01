@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { Button } from '../../shared/button/button';
 import { AuthService } from '../../services/auth.service';
+import { resolveAvatarUrl } from '../../utils/avatar-url';
 
 @Component({
   selector: 'app-profile-page',
@@ -43,6 +44,11 @@ export class ProfilePage {
     { label: 'Favorites', value: '08', tone: 'slate' },
     { label: 'Reviews', value: '05', tone: 'mint' }
   ] as const;
+
+  protected getProfileImageUrl(): string {
+    const displayName = this.profileForm.controls.fullName.value ?? this.authService.userData?.name ?? 'Eventify User';
+    return resolveAvatarUrl(displayName, this.authService.userData?.pictureUrl);
+  }
 
   protected readonly initials = computed(() => {
     const name = this.profileForm.controls.fullName.value?.trim() || this.authService.userData?.name || 'Eventify User';
