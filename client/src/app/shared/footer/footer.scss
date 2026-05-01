@@ -163,6 +163,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+  min-height: 42px;
 }
 
 .site-footer__follow {
@@ -171,12 +173,14 @@
   line-height: 1;
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
 }
 
 .site-footer__social-list {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 5px;
+  margin: 0;
 }
 
 .site-footer__social-link {
@@ -184,6 +188,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 42px;
   width: 42px;
   height: 42px;
   border-radius: 999px;
@@ -198,9 +203,13 @@
     background-color 0.25s ease;
 
   i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
     font-size: 1.3rem;
     line-height: 1;
-    display: block;
   }
 }
 

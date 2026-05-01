@@ -6,6 +6,12 @@ gsap.registerPlugin(ScrollTrigger);
 export function setupFooterAnimations(rootElement?: HTMLElement): gsap.Context {
   return gsap.context(() => {
     const timeline = gsap.timeline({ paused: true });
+    const animatedSelectors = [
+      '.site-footer__top > section',
+      '.site-footer__social-group',
+      '.site-footer__social-link',
+      '.site-footer__copyright'
+    ];
 
     timeline.from('.site-footer__top > section', {
       y: 24,
@@ -23,7 +29,7 @@ export function setupFooterAnimations(rootElement?: HTMLElement): gsap.Context {
     }, '-=0.2');
 
     timeline.from('.site-footer__social-link', {
-      y: 10,
+      y: 6,
       opacity: 0,
       duration: 0.36,
       ease: 'power2.out',
@@ -36,6 +42,11 @@ export function setupFooterAnimations(rootElement?: HTMLElement): gsap.Context {
       duration: 0.4,
       ease: 'power2.out'
     }, '-=0.16');
+
+    timeline.eventCallback('onComplete', () => {
+      // Remove GSAP inline styles so hover transforms remain perfectly centered.
+      gsap.set(animatedSelectors, { clearProps: 'transform,opacity' });
+    });
 
     ScrollTrigger.create({
       trigger: '.site-footer',
