@@ -60,15 +60,17 @@
 }
 
 .admin-entity-page__primary-btn {
-  border: 1px solid var(--color-primary);
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: var(--color-black);
-  min-height: 2.5rem;
-  padding: 0 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+  &.ev-btn {
+    border: 1px solid var(--color-primary);
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: var(--color-black);
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
 }
 
 .admin-entity-page__icon-btn {

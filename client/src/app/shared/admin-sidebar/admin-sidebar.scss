@@ -136,7 +136,7 @@
 .admin-sidebar__cta {
   &.ev-btn {
     justify-content: flex-start;
-    min-height: 2.55rem;
+    min-height: 2.85rem;
     padding-inline: 0.72rem;
     background: var(--color-primary);
     color: var(--color-black);
@@ -146,7 +146,7 @@
 .admin-sidebar__home-link {
   &.ev-btn {
     justify-content: flex-start;
-    min-height: 2.55rem;
+    min-height: 2.85rem;
     padding-inline: 0.72rem;
     border: 1px solid var(--color-admin-sidebar-border) !important;
     background: transparent !important;
@@ -164,16 +164,22 @@
   &.ev-btn,
   &.ev-btn--primary {
     justify-content: flex-start;
-    min-height: 2.55rem;
+    min-height: 2.85rem;
     padding-inline: 0.72rem;
     border: 1px solid var(--color-danger) !important;
-    background: var(--color-danger) !important;
-    color: var(--color-white) !important;
+    background: transparent !important;
+    color: var(--color-danger) !important;
   }
 
   &.ev-btn--primary:not(.ev-btn--inactive):hover {
     border-color: #b91c1c !important;
     background: #b91c1c !important;
+    color: var(--color-white) !important;
+  }
+
+  &.ev-btn.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+    background: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
     color: var(--color-white) !important;
   }
 
@@ -184,9 +190,9 @@
 
 .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn,
 .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--primary {
-  background: var(--color-danger) !important;
+  background: transparent !important;
   border-color: var(--color-danger) !important;
-  color: var(--color-white) !important;
+  color: var(--color-danger) !important;
 }
 
 .admin-sidebar--collapsed .admin-sidebar__head {
@@ -236,17 +242,37 @@
 
 :host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn,
 :host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--primary {
-  background: var(--color-danger) !important;
+  background: transparent !important;
   border-color: var(--color-danger) !important;
-  color: var(--color-white) !important;
+  color: var(--color-danger) !important;
 }
 
 :host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--primary.diagonal-swipe-hover::before {
   background-color: #7f1d1d !important;
 }
 
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--ghost.diagonal-swipe-hover::before {
+  background-color: #7f1d1d !important;
+}
+
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  background: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-white) !important;
+}
+
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--ghost.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  background: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-white) !important;
+}
+
 :host ::ng-deep .admin-sidebar__bottom .ev-btn.ev-btn--rounded {
   border-radius: 5px !important;
+}
+
+:host ::ng-deep .admin-sidebar__bottom .ev-btn {
+  min-height: 2.85rem !important;
 }
 
 :host ::ng-deep .admin-sidebar__bottom .admin-sidebar__home-link.ev-btn {

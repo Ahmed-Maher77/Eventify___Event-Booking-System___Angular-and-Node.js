@@ -9,10 +9,14 @@
       titleClass="admin-heading--title"
       subtitleClass="admin-heading--subtitle"
     />
-    <button type="button" class="admin-entity-page__primary-btn">
-      <i class="fa-solid fa-plus" aria-hidden="true"></i>
-      Add Event
-    </button>
+    <app-button
+      label="Add Event"
+      variant="primary"
+      size="md"
+      [rounded]="true"
+      leftIcon="fa-solid fa-plus"
+      customClass="admin-entity-page__primary-btn diagonal-swipe-hover"
+    />
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
