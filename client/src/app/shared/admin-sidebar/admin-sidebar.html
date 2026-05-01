@@ -39,17 +39,35 @@
   </nav>
 
   <div class="admin-sidebar__bottom">
-    <a class="admin-sidebar__cta" routerLink="/dashboard/events">
-      <i class="fa-solid fa-plus" aria-hidden="true"></i>
-      @if (!isCollapsed()) {
-        <span>Add New Event</span>
-      }
-    </a>
-    <a class="admin-sidebar__home-link" routerLink="/">
-      <i class="fa-solid fa-house" aria-hidden="true"></i>
-      @if (!isCollapsed()) {
-        <span>Back to Home</span>
-      }
-    </a>
+    <app-button
+      [label]="isCollapsed() ? '' : 'Back to Home'"
+      variant="ghost"
+      size="md"
+      [fullWidth]="true"
+      [rounded]="true"
+      [routerLink]="'/'"
+      leftIcon="fa-solid fa-house"
+      customClass="admin-sidebar__home-link eventify-header__login-btn laser-sweep-hover"
+    />
+    <app-button
+      [label]="isCollapsed() ? '' : 'Add New Event'"
+      variant="primary"
+      size="md"
+      [fullWidth]="true"
+      [rounded]="true"
+      [routerLink]="'/dashboard/events'"
+      leftIcon="fa-solid fa-plus"
+      customClass="admin-sidebar__cta diagonal-swipe-hover"
+    />
+    <app-button
+      [label]="isCollapsed() ? '' : 'Logout'"
+      variant="primary"
+      size="md"
+      [fullWidth]="true"
+      [rounded]="true"
+      rightIcon="fa-solid fa-right-from-bracket"
+      customClass="admin-sidebar__logout-btn diagonal-swipe-hover"
+      (pressed)="logout()"
+    />
   </div>
 </aside>

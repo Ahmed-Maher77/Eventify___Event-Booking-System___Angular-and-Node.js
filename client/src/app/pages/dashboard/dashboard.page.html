@@ -1,10 +1,14 @@
 <section class="admin-page">
   <header class="admin-page__header d-flex align-items-start justify-content-between gap-3 flex-wrap">
-    <div>
-      <p class="admin-page__eyebrow">Overview</p>
-      <h1 class="admin-page__title">Performance Insights</h1>
-      <p class="admin-page__subtitle">Track platform health, activity trends, and report snapshots.</p>
-    </div>
+    <app-highlighted-page-heading
+      titlePrefix="Performance"
+      titleHighlight="Insights"
+      subtitle="Track platform health, activity trends, and report snapshots."
+      headingLevel="h2"
+      containerClass="admin-heading--container"
+      titleClass="admin-heading--title"
+      subtitleClass="admin-heading--subtitle"
+    />
   </header>
 
   <section class="admin-page__stats row g-3">

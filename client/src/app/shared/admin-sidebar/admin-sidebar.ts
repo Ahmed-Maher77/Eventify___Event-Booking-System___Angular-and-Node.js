@@ -1,14 +1,18 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { Button } from '../button/button';
 
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, Button],
   templateUrl: './admin-sidebar.html',
   styleUrl: './admin-sidebar.scss'
 })
 export class AdminSidebar {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   protected readonly isCollapsed = signal(false);
   protected readonly navItems = [
     { label: 'Insights', route: '/dashboard', icon: 'fa-solid fa-chart-line' },
@@ -22,5 +26,10 @@ export class AdminSidebar {
 
   protected toggleCollapse(): void {
     this.isCollapsed.update((value) => !value);
+  }
+
+  protected logout(): void {
+    this.authService.logout();
+    void this.router.navigate(['/']);
   }
 }

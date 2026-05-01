@@ -211,3 +211,12 @@ app-root {
   color: var(--color-gray);
   margin-top: 6px;
 }
+
+.admin-heading--title {
+  font-size: 1.7rem !important;
+}
+
+.admin-heading--subtitle {
+  color: var(--color-gray) !important;
+  margin-top: 2px !important;
+}

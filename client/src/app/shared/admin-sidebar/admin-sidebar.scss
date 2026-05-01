@@ -6,6 +6,7 @@
   width: 245px;
   min-height: 100vh;
   padding: 0.8rem 0.7rem;
+  box-sizing: border-box;
   flex-shrink: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -16,7 +17,7 @@
 }
 
 .admin-sidebar--collapsed {
-  width: 86px;
+  width: 104px;
 }
 
 .admin-sidebar__head {
@@ -123,39 +124,92 @@
   gap: 0.4rem;
 }
 
-@each $item in ('cta', 'home-link') {
-  .admin-sidebar__#{$item} {
-    border-radius: 0.72rem;
-    padding: 0.6rem 0.65rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    text-decoration: none;
-    font-size: 0.87rem;
-    font-weight: 500;
-  }
+.admin-sidebar__bottom .ev-btn.ev-btn--rounded {
+  border-radius: 5px !important;
+}
+
+.admin-sidebar__bottom .diagonal-swipe-hover {
+  width: 100% !important;
+  border-radius: 5px !important;
 }
 
 .admin-sidebar__cta {
-  background: var(--color-primary);
-  color: var(--color-black);
+  &.ev-btn {
+    justify-content: flex-start;
+    min-height: 2.55rem;
+    padding-inline: 0.72rem;
+    background: var(--color-primary);
+    color: var(--color-black);
+  }
 }
 
 .admin-sidebar__home-link {
-  border: 1px solid var(--color-admin-sidebar-border);
-  background: #fff;
-  color: var(--color-admin-sidebar-text);
+  &.ev-btn {
+    justify-content: flex-start;
+    min-height: 2.55rem;
+    padding-inline: 0.72rem;
+    border: 1px solid var(--color-admin-sidebar-border) !important;
+    background: transparent !important;
+    color: var(--color-black) !important;
+    --ev-btn-ghost-color: var(--color-black);
+    --ev-btn-ghost-hover-color: var(--color-brown);
+  }
+
+  &.ev-btn.laser-sweep-hover:not(.ev-btn--inactive):hover {
+    color: var(--color-brown) !important;
+  }
+}
+
+.admin-sidebar__logout-btn {
+  &.ev-btn,
+  &.ev-btn--primary {
+    justify-content: flex-start;
+    min-height: 2.55rem;
+    padding-inline: 0.72rem;
+    border: 1px solid var(--color-danger) !important;
+    background: var(--color-danger) !important;
+    color: var(--color-white) !important;
+  }
+
+  &.ev-btn--primary:not(.ev-btn--inactive):hover {
+    border-color: #b91c1c !important;
+    background: #b91c1c !important;
+    color: var(--color-white) !important;
+  }
+
+  &.ev-btn.diagonal-swipe-hover::before {
+    background-color: #7f1d1d !important;
+  }
+}
+
+.admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn,
+.admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--primary {
+  background: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-white) !important;
 }
 
 .admin-sidebar--collapsed .admin-sidebar__head {
-  justify-content: center;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .admin-sidebar--collapsed .admin-sidebar__nav-item,
 .admin-sidebar--collapsed .admin-sidebar__cta,
-.admin-sidebar--collapsed .admin-sidebar__home-link {
+.admin-sidebar--collapsed .admin-sidebar__home-link,
+.admin-sidebar--collapsed .admin-sidebar__logout-btn {
   justify-content: center;
-  padding-inline: 0.45rem;
+  padding-inline: 0.65rem;
+}
+
+.admin-sidebar--collapsed .admin-sidebar__bottom .ev-btn {
+  width: 100%;
+}
+
+.admin-sidebar--collapsed .admin-sidebar__collapse-btn {
+  margin-bottom: 0.15rem;
 }
 
 @media (max-width: 991.98px) {
@@ -178,4 +232,24 @@
   .admin-sidebar__nav {
     gap: 0.5rem;
   }
+}
+
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn,
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--primary {
+  background: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-white) !important;
+}
+
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__logout-btn.ev-btn--primary.diagonal-swipe-hover::before {
+  background-color: #7f1d1d !important;
+}
+
+:host ::ng-deep .admin-sidebar__bottom .ev-btn.ev-btn--rounded {
+  border-radius: 5px !important;
+}
+
+:host ::ng-deep .admin-sidebar__bottom .admin-sidebar__home-link.ev-btn {
+  color: var(--color-black) !important;
+  --ev-btn-ghost-color: var(--color-black);
 }
