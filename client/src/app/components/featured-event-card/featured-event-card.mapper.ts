@@ -49,5 +49,6 @@ export function mapEventApiItemToFeaturedCard(event: EventApiItem): FeaturedEven
     location: event?.location?.trim() || 'Location not specified',
     priceFrom: `$${Number.isFinite(numericPrice) ? numericPrice.toFixed(2) : '0.00'}`,
     imageUrl: event.image || '/images/event-placeholder.svg',
+    isFavorite: false
   };
 }

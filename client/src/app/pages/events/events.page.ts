@@ -15,6 +15,8 @@ import {
   EventSortField,
   EventSortOrder,
 } from '../../services/event.service';
+import { FavoriteService } from '../../services/favorite.service';
+import { AuthService } from '../../services/auth.service';
 
 type EventCategoryTab =
   | 'all'
@@ -47,6 +49,8 @@ interface EventsQueryState {
 })
 export class EventsPage implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
+  private readonly favoriteService = inject(FavoriteService);
+  private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
@@ -84,6 +88,7 @@ export class EventsPage implements OnInit, OnDestroy {
   protected totalPages = 1;
   protected areFiltersVisibleOnMobile = false;
   protected animationSeed = 0;
+  protected readonly favoriteEventIds = new Set<string>();
   protected readonly fallbackEvents: EventApiItem[] = [
     {
       _id: 'dummy-1',
@@ -254,6 +259,10 @@ export class EventsPage implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.loadFavoriteEventIds();
+    }
+
     this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.queryState = this.mapParamsToQueryState(params);
       this.loadEvents();
@@ -356,6 +365,30 @@ export class EventsPage implements OnInit, OnDestroy {
 
   protected retryLoad(): void {
     this.loadEvents();
+  }
+
+  protected onFavoriteToggled(eventId: string): void {
+    if (!this.authService.isLoggedIn()) {
+      void this.router.navigate(['/login']);
+      return;
+    }
+
+    this.favoriteService.toggleFavorite(eventId).subscribe({
+      next: (response) => {
+        const isFavorite = response.data?.isFavorite ?? false;
+        if (isFavorite) {
+          this.favoriteEventIds.add(eventId);
+        } else {
+          this.favoriteEventIds.delete(eventId);
+        }
+        this.events = this.events.map((event) =>
+          event.id === eventId ? { ...event, isFavorite } : event,
+        );
+      },
+      error: () => {
+        // Keep current UI state if toggle request fails.
+      },
+    });
   }
 
   protected goToPage(page: number): void {
@@ -587,7 +620,10 @@ export class EventsPage implements OnInit, OnDestroy {
                   this.queryState.page * normalizedLimit,
                 )
               : sourceEvents;
-            this.events = pagedEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+            this.events = pagedEvents.map((event) => {
+              const card = mapEventApiItemToFeaturedCard(event);
+              return { ...card, isFavorite: this.favoriteEventIds.has(card.id) };
+            });
             console.log('[EventsPage][pagination] render', {
               page: this.queryState.page,
               limit: normalizedLimit,
@@ -629,5 +665,22 @@ export class EventsPage implements OnInit, OnDestroy {
       this.queryState.page * normalizedLimit,
     );
     this.events = pagedFallbackEvents.map((event) => mapEventApiItemToFeaturedCard(event));
+  }
+
+  private loadFavoriteEventIds(): void {
+    this.favoriteService.getFavorites().subscribe({
+      next: (response) => {
+        const favorites = response.data?.favorites ?? [];
+        this.favoriteEventIds.clear();
+        favorites.forEach((event) => {
+          if (event?._id) {
+            this.favoriteEventIds.add(event._id);
+          }
+        });
+      },
+      error: () => {
+        this.favoriteEventIds.clear();
+      },
+    });
   }
 }

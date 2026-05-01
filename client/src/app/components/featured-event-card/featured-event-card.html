@@ -2,6 +2,17 @@
   <figure class="featured-event-card__image-wrap">
     <img [src]="event.imageUrl" [alt]="event.title" class="featured-event-card__image" loading="lazy" />
     <span class="featured-event-card__badge">{{ event.category }}</span>
+    @if (showFavoriteAction) {
+      <button
+        type="button"
+        class="featured-event-card__favorite-btn"
+        [class.is-active]="event.isFavorite"
+        [attr.aria-label]="event.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+        (click)="onFavoriteClick($event)"
+      >
+        <i [class]="event.isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" aria-hidden="true"></i>
+      </button>
+    }
   </figure>
 
   <div class="featured-event-card__body">

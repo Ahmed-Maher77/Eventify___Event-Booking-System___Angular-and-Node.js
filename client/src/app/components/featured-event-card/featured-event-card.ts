@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FeaturedEventCardData } from './featured-event-card.model';
 
@@ -11,4 +11,12 @@ import { FeaturedEventCardData } from './featured-event-card.model';
 })
 export class FeaturedEventCard {
   @Input({ required: true }) event!: FeaturedEventCardData;
+  @Input() showFavoriteAction = false;
+  @Output() favoriteToggled = new EventEmitter<string>();
+
+  protected onFavoriteClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.favoriteToggled.emit(this.event.id);
+  }
 }

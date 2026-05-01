@@ -6,4 +6,5 @@ export interface FeaturedEventCardData {
   location: string;
   priceFrom: string;
   imageUrl: string;
+  isFavorite?: boolean;
 }

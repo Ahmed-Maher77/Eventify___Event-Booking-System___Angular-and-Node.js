@@ -7,7 +7,14 @@
     (click)="toggle.emit()"
   >
     <span class="eventify-header__user-name">{{ displayName }}</span>
-    <img [src]="profileImageUrl" [alt]="displayName" class="header-avatar" />
+    <span class="eventify-header__avatar-wrap">
+      <img [src]="profileImageUrl" [alt]="displayName" class="header-avatar" />
+      @if (favoriteCount > 0) {
+        <span class="eventify-header__favorites-badge">
+          {{ favoriteCount > 99 ? '99+' : favoriteCount }}
+        </span>
+      }
+    </span>
     <span class="fa-solid fa-chevron-down eventify-header__user-arrow" aria-hidden="true"></span>
   </button>
 
@@ -27,6 +34,17 @@
         <span class="eventify-header__profile-subtitle">{{ displayEmail }}</span>
       </div>
     </div>
+
+    <a
+      class="eventify-header__profile-link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLink="/favorites"
+      (click)="navigate.emit()"
+    >
+      <span class="fa-regular fa-heart eventify-header__profile-link-icon" aria-hidden="true"></span>
+      <span>My Favorites</span>
+    </a>
 
     <a
       class="eventify-header__profile-link"

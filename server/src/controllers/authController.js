@@ -66,5 +66,3 @@ export const login = async (req, res) => {
     res.cookie(getAuthCookieName(), token, getAuthCookieOptions());
     res.json({ success: true, message: "Login successful", data: user, token, });
 };
-
-

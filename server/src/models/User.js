@@ -38,6 +38,12 @@ const userSchema = mongoose.Schema({
         trim: true,
         default: ""
     },
+    favorites: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Event"
+        }
+    ]
 });
 
 userSchema.pre("save", async function () {

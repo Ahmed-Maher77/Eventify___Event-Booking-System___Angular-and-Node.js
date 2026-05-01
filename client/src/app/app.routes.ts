@@ -70,6 +70,11 @@ const userProtectedRoutes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'favorites',
+    loadComponent: () => import('./pages/favorites/favorites.page').then((m) => m.FavoritesPage),
+    canActivate: [authGuard]
+  },
+  {
     path: 'profile/orders',
     loadComponent: () =>
       import('./pages/profile-orders/profile-orders.page').then((m) => m.ProfileOrdersPage),

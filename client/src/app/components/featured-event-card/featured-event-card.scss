@@ -51,6 +51,33 @@
   text-transform: uppercase;
 }
 
+.featured-event-card__favorite-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 999px;
+  background: rgb(17 24 39 / 34%);
+  color: var(--color-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+  z-index: 1;
+
+  &:hover {
+    transform: scale(1.06);
+    background: rgb(220 38 38 / 92%);
+  }
+}
+
+.featured-event-card__favorite-btn.is-active {
+  background: rgb(220 38 38 / 92%);
+  color: #fff;
+}
+
 .featured-event-card__body {
   padding: 10px 12px;
   display: flex;

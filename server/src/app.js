@@ -18,6 +18,7 @@ import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import favoriteRoutes from "./routes/favoriteRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 dns.setServers(["8.8.8.8"]);
@@ -113,6 +114,7 @@ app.get("/", (req, res) => {
 // API Routes (to be added by other team members)
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);

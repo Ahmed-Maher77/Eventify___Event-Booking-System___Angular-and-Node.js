@@ -31,6 +31,30 @@
   text-overflow: ellipsis;
 }
 
+.eventify-header__avatar-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.eventify-header__favorites-badge {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 72%);
+  background: var(--color-danger);
+  color: var(--color-white);
+  font-size: 0.62rem;
+  line-height: 1;
+  font-weight: 700;
+  padding: 0 0.18rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .eventify-header__user-arrow {
   font-size: 0.73rem;
   transition: transform 180ms ease;

@@ -1,4 +1,13 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { runHeaderUserMenuOpenAnimations } from './header-user-menu.component.animations';
 
@@ -7,13 +16,14 @@ import { runHeaderUserMenuOpenAnimations } from './header-user-menu.component.an
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header-user-menu.component.html',
-  styleUrl: './header-user-menu.component.scss'
+  styleUrl: './header-user-menu.component.scss',
 })
 export class HeaderUserMenuComponent implements OnChanges {
   private readonly host = inject(ElementRef<HTMLElement>);
   @Input({ required: true }) displayName = '';
   @Input({ required: true }) displayEmail = '';
   @Input({ required: true }) profileImageUrl = '';
+  @Input() favoriteCount = 0;
   @Input({ required: true }) isOpen = false;
   @Input() isSolidStyle = false;
 

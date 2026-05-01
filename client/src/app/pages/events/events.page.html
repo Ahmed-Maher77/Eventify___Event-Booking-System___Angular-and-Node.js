@@ -180,6 +180,8 @@
                 class="events-page__event-card"
                 [style.--event-stagger]="idx"
                 [event]="event"
+                [showFavoriteAction]="true"
+                (favoriteToggled)="onFavoriteToggled($event)"
               ></app-featured-event-card>
             } @empty {
               <p class="text-muted">No events match the current filters.</p>
