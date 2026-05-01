@@ -1,0 +1,51 @@
+@use '../../../sass/components/admin-dashboard-shared';
+
+.admin-assistant {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-assistant__eyebrow {
+  margin: 0;
+  color: var(--color-admin-sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.admin-assistant__title {
+  margin: 0.2rem 0 0;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.admin-assistant__panel {
+  @extend %admin-page-panel;
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.admin-assistant__entry {
+  border: 1px solid var(--color-admin-panel-border);
+  border-radius: 0.7rem;
+  background: #fff;
+  padding: 0.65rem;
+}
+
+.admin-assistant__entry-title,
+.admin-assistant__entry-meta {
+  margin: 0;
+}
+
+.admin-assistant__entry-title {
+  color: var(--color-black);
+  font-weight: 600;
+}
+
+.admin-assistant__entry-meta {
+  margin-top: 0.2rem;
+  color: var(--color-admin-stat-muted);
+  font-size: 0.82rem;
+}

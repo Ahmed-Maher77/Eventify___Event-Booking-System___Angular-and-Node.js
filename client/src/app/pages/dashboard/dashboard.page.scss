@@ -1,0 +1,74 @@
+@use '../../../sass/components/admin-dashboard-shared';
+
+.admin-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-page__header {
+  margin-bottom: 0.1rem;
+}
+
+.admin-page__eyebrow {
+  margin: 0;
+  color: var(--color-admin-sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.admin-page__title {
+  margin: 0.2rem 0 0;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-weight: 700;
+}
+
+.admin-page__subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--color-admin-stat-muted);
+}
+
+.admin-page__panel {
+  @extend %admin-page-panel;
+  padding: 0.95rem;
+}
+
+.admin-page__panel--min {
+  min-height: 220px;
+}
+
+.admin-page__metric-label,
+.admin-page__metric-value {
+  margin: 0;
+}
+
+.admin-page__metric-label {
+  color: var(--color-admin-stat-muted);
+  font-size: 0.84rem;
+}
+
+.admin-page__metric-value {
+  margin-top: 0.4rem;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 700;
+}
+
+.admin-page__section-title {
+  @extend %admin-page-section-title;
+}
+
+.admin-page__placeholder {
+  margin: 0.6rem 0 0;
+  color: var(--color-admin-stat-muted);
+}
+
+.admin-page__list {
+  margin: 0.7rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--color-admin-stat-muted);
+  display: grid;
+  gap: 0.35rem;
+}

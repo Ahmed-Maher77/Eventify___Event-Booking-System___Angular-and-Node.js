@@ -1,7 +1,37 @@
-<h1>Dashboard Events Page</h1>
-<button type="button">Create New</button>
-<div>
-  <button type="button" aria-label="View event">View</button>
-  <button type="button" aria-label="Edit event">Edit</button>
-  <button type="button" aria-label="Delete event">Delete</button>
-</div>
+<section class="admin-entity-page">
+  <header class="admin-entity-page__header d-flex justify-content-between align-items-start gap-3 flex-wrap">
+    <div>
+      <p class="admin-entity-page__eyebrow">Events</p>
+      <h1 class="admin-entity-page__title">Event Catalog</h1>
+    </div>
+    <button type="button" class="admin-entity-page__primary-btn">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      Add Event
+    </button>
+  </header>
+
+  <div class="admin-entity-page__panel table-responsive">
+    <table class="table admin-entity-page__table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Annual Product Summit</td>
+          <td>Oct 24, 2026</td>
+          <td><span class="admin-entity-page__pill">Upcoming</span></td>
+          <td class="text-end">
+            <button type="button" class="admin-entity-page__icon-btn" aria-label="View event"><i class="fa-regular fa-eye"></i></button>
+            <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit event"><i class="fa-regular fa-pen-to-square"></i></button>
+            <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete event"><i class="fa-regular fa-trash-can"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

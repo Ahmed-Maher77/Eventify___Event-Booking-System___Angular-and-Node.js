@@ -101,6 +101,34 @@ const adminProtectedRoutes: Routes = [
         (m) => m.DashboardBookingsPage
       ),
     canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/users',
+    loadComponent: () =>
+      import('./pages/dashboard-users/dashboard-users.page').then((m) => m.DashboardUsersPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/messages',
+    loadComponent: () =>
+      import('./pages/dashboard-messages/dashboard-messages.page').then((m) => m.DashboardMessagesPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/subscribers',
+    loadComponent: () =>
+      import('./pages/dashboard-subscribers/dashboard-subscribers.page').then(
+        (m) => m.DashboardSubscribersPage
+      ),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/assistant-logs',
+    loadComponent: () =>
+      import('./pages/dashboard-assistant-logs/dashboard-assistant-logs.page').then(
+        (m) => m.DashboardAssistantLogsPage
+      ),
+    canActivate: [adminGuard]
   }
 ];
 

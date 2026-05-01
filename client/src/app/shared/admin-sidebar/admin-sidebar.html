@@ -1,8 +1,55 @@
-<aside class="admin-sidebar border-end bg-white">
-  <div class="p-3 border-bottom fw-semibold">Admin Panel</div>
-  <nav class="nav flex-column p-3 gap-2">
-    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-    <a class="nav-link" routerLink="/dashboard/events" routerLinkActive="active">Manage Events</a>
-    <a class="nav-link" routerLink="/dashboard/bookings" routerLinkActive="active">Manage Bookings</a>
+<aside class="admin-sidebar" [class.admin-sidebar--collapsed]="isCollapsed()">
+  <div class="admin-sidebar__head">
+    <div class="admin-sidebar__brand">
+      <span class="admin-sidebar__brand-icon" aria-hidden="true">
+        <i class="fa-solid fa-shield-halved"></i>
+      </span>
+      @if (!isCollapsed()) {
+        <div>
+          <p class="admin-sidebar__brand-title">Control Center</p>
+          <p class="admin-sidebar__brand-subtitle">Eventify Admin</p>
+        </div>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="admin-sidebar__collapse-btn"
+      [attr.aria-label]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      (click)="toggleCollapse()"
+    >
+      <i [class]="isCollapsed() ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left'" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <nav class="admin-sidebar__nav">
+    @for (item of navItems; track item.route) {
+      <a
+        class="admin-sidebar__nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+      >
+        <i [class]="item.icon + ' admin-sidebar__nav-icon'" aria-hidden="true"></i>
+        @if (!isCollapsed()) {
+          <span>{{ item.label }}</span>
+        }
+      </a>
+    }
   </nav>
+
+  <div class="admin-sidebar__bottom">
+    <a class="admin-sidebar__cta" routerLink="/dashboard/events">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      @if (!isCollapsed()) {
+        <span>Add New Event</span>
+      }
+    </a>
+    <a class="admin-sidebar__home-link" routerLink="/">
+      <i class="fa-solid fa-house" aria-hidden="true"></i>
+      @if (!isCollapsed()) {
+        <span>Back to Home</span>
+      }
+    </a>
+  </div>
 </aside>
