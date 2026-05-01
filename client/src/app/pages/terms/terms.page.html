@@ -1,50 +1,58 @@
 <section #termsPageRoot class="static-info-page">
   <div class="container static-info-page__container">
-    <app-highlighted-page-heading
+    <app-policy-landing
       class="policy-page__animate"
+      badgeIconClass="fa-solid fa-scale-balanced"
       titlePrefix="Terms &"
       titleHighlight="Conditions"
-      subtitle="Review the rules that govern your use of Eventify services, bookings, and account features."
-      titleClass="static-info-page__title"
-      subtitleClass="static-info-page__subtitle"
+      subtitle="Read the core rules for account usage, bookings, and secure participation on the Eventify platform."
+      backgroundVariant="flipped"
     />
 
-    <section class="static-info-page__section policy-page__animate">
-      <h2 class="static-info-page__section-title">Using Eventify</h2>
-      <p class="static-info-page__text">
-        By creating an account or booking through Eventify, you agree to provide accurate information and use the
-        platform in compliance with applicable laws and community standards.
-      </p>
-    </section>
+    <section class="policy-layout policy-page__animate">
+      <aside class="policy-sidebar" aria-label="Terms sections">
+        @for (panel of panels; track panel.key) {
+          <button
+            type="button"
+            class="policy-sidebar__item"
+            [class.is-active]="activePanelKey() === panel.key"
+            (click)="selectPanel(panel.key)"
+          >
+            <i [class]="panel.iconClass" aria-hidden="true"></i>
+            {{ panel.navLabel }}
+          </button>
+        }
+      </aside>
 
-    <section class="static-info-page__section static-info-page__section--grid policy-page__animate">
-      <article class="static-info-page__card static-info-page__feature-card">
-        <div class="static-info-page__feature-head">
-          <p class="static-info-page__feature-kicker">Responsibility</p>
-          <h3 class="static-info-page__feature-title">Bookings and Payments</h3>
-        </div>
-        <p class="static-info-page__feature-text">
-          You are responsible for reviewing event details before purchase. Booking confirmations depend on successful
-          payment and organizer availability.
-        </p>
-      </article>
-      <article class="static-info-page__card static-info-page__feature-card">
-        <div class="static-info-page__feature-head">
-          <p class="static-info-page__feature-kicker">Protection</p>
-          <h3 class="static-info-page__feature-title">Account Security</h3>
-        </div>
-        <p class="static-info-page__feature-text">
-          Keep your account credentials secure and notify us immediately if you suspect unauthorized activity or access.
-        </p>
-      </article>
+      <div class="policy-content">
+        <article class="static-info-page__card static-info-page__feature-card policy-feature-card">
+          <div class="static-info-page__feature-head policy-feature-card__head">
+            <span class="static-info-page__feature-icon policy-feature-card__icon">
+              <i [class]="activePanel().iconClass" aria-hidden="true"></i>
+            </span>
+            <div>
+              <p class="static-info-page__feature-kicker">{{ activePanel().kicker }}</p>
+              <h2 class="static-info-page__feature-title">{{ activePanel().title }}</h2>
+            </div>
+          </div>
+          <p class="static-info-page__feature-text">
+            {{ activePanel().description }}
+          </p>
+          <ul class="static-info-page__list policy-feature-card__list">
+            @for (point of activePanel().points; track point) {
+              <li>{{ point }}</li>
+            }
+          </ul>
+        </article>
+      </div>
     </section>
 
     <section class="static-info-page__section policy-page__animate">
       <h2 class="static-info-page__section-title">Limitations and Updates</h2>
       <ul class="static-info-page__list">
         <li>Event details, pricing, and availability may change by organizer decision.</li>
-        <li>We may suspend abusive accounts to maintain platform reliability and safety.</li>
-        <li>These terms may be updated over time, and continued use means you accept updates.</li>
+        <li>Platform access can be restricted for abusive or fraudulent activity.</li>
+        <li>Continued use after policy changes means acceptance of updated terms.</li>
       </ul>
     </section>
   </div>

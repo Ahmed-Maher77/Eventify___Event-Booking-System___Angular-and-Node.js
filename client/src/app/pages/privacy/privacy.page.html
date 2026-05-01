@@ -1,51 +1,58 @@
 <section #privacyPageRoot class="static-info-page">
   <div class="container static-info-page__container">
-    <app-highlighted-page-heading
+    <app-policy-landing
       class="policy-page__animate"
+      badgeIconClass="fa-solid fa-user-shield"
       titlePrefix="Privacy"
       titleHighlight="Policy"
-      subtitle="Learn how Eventify collects, uses, stores, and protects your personal information while you use our platform."
-      titleClass="static-info-page__title"
-      subtitleClass="static-info-page__subtitle"
+      subtitle="Understand how Eventify handles your personal information with transparency and clear control options."
+      lastUpdatedText="Last updated: May 1, 2026"
     />
 
-    <section class="static-info-page__section policy-page__animate">
-      <h2 class="static-info-page__section-title">Information We Collect</h2>
-      <p class="static-info-page__text">
-        We collect account details (such as name and email), booking activity, and technical usage data required to
-        deliver secure sign-in, reservations, and service improvements.
-      </p>
+    <section class="policy-layout policy-page__animate">
+      <aside class="policy-sidebar" aria-label="Privacy policy sections">
+        @for (panel of panels; track panel.key) {
+          <button
+            type="button"
+            class="policy-sidebar__item"
+            [class.is-active]="activePanelKey() === panel.key"
+            (click)="selectPanel(panel.key)"
+          >
+            <i [class]="panel.iconClass" aria-hidden="true"></i>
+            {{ panel.navLabel }}
+          </button>
+        }
+      </aside>
+
+      <div class="policy-content">
+        <article class="static-info-page__card static-info-page__feature-card policy-feature-card">
+          <div class="static-info-page__feature-head policy-feature-card__head">
+            <span class="static-info-page__feature-icon policy-feature-card__icon">
+              <i [class]="activePanel().iconClass" aria-hidden="true"></i>
+            </span>
+            <div>
+              <p class="static-info-page__feature-kicker">{{ activePanel().kicker }}</p>
+              <h2 class="static-info-page__feature-title">{{ activePanel().title }}</h2>
+            </div>
+          </div>
+          <p class="static-info-page__feature-text">
+            {{ activePanel().description }}
+          </p>
+          <ul class="static-info-page__list policy-feature-card__list">
+            @for (point of activePanel().points; track point) {
+              <li>{{ point }}</li>
+            }
+          </ul>
+        </article>
+      </div>
     </section>
 
-    <section class="static-info-page__section static-info-page__section--grid policy-page__animate">
-      <article class="static-info-page__card static-info-page__feature-card">
-        <div class="static-info-page__feature-head">
-          <p class="static-info-page__feature-kicker">Purpose</p>
-          <h3 class="static-info-page__feature-title">How We Use Data</h3>
-        </div>
-        <p class="static-info-page__feature-text">
-          We use your data to process bookings, send confirmations, provide support, prevent fraud, and personalize
-          your event discovery experience.
-        </p>
-      </article>
-      <article class="static-info-page__card static-info-page__feature-card">
-        <div class="static-info-page__feature-head">
-          <p class="static-info-page__feature-kicker">Control</p>
-          <h3 class="static-info-page__feature-title">Your Privacy Rights</h3>
-        </div>
-        <p class="static-info-page__feature-text">
-          You can request account data updates, ask for deletion where allowed, and opt out of non-essential
-          communication at any time.
-        </p>
-      </article>
-    </section>
-
     <section class="static-info-page__section policy-page__animate">
-      <h2 class="static-info-page__section-title">Data Retention and Security</h2>
+      <h2 class="static-info-page__section-title">Security and Retention Principles</h2>
       <ul class="static-info-page__list">
-        <li>We retain data only as long as needed for legal, operational, and support requirements.</li>
-        <li>Access to sensitive data is restricted and monitored.</li>
-        <li>Security controls are regularly reviewed to protect against unauthorized access.</li>
+        <li>Data is retained only for operational, legal, and support needs.</li>
+        <li>Access is restricted to authorized workflows and monitored internally.</li>
+        <li>Security controls are reviewed regularly to reduce unauthorized access risk.</li>
       </ul>
     </section>
   </div>

@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.policy-landing {
+  margin-top: 20px;
+  margin-bottom: 3rem;
+}
+
+.policy-landing--flipped {
+  background: var(--gradient-bg-flipped);
+}
+
+.policy-landing__icon {
+  margin: 0 0 1rem;
+  display: inline-block;
+  color: var(--color-brown);
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.policy-landing__updated {
+  margin: 0.85rem 0 0;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgb(231 200 115 / 44%);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  color: var(--color-brown);
+  background: rgb(255 255 255 / 66%);
+  font-weight: 500;
+  font-size: 0.84rem;
+}
