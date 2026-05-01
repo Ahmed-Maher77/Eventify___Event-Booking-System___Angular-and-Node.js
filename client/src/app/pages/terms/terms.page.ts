@@ -1,33 +1,20 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, computed, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { PolicyInfoCardItem, PolicyInfoCardsComponent } from '../../shared/policy-info-cards/policy-info-cards';
 import { PolicyLandingComponent } from '../../shared/policy-landing/policy-landing';
+import { PolicyPanelItem, PolicyPanelSwitcherComponent } from '../../shared/policy-panel-switcher/policy-panel-switcher';
 import { setupStaticInfoPageAnimations } from '../static-info-page.animations';
-
-type TermsPanelKey = 'booking' | 'account';
-
-interface TermsPanel {
-  key: TermsPanelKey;
-  navLabel: string;
-  iconClass: string;
-  kicker: string;
-  title: string;
-  description: string;
-  points: string[];
-}
 
 @Component({
   selector: 'app-terms-page',
   standalone: true,
-  imports: [PolicyLandingComponent, PolicyInfoCardsComponent],
+  imports: [PolicyLandingComponent, PolicyPanelSwitcherComponent, PolicyInfoCardsComponent],
   templateUrl: './terms.page.html',
-  styleUrls: ['../../../sass/components/static-info-page.scss', './terms.page.scss']
+  styleUrl: '../../../sass/components/static-info-page.scss'
 })
 export class TermsPage implements AfterViewInit, OnDestroy {
   @ViewChild('termsPageRoot') private termsPageRoot?: ElementRef<HTMLElement>;
-  @ViewChild('policyPanelCard') private policyPanelCard?: ElementRef<HTMLElement>;
   private termsContext: ReturnType<typeof setupStaticInfoPageAnimations> | null = null;
-  protected readonly activePanelKey = signal<TermsPanelKey>('booking');
-  protected readonly panels: readonly TermsPanel[] = [
+  protected readonly panels: readonly PolicyPanelItem[] = [
     {
       key: 'booking',
       navLabel: 'Bookings & Payments',
@@ -57,9 +44,6 @@ export class TermsPage implements AfterViewInit, OnDestroy {
       ]
     }
   ] as const;
-  protected readonly activePanel = computed(
-    () => this.panels.find((panel) => panel.key === this.activePanelKey()) ?? this.panels[0]
-  );
   protected readonly summaryCards: readonly PolicyInfoCardItem[] = [
     {
       iconClass: 'fa-solid fa-calendar-xmark',
@@ -85,31 +69,5 @@ export class TermsPage implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.termsContext?.revert();
     this.termsContext = null;
-  }
-
-  protected selectPanel(panelKey: TermsPanelKey): void {
-    if (this.activePanelKey() === panelKey) {
-      return;
-    }
-    this.activePanelKey.set(panelKey);
-    this.animatePanelSwap();
-  }
-
-  private animatePanelSwap(): void {
-    const card = this.policyPanelCard?.nativeElement;
-    if (!card) {
-      return;
-    }
-
-    card.animate(
-      [
-        { opacity: 0, transform: 'translateY(10px)' },
-        { opacity: 1, transform: 'translateY(0)' }
-      ],
-      {
-        duration: 260,
-        easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-      }
-    );
   }
 }

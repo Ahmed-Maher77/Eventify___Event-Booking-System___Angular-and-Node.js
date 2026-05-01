@@ -9,43 +9,7 @@
       lastUpdatedText="Last updated: May 1, 2026"
     />
 
-    <section class="policy-layout policy-page__animate">
-      <aside class="policy-sidebar" aria-label="Privacy policy sections">
-        @for (panel of panels; track panel.key) {
-          <button
-            type="button"
-            class="policy-sidebar__item"
-            [class.is-active]="activePanelKey() === panel.key"
-            (click)="selectPanel(panel.key)"
-          >
-            <i [class]="panel.iconClass" aria-hidden="true"></i>
-            {{ panel.navLabel }}
-          </button>
-        }
-      </aside>
-
-      <div class="policy-content">
-        <article #policyPanelCard class="static-info-page__card static-info-page__feature-card policy-feature-card">
-          <div class="static-info-page__feature-head policy-feature-card__head">
-            <span class="static-info-page__feature-icon policy-feature-card__icon">
-              <i [class]="activePanel().iconClass" aria-hidden="true"></i>
-            </span>
-            <div>
-              <p class="static-info-page__feature-kicker">{{ activePanel().kicker }}</p>
-              <h2 class="static-info-page__feature-title">{{ activePanel().title }}</h2>
-            </div>
-          </div>
-          <p class="static-info-page__feature-text">
-            {{ activePanel().description }}
-          </p>
-          <ul class="static-info-page__list policy-feature-card__list">
-            @for (point of activePanel().points; track point) {
-              <li>{{ point }}</li>
-            }
-          </ul>
-        </article>
-      </div>
-    </section>
+    <app-policy-panel-switcher ariaLabel="Privacy policy sections" [panels]="panels" />
 
     <app-policy-info-cards
       class="policy-page__animate"
