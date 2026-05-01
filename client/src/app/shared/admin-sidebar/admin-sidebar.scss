@@ -101,11 +101,20 @@
   font-size: 0.9rem;
   line-height: 1.25;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background-color 150ms ease, color 150ms ease;
 
   &:hover {
     background: var(--color-admin-sidebar-hover-bg);
   }
+}
+
+.admin-sidebar__nav-item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-sidebar__nav-item.is-active {
@@ -122,6 +131,10 @@
 .admin-sidebar__bottom {
   display: grid;
   gap: 0.4rem;
+}
+
+.admin-sidebar__bottom :is(.ev-btn, .ev-btn__label) {
+  white-space: nowrap;
 }
 
 .admin-sidebar__bottom .ev-btn.ev-btn--rounded {

@@ -201,14 +201,14 @@
 
 .admin-event-form {
   display: grid;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-top: 15px;
   margin-bottom: 30px;
 }
 
 .admin-event-form__row {
   display: grid;
-  gap: 0.75rem;
+  gap: 1.2rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -242,6 +242,26 @@
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgb(231 200 115 / 22%);
   }
+}
+
+select.admin-event-form__input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-black) 50%),
+    linear-gradient(135deg, var(--color-black) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.2rem;
+  cursor: pointer;
+}
+
+select.admin-event-form__input::-ms-expand {
+  display: none;
 }
 
 .admin-event-form__field {
