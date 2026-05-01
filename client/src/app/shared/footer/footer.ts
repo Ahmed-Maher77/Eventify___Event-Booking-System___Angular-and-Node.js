@@ -9,14 +9,14 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NewsletterService } from '../../services/newsletter.service';
 import { setupFooterAnimations } from './footer.animations';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, RouterLinkActive, ReactiveFormsModule],
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
 })

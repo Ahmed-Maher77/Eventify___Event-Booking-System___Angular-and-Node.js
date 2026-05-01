@@ -67,9 +67,14 @@
     color 0.2s ease,
     text-indent 0.2s ease;
 
-  &:hover {
+  &:not(.site-footer__link--active):hover {
     text-indent: 0.4rem;
   }
+}
+
+.site-footer__link--active {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .site-footer__form {
