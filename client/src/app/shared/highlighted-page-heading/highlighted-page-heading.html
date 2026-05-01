@@ -1,0 +1,19 @@
+<header [class]="composedContainerClass">
+  @if (eyebrow) {
+    <p [class]="eyebrowClass">{{ eyebrow }}</p>
+  }
+
+  @if (headingLevel === 'h1') {
+    <h1 [class]="composedTitleClass">
+      {{ titlePrefix }} <span>{{ titleHighlight }}</span>{{ titleSuffix ? ' ' + titleSuffix : '' }}
+    </h1>
+  } @else {
+    <h2 [class]="composedTitleClass">
+      {{ titlePrefix }} <span>{{ titleHighlight }}</span>{{ titleSuffix ? ' ' + titleSuffix : '' }}
+    </h2>
+  }
+
+  @if (subtitle) {
+    <p [class]="subtitleClass">{{ subtitle }}</p>
+  }
+</header>
