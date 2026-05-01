@@ -3,7 +3,7 @@ import {
     addFavorite,
     getUserFavorites,
     removeFavorite,
-    toggleFavorite
+    toggleFavorite,
 } from "../controllers/favoriteController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 

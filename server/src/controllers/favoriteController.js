@@ -9,7 +9,7 @@ const getUserFavorites = async (req, res, next) => {
             .populate({
                 path: "favorites",
                 populate: { path: "createdBy", select: "name" },
-                options: { sort: { date: 1 } }
+                options: { sort: { date: 1 } },
             })
             .lean();
 
@@ -22,14 +22,18 @@ const getUserFavorites = async (req, res, next) => {
             message: "Favorites retrieved successfully",
             data: {
                 favorites: user.favorites ?? [],
-                totalFavorites: user.favorites?.length ?? 0
-            }
+                totalFavorites: user.favorites?.length ?? 0,
+            },
         });
     } catch (error) {
         if (error instanceof AppError) {
             return next(error);
         }
-        return next(AppError.internalError("An error occurred while retrieving favorites."));
+        return next(
+            AppError.internalError(
+                "An error occurred while retrieving favorites.",
+            ),
+        );
     }
 };
 
@@ -48,7 +52,7 @@ const addFavorite = async (req, res, next) => {
         const user = await User.findByIdAndUpdate(
             req.user?.id,
             { $addToSet: { favorites: eventId } },
-            { new: true }
+            { new: true },
         ).select("favorites");
 
         if (!user) {
@@ -61,14 +65,16 @@ const addFavorite = async (req, res, next) => {
             data: {
                 eventId,
                 isFavorite: true,
-                totalFavorites: user.favorites.length
-            }
+                totalFavorites: user.favorites.length,
+            },
         });
     } catch (error) {
         if (error instanceof AppError) {
             return next(error);
         }
-        return next(AppError.internalError("An error occurred while adding favorite."));
+        return next(
+            AppError.internalError("An error occurred while adding favorite."),
+        );
     }
 };
 
@@ -82,7 +88,7 @@ const removeFavorite = async (req, res, next) => {
         const user = await User.findByIdAndUpdate(
             req.user?.id,
             { $pull: { favorites: eventId } },
-            { new: true }
+            { new: true },
         ).select("favorites");
 
         if (!user) {
@@ -95,14 +101,18 @@ const removeFavorite = async (req, res, next) => {
             data: {
                 eventId,
                 isFavorite: false,
-                totalFavorites: user.favorites.length
-            }
+                totalFavorites: user.favorites.length,
+            },
         });
     } catch (error) {
         if (error instanceof AppError) {
             return next(error);
         }
-        return next(AppError.internalError("An error occurred while removing favorite."));
+        return next(
+            AppError.internalError(
+                "An error occurred while removing favorite.",
+            ),
+        );
     }
 };
 
@@ -123,10 +133,14 @@ const toggleFavorite = async (req, res, next) => {
             throw AppError.notFound("User not found.");
         }
 
-        const hasFavorite = user.favorites.some((favoriteId) => favoriteId.toString() === eventId);
+        const hasFavorite = user.favorites.some(
+            (favoriteId) => favoriteId.toString() === eventId,
+        );
 
         if (hasFavorite) {
-            user.favorites = user.favorites.filter((favoriteId) => favoriteId.toString() !== eventId);
+            user.favorites = user.favorites.filter(
+                (favoriteId) => favoriteId.toString() !== eventId,
+            );
         } else {
             user.favorites.push(new mongoose.Types.ObjectId(eventId));
         }
@@ -135,18 +149,24 @@ const toggleFavorite = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            message: hasFavorite ? "Event removed from favorites." : "Event added to favorites.",
+            message: hasFavorite
+                ? "Event removed from favorites."
+                : "Event added to favorites.",
             data: {
                 eventId,
                 isFavorite: !hasFavorite,
-                totalFavorites: user.favorites.length
-            }
+                totalFavorites: user.favorites.length,
+            },
         });
     } catch (error) {
         if (error instanceof AppError) {
             return next(error);
         }
-        return next(AppError.internalError("An error occurred while toggling favorite."));
+        return next(
+            AppError.internalError(
+                "An error occurred while toggling favorite.",
+            ),
+        );
     }
 };
 
