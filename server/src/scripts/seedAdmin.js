@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import dns from 'node:dns/promises';
 import User from '../models/User.js';
 
 // Load environment variables
 dotenv.config({ path: './.env' });
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 // command: 
     // node src/scripts/seedAdmin.js <adminEmail> <adminPassword> <adminName>
@@ -50,6 +52,9 @@ const seedAdmin = async () => {
 
         await mongoose.connection.close();
     } catch (error) {
+        if (error?.message?.includes('querySrv ECONNREFUSED')) {
+            console.error('✗ Error seeding admin account: MongoDB SRV lookup failed. Check DNS/network and try again.');
+        }
         console.error('✗ Error seeding admin account:', error.message);
         process.exit(1);
     }
