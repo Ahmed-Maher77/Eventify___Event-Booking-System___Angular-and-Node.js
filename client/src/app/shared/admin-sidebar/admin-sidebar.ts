@@ -56,7 +56,7 @@ export class AdminSidebar implements OnInit, OnDestroy {
   private applySidebarWidthVariable(isCollapsed: boolean): void {
     this.document.documentElement.style.setProperty(
       '--admin-sidebar-width',
-      isCollapsed ? '104px' : '245px'
+      isCollapsed ? '80px' : '245px'
     );
   }
 }

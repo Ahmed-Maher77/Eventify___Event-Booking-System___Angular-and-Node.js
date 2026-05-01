@@ -20,12 +20,13 @@
   top: 0;
   left: 0;
   z-index: 1350;
-  transition: width 220ms ease;
+  transition: width 220ms ease, padding 220ms ease;
   overflow: hidden;
+  will-change: width, padding;
 }
 
 .admin-sidebar--collapsed {
-  width: 104px;
+  width: 80px;
   padding: 0.7rem 0.45rem;
 }
 
@@ -96,6 +97,8 @@
   grid-auto-rows: min-content;
   gap: 0.5rem;
   padding-top: 25px;
+  min-width: 0;
+  transition: gap 220ms ease, padding-top 220ms ease;
 }
 
 .admin-sidebar__nav-item {
@@ -113,7 +116,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    padding 220ms ease,
+    min-height 220ms ease,
+    gap 220ms ease;
 
   &:hover {
     background: var(--color-admin-sidebar-hover-bg);
@@ -141,6 +149,7 @@
   display: grid;
   gap: 0.4rem;
   min-width: 0;
+  transition: gap 220ms ease, margin-top 220ms ease;
 }
 
 .admin-sidebar__bottom :is(.ev-btn, .ev-btn__label) {
@@ -177,6 +186,7 @@
   &.ev-btn {
     justify-content: flex-start;
     min-height: 2.85rem;
+    min-width: 0 !important;
     padding-inline: 0.72rem;
     border: 1px solid var(--color-admin-sidebar-border) !important;
     background: transparent !important;
@@ -263,6 +273,25 @@
 
 .admin-sidebar--collapsed .admin-sidebar__bottom .ev-btn {
   width: 100%;
+  justify-content: center !important;
+  padding-inline: 0 !important;
+  gap: 0 !important;
+}
+
+.admin-sidebar--collapsed .ev-btn {
+  gap: 0 !important;
+}
+
+.admin-sidebar--collapsed .admin-sidebar__bottom .ev-btn__label {
+  display: none !important;
+}
+
+.admin-sidebar--collapsed .admin-sidebar__home-link.ev-btn,
+.admin-sidebar--collapsed .admin-sidebar__cta.ev-btn,
+.admin-sidebar--collapsed .admin-sidebar__logout-btn.ev-btn,
+.admin-sidebar--collapsed .admin-sidebar__logout-btn.ev-btn--ghost {
+  justify-content: center !important;
+  padding-inline: 0 !important;
 }
 
 .admin-sidebar--collapsed .admin-sidebar__collapse-btn {
@@ -324,9 +353,19 @@
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  white-space: nowrap !important;
+  transition:
+    padding 220ms ease,
+    min-height 220ms ease,
+    gap 220ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease !important;
 }
 
 :host ::ng-deep .admin-sidebar__bottom .admin-sidebar__home-link.ev-btn {
   color: var(--color-black) !important;
   --ev-btn-ghost-color: var(--color-black);
+  min-width: 0 !important;
+  width: 100% !important;
 }
