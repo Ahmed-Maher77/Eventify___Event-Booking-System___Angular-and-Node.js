@@ -167,7 +167,7 @@
   gap: 0.75rem;
   margin-bottom: 0.8rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1px solid rgb(0 0 0 / 8%);
+  border-bottom: 1px solid var(--color-about-showcase-bg);
 }
 
 .admin-event-modal__heading {
@@ -195,20 +195,13 @@
   min-width: 0;
 }
 
-.admin-event-modal__eyebrow {
+.admin-event-modal__title {
   margin: 0;
   color: var(--color-brown);
-  font-size: 0.73rem;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.admin-event-modal__title {
-  margin: 0.1rem 0 0;
-  color: var(--color-black);
-  font-size: 1.2rem;
-  font-weight: 700;
 }
 
 .admin-event-modal__subtitle {
@@ -220,6 +213,9 @@
 
 .admin-event-modal__close-btn {
   width: 2.3rem;
+  position: absolute;
+  top: 20px;
+  right: 20px;
   height: 2.3rem;
   border-radius: 999px;
   border: 1px solid rgb(0 0 0 / 12%);
