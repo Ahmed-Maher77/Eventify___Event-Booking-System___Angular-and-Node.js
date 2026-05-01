@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Button } from '../button/button';
@@ -10,9 +11,10 @@ import { Button } from '../button/button';
   templateUrl: './admin-sidebar.html',
   styleUrl: './admin-sidebar.scss'
 })
-export class AdminSidebar {
+export class AdminSidebar implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
   protected readonly isCollapsed = signal(false);
   protected readonly navItems = [
     { label: 'Insights', route: '/dashboard', icon: 'fa-solid fa-chart-line' },
@@ -24,8 +26,20 @@ export class AdminSidebar {
     { label: 'Assistant Activity', route: '/dashboard/assistant-logs', icon: 'fa-solid fa-robot' }
   ] as const;
 
+  ngOnInit(): void {
+    this.applySidebarWidthVariable(false);
+  }
+
+  ngOnDestroy(): void {
+    this.document.documentElement.style.removeProperty('--admin-sidebar-width');
+  }
+
   protected toggleCollapse(): void {
-    this.isCollapsed.update((value) => !value);
+    this.isCollapsed.update((value) => {
+      const nextValue = !value;
+      this.applySidebarWidthVariable(nextValue);
+      return nextValue;
+    });
   }
 
   protected logout(): void {
@@ -37,5 +51,12 @@ export class AdminSidebar {
     void this.router.navigate(['/dashboard/events'], {
       queryParams: { addEvent: 'true' }
     });
+  }
+
+  private applySidebarWidthVariable(isCollapsed: boolean): void {
+    this.document.documentElement.style.setProperty(
+      '--admin-sidebar-width',
+      isCollapsed ? '104px' : '245px'
+    );
   }
 }

@@ -9,16 +9,19 @@
   @extend %admin-sidebar-panel;
   width: 245px;
   min-height: 100vh;
-  height: 100%;
+  height: 100vh;
   padding: 0.8rem 0.7rem;
   box-sizing: border-box;
   flex-shrink: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 0.9rem;
-  position: sticky;
-  top: 73px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1350;
   transition: width 220ms ease;
+  overflow: hidden;
 }
 
 .admin-sidebar--collapsed {
@@ -238,17 +241,14 @@
 
 @media (max-width: 991.98px) {
   .admin-sidebar {
-    position: static;
-    top: auto;
-    width: 100%;
-    min-height: 0;
-    border-right: 0;
-    border-bottom: 1px solid var(--color-admin-sidebar-border);
-    grid-template-rows: auto auto auto;
+    width: min(245px, 86vw);
+    border-right: 1px solid var(--color-admin-sidebar-border);
+    border-bottom: 0;
+    grid-template-rows: auto 1fr auto;
   }
 
   .admin-sidebar__nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 
