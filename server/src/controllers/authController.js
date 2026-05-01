@@ -3,7 +3,11 @@ import { generateToken } from "../utils/jwtUtils.js";
 import AppError from "../middlewares/AppError.js";
 import { uploadImageBuffer } from "../utils/cloudinaryUpload.js";
 import { buildFallbackAvatarUrl } from "../utils/avatarUtils.js";
-import { getAuthCookieName, getAuthCookieOptions } from "../utils/authCookie.js";
+import {
+    getAuthCookieClearOptions,
+    getAuthCookieName,
+    getAuthCookieOptions
+} from "../utils/authCookie.js";
 
 export const register = async (req, res) => {
     const { email, password, name, pictureUrl } = req.body;
@@ -65,4 +69,12 @@ export const login = async (req, res) => {
     const token = generateToken(user._id, user.role);
     res.cookie(getAuthCookieName(), token, getAuthCookieOptions());
     res.json({ success: true, message: "Login successful", data: user, token, });
+};
+
+export const logout = async (req, res) => {
+    res.clearCookie(getAuthCookieName(), getAuthCookieClearOptions());
+    res.status(200).json({
+        success: true,
+        message: "Logout successful"
+    });
 };

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, finalize, tap } from 'rxjs';
 import { AuthResponse, LoginPayload, RegisterPayload, UserData } from './auth.model';
 import { environment } from '../../environments/environment';
 
@@ -114,9 +114,14 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.accessTokenStorageKey);
-    localStorage.removeItem(this.userDataStorageKey);
-    this.userData = null;
+    this.http
+      .post<{ success: boolean; message: string }>(`${this.authApiUrl}/logout`, {}, { withCredentials: true })
+      .pipe(finalize(() => this.clearLocalAuthState()))
+      .subscribe({
+        error: () => {
+          // Local state is still cleared in finalize even if request fails.
+        }
+      });
   }
 
   private persistAuthState(token: string, user: UserData): void {
@@ -146,5 +151,11 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  private clearLocalAuthState(): void {
+    localStorage.removeItem(this.accessTokenStorageKey);
+    localStorage.removeItem(this.userDataStorageKey);
+    this.userData = null;
   }
 }

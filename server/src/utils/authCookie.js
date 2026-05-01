@@ -42,3 +42,13 @@ export const getAuthCookieOptions = () => {
     maxAge: maxAgeMs
   };
 };
+
+export const getAuthCookieClearOptions = () => {
+  const options = getAuthCookieOptions();
+  return {
+    httpOnly: options.httpOnly,
+    secure: options.secure,
+    sameSite: options.sameSite,
+    path: options.path
+  };
+};
