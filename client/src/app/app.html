@@ -13,13 +13,20 @@
   <div class="admin-layout">
     <app-admin-sidebar></app-admin-sidebar>
 
-    <main class="admin-content p-4 page-main" [class.page-main--faq-theme]="useFaqTheme()">
-      <router-outlet></router-outlet>
-    </main>
+    <div class="admin-layout__main">
+      <main class="admin-content p-4 page-main" [class.page-main--faq-theme]="useFaqTheme()">
+        <router-outlet></router-outlet>
+      </main>
+      <div class="admin-layout__main-footer">
+        <app-footer></app-footer>
+      </div>
+    </div>
   </div>
 }
 
-<app-footer></app-footer>
+@if (!showAdminSidebar()) {
+  <app-footer></app-footer>
+}
 
 <div class="chatbot-fab">
   @if (showChatbotHint() && !isChatScreenActive()) {

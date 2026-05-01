@@ -124,11 +124,23 @@
 
             <label class="admin-event-form__field">
               <span>Category</span>
-              <select class="admin-event-form__input" formControlName="category">
-                @for (category of categoryOptions; track category) {
-                  <option [value]="category">{{ category }}</option>
-                }
-              </select>
+              <div class="admin-event-form__select-wrap">
+                <select
+                  class="admin-event-form__input"
+                  formControlName="category"
+                  (focus)="setCategorySelectActive(true)"
+                  (blur)="setCategorySelectActive(false)"
+                >
+                  @for (category of categoryOptions; track category) {
+                    <option [value]="category">{{ category }}</option>
+                  }
+                </select>
+                <i
+                  class="fa-solid fa-chevron-down admin-event-form__select-arrow"
+                  [class.is-active]="isCategorySelectActive"
+                  aria-hidden="true"
+                ></i>
+              </div>
             </label>
           </div>
 

@@ -38,6 +38,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected formErrorMessage = '';
   protected formSuccessMessage = '';
   protected pictureMode: 'file' | 'url' = 'file';
+  protected isCategorySelectActive = false;
   protected selectedImageName = '';
   private selectedImageFile: File | null = null;
 
@@ -108,6 +109,10 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.selectedImageFile = file;
     this.selectedImageName = file?.name ?? '';
     this.formErrorMessage = '';
+  }
+
+  protected setCategorySelectActive(isActive: boolean): void {
+    this.isCategorySelectActive = isActive;
   }
 
   protected removeSelectedImage(fileInput?: HTMLInputElement): void {
