@@ -14,6 +14,7 @@
 @use './sass/components/talk-to-ai-shared';
 @use './sass/components/team-members-shared';
 @use './sass/components/static-info-shared';
+@use './sass/components/profile-page';
 @use './sass/components/contact-shared';
 @use './sass/components/testimonials-shared';
 @use './sass/components/trusted-companies-shared';
@@ -114,6 +115,19 @@
   --color-contact-focus-ring: rgb(231 200 115 / 30%);
   --color-contact-social-hover-bg: rgb(231 200 115 / 12%);
   --color-contact-divider: rgb(231 200 115 / 38%);
+  --color-profile-card-bg: rgb(255 255 255 / 86%);
+  --color-profile-card-border: rgb(231 200 115 / 30%);
+  --color-profile-card-shadow: rgb(106 77 0 / 8%);
+  --color-profile-muted: #5f636f;
+  --color-profile-input-bg: #ffffff;
+  --color-profile-input-border: #e8e4d7;
+  --color-profile-focus-ring: rgb(231 200 115 / 24%);
+  --color-profile-avatar-start: #f3e6bf;
+  --color-profile-avatar-end: #cfac4d;
+  --color-profile-avatar-text: #473100;
+  --color-profile-check-idle: #a3a3a3;
+  --color-profile-danger-bg: rgb(220 38 38 / 4%);
+  --color-profile-danger-border: rgb(220 38 38 / 30%);
   --logo-grayscale: 1;
   --bgColor-white: #fff;
 }

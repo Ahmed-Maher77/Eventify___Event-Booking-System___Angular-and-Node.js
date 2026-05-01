@@ -7,5 +7,261 @@
       titleClass="static-info-page__title"
       subtitleClass="static-info-page__subtitle"
     />
+
+    <div class="row g-4 profile-page__layout">
+      <aside class="col-12 col-lg-4">
+        <section class="profile-page__card profile-page__card--sidebar">
+          <div class="profile-page__avatar" aria-hidden="true">{{ initials() }}</div>
+          <h2 class="profile-page__name">{{ profileForm.controls.fullName.value }}</h2>
+          <p class="profile-page__email">{{ profileForm.controls.email.value }}</p>
+          <span class="profile-page__role-badge">{{ authService.userData?.role ?? 'user' }}</span>
+
+          <div class="profile-page__stats">
+            @for (stat of quickStats; track stat.label) {
+              <article class="profile-page__stat-chip profile-page__stat-chip--{{ stat.tone }}">
+                <p class="profile-page__stat-value">{{ stat.value }}</p>
+                <p class="profile-page__stat-label">{{ stat.label }}</p>
+              </article>
+            }
+          </div>
+
+          <div class="profile-page__sidebar-actions">
+            <app-button
+              label="Edit Profile"
+              variant="primary"
+              size="md"
+              [fullWidth]="true"
+              [rounded]="true"
+              customClass="profile-page__btn profile-page__btn--primary"
+            />
+            <app-button
+              label="Change Password"
+              variant="outline"
+              size="md"
+              [fullWidth]="true"
+              [rounded]="true"
+              customClass="profile-page__btn profile-page__btn--secondary"
+            />
+          </div>
+        </section>
+      </aside>
+
+      <div class="col-12 col-lg-8">
+        <div class="profile-page__content-stack">
+          <section class="profile-page__card">
+            <header class="profile-page__card-header">
+              <h2 class="profile-page__card-title">Personal Information</h2>
+              <p class="profile-page__card-subtitle">Keep your profile details up to date.</p>
+            </header>
+
+            <form class="row g-3" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+              <div class="col-12 col-md-6">
+                <label for="profile-full-name" class="profile-page__label">Full Name</label>
+                <input
+                  id="profile-full-name"
+                  type="text"
+                  class="profile-page__input"
+                  formControlName="fullName"
+                  placeholder="Your full name"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="profile-email" class="profile-page__label">Email</label>
+                <input
+                  id="profile-email"
+                  type="email"
+                  class="profile-page__input"
+                  formControlName="email"
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="profile-phone" class="profile-page__label">Phone</label>
+                <input
+                  id="profile-phone"
+                  type="tel"
+                  class="profile-page__input"
+                  formControlName="phone"
+                  placeholder="+20 1x xxx xxxx"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="profile-location" class="profile-page__label">City / Country</label>
+                <input
+                  id="profile-location"
+                  type="text"
+                  class="profile-page__input"
+                  formControlName="location"
+                  placeholder="Cairo, Egypt"
+                />
+              </div>
+              <div class="col-12">
+                <app-button
+                  label="Save Changes"
+                  variant="primary"
+                  size="md"
+                  buttonType="submit"
+                  [rounded]="true"
+                  customClass="profile-page__btn profile-page__btn--primary"
+                />
+              </div>
+            </form>
+          </section>
+
+          <section class="profile-page__card">
+            <header class="profile-page__card-header">
+              <h2 class="profile-page__card-title">Security</h2>
+              <p class="profile-page__card-subtitle">Update your password to keep your account secure.</p>
+            </header>
+
+            <form class="row g-3" [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+              <div class="col-12">
+                <label for="profile-current-password" class="profile-page__label">Current Password</label>
+                <div class="profile-page__password-wrap">
+                  <input
+                    id="profile-current-password"
+                    [type]="isCurrentPasswordVisible() ? 'text' : 'password'"
+                    class="profile-page__input profile-page__input--password"
+                    formControlName="currentPassword"
+                    placeholder="Enter current password"
+                  />
+                  <button
+                    type="button"
+                    class="profile-page__password-toggle"
+                    [attr.aria-label]="isCurrentPasswordVisible() ? 'Hide password' : 'Show password'"
+                    (click)="togglePasswordVisibility('current')"
+                  >
+                    <i [class]="isCurrentPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="profile-new-password" class="profile-page__label">New Password</label>
+                <div class="profile-page__password-wrap">
+                  <input
+                    id="profile-new-password"
+                    [type]="isNewPasswordVisible() ? 'text' : 'password'"
+                    class="profile-page__input profile-page__input--password"
+                    formControlName="newPassword"
+                    placeholder="Create new password"
+                  />
+                  <button
+                    type="button"
+                    class="profile-page__password-toggle"
+                    [attr.aria-label]="isNewPasswordVisible() ? 'Hide password' : 'Show password'"
+                    (click)="togglePasswordVisibility('new')"
+                  >
+                    <i [class]="isNewPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                  </button>
+                </div>
+
+                <ul class="profile-page__password-checklist">
+                  <li [class.is-met]="hasMinLength"><i class="fa-solid fa-circle-check"></i> At least 6 characters</li>
+                  <li [class.is-met]="hasUppercase"><i class="fa-solid fa-circle-check"></i> One uppercase letter</li>
+                  <li [class.is-met]="hasLowercase"><i class="fa-solid fa-circle-check"></i> One lowercase letter</li>
+                  <li [class.is-met]="hasNumber"><i class="fa-solid fa-circle-check"></i> One number</li>
+                  <li [class.is-met]="hasSpecialCharacter">
+                    <i class="fa-solid fa-circle-check"></i> One special character (@$!%*?&)
+                  </li>
+                </ul>
+              </div>
+
+              <div class="col-12">
+                <label for="profile-confirm-password" class="profile-page__label">Confirm Password</label>
+                <div class="profile-page__password-wrap">
+                  <input
+                    id="profile-confirm-password"
+                    [type]="isConfirmPasswordVisible() ? 'text' : 'password'"
+                    class="profile-page__input profile-page__input--password"
+                    formControlName="confirmPassword"
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    class="profile-page__password-toggle"
+                    [attr.aria-label]="isConfirmPasswordVisible() ? 'Hide password' : 'Show password'"
+                    (click)="togglePasswordVisibility('confirm')"
+                  >
+                    <i [class]="isConfirmPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <app-button
+                  label="Update Password"
+                  variant="primary"
+                  size="md"
+                  buttonType="submit"
+                  [rounded]="true"
+                  customClass="profile-page__btn profile-page__btn--primary"
+                />
+              </div>
+            </form>
+          </section>
+
+          <section class="profile-page__card">
+            <header class="profile-page__card-header">
+              <h2 class="profile-page__card-title">Account Preferences</h2>
+              <p class="profile-page__card-subtitle">Control your communication and reminder settings.</p>
+            </header>
+
+            <div class="profile-page__preferences">
+              <label class="profile-page__toggle">
+                <input
+                  type="checkbox"
+                  [checked]="emailNotificationsEnabled()"
+                  (change)="emailNotificationsEnabled.set(!emailNotificationsEnabled())"
+                />
+                <span>Email notifications</span>
+              </label>
+              <label class="profile-page__toggle">
+                <input
+                  type="checkbox"
+                  [checked]="marketingUpdatesEnabled()"
+                  (change)="marketingUpdatesEnabled.set(!marketingUpdatesEnabled())"
+                />
+                <span>Marketing updates</span>
+              </label>
+              <label class="profile-page__toggle">
+                <input
+                  type="checkbox"
+                  [checked]="bookingRemindersEnabled()"
+                  (change)="bookingRemindersEnabled.set(!bookingRemindersEnabled())"
+                />
+                <span>Booking reminders</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="profile-page__card profile-page__card--danger">
+            <header class="profile-page__card-header">
+              <h2 class="profile-page__card-title">Danger Zone</h2>
+              <p class="profile-page__card-subtitle">These actions affect your account session and data.</p>
+            </header>
+
+            <div class="profile-page__danger-actions">
+              <app-button
+                label="Log out"
+                variant="outline"
+                size="md"
+                [rounded]="true"
+                customClass="profile-page__btn profile-page__btn--secondary"
+                (pressed)="logout()"
+              />
+              <app-button
+                label="Delete Account"
+                variant="outline"
+                size="md"
+                [rounded]="true"
+                customClass="profile-page__btn profile-page__btn--danger"
+                (pressed)="deleteAccount()"
+              />
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
