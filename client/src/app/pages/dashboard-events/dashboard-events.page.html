@@ -16,31 +16,167 @@
       [rounded]="true"
       leftIcon="fa-solid fa-plus"
       customClass="admin-entity-page__primary-btn diagonal-swipe-hover"
+      (pressed)="openAddEventModal()"
     />
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
-    <table class="table admin-entity-page__table align-middle mb-0">
-      <thead>
-        <tr>
-          <th>Event</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th class="text-end">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Annual Product Summit</td>
-          <td>Oct 24, 2026</td>
-          <td><span class="admin-entity-page__pill">Upcoming</span></td>
-          <td class="text-end">
-            <button type="button" class="admin-entity-page__icon-btn" aria-label="View event"><i class="fa-regular fa-eye"></i></button>
-            <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit event"><i class="fa-regular fa-pen-to-square"></i></button>
-            <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete event"><i class="fa-regular fa-trash-can"></i></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    @if (isLoadingEvents) {
+      <p class="admin-entity-page__state-message">Loading events...</p>
+    } @else if (listErrorMessage) {
+      <p class="admin-entity-page__state-message is-error">{{ listErrorMessage }}</p>
+    } @else if (!events.length) {
+      <p class="admin-entity-page__state-message">No events found yet.</p>
+    } @else {
+      <table class="table admin-entity-page__table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (event of events; track event._id) {
+            <tr>
+              <td>{{ event.title }}</td>
+              <td>{{ event.date | date: 'MMM d, y' }}</td>
+              <td>
+                <span class="admin-entity-page__pill">{{ event.status || 'upcoming' }}</span>
+              </td>
+              <td class="text-end">
+                <button type="button" class="admin-entity-page__icon-btn" aria-label="View event"><i class="fa-regular fa-eye"></i></button>
+                <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit event"><i class="fa-regular fa-pen-to-square"></i></button>
+                <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete event"><i class="fa-regular fa-trash-can"></i></button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   </div>
 </section>
+
+@if (isAddModalOpen) {
+  <div class="admin-event-modal" role="dialog" aria-modal="true" aria-label="Add event dialog">
+    <button
+      type="button"
+      class="admin-event-modal__backdrop"
+      aria-label="Close add event dialog"
+      (click)="closeAddEventModal()"
+    ></button>
+
+    <div class="admin-event-modal__panel">
+      <div class="admin-event-modal__header">
+        <div>
+          <h3 class="admin-event-modal__title">Add new event</h3>
+          <p class="admin-event-modal__subtitle">Create an event and publish it to the catalog.</p>
+        </div>
+        <button
+          type="button"
+          class="admin-event-modal__close-btn"
+          aria-label="Close add event dialog"
+          (click)="closeAddEventModal()"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
+        @if (formErrorMessage) {
+          <p class="admin-event-form__message is-error">{{ formErrorMessage }}</p>
+        }
+        @if (formSuccessMessage) {
+          <p class="admin-event-form__message is-success">{{ formSuccessMessage }}</p>
+        }
+
+        <label class="admin-event-form__field">
+          <span>Title</span>
+          <input type="text" formControlName="title" placeholder="Event title" />
+          @if (addEventForm.controls.title.touched && addEventForm.controls.title.invalid) {
+            <small>Title must be between 3 and 100 characters.</small>
+          }
+        </label>
+
+        <label class="admin-event-form__field">
+          <span>Description</span>
+          <textarea rows="4" formControlName="description" placeholder="Event description"></textarea>
+          @if (addEventForm.controls.description.touched && addEventForm.controls.description.invalid) {
+            <small>Description must be between 10 and 1000 characters.</small>
+          }
+        </label>
+
+        <div class="admin-event-form__row">
+          <label class="admin-event-form__field">
+            <span>Date & time</span>
+            <input type="datetime-local" formControlName="date" />
+            @if (addEventForm.controls.date.touched && addEventForm.controls.date.invalid) {
+              <small>Date is required.</small>
+            }
+          </label>
+
+          <label class="admin-event-form__field">
+            <span>Category</span>
+            <select formControlName="category">
+              @for (category of categoryOptions; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <label class="admin-event-form__field">
+          <span>Location</span>
+          <input type="text" formControlName="location" placeholder="City, venue, or address" />
+          @if (addEventForm.controls.location.touched && addEventForm.controls.location.invalid) {
+            <small>Location must be between 3 and 200 characters.</small>
+          }
+        </label>
+
+        <div class="admin-event-form__row">
+          <label class="admin-event-form__field">
+            <span>Capacity</span>
+            <input type="number" formControlName="capacity" min="1" />
+            @if (addEventForm.controls.capacity.touched && addEventForm.controls.capacity.invalid) {
+              <small>Capacity must be at least 1.</small>
+            }
+          </label>
+
+          <label class="admin-event-form__field">
+            <span>Price</span>
+            <input type="number" formControlName="price" min="0" step="0.01" />
+            @if (addEventForm.controls.price.touched && addEventForm.controls.price.invalid) {
+              <small>Price cannot be negative.</small>
+            }
+          </label>
+        </div>
+
+        <label class="admin-event-form__field">
+          <span>Image URL (optional)</span>
+          <input type="url" formControlName="imageUrl" placeholder="https://..." />
+        </label>
+
+        <div class="admin-event-form__actions">
+          <app-button
+            label="Cancel"
+            variant="ghost"
+            size="md"
+            [rounded]="true"
+            customClass="admin-event-form__cancel-btn"
+            (pressed)="closeAddEventModal()"
+          />
+          <app-button
+            label="Create Event"
+            variant="primary"
+            size="md"
+            buttonType="submit"
+            [rounded]="true"
+            [loading]="isSubmitting"
+            customClass="admin-event-form__submit-btn diagonal-swipe-hover"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+}

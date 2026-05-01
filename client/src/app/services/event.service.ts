@@ -6,10 +6,13 @@ import { environment } from '../../environments/environment';
 export interface EventApiItem {
   _id: string;
   title: string;
+  description?: string;
   date: string;
   location: string;
   category: string;
+  capacity?: number;
   price: number;
+  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   image?: string;
 }
 
@@ -23,6 +26,12 @@ export interface EventsApiResponse {
       limit: number;
     };
   };
+}
+
+export interface EventMutationResponse {
+  data: EventApiItem;
+  message?: string;
+  success?: boolean;
 }
 
 export type EventSortField = 'date' | 'price' | 'title' | 'createdAt';
@@ -40,6 +49,17 @@ export interface EventQueryOptions {
   endDate?: string;
   sort?: EventSortField;
   order?: EventSortOrder;
+}
+
+export interface CreateEventPayload {
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  category: 'concert' | 'conference' | 'workshop' | 'seminar' | 'sports' | 'other';
+  capacity: number;
+  price: number;
+  imageUrl?: string;
 }
 
 @Injectable({
@@ -95,6 +115,12 @@ export class EventService {
       limit: options.limit ?? 12,
       sort: 'date',
       order: 'asc'
+    });
+  }
+
+  createEvent(payload: CreateEventPayload): Observable<EventMutationResponse> {
+    return this.http.post<EventMutationResponse>(this.eventsApiUrl, payload, {
+      withCredentials: true
     });
   }
 }
