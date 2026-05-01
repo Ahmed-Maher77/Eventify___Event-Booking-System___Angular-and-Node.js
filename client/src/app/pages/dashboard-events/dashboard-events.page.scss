@@ -337,9 +337,26 @@ select.admin-event-form__input::-ms-expand {
   border-radius: 12px;
 }
 
+:host ::ng-deep .admin-event-form__cancel-btn.ev-btn {
+  background: var(--color-white) !important;
+  border: 1px solid var(--color-chip-border) !important;
+  color: var(--color-black) !important;
+}
+
+:host ::ng-deep .admin-event-form__cancel-btn.ev-btn:not(.ev-btn--inactive):hover {
+  border-color: var(--color-primary) !important;
+  background: rgb(231 200 115 / 10%) !important;
+  color: var(--color-black) !important;
+}
+
 .admin-event-form__submit-btn.ev-btn {
   border: 1px solid var(--color-primary);
   border-radius: 12px;
+  padding-inline: 1.8rem !important;
+}
+
+:host ::ng-deep .admin-event-form__submit-btn.ev-btn {
+  padding-inline: 1.8rem !important;
 }
 
 .admin-event-form__mode-switch {

@@ -1,10 +1,15 @@
 @use '../../../sass/abstracts/mixins';
 @use '../../../sass/components/admin-sidebar-shared';
 
+:host {
+  min-height: 100vh;
+}
+
 .admin-sidebar {
   @extend %admin-sidebar-panel;
   width: 245px;
   min-height: 100vh;
+  height: 100%;
   padding: 0.8rem 0.7rem;
   box-sizing: border-box;
   flex-shrink: 0;
