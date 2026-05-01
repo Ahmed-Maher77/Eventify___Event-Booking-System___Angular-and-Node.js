@@ -22,16 +22,16 @@
 $stat-chip-tones: (
   'gold': (
     bg: rgb(231 200 115 / 16%),
-    border: rgb(231 200 115 / 38%)
+    border: rgb(231 200 115 / 38%),
   ),
   'slate': (
     bg: rgb(113 113 122 / 10%),
-    border: rgb(113 113 122 / 24%)
+    border: rgb(113 113 122 / 24%),
   ),
   'mint': (
     bg: rgb(22 163 74 / 10%),
-    border: rgb(22 163 74 / 28%)
-  )
+    border: rgb(22 163 74 / 28%),
+  ),
 );
 
 .profile-page__layout {
@@ -40,7 +40,7 @@ $stat-chip-tones: (
 
 .profile-page__content-stack {
   display: grid;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .profile-page__card {
@@ -52,7 +52,7 @@ $stat-chip-tones: (
 .profile-page__card:not(:first-of-type)::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: -1rem;
   left: 0;
   width: 100%;
   height: 1px;
@@ -74,9 +74,8 @@ $stat-chip-tones: (
   width: 4.75rem;
   height: 4.75rem;
   border-radius: 999px;
-  background: linear-gradient(150deg, var(--color-profile-avatar-start), var(--color-profile-avatar-end));
-  overflow: hidden;
-  border: 1px solid rgb(231 200 115 / 44%);
+  background: var(--color-profile-avatar-start);
+  border: 3px solid rgba(231, 200, 115, 0.44);
 }
 
 .profile-page__avatar-image {
@@ -84,6 +83,7 @@ $stat-chip-tones: (
   height: 100%;
   display: block;
   object-fit: cover;
+  border-radius: 999px;
 }
 
 .profile-page__name,
@@ -154,12 +154,11 @@ $stat-chip-tones: (
 .profile-page__sidebar-actions,
 .profile-page__danger-actions {
   width: 100%;
-  display: grid;
   gap: 0.6rem;
 }
 
 .profile-page__card-header {
-  margin-bottom: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .profile-page__card-title,
@@ -195,7 +194,9 @@ $stat-chip-tones: (
   background: var(--color-profile-input-bg);
   color: var(--color-black);
   padding: 0.7rem 0.85rem;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 
   &:focus {
     outline: none;
@@ -291,27 +292,52 @@ $stat-chip-tones: (
   );
 }
 
-.profile-page__btn--danger {
-  &.ev-btn--outline {
-    color: var(--color-danger);
-    border-color: var(--color-profile-danger-border);
-    background: transparent;
-  }
+.profile-page__danger-actions .profile-page__btn--danger.ev-btn,
+.profile-page__danger-actions .profile-page__btn--danger.ev-btn--primary {
+  color: var(--color-white) !important;
+  border-color: var(--color-danger) !important;
+  background: var(--color-danger) !important;
+}
 
-  &.ev-btn--outline:hover {
-    color: var(--color-white);
-    border-color: var(--color-danger);
-    background: var(--color-danger);
+.profile-page__danger-actions .profile-page__btn--danger.ev-btn--primary:hover {
+  color: var(--color-white) !important;
+  border-color: #b91c1c !important;
+  background: #b91c1c !important;
+}
+
+.profile-page__danger-actions .profile-page__btn--danger.ev-btn--primary.diagonal-swipe-hover::before {
+  background-color: #7f1d1d !important;
+}
+
+.profile-page__btn--change-password {
+  &.ev-btn--ghost {
+    --ev-btn-ghost-color: var(--color-black);
+    --ev-btn-ghost-hover-color: var(--color-brown);
+    border-color: rgb(231 200 115 / 60%);
+    background: transparent;
+    color: var(--color-black);
   }
+}
+
+.profile-page__danger-actions .profile-page__btn--logout.ev-btn--outline {
+  color: var(--color-danger) !important;
+  border-color: var(--color-profile-danger-border) !important;
+  background: rgb(220 38 38 / 7%) !important;
+}
+
+.profile-page__danger-actions .profile-page__btn--logout.ev-btn--outline:hover {
+  color: var(--color-white) !important;
+  border-color: var(--color-danger) !important;
+  background: var(--color-danger) !important;
+}
+
+.ev-btn--primary {
+  padding-inline: 1.5rem !important;
 }
 
 @include mixins.respond(md) {
   .profile-page__card {
     padding: 1.1rem;
-  }
-
-  .profile-page__danger-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

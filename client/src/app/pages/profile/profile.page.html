@@ -38,15 +38,17 @@
               size="md"
               [fullWidth]="true"
               [rounded]="true"
-              customClass="profile-page__btn profile-page__btn--primary"
+              customClass="profile-page__btn profile-page__btn--primary diagonal-swipe-hover"
             />
             <app-button
-              label="Change Password"
-              variant="outline"
+              label="Logout"
+              variant="ghost"
               size="md"
               [fullWidth]="true"
               [rounded]="true"
-              customClass="profile-page__btn profile-page__btn--secondary"
+              rightIcon="fa-solid fa-right-from-bracket"
+              customClass="profile-page__btn profile-page__btn--change-password eventify-header__login-btn laser-sweep-hover"
+              (pressed)="logout()"
             />
           </div>
         </section>
@@ -108,7 +110,7 @@
                   size="md"
                   buttonType="submit"
                   [rounded]="true"
-                  customClass="profile-page__btn profile-page__btn--primary"
+                  customClass="profile-page__btn profile-page__btn--primary diagonal-swipe-hover"
                 />
               </div>
             </form>
@@ -117,12 +119,16 @@
           <section class="profile-page__card">
             <header class="profile-page__card-header">
               <h2 class="profile-page__card-title">Security</h2>
-              <p class="profile-page__card-subtitle">Update your password to keep your account secure.</p>
+              <p class="profile-page__card-subtitle">
+                Update your password to keep your account secure.
+              </p>
             </header>
 
             <form class="row g-3" [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
               <div class="col-12">
-                <label for="profile-current-password" class="profile-page__label">Current Password</label>
+                <label for="profile-current-password" class="profile-page__label"
+                  >Current Password</label
+                >
                 <div class="profile-page__password-wrap">
                   <input
                     id="profile-current-password"
@@ -134,10 +140,16 @@
                   <button
                     type="button"
                     class="profile-page__password-toggle"
-                    [attr.aria-label]="isCurrentPasswordVisible() ? 'Hide password' : 'Show password'"
+                    [attr.aria-label]="
+                      isCurrentPasswordVisible() ? 'Hide password' : 'Show password'
+                    "
                     (click)="togglePasswordVisibility('current')"
                   >
-                    <i [class]="isCurrentPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                    <i
+                      [class]="
+                        isCurrentPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                      "
+                    ></i>
                   </button>
                 </div>
               </div>
@@ -158,15 +170,27 @@
                     [attr.aria-label]="isNewPasswordVisible() ? 'Hide password' : 'Show password'"
                     (click)="togglePasswordVisibility('new')"
                   >
-                    <i [class]="isNewPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                    <i
+                      [class]="
+                        isNewPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                      "
+                    ></i>
                   </button>
                 </div>
 
                 <ul class="profile-page__password-checklist">
-                  <li [class.is-met]="hasMinLength"><i class="fa-solid fa-circle-check"></i> At least 6 characters</li>
-                  <li [class.is-met]="hasUppercase"><i class="fa-solid fa-circle-check"></i> One uppercase letter</li>
-                  <li [class.is-met]="hasLowercase"><i class="fa-solid fa-circle-check"></i> One lowercase letter</li>
-                  <li [class.is-met]="hasNumber"><i class="fa-solid fa-circle-check"></i> One number</li>
+                  <li [class.is-met]="hasMinLength">
+                    <i class="fa-solid fa-circle-check"></i> At least 6 characters
+                  </li>
+                  <li [class.is-met]="hasUppercase">
+                    <i class="fa-solid fa-circle-check"></i> One uppercase letter
+                  </li>
+                  <li [class.is-met]="hasLowercase">
+                    <i class="fa-solid fa-circle-check"></i> One lowercase letter
+                  </li>
+                  <li [class.is-met]="hasNumber">
+                    <i class="fa-solid fa-circle-check"></i> One number
+                  </li>
                   <li [class.is-met]="hasSpecialCharacter">
                     <i class="fa-solid fa-circle-check"></i> One special character (@$!%*?&)
                   </li>
@@ -174,7 +198,9 @@
               </div>
 
               <div class="col-12">
-                <label for="profile-confirm-password" class="profile-page__label">Confirm Password</label>
+                <label for="profile-confirm-password" class="profile-page__label"
+                  >Confirm Password</label
+                >
                 <div class="profile-page__password-wrap">
                   <input
                     id="profile-confirm-password"
@@ -186,10 +212,16 @@
                   <button
                     type="button"
                     class="profile-page__password-toggle"
-                    [attr.aria-label]="isConfirmPasswordVisible() ? 'Hide password' : 'Show password'"
+                    [attr.aria-label]="
+                      isConfirmPasswordVisible() ? 'Hide password' : 'Show password'
+                    "
                     (click)="togglePasswordVisibility('confirm')"
                   >
-                    <i [class]="isConfirmPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                    <i
+                      [class]="
+                        isConfirmPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                      "
+                    ></i>
                   </button>
                 </div>
               </div>
@@ -201,7 +233,7 @@
                   size="md"
                   buttonType="submit"
                   [rounded]="true"
-                  customClass="profile-page__btn profile-page__btn--primary"
+                  customClass="profile-page__btn profile-page__btn--primary diagonal-swipe-hover"
                 />
               </div>
             </form>
@@ -210,7 +242,9 @@
           <section class="profile-page__card">
             <header class="profile-page__card-header">
               <h2 class="profile-page__card-title">Account Preferences</h2>
-              <p class="profile-page__card-subtitle">Control your communication and reminder settings.</p>
+              <p class="profile-page__card-subtitle">
+                Control your communication and reminder settings.
+              </p>
             </header>
 
             <div class="profile-page__preferences">
@@ -244,24 +278,19 @@
           <section class="profile-page__card profile-page__card--danger">
             <header class="profile-page__card-header">
               <h2 class="profile-page__card-title">Danger Zone</h2>
-              <p class="profile-page__card-subtitle">These actions affect your account session and data.</p>
+              <p class="profile-page__card-subtitle">
+                These actions affect your account session and data.
+              </p>
             </header>
 
             <div class="profile-page__danger-actions">
               <app-button
-                label="Log out"
-                variant="outline"
-                size="md"
-                [rounded]="true"
-                customClass="profile-page__btn profile-page__btn--secondary"
-                (pressed)="logout()"
-              />
-              <app-button
                 label="Delete Account"
-                variant="outline"
+                variant="primary"
                 size="md"
                 [rounded]="true"
-                customClass="profile-page__btn profile-page__btn--danger"
+                leftIcon="fa-solid fa-trash-can"
+                customClass="profile-page__btn profile-page__btn--danger diagonal-swipe-hover"
                 (pressed)="deleteAccount()"
               />
             </div>
