@@ -15,7 +15,7 @@
           <p class="auth-page__subtitle">Welcome back. Enter your credentials to continue.</p>
 
           @if (errorMessage()) {
-            <div class="auth-page__alert" role="alert">{{ errorMessage() }}</div>
+            <div #authAlert class="auth-page__alert" role="alert">{{ errorMessage() }}</div>
           }
 
           <form class="auth-page__form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
@@ -37,13 +37,23 @@
               <label for="login-password" class="auth-page__label"
                 >Password <span class="auth-page__required">*</span></label
               >
-              <input
-                id="login-password"
-                type="password"
-                class="auth-page__input"
-                formControlName="password"
-                placeholder="Enter your password"
-              />
+              <div class="auth-page__password-wrap">
+                <input
+                  id="login-password"
+                  [type]="isPasswordVisible() ? 'text' : 'password'"
+                  class="auth-page__input auth-page__input--password"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  class="auth-page__password-toggle"
+                  [attr.aria-label]="isPasswordVisible() ? 'Hide password' : 'Show password'"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <i [class]="isPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'" aria-hidden="true"></i>
+                </button>
+              </div>
               @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
                 <small class="auth-page__error">Password must be at least 6 characters.</small>
               }

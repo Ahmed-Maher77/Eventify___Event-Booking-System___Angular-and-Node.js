@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { resolveApiBaseUrl } from './api.config';
+import { environment } from '../../environments/environment';
 
 export interface EventApiItem {
   _id: string;
@@ -47,7 +47,7 @@ export interface EventQueryOptions {
 })
 export class EventService {
   private readonly http = inject(HttpClient);
-  private readonly eventsApiUrl = `${resolveApiBaseUrl()}/events`;
+  private readonly eventsApiUrl = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/events`;
 
   getEvents(options: EventQueryOptions = {}): Observable<EventsApiResponse> {
     let params = new HttpParams()

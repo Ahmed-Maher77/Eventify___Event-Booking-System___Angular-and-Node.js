@@ -3,6 +3,7 @@ import { generateToken } from "../utils/jwtUtils.js";
 import AppError from "../middlewares/AppError.js";
 import { uploadImageBuffer } from "../utils/cloudinaryUpload.js";
 import { buildFallbackAvatarUrl } from "../utils/avatarUtils.js";
+import { getAuthCookieName, getAuthCookieOptions } from "../utils/authCookie.js";
 
 export const register = async (req, res) => {
     const { email, password, name, pictureUrl } = req.body;
@@ -39,6 +40,7 @@ export const register = async (req, res) => {
     });
     await user.save()
     const token = generateToken(user._id, user.role);
+    res.cookie(getAuthCookieName(), token, getAuthCookieOptions());
     res.status(201).json({
         data: user, token, message: "User registered successfully", success: true,
     });
@@ -61,6 +63,7 @@ export const login = async (req, res) => {
     }
 
     const token = generateToken(user._id, user.role);
+    res.cookie(getAuthCookieName(), token, getAuthCookieOptions());
     res.json({ success: true, message: "Login successful", data: user, token, });
 };
 

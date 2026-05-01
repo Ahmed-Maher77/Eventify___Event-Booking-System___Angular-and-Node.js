@@ -201,6 +201,36 @@
   }
 }
 
+.auth-page__password-wrap {
+  position: relative;
+}
+
+.auth-page__input--password {
+  padding-right: 2.6rem;
+}
+
+.auth-page__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.55rem;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--color-gray);
+  width: 1.8rem;
+  height: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  transition: color 180ms ease, background-color 180ms ease;
+
+  &:hover {
+    color: var(--color-brown);
+    background: rgb(231 200 115 / 18%);
+  }
+}
+
 .auth-page__error {
   display: block;
   margin-top: 0.35rem;

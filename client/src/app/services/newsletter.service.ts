@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { resolveApiBaseUrl } from './api.config';
+import { environment } from '../../environments/environment';
 
 export interface NewsletterSubscriptionPayload {
   email: string;
@@ -24,7 +24,7 @@ export interface NewsletterSubscriptionApiResponse {
 })
 export class NewsletterService {
   private readonly http = inject(HttpClient);
-  private readonly newsletterApiUrl = `${resolveApiBaseUrl()}/newsletter`;
+  private readonly newsletterApiUrl = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/newsletter`;
 
   subscribe(payload: NewsletterSubscriptionPayload): Observable<NewsletterSubscriptionApiResponse> {
     return this.http.post<NewsletterSubscriptionApiResponse>(this.newsletterApiUrl, payload);

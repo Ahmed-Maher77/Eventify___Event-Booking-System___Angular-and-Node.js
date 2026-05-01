@@ -1,5 +1,6 @@
 import { verifyToken } from "../utils/jwtUtils.js";
 import AppError from "./AppError.js";
+import { getAuthCookieName } from "../utils/authCookie.js";
 
 /**
  * Authentication middleware - Protects routes
@@ -15,6 +16,10 @@ const protect = async (req, res, next) => {
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token && req.cookies) {
+      token = req.cookies[getAuthCookieName()];
     }
 
     // Check if token exists
@@ -80,6 +85,10 @@ const optionalAuth = async (req, res, next) => {
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token && req.cookies) {
+      token = req.cookies[getAuthCookieName()];
     }
 
     if (token) {

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { resolveApiBaseUrl } from './api.config';
+import { environment } from '../../environments/environment';
 
 export interface ContactMessagePayload {
   fullName: string;
@@ -30,7 +30,7 @@ export interface ContactMessageApiResponse {
 })
 export class ContactService {
   private readonly http = inject(HttpClient);
-  private readonly contactApiUrl = `${resolveApiBaseUrl()}/contact`;
+  private readonly contactApiUrl = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/contact`;
 
   submitMessage(payload: ContactMessagePayload): Observable<ContactMessageApiResponse> {
     return this.http.post<ContactMessageApiResponse>(this.contactApiUrl, payload);
