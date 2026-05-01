@@ -32,7 +32,7 @@ export function setupAboutPageAnimations(rootElement?: HTMLElement): gsap.Contex
     });
 
     gsap.from('.static-info-page__about-gallery-item', {
-      y: 22,
+      y: 18,
       opacity: 0,
       scale: 0.98,
       duration: 0.56,
