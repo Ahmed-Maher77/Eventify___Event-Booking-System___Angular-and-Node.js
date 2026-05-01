@@ -6,12 +6,23 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+  margin-block: 4rem;
+  margin-inline: auto;
+  width: min(100%, 960px);
 }
 
 .policy-sidebar {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
   gap: 0.55rem;
+  padding-bottom: 0.25rem;
+}
+
+.policy-sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .policy-sidebar__item {
@@ -25,6 +36,9 @@
   padding: 0.7rem 0.85rem;
   font-weight: 500;
   text-align: left;
+  white-space: nowrap;
+  min-width: fit-content;
+  flex: 1 1 0;
   transition: all 180ms ease;
 }
 
@@ -40,7 +54,7 @@
 
 .policy-feature-card__head {
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.8rem;
 }
 
@@ -59,7 +73,14 @@
   }
 
   .policy-sidebar {
-    position: sticky;
-    top: 5.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .policy-sidebar__item {
+    white-space: normal;
+    flex: 1 1 auto;
   }
 }

@@ -4,11 +4,13 @@
 
 .policy-landing {
   margin-top: 20px;
-  margin-bottom: 3rem;
-}
-
-.policy-landing--flipped {
-  background: var(--gradient-bg-flipped);
+  margin-inline: auto;
+  width: min(100%, 860px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
 }
 
 .policy-landing__icon {
@@ -20,7 +22,7 @@
 }
 
 .policy-landing__updated {
-  margin: 0.85rem 0 0;
+  margin: 0.3rem 0 0;
   width: fit-content;
   display: inline-flex;
   align-items: center;

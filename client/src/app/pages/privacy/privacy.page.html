@@ -25,7 +25,7 @@
       </aside>
 
       <div class="policy-content">
-        <article class="static-info-page__card static-info-page__feature-card policy-feature-card">
+        <article #policyPanelCard class="static-info-page__card static-info-page__feature-card policy-feature-card">
           <div class="static-info-page__feature-head policy-feature-card__head">
             <span class="static-info-page__feature-icon policy-feature-card__icon">
               <i [class]="activePanel().iconClass" aria-hidden="true"></i>
@@ -47,13 +47,10 @@
       </div>
     </section>
 
-    <section class="static-info-page__section policy-page__animate">
-      <h2 class="static-info-page__section-title">Security and Retention Principles</h2>
-      <ul class="static-info-page__list">
-        <li>Data is retained only for operational, legal, and support needs.</li>
-        <li>Access is restricted to authorized workflows and monitored internally.</li>
-        <li>Security controls are reviewed regularly to reduce unauthorized access risk.</li>
-      </ul>
-    </section>
+    <app-policy-info-cards
+      class="policy-page__animate"
+      sectionTitle="Security and Retention Principles"
+      [cards]="summaryCards"
+    />
   </div>
 </section>

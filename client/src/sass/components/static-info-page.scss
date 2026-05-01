@@ -197,8 +197,8 @@
 .static-info-page__feature-card {
   justify-content: flex-start;
   gap: 0.7rem;
-  border-top: 3px solid var(--color-primary);
-  background: linear-gradient(180deg, rgb(231 200 115 / 10%) 0%, var(--color-category-card-bg) 28%);
+  // border-top: 3px solid var(--color-primary);
+  background: transparent;
 }
 
 .static-info-page__feature-head {

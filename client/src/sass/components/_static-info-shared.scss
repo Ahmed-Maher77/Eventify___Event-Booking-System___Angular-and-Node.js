@@ -2,28 +2,24 @@
 
 %eventify-static-info-feature-card {
   @extend %eventify-explore-card;
+  border: none;
   align-items: flex-start;
   flex-direction: column;
   gap: 0.55rem;
   border-radius: 12px;
-  padding: 1rem;
-  background: var(--color-category-card-bg);
+  background: transparent;
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
     transform 220ms ease;
+  padding: 0 0.8rem;
 
-  &:hover {
-    border-color: var(--color-primary);
-    // transform: translateY(-2px);
-    box-shadow: 0 7px 24px -22px rgba(0, 0, 0, 0.35);
+  @media (max-width: 992px) {
+    padding: 0;
   }
 }
 
 %eventify-static-info-feature-icon {
-  @extend %eventify-explore-icon-shell;
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  font-size: 17px;
+  font-size: 26px;
+  color: var(--color-brown);
 }
