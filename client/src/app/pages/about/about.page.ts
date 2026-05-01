@@ -1,12 +1,13 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
+import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { Button } from '../../shared/button/button';
 import { setupAboutPageAnimations } from './about.page.animations';
 
 @Component({
   selector: 'app-about-page',
   standalone: true,
-  imports: [SectionHeadingComponent, Button],
+  imports: [SectionHeadingComponent, HighlightedPageHeadingComponent, Button],
   templateUrl: './about.page.html',
   styleUrl: '../../../sass/components/static-info-page.scss'
 })

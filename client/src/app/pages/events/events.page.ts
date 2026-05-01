@@ -7,6 +7,7 @@ import { FeaturedEventCard } from '../../components/featured-event-card/featured
 import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
 import { Button } from '../../shared/button/button';
+import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import {
   EventApiItem,
   EventQueryOptions,
@@ -40,7 +41,7 @@ interface EventsQueryState {
 @Component({
   selector: 'app-events-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, FeaturedEventCard, Button],
+  imports: [CommonModule, FormsModule, FeaturedEventCard, Button, HighlightedPageHeadingComponent],
   templateUrl: './events.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss'],
 })

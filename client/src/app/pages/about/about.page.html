@@ -5,11 +5,14 @@
       <div class="row g-4 align-items-center">
         <div class="col-12 col-xl-7">
           <div class="static-info-page__about-panel">
-            <h2 class="static-info-page__about-title eventify-title-shape">About <span>Us</span></h2>
-            <p class="static-info-page__about-lead">
-              Eventify is built on service, integrity, and excellence. We design every flow to make discovering and
-              booking events simple, transparent, and enjoyable.
-            </p>
+            <app-highlighted-page-heading
+              titlePrefix="About"
+              titleHighlight="Us"
+              subtitle="Eventify is built on service, integrity, and excellence. We design every flow to make discovering and booking events simple, transparent, and enjoyable."
+              headingLevel="h2"
+              titleClass="static-info-page__about-title"
+              subtitleClass="static-info-page__about-lead"
+            />
 
             <div class="row g-3 mt-1">
               @for (item of aboutHighlights; track item.title) {
