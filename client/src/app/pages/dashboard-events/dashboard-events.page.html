@@ -59,7 +59,7 @@
 </section>
 
 @if (isAddModalOpen) {
-  <div class="admin-event-modal" role="dialog" aria-modal="true" aria-label="Add event dialog">
+  <div class="admin-event-modal is-open" role="dialog" aria-modal="true" aria-label="Add event dialog">
     <button
       type="button"
       class="admin-event-modal__backdrop"
@@ -67,7 +67,7 @@
       (click)="closeAddEventModal()"
     ></button>
 
-    <div class="admin-event-modal__panel">
+    <div class="admin-event-modal__panel is-open">
       <div class="admin-event-modal__header">
         <div>
           <h3 class="admin-event-modal__title">Add new event</h3>
@@ -83,100 +83,165 @@
         </button>
       </div>
 
-      <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
-        @if (formErrorMessage) {
-          <p class="admin-event-form__message is-error">{{ formErrorMessage }}</p>
-        }
-        @if (formSuccessMessage) {
-          <p class="admin-event-form__message is-success">{{ formSuccessMessage }}</p>
-        }
-
-        <label class="admin-event-form__field">
-          <span>Title</span>
-          <input type="text" formControlName="title" placeholder="Event title" />
-          @if (addEventForm.controls.title.touched && addEventForm.controls.title.invalid) {
-            <small>Title must be between 3 and 100 characters.</small>
+      <div class="admin-event-modal__content">
+        <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
+          @if (formErrorMessage) {
+            <p class="admin-event-form__message is-error">{{ formErrorMessage }}</p>
           }
-        </label>
-
-        <label class="admin-event-form__field">
-          <span>Description</span>
-          <textarea rows="4" formControlName="description" placeholder="Event description"></textarea>
-          @if (addEventForm.controls.description.touched && addEventForm.controls.description.invalid) {
-            <small>Description must be between 10 and 1000 characters.</small>
+          @if (formSuccessMessage) {
+            <p class="admin-event-form__message is-success">{{ formSuccessMessage }}</p>
           }
-        </label>
 
-        <div class="admin-event-form__row">
           <label class="admin-event-form__field">
-            <span>Date & time</span>
-            <input type="datetime-local" formControlName="date" />
-            @if (addEventForm.controls.date.touched && addEventForm.controls.date.invalid) {
-              <small>Date is required.</small>
+            <span>Title</span>
+            <input class="admin-event-form__input" type="text" formControlName="title" placeholder="Event title" />
+            @if (addEventForm.controls.title.touched && addEventForm.controls.title.invalid) {
+              <small>Title must be between 3 and 100 characters.</small>
             }
           </label>
 
           <label class="admin-event-form__field">
-            <span>Category</span>
-            <select formControlName="category">
-              @for (category of categoryOptions; track category) {
-                <option [value]="category">{{ category }}</option>
+            <span>Description</span>
+            <textarea class="admin-event-form__input" rows="4" formControlName="description" placeholder="Event description"></textarea>
+            @if (addEventForm.controls.description.touched && addEventForm.controls.description.invalid) {
+              <small>Description must be between 10 and 1000 characters.</small>
+            }
+          </label>
+
+          <div class="admin-event-form__row">
+            <label class="admin-event-form__field">
+              <span>Date & time</span>
+              <input class="admin-event-form__input" type="datetime-local" formControlName="date" />
+              @if (addEventForm.controls.date.touched && addEventForm.controls.date.invalid) {
+                <small>Date is required.</small>
               }
-            </select>
-          </label>
-        </div>
+            </label>
 
-        <label class="admin-event-form__field">
-          <span>Location</span>
-          <input type="text" formControlName="location" placeholder="City, venue, or address" />
-          @if (addEventForm.controls.location.touched && addEventForm.controls.location.invalid) {
-            <small>Location must be between 3 and 200 characters.</small>
+            <label class="admin-event-form__field">
+              <span>Category</span>
+              <select class="admin-event-form__input" formControlName="category">
+                @for (category of categoryOptions; track category) {
+                  <option [value]="category">{{ category }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <label class="admin-event-form__field">
+            <span>Location</span>
+            <input class="admin-event-form__input" type="text" formControlName="location" placeholder="City, venue, or address" />
+            @if (addEventForm.controls.location.touched && addEventForm.controls.location.invalid) {
+              <small>Location must be between 3 and 200 characters.</small>
+            }
+          </label>
+
+          <div class="admin-event-form__row">
+            <label class="admin-event-form__field">
+              <span>Capacity</span>
+              <input class="admin-event-form__input" type="number" formControlName="capacity" min="1" />
+              @if (addEventForm.controls.capacity.touched && addEventForm.controls.capacity.invalid) {
+                <small>Capacity must be at least 1.</small>
+              }
+            </label>
+
+            <label class="admin-event-form__field">
+              <span>Price</span>
+              <input class="admin-event-form__input" type="number" formControlName="price" min="0" step="0.01" />
+              @if (addEventForm.controls.price.touched && addEventForm.controls.price.invalid) {
+                <small>Price cannot be negative.</small>
+              }
+            </label>
+          </div>
+
+          <div class="admin-event-form__field">
+            <span>Event image (optional)</span>
+            <div class="admin-event-form__mode-switch" role="tablist" aria-label="Event image source">
+              <button
+                type="button"
+                class="admin-event-form__mode-btn"
+                [class.is-active]="pictureMode === 'file'"
+                [attr.aria-selected]="pictureMode === 'file'"
+                (click)="setPictureMode('file')"
+              >
+                Upload File
+              </button>
+              <button
+                type="button"
+                class="admin-event-form__mode-btn"
+                [class.is-active]="pictureMode === 'url'"
+                [attr.aria-selected]="pictureMode === 'url'"
+                (click)="setPictureMode('url')"
+              >
+                Use URL
+              </button>
+            </div>
+          </div>
+
+          @if (pictureMode === 'file') {
+            <div class="admin-event-form__field">
+              <label class="admin-event-form__upload-dropzone" for="event-image-input">
+                <i class="fa-solid fa-cloud-arrow-up admin-event-form__upload-icon" aria-hidden="true"></i>
+                <span class="admin-event-form__upload-cta">{{ selectedImageName ? 'Change image' : 'Upload image' }}</span>
+                <span class="admin-event-form__upload-instructions">PNG, JPG, WEBP, GIF - Max 5MB</span>
+                <span class="admin-event-form__upload-file-name">{{ selectedImageName || 'No file selected' }}</span>
+              </label>
+              <input
+                #eventImageInput
+                id="event-image-input"
+                type="file"
+                class="admin-event-form__file-native-input"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                (change)="onImageSelected($event)"
+              />
+              @if (selectedImageName) {
+                <div class="admin-event-form__selected-file">
+                  <span class="admin-event-form__selected-file-name">
+                    <i class="fa-solid fa-file-image" aria-hidden="true"></i>
+                    {{ selectedImageName }}
+                  </span>
+                  <button
+                    type="button"
+                    class="admin-event-form__selected-file-remove"
+                    (click)="removeSelectedImage(eventImageInput)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <label class="admin-event-form__field">
+              <span>Image URL</span>
+              <input class="admin-event-form__input" type="url" formControlName="imageUrl" placeholder="https://..." />
+              @if (addEventForm.controls.imageUrl.touched && addEventForm.controls.imageUrl.invalid) {
+                <small>Enter a valid URL starting with http:// or https://</small>
+              } @else {
+                <small class="admin-event-form__hint">Paste a direct image URL.</small>
+              }
+            </label>
           }
-        </label>
 
-        <div class="admin-event-form__row">
-          <label class="admin-event-form__field">
-            <span>Capacity</span>
-            <input type="number" formControlName="capacity" min="1" />
-            @if (addEventForm.controls.capacity.touched && addEventForm.controls.capacity.invalid) {
-              <small>Capacity must be at least 1.</small>
-            }
-          </label>
-
-          <label class="admin-event-form__field">
-            <span>Price</span>
-            <input type="number" formControlName="price" min="0" step="0.01" />
-            @if (addEventForm.controls.price.touched && addEventForm.controls.price.invalid) {
-              <small>Price cannot be negative.</small>
-            }
-          </label>
-        </div>
-
-        <label class="admin-event-form__field">
-          <span>Image URL (optional)</span>
-          <input type="url" formControlName="imageUrl" placeholder="https://..." />
-        </label>
-
-        <div class="admin-event-form__actions">
-          <app-button
-            label="Cancel"
-            variant="ghost"
-            size="md"
-            [rounded]="true"
-            customClass="admin-event-form__cancel-btn"
-            (pressed)="closeAddEventModal()"
-          />
-          <app-button
-            label="Create Event"
-            variant="primary"
-            size="md"
-            buttonType="submit"
-            [rounded]="true"
-            [loading]="isSubmitting"
-            customClass="admin-event-form__submit-btn diagonal-swipe-hover"
-          />
-        </div>
-      </form>
+          <div class="admin-event-form__actions">
+            <app-button
+              label="Cancel"
+              variant="ghost"
+              size="md"
+              [rounded]="true"
+              customClass="admin-event-form__cancel-btn"
+              (pressed)="closeAddEventModal()"
+            />
+            <app-button
+              label="Create Event"
+              variant="primary"
+              size="md"
+              buttonType="submit"
+              [rounded]="true"
+              [loading]="isSubmitting"
+              customClass="admin-event-form__submit-btn diagonal-swipe-hover"
+            />
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 }

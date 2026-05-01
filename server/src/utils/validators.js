@@ -121,6 +121,11 @@ const validateCreateEvent = [
     .notEmpty().withMessage('Price is required')
     .bail()
     .isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+
+  body('imageUrl')
+    .optional()
+    .trim()
+    .isURL().withMessage('imageUrl must be a valid URL'),
   
   handleValidationErrors
 ];

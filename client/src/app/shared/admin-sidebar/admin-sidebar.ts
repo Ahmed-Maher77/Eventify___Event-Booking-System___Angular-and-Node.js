@@ -32,4 +32,10 @@ export class AdminSidebar {
     this.authService.logout();
     void this.router.navigate(['/']);
   }
+
+  protected openAddEventModal(): void {
+    void this.router.navigate(['/dashboard/events'], {
+      queryParams: { addEvent: 'true' }
+    });
+  }
 }

@@ -15,6 +15,7 @@ import { CreateEventPayload, EventApiItem, EventService } from '../../services/e
   styleUrl: './dashboard-events.page.scss'
 })
 export class DashboardEventsPage implements OnInit, OnDestroy {
+  private static readonly IMAGE_URL_PATTERN = /^https?:\/\/.+/i;
   private readonly eventService = inject(EventService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -36,6 +37,9 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected listErrorMessage = '';
   protected formErrorMessage = '';
   protected formSuccessMessage = '';
+  protected pictureMode: 'file' | 'url' = 'file';
+  protected selectedImageName = '';
+  private selectedImageFile: File | null = null;
 
   protected readonly addEventForm = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
@@ -51,9 +55,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.isAddModalOpen = params.get('addEvent') === 'true';
-      if (!this.isAddModalOpen) {
-        this.resetFormState();
-      }
+      this.syncModalState(this.isAddModalOpen);
     });
 
     this.loadEvents();
@@ -80,6 +82,42 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     });
   }
 
+  protected setPictureMode(mode: 'file' | 'url'): void {
+    if (this.pictureMode === mode) {
+      return;
+    }
+
+    this.pictureMode = mode;
+    const imageUrlControl = this.addEventForm.controls.imageUrl;
+
+    if (mode === 'url') {
+      this.selectedImageFile = null;
+      this.selectedImageName = '';
+      imageUrlControl.setValidators([Validators.pattern(DashboardEventsPage.IMAGE_URL_PATTERN), Validators.maxLength(2000)]);
+    } else {
+      imageUrlControl.setValue('');
+      imageUrlControl.setValidators([Validators.maxLength(2000)]);
+    }
+
+    imageUrlControl.updateValueAndValidity();
+  }
+
+  protected onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0] ?? null;
+    this.selectedImageFile = file;
+    this.selectedImageName = file?.name ?? '';
+    this.formErrorMessage = '';
+  }
+
+  protected removeSelectedImage(fileInput?: HTMLInputElement): void {
+    this.selectedImageFile = null;
+    this.selectedImageName = '';
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
   protected submitAddEvent(): void {
     if (this.isSubmitting) {
       return;
@@ -93,7 +131,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     }
 
     const value = this.addEventForm.getRawValue();
-    const payload: CreateEventPayload = {
+    const payloadBase: CreateEventPayload = {
       title: value.title.trim(),
       description: value.description.trim(),
       date: new Date(value.date).toISOString(),
@@ -103,6 +141,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       price: Number(value.price),
       imageUrl: value.imageUrl.trim() || undefined
     };
+    const payload = this.buildCreateEventPayload(payloadBase);
 
     this.formErrorMessage = '';
     this.formSuccessMessage = '';
@@ -168,9 +207,47 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       price: 0,
       imageUrl: ''
     });
+    this.pictureMode = 'file';
+    this.selectedImageFile = null;
+    this.selectedImageName = '';
+    this.addEventForm.controls.imageUrl.setValidators([Validators.maxLength(2000)]);
+    this.addEventForm.controls.imageUrl.updateValueAndValidity({ emitEvent: false });
     this.addEventForm.markAsPristine();
     this.addEventForm.markAsUntouched();
     this.formErrorMessage = '';
     this.formSuccessMessage = '';
+  }
+
+  private syncModalState(isOpen: boolean): void {
+    if (isOpen) {
+      this.isAddModalOpen = true;
+      return;
+    }
+
+    this.isAddModalOpen = false;
+    this.resetFormState();
+  }
+
+  private buildCreateEventPayload(payload: CreateEventPayload): CreateEventPayload | FormData {
+    if (this.pictureMode === 'file' && this.selectedImageFile) {
+      const formData = new FormData();
+      formData.append('title', payload.title);
+      formData.append('description', payload.description);
+      formData.append('date', payload.date);
+      formData.append('location', payload.location);
+      formData.append('category', payload.category);
+      formData.append('capacity', String(payload.capacity));
+      formData.append('price', String(payload.price));
+      if (payload.imageUrl) {
+        formData.append('imageUrl', payload.imageUrl);
+      }
+      formData.append('image', this.selectedImageFile);
+      return formData;
+    }
+
+    return {
+      ...payload,
+      imageUrl: this.pictureMode === 'url' ? payload.imageUrl : undefined
+    };
   }
 }

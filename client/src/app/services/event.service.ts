@@ -118,7 +118,7 @@ export class EventService {
     });
   }
 
-  createEvent(payload: CreateEventPayload): Observable<EventMutationResponse> {
+  createEvent(payload: CreateEventPayload | FormData): Observable<EventMutationResponse> {
     return this.http.post<EventMutationResponse>(this.eventsApiUrl, payload, {
       withCredentials: true
     });
