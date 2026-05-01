@@ -24,7 +24,14 @@
         <p class="favorites-page__empty-text">
           Save events you love to build your personal shortlist and come back to them anytime.
         </p>
-        <a class="favorites-page__empty-action" routerLink="/events">Explore Events</a>
+        <app-button
+          label="Explore Events"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          customClass="favorites-page__empty-action diagonal-swipe-hover"
+          [routerLink]="'/events'"
+        />
       </section>
     } @else {
       <div class="favorites-page__grid">

@@ -7,13 +7,14 @@ import { ChangeDetectorRef, NgZone } from '@angular/core';
 import { FeaturedEventCard } from '../../components/featured-event-card/featured-event-card';
 import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
+import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { FavoriteService } from '../../services/favorite.service';
 
 @Component({
   selector: 'app-favorites-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, FeaturedEventCard, HighlightedPageHeadingComponent],
+  imports: [CommonModule, RouterLink, FeaturedEventCard, Button, HighlightedPageHeadingComponent],
   templateUrl: './favorites.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './favorites.page.scss']
 })
