@@ -95,6 +95,14 @@ export class Footer implements AfterViewInit, OnDestroy {
   }
 
   protected scrollToTop(): void {
+    const footerElement = this.footerRoot?.nativeElement;
+    const adminScrollContainer = footerElement?.closest('.admin-layout__main') as HTMLElement | null;
+
+    if (adminScrollContainer) {
+      adminScrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
