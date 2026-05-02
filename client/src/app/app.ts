@@ -14,11 +14,12 @@ import { AdminSidebar } from './shared/admin-sidebar/admin-sidebar';
 import { Footer } from './shared/footer/footer';
 import { Header } from './shared/header/header';
 import { Loader } from './shared/loader/loader';
+import { ToastHost } from './shared/toast-host/toast-host';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Loader, Header, AdminSidebar, Footer],
+  imports: [RouterOutlet, Loader, Header, AdminSidebar, Footer, ToastHost],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

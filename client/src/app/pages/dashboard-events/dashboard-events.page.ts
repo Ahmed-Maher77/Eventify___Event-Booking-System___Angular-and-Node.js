@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +7,7 @@ import { Subject, finalize, takeUntil } from 'rxjs';
 import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { CreateEventPayload, EventApiItem, EventService } from '../../services/event.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-dashboard-events-page',
@@ -17,6 +19,7 @@ import { CreateEventPayload, EventApiItem, EventService } from '../../services/e
 export class DashboardEventsPage implements OnInit, OnDestroy {
   private static readonly IMAGE_URL_PATTERN = /^https?:\/\/.+/i;
   private readonly eventService = inject(EventService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
@@ -162,20 +165,33 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.formSuccessMessage = 'Event created successfully.';
+          this.toast.showSuccess('Event created successfully.');
           this.loadEvents();
           this.closeAddEventModal();
         },
         error: (error: unknown) => {
-          const fallbackMessage = 'Unable to create event right now. Please try again.';
-          if (typeof error === 'object' && error && 'error' in error) {
-            const maybeMessage = (error as { error?: { message?: string } }).error?.message;
-            this.formErrorMessage = maybeMessage?.trim() || fallbackMessage;
-            return;
-          }
-          this.formErrorMessage = fallbackMessage;
+          this.toast.showError(this.resolveCreateEventErrorMessage(error));
         }
       });
+  }
+
+  private resolveCreateEventErrorMessage(error: unknown): string {
+    const fallbackMessage = 'Unable to create event right now. Please try again.';
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error;
+      if (body && typeof body === 'object' && 'message' in body) {
+        const message = String((body as { message?: string }).message ?? '').trim();
+        if (message) {
+          return message;
+        }
+      }
+      return fallbackMessage;
+    }
+    if (typeof error === 'object' && error && 'error' in error) {
+      const maybeMessage = (error as { error?: { message?: string } }).error?.message?.trim();
+      return maybeMessage || fallbackMessage;
+    }
+    return fallbackMessage;
   }
 
   private loadEvents(): void {

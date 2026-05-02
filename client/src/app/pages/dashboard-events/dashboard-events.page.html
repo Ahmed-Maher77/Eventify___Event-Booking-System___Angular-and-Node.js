@@ -163,7 +163,7 @@
             </label>
 
             <label class="admin-event-form__field">
-              <span>Price</span>
+              <span>Price (USD)</span>
               <input class="admin-event-form__input" type="number" formControlName="price" min="0" step="0.01" />
               @if (addEventForm.controls.price.touched && addEventForm.controls.price.invalid) {
                 <small>Price cannot be negative.</small>
