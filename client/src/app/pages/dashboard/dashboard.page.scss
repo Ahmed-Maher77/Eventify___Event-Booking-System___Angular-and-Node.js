@@ -154,7 +154,7 @@
 
 /* Full-width booking trend: bleeds to main edges, no card box */
 .admin-page__booking-band {
-  --admin-page-bleed: 1.5rem;
+  --admin-page-bleed: var(--admin-content-padding-inline, 1.5rem);
   margin-top: 0.35rem;
   margin-inline: calc(-1 * var(--admin-page-bleed));
   width: calc(100% + 2 * var(--admin-page-bleed));
@@ -408,7 +408,7 @@
 
 /* Full-width recent bookings: bleeds to main edges, no panel box (matches booking band) */
 .admin-page__recent-bookings {
-  --admin-page-bleed: 1.5rem;
+  --admin-page-bleed: var(--admin-content-padding-inline, 1.5rem);
   margin-top: 0.35rem;
   margin-inline: calc(-1 * var(--admin-page-bleed));
   width: calc(100% + 2 * var(--admin-page-bleed));
