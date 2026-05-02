@@ -25,12 +25,17 @@
 .admin-layout {
   display: block;
   height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
 }
 
 .admin-layout__main {
   margin-left: var(--admin-sidebar-width, 245px);
+  box-sizing: border-box;
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -40,13 +45,24 @@
 }
 
 .admin-layout__main-footer {
+  flex-shrink: 0;
   margin-top: auto;
 }
 
+/* flex-shrink: 0 keeps the main block at least as tall as its content so nothing paints past it
+   and pushes the footer below the full page. flex-grow: 1 still fills spare space on short pages. */
 .admin-content {
-  flex: 1;
+  flex: 1 0 auto;
   min-width: 0;
-  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Admin: override global .page-main min-height; do not use min-height: 0 here (breaks footer order) */
+.admin-layout__main .admin-content.page-main {
+  flex: 1 0 auto;
+  min-height: unset;
 }
 
 .page-main {
