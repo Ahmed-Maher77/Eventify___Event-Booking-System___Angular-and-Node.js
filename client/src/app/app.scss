@@ -125,15 +125,15 @@
 .admin-content {
   flex: 1 0 auto;
   min-width: 0;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
 
-/* Admin: override global .page-main min-height; do not use min-height: 0 here (breaks footer order) */
+/* Admin: same flex basis as .admin-content; min-height comes from .admin-content */
 .admin-layout__main .admin-content.page-main {
   flex: 1 0 auto;
-  min-height: unset;
 }
 
 .page-main {
