@@ -8,6 +8,7 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
+import { AdminMobileSidebarService } from './services/admin-mobile-sidebar.service';
 import { AuthService } from './services/auth.service';
 import { ChatStoreService } from './services/chat-store.service';
 import { AdminSidebar } from './shared/admin-sidebar/admin-sidebar';
@@ -27,6 +28,7 @@ export class App {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
+  protected readonly adminDrawer = inject(AdminMobileSidebarService);
   private readonly chatStoreService = inject(ChatStoreService);
   private scrollAnimationFrameId: number | null = null;
   private loaderShownAtMs = 0;

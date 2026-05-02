@@ -25,6 +25,13 @@
   will-change: width, padding;
 }
 
+@media (min-width: 992px) {
+  .admin-sidebar--mobile-open {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
 .admin-sidebar--collapsed {
   width: 80px;
   padding: 0.7rem 0.45rem;
@@ -300,10 +307,75 @@
 
 @media (max-width: 991.98px) {
   .admin-sidebar {
-    width: min(245px, 86vw);
+    width: min(245px, 86vw) !important;
+    padding: 1rem 0.7rem !important;
     border-right: 1px solid var(--color-admin-sidebar-border);
     border-bottom: 0;
     grid-template-rows: auto 1fr auto;
+    transform: translateX(-100%);
+    transition:
+      transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 260ms ease;
+    will-change: transform;
+    box-shadow: 8px 0 28px rgb(0 0 0 / 0);
+  }
+
+  .admin-sidebar--mobile-open {
+    transform: translateX(0);
+    box-shadow: 8px 0 28px rgb(0 0 0 / 20%);
+  }
+
+  /* Same width when “collapsed” on small screens; labels stay visible */
+  .admin-sidebar--collapsed {
+    width: min(245px, 86vw) !important;
+    padding: 1rem 0.7rem !important;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__brand {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__nav {
+    padding-top: 25px;
+    gap: 0.5rem;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__nav-item {
+    justify-content: flex-start;
+    padding-inline: 15px;
+    gap: 0.7rem;
+    min-height: unset;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__bottom {
+    gap: 0.4rem;
+    margin-top: 0;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__bottom .ev-btn {
+    justify-content: flex-start !important;
+    padding-inline: 0.72rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__bottom .ev-btn__label {
+    display: inline !important;
+  }
+
+  .admin-sidebar--collapsed .ev-btn {
+    gap: 0.5rem !important;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__collapse-btn {
+    margin-bottom: 0;
   }
 
   .admin-sidebar__nav {

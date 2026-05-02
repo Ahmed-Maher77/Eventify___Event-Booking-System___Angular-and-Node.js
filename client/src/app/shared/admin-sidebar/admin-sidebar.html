@@ -1,4 +1,8 @@
-<aside class="admin-sidebar" [class.admin-sidebar--collapsed]="isCollapsed()">
+<aside
+  class="admin-sidebar"
+  [class.admin-sidebar--collapsed]="isCollapsed()"
+  [class.admin-sidebar--mobile-open]="adminMobileSidebar.isDrawerOpen()"
+>
   <div class="admin-sidebar__head">
     <div class="admin-sidebar__brand">
       <span class="admin-sidebar__brand-icon" aria-hidden="true">
@@ -15,10 +19,10 @@
     <button
       type="button"
       class="admin-sidebar__collapse-btn"
-      [attr.aria-label]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
-      (click)="toggleCollapse()"
+      [attr.aria-label]="collapseButtonAriaLabel()"
+      (click)="onCollapseButtonClick()"
     >
-      <i [class]="isCollapsed() ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left'" aria-hidden="true"></i>
+      <i [class]="collapseButtonIconClass()" aria-hidden="true"></i>
     </button>
   </div>
 
