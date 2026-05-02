@@ -193,6 +193,7 @@
 
 .admin-event-modal__heading-copy {
   min-width: 0;
+  max-width: 85%;
 }
 
 .admin-event-modal__title {
@@ -348,17 +349,28 @@ select.admin-event-form__input::-ms-expand {
   color: var(--color-white);
   background: #b91c1c;
   border-radius: 12px;
+  padding-inline: 2rem;
 }
 
 :host ::ng-deep .admin-event-form__cancel-btn.ev-btn {
+  padding-inline: 2rem !important;
   background: #b91c1c !important;
   border: 1px solid #b91c1c !important;
   color: var(--color-white) !important;
 }
 
+:host ::ng-deep .admin-event-form__cancel-btn.ev-btn.diagonal-swipe-hover::before {
+  background-color: #7f1d1d !important;
+}
+
 :host ::ng-deep .admin-event-form__cancel-btn.ev-btn:not(.ev-btn--inactive):hover {
   border-color: #7f1d1d !important;
-  background: #7f1d1d !important;
+  background: #b91c1c !important;
+  color: var(--color-white) !important;
+}
+
+:host ::ng-deep .admin-event-form__cancel-btn.ev-btn.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  border-color: #7f1d1d !important;
   color: var(--color-white) !important;
 }
 
