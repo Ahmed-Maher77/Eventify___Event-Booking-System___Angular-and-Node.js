@@ -124,44 +124,5 @@
     </ul>
   </section>
 
-  <section class="admin-page__recent-bookings" aria-label="Recent bookings">
-    <div class="admin-page__recent-bookings-inner">
-      <div class="admin-page__recent-bookings-head">
-        <h2 class="admin-page__section-title">Recent bookings</h2>
-        <a routerLink="/dashboard/bookings" class="admin-page__recent-bookings-all admin-link-underline-ltr">View all</a>
-      </div>
-      <ul class="admin-page__recent-bookings-timeline" role="list">
-        <li class="admin-page__recent-bookings-item">
-          <div class="admin-page__recent-bookings-track" aria-hidden="true">
-            <span class="admin-page__recent-bookings-dot"></span>
-          </div>
-          <div class="admin-page__recent-bookings-content">
-            <p class="admin-page__recent-bookings-time">2h ago</p>
-            <p class="admin-page__recent-bookings-label">Summer Jazz Night</p>
-            <p class="admin-page__recent-bookings-meta">4 tickets</p>
-          </div>
-        </li>
-        <li class="admin-page__recent-bookings-item">
-          <div class="admin-page__recent-bookings-track" aria-hidden="true">
-            <span class="admin-page__recent-bookings-dot"></span>
-          </div>
-          <div class="admin-page__recent-bookings-content">
-            <p class="admin-page__recent-bookings-time">5h ago</p>
-            <p class="admin-page__recent-bookings-label">Design Systems Workshop</p>
-            <p class="admin-page__recent-bookings-meta">1 ticket</p>
-          </div>
-        </li>
-        <li class="admin-page__recent-bookings-item">
-          <div class="admin-page__recent-bookings-track" aria-hidden="true">
-            <span class="admin-page__recent-bookings-dot"></span>
-          </div>
-          <div class="admin-page__recent-bookings-content">
-            <p class="admin-page__recent-bookings-time">Yesterday</p>
-            <p class="admin-page__recent-bookings-label">City Marathon 2026</p>
-            <p class="admin-page__recent-bookings-meta">2 tickets</p>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </section>
+  <app-admin-recent-bookings [items]="recentBookings()" />
 </section>

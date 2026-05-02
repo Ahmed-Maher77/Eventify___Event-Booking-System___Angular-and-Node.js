@@ -1,0 +1,33 @@
+<section class="admin-recent-bookings" aria-label="Recent bookings">
+  <div class="admin-recent-bookings__inner">
+    <div class="admin-recent-bookings__head">
+      <h2 class="admin-recent-bookings__title">Recent bookings</h2>
+      <a [routerLink]="viewAllLink()" class="admin-recent-bookings__all admin-link-underline-ltr">View all</a>
+    </div>
+    <div
+      class="admin-recent-bookings__columns"
+      [class.admin-recent-bookings__columns--single]="rightColumn().length === 0"
+    >
+      <ul class="admin-recent-bookings__timeline" role="list">
+        @for (b of leftColumn(); track b.id; let isLast = $last) {
+          <li
+            app-admin-recent-booking-item
+            [entry]="b"
+            [isLastInColumn]="isLast"
+          ></li>
+        }
+      </ul>
+      @if (rightColumn().length) {
+        <ul class="admin-recent-bookings__timeline" role="list">
+          @for (b of rightColumn(); track b.id; let isLast = $last) {
+            <li
+              app-admin-recent-booking-item
+              [entry]="b"
+              [isLastInColumn]="isLast"
+            ></li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+</section>
