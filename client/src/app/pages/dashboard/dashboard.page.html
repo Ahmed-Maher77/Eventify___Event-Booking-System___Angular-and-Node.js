@@ -122,9 +122,9 @@
         Confirmed orders in the selected period.
       </p>
     </div>
-    @if (true) {
+    @if (isRecentBookingsLoading()) {
       <div class="admin-page__booking-loader" aria-label="Loading booking volume">
-        <app-loader [size]="36" label="Loading booking volume" />
+        <app-section-loader [size]="36" label="Loading booking volume" />
       </div>
     } @else {
       <div

@@ -10,7 +10,7 @@
 
     @if (isLoading) {
       <div class="favorites-page__loader-wrap">
-        <app-loader [size]="40" label="Loading favorites" />
+        <app-section-loader [size]="40" label="Loading favorites" />
       </div>
     } @else if (errorMessage) {
       <div class="favorites-page__status-wrap">

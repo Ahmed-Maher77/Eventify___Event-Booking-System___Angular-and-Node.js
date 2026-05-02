@@ -148,7 +148,7 @@
 
         @if (isLoading) {
           <div class="events-page__loader-wrap mt-2" aria-label="Loading events">
-            <app-loader [size]="40" label="Loading events" />
+            <app-section-loader [size]="40" label="Loading events" />
           </div>
         } @else if (errorMessage) {
           <div class="mt-3 fallback-error-message">

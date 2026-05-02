@@ -1,53 +1,58 @@
-.loader-shell {
-  --loader-size: 30px;
-  --loader-color: var(--color-brown);
-  position: relative;
-  width: var(--loader-size);
-  height: var(--loader-size);
-  display: inline-flex;
-  align-items: center;
+.loading {
+  --speed-of-animation: 0.9s;
+  --gap: 6px;
+  --first-color: var(--color-primary);
+  --second-color: var(--color-brown);
+  --third-color: var(--color-black);
+  --fourth-color: var(--color-primary);
+  --fifth-color: var(--color-light-brown);
+  display: flex;
   justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  gap: var(--gap);
 }
 
-.spinner {
-  position: relative;
-  width: var(--loader-size);
-  height: var(--loader-size);
-}
-
-.spinner__segment {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 10%;
-  height: 40%;
+.loading span {
+  width: 4px;
+  height: 50px;
+  background: var(--first-color);
   border-radius: 999px;
-  background: var(--loader-color);
-  transform-origin: 50% 10%;
-  opacity: 0.25;
+  animation: scale var(--speed-of-animation) ease-in-out infinite;
 }
 
-@for $i from 1 through 10 {
-  .spinner__segment:nth-child(#{$i}) {
-    --rotation: #{$i * 36deg};
-    transform: translate(-50%, -50%)
-      rotate(var(--rotation))
-      translateY(calc(var(--loader-size) * -0.34));
-    animation: admin-spinner-pulse 1s #{($i - 1) * 0.1}s infinite ease-in-out;
+.loading span:nth-child(2) {
+  background: var(--second-color);
+  animation-delay: -0.8s;
+}
+
+.loading span:nth-child(3) {
+  background: var(--third-color);
+  animation-delay: -0.7s;
+}
+
+.loading span:nth-child(4) {
+  background: var(--fourth-color);
+  animation-delay: -0.6s;
+}
+
+.loading span:nth-child(5) {
+  background: var(--fifth-color);
+  animation-delay: -0.5s;
+}
+
+@keyframes scale {
+  0% {
+    transform: scaleY(0.05);
   }
-}
-
-@keyframes admin-spinner-pulse {
-  0%,
+  40% {
+    transform: scaleY(0.05);
+  }
   100% {
-    opacity: 0.22;
-    transform: translate(-50%, -50%) rotate(var(--rotation))
-      translateY(calc(var(--loader-size) * -0.34)) scaleY(0.92);
+    transform: scaleY(0.05);
   }
-
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(var(--rotation))
-      translateY(calc(var(--loader-size) * -0.38)) scaleY(1.08);
+  20% {
+    transform: scaleY(1);
   }
 }

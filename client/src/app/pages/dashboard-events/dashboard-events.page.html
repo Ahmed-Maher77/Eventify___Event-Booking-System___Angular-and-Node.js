@@ -23,7 +23,7 @@
   <div class="admin-entity-page__panel table-responsive">
     @if (isLoadingEvents()) {
       <div class="admin-entity-page__loader-wrap">
-        <app-loader [size]="36" label="Loading event catalog" />
+        <app-section-loader [size]="36" label="Loading event catalog" />
       </div>
     } @else if (listErrorMessage) {
       <p class="admin-entity-page__state-message is-error">{{ listErrorMessage }}</p>

@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
-import { Loader } from '../../shared/loader/loader';
+import { SectionLoader } from '../../shared/section-loader/section-loader';
 
 @Component({
   selector: 'app-dashboard-bookings-page',
   standalone: true,
-  imports: [HighlightedPageHeadingComponent, Loader],
+  imports: [HighlightedPageHeadingComponent, SectionLoader],
   templateUrl: './dashboard-bookings.page.html',
   styleUrl: './dashboard-bookings.page.scss'
 })

@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
-import { Loader } from '../../shared/loader/loader';
+import { SectionLoader } from '../../shared/section-loader/section-loader';
 
 @Component({
   selector: 'app-bookings-page',
   standalone: true,
-  imports: [HighlightedPageHeadingComponent, Loader],
+  imports: [HighlightedPageHeadingComponent, SectionLoader],
   templateUrl: './bookings.page.html',
   styleUrl: '../../../sass/components/static-info-page.scss'
 })
