@@ -91,11 +91,11 @@
       <div class="admin-event-modal__content">
         <div class="admin-event-modal__content-inner">
         <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
-          @if (formErrorMessage) {
-            <p class="admin-event-form__message is-error">{{ formErrorMessage }}</p>
+          @if (formErrorMessage()) {
+            <p class="admin-event-form__message is-error">{{ formErrorMessage() }}</p>
           }
-          @if (formSuccessMessage) {
-            <p class="admin-event-form__message is-success">{{ formSuccessMessage }}</p>
+          @if (formSuccessMessage()) {
+            <p class="admin-event-form__message is-success">{{ formSuccessMessage() }}</p>
           }
 
           <label class="admin-event-form__field">
@@ -254,7 +254,7 @@
               size="md"
               buttonType="submit"
               [rounded]="true"
-              [loading]="isSubmitting"
+              [loading]="isSubmitting()"
               customClass="admin-event-form__submit-btn diagonal-swipe-hover"
             />
           </div>

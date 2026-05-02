@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, finalize, takeUntil } from 'rxjs';
@@ -36,10 +36,10 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected events: EventApiItem[] = [];
   protected isLoadingEvents = false;
   protected isAddModalOpen = false;
-  protected isSubmitting = false;
+  protected readonly isSubmitting = signal(false);
   protected listErrorMessage = '';
-  protected formErrorMessage = '';
-  protected formSuccessMessage = '';
+  protected readonly formErrorMessage = signal('');
+  protected readonly formSuccessMessage = signal('');
   protected pictureMode: 'file' | 'url' = 'file';
   protected isCategorySelectActive = false;
   protected selectedImageName = '';
@@ -111,7 +111,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     const file = input?.files?.[0] ?? null;
     this.selectedImageFile = file;
     this.selectedImageName = file?.name ?? '';
-    this.formErrorMessage = '';
+    this.formErrorMessage.set('');
   }
 
   protected setCategorySelectActive(isActive: boolean): void {
@@ -127,14 +127,14 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   }
 
   protected submitAddEvent(): void {
-    if (this.isSubmitting) {
+    if (this.isSubmitting()) {
       return;
     }
 
     if (this.addEventForm.invalid) {
       this.addEventForm.markAllAsTouched();
-      this.formErrorMessage = 'Please fix the highlighted fields before submitting.';
-      this.formSuccessMessage = '';
+      this.formErrorMessage.set('Please fix the highlighted fields before submitting.');
+      this.formSuccessMessage.set('');
       return;
     }
 
@@ -151,26 +151,27 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     };
     const payload = this.buildCreateEventPayload(payloadBase);
 
-    this.formErrorMessage = '';
-    this.formSuccessMessage = '';
-    this.isSubmitting = true;
+    this.formErrorMessage.set('');
+    this.formSuccessMessage.set('');
+    this.isSubmitting.set(true);
 
     this.eventService
       .createEvent(payload)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isSubmitting = false;
-        })
-      )
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
+          this.isSubmitting.set(false);
+          this.formErrorMessage.set('');
           this.toast.showSuccess('Event created successfully.');
           this.loadEvents();
           this.closeAddEventModal();
         },
         error: (error: unknown) => {
-          this.toast.showError(this.resolveCreateEventErrorMessage(error));
+          const message = this.resolveCreateEventErrorMessage(error);
+          this.isSubmitting.set(false);
+          this.formSuccessMessage.set('');
+          this.formErrorMessage.set(message);
+          this.toast.showError(message);
         }
       });
   }
@@ -235,8 +236,9 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.addEventForm.controls.imageUrl.updateValueAndValidity({ emitEvent: false });
     this.addEventForm.markAsPristine();
     this.addEventForm.markAsUntouched();
-    this.formErrorMessage = '';
-    this.formSuccessMessage = '';
+    this.isSubmitting.set(false);
+    this.formErrorMessage.set('');
+    this.formSuccessMessage.set('');
   }
 
   private syncModalState(isOpen: boolean): void {
