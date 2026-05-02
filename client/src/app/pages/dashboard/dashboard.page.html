@@ -1,5 +1,5 @@
 <section class="admin-page">
-  <header class="admin-page__header d-flex align-items-start justify-content-between gap-3 flex-wrap">
+  <header class="admin-page__header admin-page__header--toolbar d-flex flex-wrap align-items-start justify-content-between gap-3">
     <app-highlighted-page-heading
       titlePrefix="Performance"
       titleHighlight="Insights"
@@ -9,17 +9,32 @@
       titleClass="admin-heading--title"
       subtitleClass="admin-heading--subtitle"
     />
+    <div class="admin-page__period" role="group" aria-label="Report period">
+      @for (p of periodOptions; track p) {
+        <button
+          type="button"
+          class="admin-page__period-btn"
+          [class.is-active]="selectedPeriod() === p"
+          (click)="selectPeriod(p)"
+        >
+          {{ p === '7d' ? '7 days' : p === '30d' ? '30 days' : '90 days' }}
+        </button>
+      }
+    </div>
   </header>
 
-  <section class="admin-page__stats row g-3">
+  <p class="admin-page__period-hint">Comparing to previous {{ selectedPeriod() === '7d' ? '7' : selectedPeriod() === '30d' ? '30' : '90' }}-day window.</p>
+
+  <section class="admin-page__stats row g-3" aria-label="Key metrics">
     <article class="col-12 col-md-6 col-xl-3">
       <div class="admin-page__panel admin-page__panel--insight">
         <span class="admin-page__metric-icon-shell" aria-hidden="true">
           <i class="fa-solid fa-wallet"></i>
         </span>
         <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Total Revenue</p>
+          <p class="admin-page__metric-label">Total revenue</p>
           <p class="admin-page__metric-value">$24.8K</p>
+          <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +8.2% vs prior</p>
         </div>
       </div>
     </article>
@@ -29,51 +44,159 @@
           <i class="fa-solid fa-users"></i>
         </span>
         <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Active Users</p>
+          <p class="admin-page__metric-label">Active users</p>
           <p class="admin-page__metric-value">1,942</p>
+          <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +3.1% vs prior</p>
         </div>
       </div>
     </article>
     <article class="col-12 col-md-6 col-xl-3">
       <div class="admin-page__panel admin-page__panel--insight">
         <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-regular fa-envelope-open"></i>
+          <i class="fa-solid fa-ticket"></i>
         </span>
         <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Open Messages</p>
-          <p class="admin-page__metric-value">37</p>
+          <p class="admin-page__metric-label">Tickets sold</p>
+          <p class="admin-page__metric-value">12.4K</p>
+          <p class="admin-page__metric-delta admin-page__metric-delta--down"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> −1.4% vs prior</p>
         </div>
       </div>
     </article>
     <article class="col-12 col-md-6 col-xl-3">
       <div class="admin-page__panel admin-page__panel--insight">
         <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-bell"></i>
+          <i class="fa-solid fa-calendar-check"></i>
         </span>
         <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">New Subscriptions</p>
+          <p class="admin-page__metric-label">Active events</p>
           <p class="admin-page__metric-value">214</p>
+          <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +6 new this week</p>
         </div>
       </div>
     </article>
   </section>
 
-  <section class="admin-page__grid row g-3 mt-1">
-    <article class="col-12 col-xl-7">
-      <div class="admin-page__panel admin-page__panel--min">
-        <h2 class="admin-page__section-title">Traffic Trend</h2>
-        <p class="admin-page__placeholder">Connect your analytics source to render real-time charts.</p>
+  <section class="admin-page__booking-band" aria-label="Booking volume trend">
+    <div class="admin-page__booking-band-inner">
+      <div class="admin-page__booking-head">
+        <h2 class="admin-page__section-title">Booking volume</h2>
+        <span class="admin-page__panel-tag admin-page__panel-tag--accent">Bookings</span>
+      </div>
+      <p class="admin-page__chart-caption admin-page__chart-caption--booking">Confirmed orders in the selected period.</p>
+    </div>
+    <div class="admin-page__booking-chart" role="img" aria-label="Bar chart placeholder for bookings">
+      <div class="admin-page__chart-bars admin-page__chart-bars--booking">
+        @for (h of bookingBarHeights; track $index) {
+          <span class="admin-page__chart-bar admin-page__chart-bar--accent" [style.height.%]="h"></span>
+        }
+      </div>
+    </div>
+    <div class="admin-page__booking-band-inner admin-page__booking-foot">
+      <a routerLink="/dashboard/bookings" class="admin-page__inline-link">Open booking operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+  </section>
+
+  <section class="admin-page__attention" aria-labelledby="insights-attention-heading">
+    <h2 id="insights-attention-heading" class="admin-page__section-title">Needs attention</h2>
+    <p class="admin-page__attention-intro">Exceptions and follow-ups across your catalog and operations.</p>
+    <ul class="admin-page__alert-list">
+      <li class="admin-page__alert admin-page__alert--warning">
+        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div class="admin-page__alert-body">
+          <p class="admin-page__alert-title">3 events start within 48 hours with low sales</p>
+          <p class="admin-page__alert-meta">Check pricing, capacity, and promotion in the catalog.</p>
+        </div>
+        <a routerLink="/dashboard/events" class="admin-page__alert-action">Review events</a>
+      </li>
+      <li class="admin-page__alert admin-page__alert--info">
+        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
+        <div class="admin-page__alert-body">
+          <p class="admin-page__alert-title">12 messages awaiting first reply</p>
+          <p class="admin-page__alert-meta">Oldest thread is 6 hours — keep response time on track.</p>
+        </div>
+        <a routerLink="/dashboard/messages" class="admin-page__alert-action">Open inbox</a>
+      </li>
+      <li class="admin-page__alert admin-page__alert--neutral">
+        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-solid fa-user-plus"></i></span>
+        <div class="admin-page__alert-body">
+          <p class="admin-page__alert-title">28 new members this week</p>
+          <p class="admin-page__alert-meta">Up from 19 the week before — consider a welcome campaign.</p>
+        </div>
+        <a routerLink="/dashboard/users" class="admin-page__alert-action">Member directory</a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="admin-page__snapshots row g-3" aria-label="Quick snapshots">
+    <article class="col-12 col-md-6 col-xl-4">
+      <div class="admin-page__panel admin-page__snapshot">
+        <div class="admin-page__snapshot-head">
+          <h3 class="admin-page__snapshot-title">Recent bookings</h3>
+          <a routerLink="/dashboard/bookings" class="admin-page__snapshot-all">View all</a>
+        </div>
+        <ul class="admin-page__snapshot-rows">
+          <li>
+            <span class="admin-page__snapshot-label">Summer Jazz Night</span>
+            <span class="admin-page__snapshot-meta">2h ago · 4 tickets</span>
+          </li>
+          <li>
+            <span class="admin-page__snapshot-label">Design Systems Workshop</span>
+            <span class="admin-page__snapshot-meta">5h ago · 1 ticket</span>
+          </li>
+          <li>
+            <span class="admin-page__snapshot-label">City Marathon 2026</span>
+            <span class="admin-page__snapshot-meta">Yesterday · 2 tickets</span>
+          </li>
+        </ul>
       </div>
     </article>
-    <article class="col-12 col-xl-5">
-      <div class="admin-page__panel admin-page__panel--min">
-        <h2 class="admin-page__section-title">Recent Reports</h2>
-        <ul class="admin-page__list">
-          <li>Weekly bookings summary</li>
-          <li>Audience growth report</li>
-          <li>Support response timing</li>
+    <article class="col-12 col-md-6 col-xl-4">
+      <div class="admin-page__panel admin-page__snapshot">
+        <div class="admin-page__snapshot-head">
+          <h3 class="admin-page__snapshot-title">Audience &amp; subscribers</h3>
+          <a routerLink="/dashboard/subscribers" class="admin-page__snapshot-all">View all</a>
+        </div>
+        <ul class="admin-page__snapshot-rows">
+          <li>
+            <span class="admin-page__snapshot-label">Newsletter signups</span>
+            <span class="admin-page__snapshot-meta">+142 this period</span>
+          </li>
+          <li>
+            <span class="admin-page__snapshot-label">Unsubscribes</span>
+            <span class="admin-page__snapshot-meta">12 (0.8%)</span>
+          </li>
+          <li>
+            <span class="admin-page__snapshot-label">Top source</span>
+            <span class="admin-page__snapshot-meta">Event landing pages</span>
+          </li>
+        </ul>
+      </div>
+    </article>
+    <article class="col-12 col-md-6 col-xl-4">
+      <div class="admin-page__panel admin-page__snapshot">
+        <div class="admin-page__snapshot-head">
+          <h3 class="admin-page__snapshot-title">Reports &amp; automation</h3>
+          <a routerLink="/dashboard/assistant-logs" class="admin-page__snapshot-all">Assistant logs</a>
+        </div>
+        <ul class="admin-page__snapshot-rows">
+          <li>
+            <span class="admin-page__snapshot-label">Weekly bookings PDF</span>
+            <span class="admin-page__snapshot-meta">Scheduled · Mon 08:00</span>
+          </li>
+          <li>
+            <span class="admin-page__snapshot-label">Audience growth sheet</span>
+            <span class="admin-page__snapshot-meta">Last run · 2 days ago</span>
+          </li>
+          <li>
+            <span class="admin-page__snapshot-label">Support SLA report</span>
+            <span class="admin-page__snapshot-meta">Export ready</span>
+          </li>
         </ul>
       </div>
     </article>
   </section>
+
+  <p class="admin-page__footnote">
+    Sample figures for layout preview. Connect bookings, events, and analytics APIs to drive this dashboard with live data.
+  </p>
 </section>
