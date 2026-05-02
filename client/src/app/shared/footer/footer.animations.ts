@@ -48,11 +48,13 @@ export function setupFooterAnimations(rootElement?: HTMLElement): gsap.Context {
       gsap.set(animatedSelectors, { clearProps: 'transform,opacity' });
     });
 
-    ScrollTrigger.create({
-      trigger: '.site-footer',
-      start: 'top 94%',
-      onEnter: () => timeline.restart(),
-      onEnterBack: () => timeline.restart()
-    });
+    if (rootElement) {
+      ScrollTrigger.create({
+        trigger: rootElement,
+        start: 'top 94%',
+        onEnter: () => timeline.restart(),
+        onEnterBack: () => timeline.restart(),
+      });
+    }
   }, rootElement);
 }

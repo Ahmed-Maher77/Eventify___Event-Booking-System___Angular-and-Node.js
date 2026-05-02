@@ -45,8 +45,8 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     'sports',
     'other'
   ];
-  protected events: EventApiItem[] = [];
-  protected isLoadingEvents = false;
+  protected readonly events = signal<EventApiItem[]>([]);
+  protected readonly isLoadingEvents = signal(false);
   protected isAddModalOpen = false;
   protected readonly isSubmitting = signal(false);
   protected listErrorMessage = '';
@@ -220,7 +220,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   }
 
   private loadEvents(): void {
-    this.isLoadingEvents = true;
+    this.isLoadingEvents.set(true);
     this.listErrorMessage = '';
 
     this.eventService
@@ -228,17 +228,18 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          this.isLoadingEvents = false;
+          this.isLoadingEvents.set(false);
         })
       )
       .subscribe({
         next: (response) => {
-          this.events = response.data?.events ?? [];
+          const list = response.data?.events ?? [];
+          this.events.set(list);
         },
         error: () => {
-          this.events = [];
+          this.events.set([]);
           this.listErrorMessage = 'Unable to load event catalog at the moment.';
-        }
+        },
       });
   }
 

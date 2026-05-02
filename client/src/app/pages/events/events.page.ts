@@ -524,12 +524,6 @@ export class EventsPage implements OnInit, OnDestroy {
       page: this.queryState.page,
       limit: this.queryState.limit,
     };
-    console.log('[EventsPage][pagination] request', {
-      page: query.page,
-      limit: query.limit,
-      category: query.category ?? 'none',
-      name: query.name ?? '',
-    });
 
     this.eventService
       .getEvents(query)
@@ -587,28 +581,7 @@ export class EventsPage implements OnInit, OnDestroy {
             this.totalEvents = computedTotalEvents;
             this.totalPages = computedTotalPages;
 
-            console.log('[EventsPage][pagination] response', {
-              queryPage: this.queryState.page,
-              queryLimit: this.queryState.limit,
-              apiEventsCount: apiEvents.length,
-              filteredEventsCount: filteredEvents.length,
-              sourceEventsCount: sourceEvents.length,
-              serverCurrentPage: pagination?.currentPage ?? null,
-              serverLimit: pagination?.limit ?? null,
-              serverTotalPages: pagination?.totalPages ?? null,
-              serverTotalEvents: pagination?.totalEvents ?? null,
-              hasServerPagination,
-              serverReturnsPagedChunk,
-              shouldUseClientPagination,
-              computedTotalEvents,
-              computedTotalPages,
-            });
-
             if (this.queryState.page > this.totalPages) {
-              console.log('[EventsPage][pagination] page overflow -> correcting', {
-                currentPage: this.queryState.page,
-                correctedPage: this.totalPages,
-              });
               this.queryState.page = this.totalPages;
               this.updateUrlFromQueryState();
               return;
@@ -624,23 +597,14 @@ export class EventsPage implements OnInit, OnDestroy {
               const card = mapEventApiItemToFeaturedCard(event);
               return { ...card, isFavorite: this.favoriteEventIds.has(card.id) };
             });
-            console.log('[EventsPage][pagination] render', {
-              page: this.queryState.page,
-              limit: normalizedLimit,
-              totalPages: this.totalPages,
-              renderedEventsCount: this.events.length,
-              pagedEventsCount: pagedEvents.length,
-            });
             this.animationSeed += 1;
-          } catch (err) {
-            console.error('[EventsPage][pagination] catch-path fallback', err);
+          } catch {
             this.applyFallbackPagination();
             this.errorMessage = '';
             this.animationSeed += 1;
           }
         },
-        error: (err) => {
-          console.error('[EventsPage][pagination] request error-path fallback', err);
+        error: () => {
           this.applyFallbackPagination();
           this.errorMessage = '';
           this.animationSeed += 1;

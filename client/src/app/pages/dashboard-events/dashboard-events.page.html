@@ -21,11 +21,11 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
-    @if (isLoadingEvents) {
+    @if (isLoadingEvents()) {
       <p class="admin-entity-page__state-message">Loading events...</p>
     } @else if (listErrorMessage) {
       <p class="admin-entity-page__state-message is-error">{{ listErrorMessage }}</p>
-    } @else if (!events.length) {
+    } @else if (!events().length) {
       <p class="admin-entity-page__state-message">No events found yet.</p>
     } @else {
       <table class="table admin-entity-page__table align-middle mb-0">
@@ -38,7 +38,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (event of events; track event._id) {
+          @for (event of events(); track event._id) {
             <tr>
               <td>{{ event.title }}</td>
               <td>{{ event.date | date: 'MMM d, y' }}</td>

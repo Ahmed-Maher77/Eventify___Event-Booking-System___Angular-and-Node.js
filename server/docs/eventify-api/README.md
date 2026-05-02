@@ -10,7 +10,7 @@ eventify-api/
 ├── collection.yml                  # Collection-level settings
 ├── .gitignore                      # Git ignore file
 ├── environments/                  # Environment configurations
-│   ├── Local.yml                  # Local development (localhost:3000)
+│   ├── Local.yml                  # Local development (localhost:5000)
 │   └── Production.yml             # Production deployment
 ├── Auth/                          # Authentication endpoints
 │   ├── folder.yml                 # Folder settings
@@ -52,7 +52,7 @@ eventify-api/
 
 1. Select the **Local** environment from the environment dropdown
 2. Update environment variables as needed:
-   - `baseUrl`: Your API base URL (default: `http://localhost:3000`)
+   - `baseUrl`: Your API base URL (default: `http://localhost:5000`)
    - `adminEmail`: Admin account email for testing
    - `adminPassword`: Admin account password for testing
 
@@ -93,7 +93,7 @@ The collection uses several environment variables:
 
 | Variable        | Description              | Default                 |
 | --------------- | ------------------------ | ----------------------- |
-| `baseUrl`       | API base URL             | `http://localhost:3000` |
+| `baseUrl`       | API base URL             | `http://localhost:5000` |
 | `adminEmail`    | Admin email for login    | (empty)                 |
 | `adminPassword` | Admin password for login | (empty)                 |
 | `authToken`     | JWT token (auto-saved)   | (empty)                 |

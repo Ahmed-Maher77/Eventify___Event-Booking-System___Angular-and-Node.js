@@ -120,7 +120,7 @@ export class EventService {
 
   createEvent(payload: CreateEventPayload | FormData): Observable<EventMutationResponse> {
     return this.http.post<EventMutationResponse>(this.eventsApiUrl, payload, {
-      withCredentials: true
+      withCredentials: true,
     });
   }
 }
