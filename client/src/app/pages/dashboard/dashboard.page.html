@@ -130,18 +130,36 @@
         <h2 class="admin-page__section-title">Recent bookings</h2>
         <a routerLink="/dashboard/bookings" class="admin-page__recent-bookings-all admin-link-underline-ltr">View all</a>
       </div>
-      <ul class="admin-page__recent-bookings-list">
-        <li>
-          <span class="admin-page__recent-bookings-label">Summer Jazz Night</span>
-          <span class="admin-page__recent-bookings-meta">2h ago · 4 tickets</span>
+      <ul class="admin-page__recent-bookings-timeline" role="list">
+        <li class="admin-page__recent-bookings-item">
+          <div class="admin-page__recent-bookings-track" aria-hidden="true">
+            <span class="admin-page__recent-bookings-dot"></span>
+          </div>
+          <div class="admin-page__recent-bookings-content">
+            <p class="admin-page__recent-bookings-time">2h ago</p>
+            <p class="admin-page__recent-bookings-label">Summer Jazz Night</p>
+            <p class="admin-page__recent-bookings-meta">4 tickets</p>
+          </div>
         </li>
-        <li>
-          <span class="admin-page__recent-bookings-label">Design Systems Workshop</span>
-          <span class="admin-page__recent-bookings-meta">5h ago · 1 ticket</span>
+        <li class="admin-page__recent-bookings-item">
+          <div class="admin-page__recent-bookings-track" aria-hidden="true">
+            <span class="admin-page__recent-bookings-dot"></span>
+          </div>
+          <div class="admin-page__recent-bookings-content">
+            <p class="admin-page__recent-bookings-time">5h ago</p>
+            <p class="admin-page__recent-bookings-label">Design Systems Workshop</p>
+            <p class="admin-page__recent-bookings-meta">1 ticket</p>
+          </div>
         </li>
-        <li>
-          <span class="admin-page__recent-bookings-label">City Marathon 2026</span>
-          <span class="admin-page__recent-bookings-meta">Yesterday · 2 tickets</span>
+        <li class="admin-page__recent-bookings-item">
+          <div class="admin-page__recent-bookings-track" aria-hidden="true">
+            <span class="admin-page__recent-bookings-dot"></span>
+          </div>
+          <div class="admin-page__recent-bookings-content">
+            <p class="admin-page__recent-bookings-time">Yesterday</p>
+            <p class="admin-page__recent-bookings-label">City Marathon 2026</p>
+            <p class="admin-page__recent-bookings-meta">2 tickets</p>
+          </div>
         </li>
       </ul>
     </div>
