@@ -100,16 +100,16 @@
             }
           </div>
 
-          <label class="admin-event-form__field">
-            <span>Title</span>
+          <label class="admin-event-form__field" aria-required="true">
+            <span>Title<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
             <input class="admin-event-form__input" type="text" formControlName="title" placeholder="Event title" />
             @if (addEventForm.controls.title.touched && addEventForm.controls.title.invalid) {
               <small>Title must be between 3 and 100 characters.</small>
             }
           </label>
 
-          <label class="admin-event-form__field">
-            <span>Description</span>
+          <label class="admin-event-form__field" aria-required="true">
+            <span>Description<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
             <textarea class="admin-event-form__input" rows="4" formControlName="description" placeholder="Event description"></textarea>
             @if (addEventForm.controls.description.touched && addEventForm.controls.description.invalid) {
               <small>Description must be between 10 and 1000 characters.</small>
@@ -117,16 +117,16 @@
           </label>
 
           <div class="admin-event-form__row">
-            <label class="admin-event-form__field">
-              <span>Date & time</span>
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Date & time<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
               <input class="admin-event-form__input" type="datetime-local" formControlName="date" />
               @if (addEventForm.controls.date.touched && addEventForm.controls.date.invalid) {
                 <small>Date is required.</small>
               }
             </label>
 
-            <label class="admin-event-form__field">
-              <span>Category</span>
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Category<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
               <div class="admin-event-form__select-wrap">
                 <select
                   class="admin-event-form__input"
@@ -147,8 +147,8 @@
             </label>
           </div>
 
-          <label class="admin-event-form__field">
-            <span>Location</span>
+          <label class="admin-event-form__field" aria-required="true">
+            <span>Location<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
             <input class="admin-event-form__input" type="text" formControlName="location" placeholder="City, venue, or address" />
             @if (addEventForm.controls.location.touched && addEventForm.controls.location.invalid) {
               <small>Location must be between 3 and 200 characters.</small>
@@ -156,16 +156,16 @@
           </label>
 
           <div class="admin-event-form__row">
-            <label class="admin-event-form__field">
-              <span>Capacity</span>
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Capacity<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
               <input class="admin-event-form__input" type="number" formControlName="capacity" min="1" />
               @if (addEventForm.controls.capacity.touched && addEventForm.controls.capacity.invalid) {
                 <small>Capacity must be at least 1.</small>
               }
             </label>
 
-            <label class="admin-event-form__field">
-              <span>Price (USD)</span>
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Price (USD)<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
               <input class="admin-event-form__input" type="number" formControlName="price" min="0" step="0.01" />
               @if (addEventForm.controls.price.touched && addEventForm.controls.price.invalid) {
                 <small>Price cannot be negative.</small>

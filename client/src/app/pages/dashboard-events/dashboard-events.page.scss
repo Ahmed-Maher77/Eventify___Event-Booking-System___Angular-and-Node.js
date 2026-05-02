@@ -274,6 +274,15 @@
   min-width: 0;
   position: relative;
 
+  .admin-event-form__required-mark {
+    &::before {
+      content: '*';
+      margin-inline-start: 0.3em;
+      color: var(--color-danger);
+      font-weight: 700;
+    }
+  }
+
   span {
     color: var(--color-black);
     font-size: 0.92rem;
