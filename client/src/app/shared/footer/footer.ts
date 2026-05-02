@@ -99,7 +99,11 @@ export class Footer implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.footerContext = setupFooterAnimations(this.footerRoot?.nativeElement);
+    const footerElement = this.footerRoot?.nativeElement;
+    if (!footerElement) {
+      return;
+    }
+    this.footerContext = setupFooterAnimations(footerElement);
   }
 
   ngOnDestroy(): void {

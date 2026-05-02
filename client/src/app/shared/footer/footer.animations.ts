@@ -3,58 +3,82 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function setupFooterAnimations(rootElement?: HTMLElement): gsap.Context {
+export function setupFooterAnimations(rootElement?: HTMLElement | null): gsap.Context | null {
+  if (!rootElement) {
+    return null;
+  }
+
   return gsap.context(() => {
+    const topSections = gsap.utils.toArray<HTMLElement>('.site-footer__top > section');
+    const socialGroups = gsap.utils.toArray<HTMLElement>('.site-footer__social-group');
+    const socialLinks = gsap.utils.toArray<HTMLElement>('.site-footer__social-link');
+    const copyrightBlocks = gsap.utils.toArray<HTMLElement>('.site-footer__copyright');
+    const animatedElements = [...topSections, ...socialGroups, ...socialLinks, ...copyrightBlocks];
+
+    // No-op safely if footer content is not rendered yet.
+    if (!animatedElements.length) {
+      return;
+    }
+
     const timeline = gsap.timeline({ paused: true });
-    const animatedSelectors = [
-      '.site-footer__top > section',
-      '.site-footer__social-group',
-      '.site-footer__social-link',
-      '.site-footer__copyright'
-    ];
 
-    timeline.from('.site-footer__top > section', {
-      y: 24,
-      opacity: 0,
-      duration: 0.56,
-      ease: 'power3.out',
-      stagger: 0.12
-    });
+    if (topSections.length) {
+      timeline.from(topSections, {
+        y: 24,
+        opacity: 0,
+        duration: 0.56,
+        ease: 'power3.out',
+        stagger: 0.12,
+        immediateRender: false
+      });
+    }
 
-    timeline.from('.site-footer__social-group', {
-      y: 16,
-      opacity: 0,
-      duration: 0.44,
-      ease: 'power2.out'
-    }, '-=0.2');
+    if (socialGroups.length) {
+      timeline.from(socialGroups, {
+        y: 16,
+        opacity: 0,
+        duration: 0.44,
+        ease: 'power2.out',
+        immediateRender: false
+      }, '-=0.2');
+    }
 
-    timeline.from('.site-footer__social-link', {
-      y: 6,
-      opacity: 0,
-      duration: 0.36,
-      ease: 'power2.out',
-      stagger: 0.06
-    }, '-=0.18');
+    if (socialLinks.length) {
+      timeline.from(socialLinks, {
+        y: 6,
+        opacity: 0,
+        duration: 0.36,
+        ease: 'power2.out',
+        stagger: 0.06,
+        immediateRender: false
+      }, '-=0.18');
+    }
 
-    timeline.from('.site-footer__copyright', {
-      y: 12,
-      opacity: 0,
-      duration: 0.4,
-      ease: 'power2.out'
-    }, '-=0.16');
+    if (copyrightBlocks.length) {
+      timeline.from(copyrightBlocks, {
+        y: 12,
+        opacity: 0,
+        duration: 0.4,
+        ease: 'power2.out',
+        immediateRender: false
+      }, '-=0.16');
+    }
 
     timeline.eventCallback('onComplete', () => {
       // Remove GSAP inline styles so hover transforms remain perfectly centered.
-      gsap.set(animatedSelectors, { clearProps: 'transform,opacity' });
+      gsap.set(animatedElements, { clearProps: 'transform,opacity' });
     });
 
-    if (rootElement) {
-      ScrollTrigger.create({
-        trigger: rootElement,
-        start: 'top 94%',
-        onEnter: () => timeline.restart(),
-        onEnterBack: () => timeline.restart(),
-      });
-    }
+    const trigger = ScrollTrigger.create({
+      trigger: rootElement,
+      start: 'top 94%',
+      onEnter: () => timeline.restart(),
+      onEnterBack: () => timeline.restart(),
+    });
+
+    return () => {
+      trigger.kill();
+      timeline.kill();
+    };
   }, rootElement);
 }
