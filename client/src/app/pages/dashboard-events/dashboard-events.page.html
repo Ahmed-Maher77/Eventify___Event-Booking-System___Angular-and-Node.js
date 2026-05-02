@@ -89,6 +89,7 @@
       </div>
 
       <div class="admin-event-modal__content">
+        <div class="admin-event-modal__content-inner">
         <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
           @if (formErrorMessage) {
             <p class="admin-event-form__message is-error">{{ formErrorMessage }}</p>
@@ -258,6 +259,7 @@
             />
           </div>
         </form>
+        </div>
       </div>
     </div>
   </div>
