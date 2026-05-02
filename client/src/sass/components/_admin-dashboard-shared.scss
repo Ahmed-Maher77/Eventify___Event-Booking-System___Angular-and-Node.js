@@ -1,3 +1,5 @@
+@use '../abstracts/mixins' as mixins;
+
 %admin-page-panel {
   border: 1px solid var(--color-admin-panel-border);
   border-radius: 0.9rem;
@@ -9,4 +11,9 @@
   color: var(--color-black);
   font-size: clamp(1.05rem, 1.5vw, 1.2rem);
   font-weight: 600;
+}
+
+/* Left-to-right underline on hover; @extend in admin SCSS or add class .admin-link-underline-ltr in templates */
+%admin-link-underline-ltr {
+  @include mixins.admin-link-underline-ltr;
 }

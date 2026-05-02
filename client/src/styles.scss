@@ -220,3 +220,8 @@ app-root {
   color: var(--color-gray) !important;
   margin-top: 2px !important;
 }
+
+/* Reusable admin text link: hover underline animates L→R via ::before */
+.admin-link-underline-ltr {
+  @include mixins.admin-link-underline-ltr;
+}
