@@ -46,9 +46,8 @@
 
 @if (!showAdminSidebar()) {
   <app-footer></app-footer>
-}
 
-<div class="chatbot-fab">
+  <div class="chatbot-fab">
   @if (showChatbotHint() && !isChatScreenActive()) {
     <div class="chatbot-fab__hint" role="status" aria-live="polite">
       <p>Need help finding an event? Ask our AI assistant.</p>
@@ -124,6 +123,7 @@
   >
     <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
   </button>
-</div>
+  </div>
+}
 
 <app-toast-host />

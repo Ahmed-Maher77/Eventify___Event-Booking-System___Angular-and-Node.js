@@ -260,7 +260,6 @@
   }
 }
 
-:host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__home-link,
 :host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__cta,
 :host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__logout-btn {
   justify-content: center !important;
@@ -270,7 +269,6 @@
   width: 100% !important;
 }
 
-:host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__home-link .ev-btn__label,
 :host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__cta .ev-btn__label,
 :host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__logout-btn .ev-btn__label {
   display: none !important;

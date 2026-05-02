@@ -25,6 +25,14 @@
   }
 }
 
+/* Match admin main content horizontal gutters (vars set on .admin-layout__main) */
+:host-context(.admin-layout__main-footer) .site-footer__inner.container {
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+  padding-inline: var(--admin-content-padding-inline);
+}
+
 .site-footer__top {
   display: grid;
   grid-template-columns: 1fr;

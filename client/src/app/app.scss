@@ -104,6 +104,8 @@
 }
 
 .admin-layout__main {
+  --admin-content-padding-inline: clamp(1.5rem, 4.5vw, 2.5rem);
+  --admin-content-padding-block: 1.5rem;
   margin-left: var(--admin-sidebar-width, 245px);
   box-sizing: border-box;
   height: 100%;
@@ -125,8 +127,6 @@
 /* flex-shrink: 0 keeps the main block at least as tall as its content so nothing paints past it
    and pushes the footer below the full page. flex-grow: 1 still fills spare space on short pages. */
 .admin-content {
-  --admin-content-padding-inline: clamp(1.5rem, 4.5vw, 2.5rem);
-  --admin-content-padding-block: 1.5rem;
   flex: 1 0 auto;
   min-width: 0;
   min-height: 100svh;
