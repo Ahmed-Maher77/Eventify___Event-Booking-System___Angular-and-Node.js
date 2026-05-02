@@ -127,32 +127,26 @@
     </ul>
   </section>
 
-  <section class="admin-page__snapshots row g-3" aria-label="Quick snapshots">
-    <article class="col-12 col-lg-8 col-xl-6">
-      <div class="admin-page__panel admin-page__snapshot">
-        <div class="admin-page__snapshot-head">
-          <h3 class="admin-page__snapshot-title">Recent bookings</h3>
-          <a routerLink="/dashboard/bookings" class="admin-page__snapshot-all">View all</a>
-        </div>
-        <ul class="admin-page__snapshot-rows">
-          <li>
-            <span class="admin-page__snapshot-label">Summer Jazz Night</span>
-            <span class="admin-page__snapshot-meta">2h ago · 4 tickets</span>
-          </li>
-          <li>
-            <span class="admin-page__snapshot-label">Design Systems Workshop</span>
-            <span class="admin-page__snapshot-meta">5h ago · 1 ticket</span>
-          </li>
-          <li>
-            <span class="admin-page__snapshot-label">City Marathon 2026</span>
-            <span class="admin-page__snapshot-meta">Yesterday · 2 tickets</span>
-          </li>
-        </ul>
+  <section class="admin-page__recent-bookings" aria-label="Recent bookings">
+    <div class="admin-page__recent-bookings-inner">
+      <div class="admin-page__recent-bookings-head">
+        <h2 class="admin-page__section-title">Recent bookings</h2>
+        <a routerLink="/dashboard/bookings" class="admin-page__recent-bookings-all">View all</a>
       </div>
-    </article>
+      <ul class="admin-page__recent-bookings-list">
+        <li>
+          <span class="admin-page__recent-bookings-label">Summer Jazz Night</span>
+          <span class="admin-page__recent-bookings-meta">2h ago · 4 tickets</span>
+        </li>
+        <li>
+          <span class="admin-page__recent-bookings-label">Design Systems Workshop</span>
+          <span class="admin-page__recent-bookings-meta">5h ago · 1 ticket</span>
+        </li>
+        <li>
+          <span class="admin-page__recent-bookings-label">City Marathon 2026</span>
+          <span class="admin-page__recent-bookings-meta">Yesterday · 2 tickets</span>
+        </li>
+      </ul>
+    </div>
   </section>
-
-  <p class="admin-page__footnote">
-    Sample figures for layout preview. Connect bookings, events, and analytics APIs to drive this dashboard with live data.
-  </p>
 </section>

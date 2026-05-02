@@ -406,54 +406,56 @@
   }
 }
 
-.admin-page__snapshots {
-  margin-top: 0.15rem;
+/* Full-width recent bookings: bleeds to main edges, no panel box (matches booking band) */
+.admin-page__recent-bookings {
+  --admin-page-bleed: 1.5rem;
+  margin-top: 0.35rem;
+  margin-inline: calc(-1 * var(--admin-page-bleed));
+  width: calc(100% + 2 * var(--admin-page-bleed));
+  max-width: none;
+  padding-block: 1.15rem 0.35rem;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
-.admin-page__snapshot {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 220px;
+.admin-page__recent-bookings-inner {
+  padding-inline: var(--admin-page-bleed);
+  max-width: 100%;
 }
 
-.admin-page__snapshot-head {
+.admin-page__recent-bookings-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--color-chip-border);
+  border-bottom: 1px solid rgb(0 0 0 / 10%);
 }
 
-.admin-page__snapshot-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-black);
-}
-
-.admin-page__snapshot-all {
+.admin-page__recent-bookings-all {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--color-brown);
   text-decoration: none;
+  align-self: center;
 
   &:hover {
     text-decoration: underline;
   }
 }
 
-.admin-page__snapshot-rows {
+.admin-page__recent-bookings-list {
   list-style: none;
   margin: 0;
   padding: 0.65rem 0 0;
   display: grid;
   gap: 0.65rem;
-  flex: 1;
 }
 
-.admin-page__snapshot-rows li {
+.admin-page__recent-bookings-list li {
   display: grid;
   gap: 0.15rem;
   padding-bottom: 0.65rem;
@@ -465,23 +467,15 @@
   }
 }
 
-.admin-page__snapshot-label {
+.admin-page__recent-bookings-label {
   font-size: 0.88rem;
   font-weight: 500;
   color: var(--color-black);
 }
 
-.admin-page__snapshot-meta {
+.admin-page__recent-bookings-meta {
   font-size: 0.8rem;
   color: var(--color-admin-stat-muted);
-}
-
-.admin-page__footnote {
-  margin: 0.5rem 0 0;
-  font-size: 0.78rem;
-  color: var(--color-admin-stat-muted);
-  max-width: 72ch;
-  line-height: 1.45;
 }
 
 @media (max-width: 575.98px) {
