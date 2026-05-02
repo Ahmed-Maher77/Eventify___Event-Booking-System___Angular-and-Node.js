@@ -345,6 +345,10 @@ select.admin-event-form__input::-ms-expand {
   color: var(--color-gray) !important;
 }
 
+.admin-event-form__feedback {
+  scroll-margin-top: 0.75rem;
+}
+
 .admin-event-form__message {
   margin: 0;
   border-radius: 8px;

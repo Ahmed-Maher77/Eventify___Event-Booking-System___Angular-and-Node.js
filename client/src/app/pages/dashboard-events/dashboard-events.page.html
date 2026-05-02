@@ -91,12 +91,14 @@
       <div class="admin-event-modal__content">
         <div class="admin-event-modal__content-inner">
         <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
-          @if (formErrorMessage()) {
-            <p class="admin-event-form__message is-error">{{ formErrorMessage() }}</p>
-          }
-          @if (formSuccessMessage()) {
-            <p class="admin-event-form__message is-success">{{ formSuccessMessage() }}</p>
-          }
+          <div class="admin-event-form__feedback" #formFeedback>
+            @if (formErrorMessage()) {
+              <p class="admin-event-form__message is-error">{{ formErrorMessage() }}</p>
+            }
+            @if (formSuccessMessage()) {
+              <p class="admin-event-form__message is-success">{{ formSuccessMessage() }}</p>
+            }
+          </div>
 
           <label class="admin-event-form__field">
             <span>Title</span>

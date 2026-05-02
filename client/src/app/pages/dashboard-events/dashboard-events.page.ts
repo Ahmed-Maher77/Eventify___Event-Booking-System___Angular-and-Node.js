@@ -1,6 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  afterNextRender,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, finalize, takeUntil } from 'rxjs';
@@ -23,7 +33,9 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  private readonly injector = inject(Injector);
   private readonly destroy$ = new Subject<void>();
+  private readonly formFeedbackEl = viewChild<ElementRef<HTMLElement>>('formFeedback');
 
   protected readonly categoryOptions: Array<CreateEventPayload['category']> = [
     'concert',
@@ -135,6 +147,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       this.addEventForm.markAllAsTouched();
       this.formErrorMessage.set('Please fix the highlighted fields before submitting.');
       this.formSuccessMessage.set('');
+      this.scrollFormFeedbackIntoView();
       return;
     }
 
@@ -172,8 +185,19 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
           this.formSuccessMessage.set('');
           this.formErrorMessage.set(message);
           this.toast.showError(message);
+          this.scrollFormFeedbackIntoView();
         }
       });
+  }
+
+  private scrollFormFeedbackIntoView(): void {
+    afterNextRender(
+      () => {
+        const el = this.formFeedbackEl()?.nativeElement;
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+      },
+      { injector: this.injector }
+    );
   }
 
   private resolveCreateEventErrorMessage(error: unknown): string {
