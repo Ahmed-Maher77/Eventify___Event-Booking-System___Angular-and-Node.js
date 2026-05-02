@@ -148,6 +148,56 @@
   width: 100%;
 }
 
+.admin-page__panel--insight-skeleton {
+  pointer-events: none;
+}
+
+.admin-page__skeleton-box {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 8%);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 60%), transparent);
+    animation: admin-page-skeleton-shimmer 1.2s ease-in-out infinite;
+  }
+}
+
+.admin-page__skeleton-box--icon {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0.9rem;
+}
+
+.admin-page__skeleton-box--label {
+  width: 52%;
+  height: 0.78rem;
+}
+
+.admin-page__skeleton-box--value {
+  width: 67%;
+  height: 1.35rem;
+  margin-top: 0.45rem;
+}
+
+.admin-page__skeleton-box--delta {
+  width: 74%;
+  height: 0.72rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes admin-page-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .admin-page__panel--min {
   min-height: 220px;
 }

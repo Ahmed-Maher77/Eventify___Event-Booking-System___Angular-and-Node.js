@@ -20,6 +20,7 @@ const LEFT_CAP = 3;
 export class AdminRecentBookingsComponent {
   readonly items = input.required<AdminRecentBookingItemData[]>();
   readonly viewAllLink = input('/dashboard/bookings');
+  readonly isLoading = input(false);
 
   /** Up to 6 items: left column filled first (max 3), remainder on the right (max 3). */
   protected readonly leftColumn = computed(() => {

@@ -26,54 +26,69 @@
   <p class="admin-page__period-hint">Comparing to previous {{ selectedPeriod() === '7d' ? '7' : selectedPeriod() === '30d' ? '30' : '90' }}-day window.</p>
 
   <section class="admin-page__stats row g-3" aria-label="Key metrics">
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-wallet"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Total revenue</p>
-          <p class="admin-page__metric-value">$24.8K</p>
-          <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +8.2% vs prior</p>
+    @if (isStatsLoading()) {
+      @for (card of [1, 2, 3, 4]; track card) {
+        <article class="col-12 col-md-6 col-xl-3" aria-hidden="true">
+          <div class="admin-page__panel admin-page__panel--insight admin-page__panel--insight-skeleton">
+            <span class="admin-page__metric-icon-shell admin-page__skeleton-box admin-page__skeleton-box--icon"></span>
+            <div class="admin-page__metric-copy">
+              <span class="admin-page__skeleton-box admin-page__skeleton-box--label"></span>
+              <span class="admin-page__skeleton-box admin-page__skeleton-box--value"></span>
+              <span class="admin-page__skeleton-box admin-page__skeleton-box--delta"></span>
+            </div>
+          </div>
+        </article>
+      }
+    } @else {
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-wallet"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Total revenue</p>
+            <p class="admin-page__metric-value">$24.8K</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +8.2% vs prior</p>
+          </div>
         </div>
-      </div>
-    </article>
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-users"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Active users</p>
-          <p class="admin-page__metric-value">1,942</p>
-          <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +3.1% vs prior</p>
+      </article>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-users"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Active users</p>
+            <p class="admin-page__metric-value">1,942</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +3.1% vs prior</p>
+          </div>
         </div>
-      </div>
-    </article>
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-ticket"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Tickets sold</p>
-          <p class="admin-page__metric-value">12.4K</p>
-          <p class="admin-page__metric-delta admin-page__metric-delta--down"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> −1.4% vs prior</p>
+      </article>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-ticket"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Tickets sold</p>
+            <p class="admin-page__metric-value">12.4K</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--down"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> −1.4% vs prior</p>
+          </div>
         </div>
-      </div>
-    </article>
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-calendar-check"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Active events</p>
-          <p class="admin-page__metric-value">214</p>
-          <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +6 new this week</p>
+      </article>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-calendar-check"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Active events</p>
+            <p class="admin-page__metric-value">214</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +6 new this week</p>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    }
   </section>
 
   <section class="admin-page__booking-band" aria-label="Booking volume trend">
@@ -124,5 +139,5 @@
     </ul>
   </section>
 
-  <app-admin-recent-bookings [items]="recentBookings()" />
+  <app-admin-recent-bookings [items]="recentBookings()" [isLoading]="isRecentBookingsLoading()" />
 </section>

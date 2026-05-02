@@ -4,22 +4,44 @@
       <h2 class="admin-recent-bookings__title">Recent bookings</h2>
       <a [routerLink]="viewAllLink()" class="admin-recent-bookings__all admin-link-underline-ltr">View all</a>
     </div>
-    <div
-      class="admin-recent-bookings__columns"
-      [class.admin-recent-bookings__columns--single]="rightColumn().length === 0"
-    >
-      <ul class="admin-recent-bookings__timeline" role="list">
-        @for (b of leftColumn(); track b.id; let isLast = $last) {
-          <li
-            app-admin-recent-booking-item
-            [entry]="b"
-            [isLastInColumn]="isLast"
-          ></li>
-        }
-      </ul>
-      @if (rightColumn().length) {
+    @if (isLoading()) {
+      <div class="admin-recent-bookings__columns" aria-hidden="true">
+        <ul class="admin-recent-bookings__timeline" role="presentation">
+          @for (row of [1, 2, 3]; track row) {
+            <li
+              class="admin-recent-bookings__skeleton-item"
+              [class.admin-recent-bookings__skeleton-item--last]="$last"
+            >
+              <span class="admin-recent-bookings__skeleton-dot"></span>
+              <div class="admin-recent-bookings__skeleton-body">
+                <span class="admin-recent-bookings__skeleton-line admin-recent-bookings__skeleton-line--short"></span>
+                <span class="admin-recent-bookings__skeleton-line admin-recent-bookings__skeleton-line--long"></span>
+              </div>
+            </li>
+          }
+        </ul>
+        <ul class="admin-recent-bookings__timeline" role="presentation">
+          @for (row of [1, 2, 3]; track row) {
+            <li
+              class="admin-recent-bookings__skeleton-item"
+              [class.admin-recent-bookings__skeleton-item--last]="$last"
+            >
+              <span class="admin-recent-bookings__skeleton-dot"></span>
+              <div class="admin-recent-bookings__skeleton-body">
+                <span class="admin-recent-bookings__skeleton-line admin-recent-bookings__skeleton-line--short"></span>
+                <span class="admin-recent-bookings__skeleton-line admin-recent-bookings__skeleton-line--long"></span>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    } @else {
+      <div
+        class="admin-recent-bookings__columns"
+        [class.admin-recent-bookings__columns--single]="rightColumn().length === 0"
+      >
         <ul class="admin-recent-bookings__timeline" role="list">
-          @for (b of rightColumn(); track b.id; let isLast = $last) {
+          @for (b of leftColumn(); track b.id; let isLast = $last) {
             <li
               app-admin-recent-booking-item
               [entry]="b"
@@ -27,7 +49,18 @@
             ></li>
           }
         </ul>
-      }
-    </div>
+        @if (rightColumn().length) {
+          <ul class="admin-recent-bookings__timeline" role="list">
+            @for (b of rightColumn(); track b.id; let isLast = $last) {
+              <li
+                app-admin-recent-booking-item
+                [entry]="b"
+                [isLastInColumn]="isLast"
+              ></li>
+            }
+          </ul>
+        }
+      </div>
+    }
   </div>
 </section>

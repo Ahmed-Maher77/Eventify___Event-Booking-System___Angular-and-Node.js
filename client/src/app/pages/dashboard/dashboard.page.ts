@@ -18,6 +18,8 @@ export type InsightsPeriod = '7d' | '30d' | '90d';
 export class DashboardPage {
   protected readonly periodOptions: InsightsPeriod[] = ['7d', '30d', '90d'];
   protected readonly selectedPeriod = signal<InsightsPeriod>('30d');
+  protected readonly isStatsLoading = signal(false);
+  protected readonly isRecentBookingsLoading = signal(false);
 
   protected readonly recentBookings = signal<AdminRecentBookingItemData[]>([
     {
