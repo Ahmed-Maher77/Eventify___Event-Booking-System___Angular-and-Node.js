@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, finalize, takeUntil } from 'rxjs';
@@ -83,7 +83,7 @@ export class EventsPage implements OnInit, OnDestroy {
   ] as const;
 
   protected events: FeaturedEventCardData[] = [];
-  protected isLoading = false;
+  protected readonly isLoading = signal(false);
   protected errorMessage = '';
   protected totalEvents = 0;
   protected totalPages = 1;
@@ -511,7 +511,7 @@ export class EventsPage implements OnInit, OnDestroy {
   }
 
   private loadEvents(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.errorMessage = '';
 
     const query: EventQueryOptions = {
@@ -531,7 +531,7 @@ export class EventsPage implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          this.isLoading = false;
+          this.isLoading.set(false);
         }),
       )
       .subscribe({

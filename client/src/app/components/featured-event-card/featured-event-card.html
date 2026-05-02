@@ -10,7 +10,7 @@
         [attr.aria-label]="event.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
         (click)="onFavoriteClick($event)"
       >
-        <i [class]="event.isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" aria-hidden="true"></i>
+        <i [class]="event.isFavorite ? 'is-active' : ''" class="fa-solid fa-heart" aria-hidden="true"></i>
       </button>
     }
   </figure>
