@@ -83,19 +83,19 @@ paths:
                     type: string
                     example: "Event created successfully"
                   data:
-                    $ref: '#/components/schemas/Event'
+                    $ref: '#/components/schemas/event'
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '401':
           description: Unauthorized - Authentication required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               example:
                 success: false
                 message: "Authentication required to create event"
@@ -104,10 +104,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '500':
           description: Server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'

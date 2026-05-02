@@ -23,7 +23,7 @@ const newsletterSubscriberSchema = new Schema(
 );
 
 const NewsletterSubscriber = model(
-  "NewsletterSubscriber",
+  "newslettersubscriber",
   newsletterSubscriberSchema,
 );
 

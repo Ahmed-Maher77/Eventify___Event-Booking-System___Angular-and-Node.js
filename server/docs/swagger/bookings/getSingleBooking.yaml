@@ -28,13 +28,13 @@ paths:
                     type: string
                     example: "Booking retrieved successfully"
                   data:
-                    $ref: '#/components/schemas/Booking'
+                    $ref: '#/components/schemas/booking'
         '400':
           description: Missing or invalid booking ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               examples:
                 missingId:
                   summary: Missing ID
@@ -51,7 +51,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               example:
                 success: false
                 message: "Booking not found"
@@ -60,10 +60,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '500':
           description: Server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'

@@ -38,7 +38,7 @@ paths:
                     type: string
                     example: "Login successful"
                   data:
-                    $ref: "#/components/schemas/User"
+                    $ref: "#/components/schemas/user"
                   token:
                     type: string
                     description: JWT authentication token
@@ -48,7 +48,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/error"
               example:
                 success: false
                 message: "email and password are required"
@@ -57,7 +57,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/error"
               example:
                 success: false
                 message: "invalid email or password"

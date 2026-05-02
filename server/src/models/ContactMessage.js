@@ -42,6 +42,6 @@ const contactMessageSchema = new Schema(
   { timestamps: true },
 );
 
-const ContactMessage = model("ContactMessage", contactMessageSchema);
+const ContactMessage = model("contactmessage", contactMessageSchema);
 
 export default ContactMessage;

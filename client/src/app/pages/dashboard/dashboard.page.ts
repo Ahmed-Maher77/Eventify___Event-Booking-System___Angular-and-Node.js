@@ -44,18 +44,18 @@ export class DashboardPage {
       eventTitle: 'Regional Tech Summit',
       ticketSummary: '6 tickets'
     },
-    // {
-    //   id: 'rb-5',
-    //   timeLabel: '3 days ago',
-    //   eventTitle: 'Wine & Paint Night',
-    //   ticketSummary: '3 tickets'
-    // },
-    // {
-    //   id: 'rb-6',
-    //   timeLabel: 'Last week',
-    //   eventTitle: 'Startup Founder Meetup',
-    //   ticketSummary: '2 tickets'
-    // }
+    {
+      id: 'rb-5',
+      timeLabel: '3 days ago',
+      eventTitle: 'Wine & Paint Night',
+      ticketSummary: '3 tickets'
+    },
+    {
+      id: 'rb-6',
+      timeLabel: 'Last week',
+      eventTitle: 'Startup Founder Meetup',
+      ticketSummary: '2 tickets'
+    }
   ]);
 
   /** Relative bar heights (0–100) for demo chart visuals */

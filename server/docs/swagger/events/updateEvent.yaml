@@ -82,13 +82,13 @@ paths:
                     type: string
                     example: "Event updated successfully"
                   data:
-                    $ref: '#/components/schemas/Event'
+                    $ref: '#/components/schemas/event'
         '400':
           description: Missing or invalid event ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               examples:
                 missingId:
                   summary: Missing ID
@@ -105,19 +105,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '403':
           description: Forbidden - Admin access required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '404':
           description: Event not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               example:
                 success: false
                 message: "Event not found"
@@ -126,4 +126,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'

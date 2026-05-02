@@ -45,13 +45,13 @@ paths:
                     type: string
                     example: "Booking status updated successfully"
                   data:
-                    $ref: '#/components/schemas/Booking'
+                    $ref: '#/components/schemas/booking'
         '400':
           description: Missing or invalid booking ID or status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               examples:
                 missingId:
                   summary: Missing ID
@@ -73,19 +73,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '403':
           description: Forbidden - Admin access required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '404':
           description: Booking not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               example:
                 success: false
                 message: "Booking not found"
@@ -94,4 +94,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
