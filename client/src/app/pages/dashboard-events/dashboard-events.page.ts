@@ -16,13 +16,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
+import { Loader } from '../../shared/loader/loader';
 import { CreateEventPayload, EventApiItem, EventService } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-dashboard-events-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HighlightedPageHeadingComponent, Button],
+  imports: [CommonModule, ReactiveFormsModule, HighlightedPageHeadingComponent, Button, Loader],
   templateUrl: './dashboard-events.page.html',
   styleUrl: './dashboard-events.page.scss'
 })

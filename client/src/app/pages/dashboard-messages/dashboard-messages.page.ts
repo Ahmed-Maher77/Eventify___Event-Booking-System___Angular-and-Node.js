@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
+import { Loader } from '../../shared/loader/loader';
 
 @Component({
   selector: 'app-dashboard-messages-page',
   standalone: true,
-  imports: [HighlightedPageHeadingComponent],
+  imports: [HighlightedPageHeadingComponent, Loader],
   templateUrl: './dashboard-messages.page.html',
-  styleUrl: './dashboard-messages.page.scss'
+  styleUrl: './dashboard-messages.page.scss',
 })
-export class DashboardMessagesPage {}
+export class DashboardMessagesPage {
+  protected readonly isLoading = signal(false);
+}

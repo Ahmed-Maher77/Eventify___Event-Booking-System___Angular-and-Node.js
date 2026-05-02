@@ -483,6 +483,13 @@
   gap: 0.9rem;
 }
 
+.events-page__loader-wrap {
+  min-height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .events-page__pagination {
   margin-top: 2.5rem;
   display: flex;

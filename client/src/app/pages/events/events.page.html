@@ -147,23 +147,8 @@
         </div>
 
         @if (isLoading) {
-          <div
-            class="events-page__cards events-page__cards--skeleton mt-2"
-            aria-label="Loading events"
-          >
-            @for (item of [1, 2, 3, 4, 5, 6]; track item) {
-              <article class="events-skeleton-card">
-                <div class="events-skeleton-card__media"></div>
-                <div class="events-skeleton-card__body">
-                  <div class="events-skeleton-card__line events-skeleton-card__line--title"></div>
-                  <div class="events-skeleton-card__line events-skeleton-card__line--meta"></div>
-                  <div
-                    class="events-skeleton-card__line events-skeleton-card__line--meta-short"
-                  ></div>
-                  <div class="events-skeleton-card__action"></div>
-                </div>
-              </article>
-            }
+          <div class="events-page__loader-wrap mt-2" aria-label="Loading events">
+            <app-loader [size]="40" label="Loading events" />
           </div>
         } @else if (errorMessage) {
           <div class="mt-3 fallback-error-message">
@@ -227,7 +212,9 @@
                 <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
               </button>
 
-              <span class="events-page__page-state">Page {{ queryState.page }} of {{ totalPages }}</span>
+              <span class="events-page__page-state"
+                >Page {{ queryState.page }} of {{ totalPages }}</span
+              >
             </nav>
           }
         }

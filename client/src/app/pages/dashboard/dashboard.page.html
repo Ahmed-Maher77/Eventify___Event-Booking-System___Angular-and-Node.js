@@ -1,5 +1,7 @@
 <section class="admin-page">
-  <header class="admin-page__header admin-page__header--toolbar d-flex flex-wrap align-items-start justify-content-between gap-3">
+  <header
+    class="admin-page__header admin-page__header--toolbar d-flex flex-wrap align-items-start justify-content-between gap-3"
+  >
     <app-highlighted-page-heading
       titlePrefix="Performance"
       titleHighlight="Insights"
@@ -23,14 +25,21 @@
     </div>
   </header>
 
-  <p class="admin-page__period-hint">Comparing to previous {{ selectedPeriod() === '7d' ? '7' : selectedPeriod() === '30d' ? '30' : '90' }}-day window.</p>
+  <p class="admin-page__period-hint">
+    Comparing to previous
+    {{ selectedPeriod() === '7d' ? '7' : selectedPeriod() === '30d' ? '30' : '90' }}-day window.
+  </p>
 
   <section class="admin-page__stats row g-3" aria-label="Key metrics">
     @if (isStatsLoading()) {
       @for (card of [1, 2, 3, 4]; track card) {
         <article class="col-12 col-md-6 col-xl-3" aria-hidden="true">
-          <div class="admin-page__panel admin-page__panel--insight admin-page__panel--insight-skeleton">
-            <span class="admin-page__metric-icon-shell admin-page__skeleton-box admin-page__skeleton-box--icon"></span>
+          <div
+            class="admin-page__panel admin-page__panel--insight admin-page__panel--insight-skeleton"
+          >
+            <span
+              class="admin-page__metric-icon-shell admin-page__skeleton-box admin-page__skeleton-box--icon"
+            ></span>
             <div class="admin-page__metric-copy">
               <span class="admin-page__skeleton-box admin-page__skeleton-box--label"></span>
               <span class="admin-page__skeleton-box admin-page__skeleton-box--value"></span>
@@ -48,7 +57,9 @@
           <div class="admin-page__metric-copy">
             <p class="admin-page__metric-label">Total revenue</p>
             <p class="admin-page__metric-value">$24.8K</p>
-            <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +8.2% vs prior</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up">
+              <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +8.2% vs prior
+            </p>
           </div>
         </div>
       </article>
@@ -60,7 +71,9 @@
           <div class="admin-page__metric-copy">
             <p class="admin-page__metric-label">Active users</p>
             <p class="admin-page__metric-value">1,942</p>
-            <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +3.1% vs prior</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up">
+              <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +3.1% vs prior
+            </p>
           </div>
         </div>
       </article>
@@ -72,7 +85,9 @@
           <div class="admin-page__metric-copy">
             <p class="admin-page__metric-label">Tickets sold</p>
             <p class="admin-page__metric-value">12.4K</p>
-            <p class="admin-page__metric-delta admin-page__metric-delta--down"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> −1.4% vs prior</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--down">
+              <i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> −1.4% vs prior
+            </p>
           </div>
         </div>
       </article>
@@ -84,7 +99,9 @@
           <div class="admin-page__metric-copy">
             <p class="admin-page__metric-label">Active events</p>
             <p class="admin-page__metric-value">214</p>
-            <p class="admin-page__metric-delta admin-page__metric-delta--up"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +6 new this week</p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up">
+              <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +6 new this week
+            </p>
           </div>
         </div>
       </article>
@@ -95,44 +112,77 @@
     <div class="admin-page__booking-band-inner">
       <div class="admin-page__booking-head">
         <h2 class="admin-page__section-title">Booking volume</h2>
-        <a routerLink="/dashboard/bookings" class="admin-page__inline-link admin-page__booking-head-link">Open booking operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a
+          routerLink="/dashboard/bookings"
+          class="admin-page__inline-link admin-page__booking-head-link"
+          >Open booking operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i
+        ></a>
       </div>
-      <p class="admin-page__chart-caption admin-page__chart-caption--booking">Confirmed orders in the selected period.</p>
+      <p class="admin-page__chart-caption admin-page__chart-caption--booking">
+        Confirmed orders in the selected period.
+      </p>
     </div>
-    <div class="admin-page__booking-chart" role="img" aria-label="Bar chart placeholder for bookings">
-      <div class="admin-page__chart-bars admin-page__chart-bars--booking">
-        @for (h of bookingBarHeights; track $index) {
-          <span class="admin-page__chart-bar admin-page__chart-bar--accent" [style.height.%]="h"></span>
-        }
+    @if (true) {
+      <div class="admin-page__booking-loader" aria-label="Loading booking volume">
+        <app-loader [size]="36" label="Loading booking volume" />
       </div>
-    </div>
+    } @else {
+      <div
+        class="admin-page__booking-chart"
+        role="img"
+        aria-label="Bar chart placeholder for bookings"
+      >
+        <div class="admin-page__chart-bars admin-page__chart-bars--booking">
+          @for (h of bookingBarHeights; track $index) {
+            <span
+              class="admin-page__chart-bar admin-page__chart-bar--accent"
+              [style.height.%]="h"
+            ></span>
+          }
+        </div>
+      </div>
+    }
   </section>
 
   <section class="admin-page__attention" aria-labelledby="insights-attention-heading">
     <h2 id="insights-attention-heading" class="admin-page__section-title">Needs attention</h2>
-    <p class="admin-page__attention-intro">Exceptions and follow-ups across your catalog and operations.</p>
+    <p class="admin-page__attention-intro">
+      Exceptions and follow-ups across your catalog and operations.
+    </p>
     <ul class="admin-page__alert-list">
       <li class="admin-page__alert admin-page__alert--warning">
-        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <span class="admin-page__alert-icon" aria-hidden="true"
+          ><i class="fa-solid fa-triangle-exclamation"></i
+        ></span>
         <div class="admin-page__alert-body">
           <p class="admin-page__alert-title">3 events start within 48 hours with low sales</p>
-          <p class="admin-page__alert-meta">Check pricing, capacity, and promotion in the catalog.</p>
+          <p class="admin-page__alert-meta">
+            Check pricing, capacity, and promotion in the catalog.
+          </p>
         </div>
         <a routerLink="/dashboard/events" class="admin-page__alert-action">Review events</a>
       </li>
       <li class="admin-page__alert admin-page__alert--info">
-        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
+        <span class="admin-page__alert-icon" aria-hidden="true"
+          ><i class="fa-regular fa-envelope"></i
+        ></span>
         <div class="admin-page__alert-body">
           <p class="admin-page__alert-title">12 messages awaiting first reply</p>
-          <p class="admin-page__alert-meta">Oldest thread is 6 hours — keep response time on track.</p>
+          <p class="admin-page__alert-meta">
+            Oldest thread is 6 hours — keep response time on track.
+          </p>
         </div>
         <a routerLink="/dashboard/messages" class="admin-page__alert-action">Open inbox</a>
       </li>
       <li class="admin-page__alert admin-page__alert--neutral">
-        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-solid fa-user-plus"></i></span>
+        <span class="admin-page__alert-icon" aria-hidden="true"
+          ><i class="fa-solid fa-user-plus"></i
+        ></span>
         <div class="admin-page__alert-body">
           <p class="admin-page__alert-title">28 new members this week</p>
-          <p class="admin-page__alert-meta">Up from 19 the week before — consider a welcome campaign.</p>
+          <p class="admin-page__alert-meta">
+            Up from 19 the week before — consider a welcome campaign.
+          </p>
         </div>
         <a routerLink="/dashboard/users" class="admin-page__alert-action">Member directory</a>
       </li>

@@ -9,12 +9,13 @@ import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-c
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
 import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
+import { Loader } from '../../shared/loader/loader';
 import { FavoriteService } from '../../services/favorite.service';
 
 @Component({
   selector: 'app-favorites-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, FeaturedEventCard, Button, HighlightedPageHeadingComponent],
+  imports: [CommonModule, RouterLink, FeaturedEventCard, Button, HighlightedPageHeadingComponent, Loader],
   templateUrl: './favorites.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './favorites.page.scss']
 })

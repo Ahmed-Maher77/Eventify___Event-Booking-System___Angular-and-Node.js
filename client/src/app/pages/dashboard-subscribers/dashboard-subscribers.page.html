@@ -12,21 +12,27 @@
   </header>
 
   <div class="admin-audience__panel table-responsive">
-    <table class="table align-middle mb-0">
-      <thead>
-        <tr>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Subscribed</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>audience1@example.com</td>
-          <td><span class="admin-audience__pill">Active</span></td>
-          <td>Apr 29, 2026</td>
-        </tr>
-      </tbody>
-    </table>
+    @if (isLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-loader [size]="36" label="Loading audience list" />
+      </div>
+    } @else {
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Subscribed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>audience1@example.com</td>
+            <td><span class="admin-audience__pill">Active</span></td>
+            <td>Apr 29, 2026</td>
+          </tr>
+        </tbody>
+      </table>
+    }
   </div>
 </section>

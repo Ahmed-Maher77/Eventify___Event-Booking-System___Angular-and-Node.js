@@ -9,7 +9,9 @@
     />
 
     @if (isLoading) {
-      <p class="favorites-page__status">Loading your favorites...</p>
+      <div class="favorites-page__loader-wrap">
+        <app-loader [size]="40" label="Loading favorites" />
+      </div>
     } @else if (errorMessage) {
       <div class="favorites-page__status-wrap">
         <p class="favorites-page__status favorites-page__status--error">{{ errorMessage }}</p>

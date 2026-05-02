@@ -245,6 +245,15 @@
   min-height: 128px;
 }
 
+.admin-page__booking-loader {
+  margin-top: 1.8rem;
+  padding-inline: var(--admin-page-bleed);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .admin-page__chart-bars--booking {
   height: 120px;
   padding-inline: 0;

@@ -5,13 +5,14 @@ import {
   type AdminRecentBookingItemData
 } from '../../shared/admin-recent-bookings/admin-recent-bookings';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
+import { Loader } from '../../shared/loader/loader';
 
 export type InsightsPeriod = '7d' | '30d' | '90d';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [HighlightedPageHeadingComponent, RouterLink, AdminRecentBookingsComponent],
+  imports: [HighlightedPageHeadingComponent, RouterLink, AdminRecentBookingsComponent, Loader],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss'
 })

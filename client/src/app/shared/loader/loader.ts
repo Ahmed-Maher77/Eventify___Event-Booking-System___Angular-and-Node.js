@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-loader',
@@ -7,4 +7,8 @@ import { Component } from '@angular/core';
   templateUrl: './loader.html',
   styleUrl: './loader.scss',
 })
-export class Loader {}
+export class Loader {
+  readonly label = input('Loading');
+  readonly text = input('Loading...');
+  readonly size = input(30);
+}

@@ -12,15 +12,21 @@
   </header>
 
   <div class="admin-stream__panel">
-    <article class="admin-stream__item">
-      <p class="admin-stream__from">From: Sarah Williams</p>
-      <p class="admin-stream__subject">Question about group booking discount</p>
-      <p class="admin-stream__meta">Received 2 hours ago</p>
-    </article>
-    <article class="admin-stream__item">
-      <p class="admin-stream__from">From: Mark Joseph</p>
-      <p class="admin-stream__subject">Need invoice for conference ticket purchase</p>
-      <p class="admin-stream__meta">Received yesterday</p>
-    </article>
+    @if (isLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-loader [size]="36" label="Loading message center" />
+      </div>
+    } @else {
+      <article class="admin-stream__item">
+        <p class="admin-stream__from">From: Sarah Williams</p>
+        <p class="admin-stream__subject">Question about group booking discount</p>
+        <p class="admin-stream__meta">Received 2 hours ago</p>
+      </article>
+      <article class="admin-stream__item">
+        <p class="admin-stream__from">From: Mark Joseph</p>
+        <p class="admin-stream__subject">Need invoice for conference ticket purchase</p>
+        <p class="admin-stream__meta">Received yesterday</p>
+      </article>
+    }
   </div>
 </section>

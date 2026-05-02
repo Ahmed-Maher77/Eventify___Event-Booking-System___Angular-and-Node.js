@@ -12,27 +12,33 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
-    <table class="table admin-entity-page__table align-middle mb-0">
-      <thead>
-        <tr>
-          <th>Booking ID</th>
-          <th>Customer</th>
-          <th>Status</th>
-          <th class="text-end">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>#BK-1039</td>
-          <td>Sarah Williams</td>
-          <td><span class="admin-entity-page__pill">Confirmed</span></td>
-          <td class="text-end">
-            <button type="button" class="admin-entity-page__icon-btn" aria-label="View booking"><i class="fa-regular fa-eye"></i></button>
-            <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit booking"><i class="fa-regular fa-pen-to-square"></i></button>
-            <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete booking"><i class="fa-regular fa-trash-can"></i></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    @if (isLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-loader [size]="36" label="Loading booking operations" />
+      </div>
+    } @else {
+      <table class="table admin-entity-page__table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#BK-1039</td>
+            <td>Sarah Williams</td>
+            <td><span class="admin-entity-page__pill">Confirmed</span></td>
+            <td class="text-end">
+              <button type="button" class="admin-entity-page__icon-btn" aria-label="View booking"><i class="fa-regular fa-eye"></i></button>
+              <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit booking"><i class="fa-regular fa-pen-to-square"></i></button>
+              <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete booking"><i class="fa-regular fa-trash-can"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
   </div>
 </section>

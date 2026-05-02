@@ -69,3 +69,10 @@
   color: var(--color-admin-stat-muted);
   font-size: 0.82rem;
 }
+
+.admin-page__loader-wrap {
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

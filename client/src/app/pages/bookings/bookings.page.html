@@ -7,5 +7,10 @@
       titleClass="static-info-page__title"
       subtitleClass="static-info-page__subtitle"
     />
+    @if (isLoading()) {
+      <div class="bookings-page__loader-wrap">
+        <app-loader [size]="40" label="Loading bookings" />
+      </div>
+    }
   </div>
 </section>

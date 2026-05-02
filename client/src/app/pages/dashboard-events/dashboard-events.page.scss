@@ -97,6 +97,13 @@
   font-weight: 500;
 }
 
+.admin-entity-page__loader-wrap {
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .admin-entity-page__state-message.is-error {
   color: var(--color-danger);
 }

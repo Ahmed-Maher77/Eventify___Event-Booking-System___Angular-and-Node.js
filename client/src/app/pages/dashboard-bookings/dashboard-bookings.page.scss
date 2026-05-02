@@ -75,3 +75,10 @@
 .admin-entity-page__icon-btn.is-danger {
   color: var(--color-danger);
 }
+
+.admin-page__loader-wrap {
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
