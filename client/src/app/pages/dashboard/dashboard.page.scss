@@ -178,24 +178,21 @@
   flex-wrap: wrap;
 }
 
+.admin-page__booking-head-link {
+  margin-top: 0;
+  padding-top: 0;
+  align-self: center;
+  flex-shrink: 0;
+}
+
 .admin-page__chart-caption--booking {
   margin-top: 0.4rem;
 }
 
 .admin-page__booking-chart {
-  margin-top: 1rem;
+  margin-top: 2rem;
   padding-inline: var(--admin-page-bleed);
   min-height: 128px;
-}
-
-.admin-page__booking-foot {
-  margin-top: 0.85rem;
-  padding-top: 0.15rem;
-}
-
-.admin-page__booking-foot .admin-page__inline-link {
-  margin-top: 0;
-  padding-top: 0;
 }
 
 .admin-page__chart-bars--booking {
@@ -277,7 +274,6 @@
 
 .admin-page__inline-link {
   margin-top: auto;
-  padding-top: 0.75rem;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--color-brown);

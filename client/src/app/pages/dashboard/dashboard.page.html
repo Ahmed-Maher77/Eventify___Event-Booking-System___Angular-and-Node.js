@@ -80,7 +80,7 @@
     <div class="admin-page__booking-band-inner">
       <div class="admin-page__booking-head">
         <h2 class="admin-page__section-title">Booking volume</h2>
-        <span class="admin-page__panel-tag admin-page__panel-tag--accent">Bookings</span>
+        <a routerLink="/dashboard/bookings" class="admin-page__inline-link admin-page__booking-head-link">Open booking operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       </div>
       <p class="admin-page__chart-caption admin-page__chart-caption--booking">Confirmed orders in the selected period.</p>
     </div>
@@ -90,9 +90,6 @@
           <span class="admin-page__chart-bar admin-page__chart-bar--accent" [style.height.%]="h"></span>
         }
       </div>
-    </div>
-    <div class="admin-page__booking-band-inner admin-page__booking-foot">
-      <a routerLink="/dashboard/bookings" class="admin-page__inline-link">Open booking operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </div>
   </section>
 
