@@ -53,6 +53,10 @@
   font-size: 0.78rem;
 }
 
+.admin-directory__panel table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .admin-page__loader-wrap {
   min-height: 170px;
   display: flex;
