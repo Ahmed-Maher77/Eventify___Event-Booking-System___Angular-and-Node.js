@@ -1,19 +1,35 @@
+$events-bp-sm: 576px;
+$events-bp-lg: 992px;
+$events-bp-xl: 1200px;
+$events-bp-xxl: 1400px;
+$events-bp-mega: 1600px;
+
+$events-max-xs: 575.98px;
+$events-max-below-xl: $events-bp-xl - 0.02px;
+
 :host {
   display: block;
   box-sizing: border-box;
   max-width: 100%;
   overflow-x: clip;
+
+  --events-bp-sm: #{$events-bp-sm};
+  --events-bp-lg: #{$events-bp-lg};
+  --events-bp-xl: #{$events-bp-xl};
+  --events-bp-xxl: #{$events-bp-xxl};
+  --events-bp-mega: #{$events-bp-mega};
 }
 
 /* Prevent row / grid children from forcing page-wide horizontal scroll on narrow screens */
 .static-info-page {
   max-width: 100%;
   overflow-x: clip;
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
 }
 
-.static-info-page__container {
+.static-info-page__container.container {
   min-width: 0;
-  max-width: 100%;
+  --bs-gutter-x: clamp(1.75rem, 5.5vw, 3rem);
 }
 
 .events-page.row > [class*='col'] {
@@ -441,7 +457,7 @@
   }
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: $events-max-below-xl) {
   .events-page__toolbar {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
@@ -461,23 +477,7 @@
   }
 }
 
-@media (max-width: 567px) {
-  .events-page__toolbar {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-    gap: 0.55rem;
-  }
-
-  .events-page__sort-wrap {
-    justify-self: stretch;
-  }
-
-  .events-page__sort {
-    min-height: 2.35rem;
-  }
-}
-
-@media (max-width: 575.98px) {
+@media (max-width: $events-max-xs) {
   .events-page__hero {
     margin-bottom: 0.8rem;
   }
@@ -487,7 +487,9 @@
   }
 
   .events-page__toolbar {
+    grid-template-columns: 1fr;
     align-items: stretch;
+    gap: 0.55rem;
     border-bottom: 0;
     padding-bottom: 0;
     margin-bottom: 0.45rem;
@@ -495,6 +497,49 @@
 
   .events-page__toolbar-hint {
     display: none;
+  }
+
+  .events-page__sort-wrap {
+    justify-self: stretch;
+  }
+
+  .events-page__sort {
+    min-height: 2.35rem;
+  }
+
+  .events-page__pagination {
+    justify-content: space-between;
+  }
+
+  .events-page__page-btn {
+    min-height: 2rem;
+    min-width: 2rem;
+    font-size: 0.79rem;
+    padding-inline: 0.55rem;
+  }
+
+  .events-page__cards--skeleton {
+    .events-skeleton-card__media {
+      height: 150px;
+    }
+
+    .events-skeleton-card__body {
+      padding: 8px 10px;
+    }
+  }
+
+  :host ::ng-deep .events-page__event-card .featured-event-card {
+    gap: 12px;
+    padding: 6px;
+  }
+
+  :host ::ng-deep .events-page__event-card .featured-event-card__image-wrap {
+    height: 150px;
+  }
+
+  :host ::ng-deep .events-page__event-card .featured-event-card__body {
+    padding: 8px 10px;
+    gap: 14px;
   }
 }
 
@@ -648,7 +693,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: $events-bp-lg) {
   .events-page__cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
@@ -656,9 +701,15 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: $events-bp-xl) {
   .events-page__cards {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: $events-bp-mega) {
+  .events-page__cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -690,43 +741,6 @@
     opacity: 1;
     transform: none;
     animation: none;
-  }
-}
-
-@media (max-width: 575.98px) {
-  .events-page__pagination {
-    justify-content: space-between;
-  }
-
-  .events-page__page-btn {
-    min-height: 2rem;
-    min-width: 2rem;
-    font-size: 0.79rem;
-    padding-inline: 0.55rem;
-  }
-
-  .events-page__cards--skeleton {
-    .events-skeleton-card__media {
-      height: 150px;
-    }
-
-    .events-skeleton-card__body {
-      padding: 8px 10px;
-    }
-  }
-
-  :host ::ng-deep .events-page__event-card .featured-event-card {
-    gap: 12px;
-    padding: 6px;
-  }
-
-  :host ::ng-deep .events-page__event-card .featured-event-card__image-wrap {
-    height: 150px;
-  }
-
-  :host ::ng-deep .events-page__event-card .featured-event-card__body {
-    padding: 8px 10px;
-    gap: 14px;
   }
 }
 
@@ -774,7 +788,7 @@
   }
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: $events-max-below-xl) {
   .events-page__mobile-toggle {
     display: inline-flex;
     justify-content: center;
