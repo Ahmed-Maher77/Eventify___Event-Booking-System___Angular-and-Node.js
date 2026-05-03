@@ -20,6 +20,8 @@ import contactRoutes from "./routes/contactRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
+import { uploadImage } from "./config/multerConfig.js";
+import { uploadImageBuffer } from "./utils/cloudinaryUpload.js";
 
 dns.setServers(["8.8.8.8"]);
 
@@ -110,6 +112,8 @@ app.get("/", (req, res) => {
         docs: "/api-docs",
     });
 });
+
+
 
 // API Routes (to be added by other team members)
 app.use("/api/auth", authRoutes);
