@@ -132,7 +132,12 @@
 .admin-entity-page__filters-toggle-icon {
   font-size: 0.72rem;
   opacity: 0.85;
-  transition: transform 0.2s ease;
+  transition: transform 0.32s ease;
+}
+
+.admin-entity-page__catalog-filters-wrap:has(.admin-entity-page__catalog-filters-body.is-open)
+  .admin-entity-page__filters-toggle-icon {
+  transform: rotate(90deg);
 }
 
 .admin-entity-page__filters-active-badge {
@@ -148,8 +153,32 @@
 }
 
 .admin-entity-page__catalog-filters-body {
-  &[hidden] {
-    display: none !important;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+  overflow: hidden;
+
+  &:not(.is-open) {
+    pointer-events: none;
+  }
+
+  &.is-open {
+    grid-template-rows: 1fr;
+  }
+}
+
+.admin-entity-page__catalog-filters-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-entity-page__catalog-filters-body {
+    transition-duration: 0.01ms;
+  }
+
+  .admin-entity-page__filters-toggle-icon {
+    transition-duration: 0.01ms;
   }
 }
 
