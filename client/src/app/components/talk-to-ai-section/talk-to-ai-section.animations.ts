@@ -5,6 +5,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function setupTalkToAiAnimations(rootElement?: HTMLElement): gsap.Context {
   return gsap.context(() => {
+    if (!rootElement) {
+      return;
+    }
+
     gsap.from('.talk-to-ai__left > *, .talk-to-ai__mockup', {
       y: 30,
       opacity: 0,
@@ -12,7 +16,7 @@ export function setupTalkToAiAnimations(rootElement?: HTMLElement): gsap.Context
       ease: 'power3.out',
       stagger: 0.12,
       scrollTrigger: {
-        trigger: '.talk-to-ai',
+        trigger: rootElement,
         start: 'top 82%',
         toggleActions: 'play none none reverse'
       }

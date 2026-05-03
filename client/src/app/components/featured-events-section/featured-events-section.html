@@ -34,7 +34,11 @@
               [ngClass]="{ 'is-active': activeCategory === category }"
               (click)="setCategory(category)"
             >
-              <i class="featured-events__chip-icon" [class]="getCategoryIcon(category)" aria-hidden="true"></i>
+              <i
+                class="featured-events__chip-icon"
+                [class]="getCategoryIcon(category)"
+                aria-hidden="true"
+              ></i>
               <span>{{ category }}</span>
             </button>
           }
@@ -53,9 +57,35 @@
         }
       </div>
 
-      @if (hasFilteredEvents) {
+      @if (isLoadingEvents) {
+        <div class="featured-events__loading" aria-busy="true" aria-label="Loading featured events">
+          @for (s of [1, 2, 3, 4]; track s) {
+            <div class="featured-events__skeleton-card">
+              <div class="featured-events__skeleton-media"></div>
+              <div class="featured-events__skeleton-line featured-events__skeleton-line--lg"></div>
+              <div class="featured-events__skeleton-line"></div>
+            </div>
+          }
+        </div>
+      } @else if (loadError) {
+        <div class="featured-events__fallback featured-events__fallback--error" role="alert">
+          <span class="featured-events__fallback-icon" aria-hidden="true">
+            <i class="fa-solid fa-plug-circle-xmark"></i>
+          </span>
+          <h3>Unable to load events</h3>
+          <p>{{ loadError }}</p>
+          <button type="button" class="featured-events__retry-btn" (click)="retryLoadFeatured()">
+            Try again
+          </button>
+        </div>
+      } @else if (hasFilteredEvents) {
         @if (shouldUseSwiper) {
-          <swiper-container #featuredSwiper class="featured-events__slider" [class.is-filtering]="isFiltering" init="false">
+          <swiper-container
+            #featuredSwiper
+            class="featured-events__slider"
+            [class.is-filtering]="isFiltering"
+            init="false"
+          >
             @for (event of filteredEvents; track event.id) {
               <swiper-slide class="featured-events__animatable-item">
                 <app-featured-event-card [event]="event"></app-featured-event-card>
@@ -65,13 +95,20 @@
         } @else {
           <div class="featured-events__grid">
             @for (event of filteredEvents; track event.id) {
-              <app-featured-event-card class="featured-events__animatable-item" [event]="event"></app-featured-event-card>
+              <app-featured-event-card
+                class="featured-events__animatable-item"
+                [event]="event"
+              ></app-featured-event-card>
             }
           </div>
         }
 
         @if (shouldUseSwiper) {
-          <div #featuredPagination class="featured-events__pagination swiper-pagination" [class.is-hidden]="!showPagination"></div>
+          <div
+            #featuredPagination
+            class="featured-events__pagination swiper-pagination"
+            [class.is-hidden]="!showPagination"
+          ></div>
         }
       } @else {
         <div class="featured-events__fallback" role="status" aria-live="polite">
@@ -79,7 +116,9 @@
             <i class="fa-regular fa-calendar-xmark"></i>
           </span>
           <h3>No events in this category yet</h3>
-          <p>We are curating new experiences for this category. Try another one or check back soon.</p>
+          <p>
+            We are curating new experiences for this category. Try another one or check back soon.
+          </p>
         </div>
       }
     } @else {

@@ -5,6 +5,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function setupTestimonialsAnimations(rootElement?: HTMLElement): gsap.Context {
   return gsap.context(() => {
+    if (!rootElement) {
+      return;
+    }
+
     const timeline = gsap.timeline({
       paused: true,
       defaults: { immediateRender: false }
@@ -63,7 +67,7 @@ export function setupTestimonialsAnimations(rootElement?: HTMLElement): gsap.Con
     });
 
     const sectionTrigger = ScrollTrigger.create({
-      trigger: '.testimonials-section',
+      trigger: rootElement,
       start: 'top 90%',
       onEnter: () => timeline.restart(),
       onEnterBack: () => timeline.restart()

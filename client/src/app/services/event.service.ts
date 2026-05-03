@@ -37,6 +37,8 @@ export interface EventMutationResponse {
 export type EventSortField = 'date' | 'price' | 'title' | 'createdAt';
 export type EventSortOrder = 'asc' | 'desc';
 
+export type EventStatusFilter = 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+
 export interface EventQueryOptions {
   page?: number;
   limit?: number;
@@ -47,6 +49,7 @@ export interface EventQueryOptions {
   maxPrice?: number;
   startDate?: string;
   endDate?: string;
+  status?: EventStatusFilter;
   sort?: EventSortField;
   order?: EventSortOrder;
 }
@@ -63,7 +66,7 @@ export interface CreateEventPayload {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EventService {
   private readonly http = inject(HttpClient);
@@ -105,16 +108,25 @@ export class EventService {
       params = params.set('endDate', options.endDate);
     }
 
+    if (options.status) {
+      params = params.set('status', options.status);
+    }
+
     return this.http.get<EventsApiResponse>(this.eventsApiUrl, { params });
   }
 
-  getFeaturedEvents(options: { name?: string; category?: string; limit?: number } = {}): Observable<EventsApiResponse> {
+  /** Upcoming events, soonest first — used by home Featured Events. */
+  getFeaturedEvents(
+    options: { name?: string; category?: string; limit?: number } = {},
+  ): Observable<EventsApiResponse> {
     return this.getEvents({
       name: options.name,
       category: options.category,
       limit: options.limit ?? 12,
       sort: 'date',
-      order: 'asc'
+      order: 'asc',
+      status: 'upcoming',
+      page: 1,
     });
   }
 

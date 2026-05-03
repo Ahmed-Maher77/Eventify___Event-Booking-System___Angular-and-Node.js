@@ -22,6 +22,7 @@ const getEvents = async (req, res) => {
             maxPrice,
             startDate,
             endDate,
+            status = "",
             sort = "date",
             order = "desc",
         } = req.query;
@@ -84,6 +85,16 @@ const getEvents = async (req, res) => {
             if (endDate) {
                 filter.date.$lte = new Date(endDate);
             }
+        }
+
+        const allowedStatuses = [
+            "upcoming",
+            "ongoing",
+            "completed",
+            "cancelled",
+        ];
+        if (status && allowedStatuses.includes(String(status).toLowerCase())) {
+            filter.status = String(status).toLowerCase();
         }
 
         const allowedSortFields = ["date", "price", "title", "createdAt"];
@@ -172,13 +183,15 @@ const createEvent = async (req, res) => {
             category,
             capacity,
             price,
-            imageUrl
+            imageUrl,
         } = req.body;
-        
+
         const creatorId = req.user?.id || req.body.createdBy;
 
         if (!creatorId || !mongoose.Types.ObjectId.isValid(creatorId)) {
-            throw AppError.unauthorized("Authentication required to create event");
+            throw AppError.unauthorized(
+                "Authentication required to create event",
+            );
         }
 
         // create new event instance + save it in db
