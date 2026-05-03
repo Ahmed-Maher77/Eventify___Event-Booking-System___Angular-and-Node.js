@@ -11,7 +11,7 @@
     />
   </header>
 
-  <div class="admin-audience__panel table-responsive">
+  <div class="admin-entity-page__panel table-responsive">
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading audience list" />
@@ -21,7 +21,7 @@
     } @else if (!rows().length && totalListItems() === 0) {
       <p class="admin-entity-page__state-message">No newsletter subscribers yet.</p>
     } @else {
-      <table class="table align-middle mb-0">
+      <table class="table admin-entity-page__table align-middle mb-0">
         <thead>
           <tr>
             <th>Email</th>

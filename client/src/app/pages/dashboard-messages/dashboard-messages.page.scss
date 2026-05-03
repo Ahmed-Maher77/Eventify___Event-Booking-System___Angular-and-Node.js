@@ -40,9 +40,8 @@
   font-size: clamp(1.35rem, 2vw, 1.8rem);
 }
 
-.admin-stream__panel {
-  @extend %admin-page-panel;
-  padding: 0.7rem;
+.admin-entity-page__panel {
+  @extend %admin-entity-page-panel;
   display: grid;
   gap: 0.55rem;
 }

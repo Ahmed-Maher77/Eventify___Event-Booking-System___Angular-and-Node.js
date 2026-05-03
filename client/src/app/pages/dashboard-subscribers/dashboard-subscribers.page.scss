@@ -40,9 +40,23 @@
   font-size: clamp(1.35rem, 2vw, 1.8rem);
 }
 
-.admin-audience__panel {
-  @extend %admin-page-panel;
-  padding: 0.4rem 0.55rem;
+.admin-entity-page__panel {
+  @extend %admin-entity-page-panel;
+}
+
+.admin-entity-page__table th {
+  color: var(--color-admin-stat-muted);
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+
+.admin-entity-page__table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+}
+
+.admin-entity-page__table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .admin-audience__pill {
@@ -51,10 +65,6 @@
   color: var(--color-brown);
   padding: 0.15rem 0.5rem;
   font-size: 0.78rem;
-}
-
-.admin-audience__panel table tbody tr:last-child td {
-  border-bottom: 0;
 }
 
 .admin-page__loader-wrap {

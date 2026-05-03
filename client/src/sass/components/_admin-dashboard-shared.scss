@@ -6,6 +6,15 @@
   background: var(--color-admin-panel-bg);
 }
 
+/** List/table area flush with page (no card chrome); use with `.table-responsive` where needed */
+%admin-entity-page-panel {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 %admin-page-section-title {
   margin: 0;
   color: var(--color-black);
