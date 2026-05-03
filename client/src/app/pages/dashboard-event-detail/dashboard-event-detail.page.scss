@@ -138,13 +138,9 @@
 
   a {
     color: rgb(255 252 245 / 95%);
-    text-decoration: none;
-    font-weight: 500;
 
     &:hover {
       color: #fff;
-      text-decoration: underline;
-      text-underline-offset: 0.15em;
     }
   }
 }
@@ -175,6 +171,17 @@
     font-weight: 600;
     max-width: min(40ch, 100%);
     line-height: 1.35;
+  }
+
+  a {
+    @extend %admin-link-underline-ltr;
+    font-weight: 500;
+    color: var(--color-brown);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-black);
+    }
   }
 }
 
