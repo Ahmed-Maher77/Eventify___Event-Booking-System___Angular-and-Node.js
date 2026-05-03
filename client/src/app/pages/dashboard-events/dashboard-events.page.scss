@@ -214,13 +214,23 @@
   margin-top: 1.25rem;
 }
 
-.admin-confirm-modal__delete-btn.ev-btn--primary {
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary {
   background: var(--color-danger);
   border-color: var(--color-danger);
   color: #fff;
 }
 
-.admin-confirm-modal__delete-btn.ev-btn--primary.ev-btn--inactive {
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.diagonal-swipe-hover::before {
+  background-color: #7f1d1d;
+}
+
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  color: #fff;
+  border-color: #b91c1c;
+  background-color: #b91c1c;
+}
+
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.ev-btn--inactive {
   opacity: 0.75;
 }
 
