@@ -16,6 +16,10 @@
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading member directory" />
       </div>
+    } @else if (errorMessage()) {
+      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    } @else if (!rows().length && totalListItems() === 0) {
+      <p class="admin-entity-page__state-message">No members yet.</p>
     } @else {
       <table class="table align-middle mb-0">
         <thead>
@@ -27,14 +31,14 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of pagedRows(); track row.id) {
+          @for (row of rows(); track row._id) {
             <tr>
               <td>{{ row.name }}</td>
               <td>{{ row.email }}</td>
               <td>
-                <span class="admin-directory__pill">{{ row.role }}</span>
+                <span class="admin-directory__pill">{{ row.role | titlecase }}</span>
               </td>
-              <td>{{ row.joined }}</td>
+              <td>{{ row.createdAt | date: 'mediumDate' }}</td>
             </tr>
           }
         </tbody>

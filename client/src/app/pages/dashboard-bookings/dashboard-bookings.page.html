@@ -16,6 +16,10 @@
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading booking operations" />
       </div>
+    } @else if (errorMessage()) {
+      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    } @else if (!rows().length && totalListItems() === 0) {
+      <p class="admin-entity-page__state-message">No bookings yet.</p>
     } @else {
       <table class="table admin-entity-page__table align-middle mb-0">
         <thead>
@@ -27,12 +31,12 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of pagedRows(); track row.id) {
+          @for (row of rows(); track row._id) {
             <tr>
-              <td>{{ row.id }}</td>
-              <td>{{ row.customer }}</td>
+              <td class="admin-entity-page__mono-id">{{ row._id }}</td>
+              <td>{{ bookingCustomerLabel(row) }}</td>
               <td>
-                <span class="admin-entity-page__pill">{{ row.status }}</span>
+                <span class="admin-entity-page__pill">{{ row.status | titlecase }}</span>
               </td>
               <td class="text-end">
                 <button type="button" class="admin-entity-page__icon-btn" aria-label="View booking">

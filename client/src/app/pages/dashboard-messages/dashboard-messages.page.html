@@ -16,12 +16,19 @@
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading message center" />
       </div>
+    } @else if (errorMessage()) {
+      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    } @else if (!items().length && totalListItems() === 0) {
+      <p class="admin-entity-page__state-message">No contact messages yet.</p>
     } @else {
-      @for (item of pagedItems(); track item.id) {
+      @for (item of items(); track item._id) {
         <article class="admin-stream__item">
-          <p class="admin-stream__from">From: {{ item.from }}</p>
+          <p class="admin-stream__from">From: {{ item.fullName }} ({{ item.email }})</p>
           <p class="admin-stream__subject">{{ item.subject }}</p>
-          <p class="admin-stream__meta">{{ item.meta }}</p>
+          <p class="admin-stream__meta">
+            {{ item.createdAt | date: 'medium' }}
+            · <span class="admin-stream__status">{{ item.status | titlecase }}</span>
+          </p>
         </article>
       }
 

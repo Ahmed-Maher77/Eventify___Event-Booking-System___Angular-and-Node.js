@@ -1,52 +1,85 @@
-import { Component, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { finalize } from 'rxjs';
+import {
+  ADMIN_LIST_PAGE_SIZE,
+  AdminDashboardService,
+  AdminUserListItem,
+} from '../../services/admin-dashboard.service';
 import { AdminEntityPaginationComponent } from '../../shared/admin-entity-pagination/admin-entity-pagination.component';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 
-const PAGE_SIZE = 10;
-
-interface MemberRow {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  joined: string;
-}
-
-const MOCK_MEMBERS: MemberRow[] = Array.from({ length: 33 }, (_, i) => {
-  const n = i + 1;
-  return {
-    id: `user-${n}`,
-    name: `Member ${n}`,
-    email: `member${n}@example.com`,
-    role: i % 7 === 0 ? 'Admin' : 'Member',
-    joined: `May ${String((n % 28) + 1).padStart(2, '0')}, 2026`,
-  };
-});
-
 @Component({
   selector: 'app-dashboard-users-page',
   standalone: true,
-  imports: [HighlightedPageHeadingComponent, SectionLoader, AdminEntityPaginationComponent],
+  imports: [
+    CommonModule,
+    HighlightedPageHeadingComponent,
+    SectionLoader,
+    AdminEntityPaginationComponent,
+  ],
   templateUrl: './dashboard-users.page.html',
   styleUrl: './dashboard-users.page.scss',
 })
-export class DashboardUsersPage {
-  protected readonly isLoading = signal(false);
-  protected readonly listPage = signal(1);
-  protected readonly allRows = MOCK_MEMBERS;
+export class DashboardUsersPage implements OnInit {
+  private readonly adminApi = inject(AdminDashboardService);
 
-  protected readonly totalListItems = computed(() => this.allRows.length);
-  protected readonly listTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.totalListItems() / PAGE_SIZE)),
-  );
-  protected readonly pagedRows = computed(() => {
-    const p = this.listPage();
-    const start = (p - 1) * PAGE_SIZE;
-    return this.allRows.slice(start, start + PAGE_SIZE);
-  });
+  protected readonly isLoading = signal(true);
+  protected readonly errorMessage = signal<string | null>(null);
+  protected readonly listPage = signal(1);
+  protected readonly listTotalPages = signal(1);
+  protected readonly totalListItems = signal(0);
+  protected readonly rows = signal<AdminUserListItem[]>([]);
+
+  ngOnInit(): void {
+    this.loadUsers();
+  }
 
   protected onListPageChange(page: number): void {
     this.listPage.set(page);
+    this.loadUsers();
+  }
+
+  private loadUsers(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    this.adminApi
+      .getUsers({ page: this.listPage(), limit: ADMIN_LIST_PAGE_SIZE, sort: 'createdAt', order: 'desc' })
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          const data = res.data;
+          const list = data?.users ?? [];
+          const pag = data?.pagination;
+          const totalPages = Math.max(1, pag?.totalPages ?? 1);
+          const total = pag?.totalUsers ?? 0;
+          let page = this.listPage();
+
+          if (page > totalPages && totalPages >= 1) {
+            page = totalPages;
+            this.listPage.set(page);
+            this.loadUsers();
+            return;
+          }
+
+          this.rows.set(list);
+          this.listTotalPages.set(totalPages);
+          this.totalListItems.set(total);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.rows.set([]);
+          this.listTotalPages.set(1);
+          this.totalListItems.set(0);
+          const msg = err.error?.message;
+          this.errorMessage.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to load members. Please try again.',
+          );
+        },
+      });
   }
 }

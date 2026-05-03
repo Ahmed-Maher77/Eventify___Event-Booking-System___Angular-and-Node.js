@@ -16,6 +16,10 @@
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading audience list" />
       </div>
+    } @else if (errorMessage()) {
+      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    } @else if (!rows().length && totalListItems() === 0) {
+      <p class="admin-entity-page__state-message">No newsletter subscribers yet.</p>
     } @else {
       <table class="table align-middle mb-0">
         <thead>
@@ -26,13 +30,13 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of pagedRows(); track row.id) {
+          @for (row of rows(); track row._id) {
             <tr>
               <td>{{ row.email }}</td>
               <td>
-                <span class="admin-audience__pill">{{ row.status }}</span>
+                <span class="admin-audience__pill">{{ row.status | titlecase }}</span>
               </td>
-              <td>{{ row.subscribed }}</td>
+              <td>{{ row.createdAt | date: 'mediumDate' }}</td>
             </tr>
           }
         </tbody>
