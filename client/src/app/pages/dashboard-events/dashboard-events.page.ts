@@ -274,6 +274,10 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.catalogFiltersExpanded.update((open) => !open);
   }
 
+  protected goToEventDetail(event: EventApiItem): void {
+    void this.router.navigate(['/dashboard/events', event._id]);
+  }
+
   protected openAddEventModal(): void {
     void this.router.navigate([], {
       relativeTo: this.route,

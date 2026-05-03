@@ -11,9 +11,15 @@ export interface EventApiItem {
   location: string;
   category: string;
   capacity?: number;
+  /** Present on single-event responses from the API. */
+  availableSeats?: number;
   price: number;
   status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   image?: string;
+  imagePublicId?: string | null;
+  createdBy?: string | { _id: string; name?: string };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface EventsApiResponse {

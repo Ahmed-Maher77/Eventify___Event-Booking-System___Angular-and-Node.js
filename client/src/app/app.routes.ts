@@ -89,6 +89,14 @@ const adminProtectedRoutes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'dashboard/events/:id',
+    loadComponent: () =>
+      import('./pages/dashboard-event-detail/dashboard-event-detail.page').then(
+        (m) => m.DashboardEventDetailPage
+      ),
+    canActivate: [adminGuard]
+  },
+  {
     path: 'dashboard/events',
     loadComponent: () =>
       import('./pages/dashboard-events/dashboard-events.page').then((m) => m.DashboardEventsPage),

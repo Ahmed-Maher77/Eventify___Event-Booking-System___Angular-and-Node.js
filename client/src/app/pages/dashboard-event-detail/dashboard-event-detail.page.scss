@@ -1,0 +1,209 @@
+@use '../../../sass/components/admin-dashboard-shared';
+
+.admin-entity-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-entity-page__pill {
+  border-radius: 999px;
+  background: var(--color-admin-pill-bg);
+  color: var(--color-brown);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.admin-entity-page__state-message {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 70%);
+  color: var(--color-admin-sidebar-text);
+  font-size: 0.95rem;
+}
+
+.admin-entity-page__state-message.is-error {
+  border: 1px solid rgb(220 38 38 / 25%);
+  color: var(--color-danger);
+  background: rgb(254 242 242 / 90%);
+}
+
+.admin-event-detail__loader-wrap {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-event-detail__text-link {
+  @extend %admin-link-underline-ltr;
+  font-weight: 600;
+  color: var(--color-brown);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.admin-event-detail__breadcrumb {
+  margin: 0;
+}
+
+.admin-event-detail__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+  color: var(--color-admin-stat-muted);
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  li:not(:last-child)::after {
+    content: '/';
+    color: var(--color-admin-sidebar-muted);
+    font-weight: 500;
+    margin-inline-start: 0.5rem;
+  }
+
+  li:last-child {
+    color: var(--color-black);
+    font-weight: 600;
+  }
+
+  a {
+    @extend %admin-link-underline-ltr;
+    color: var(--color-brown);
+    text-decoration: none;
+    font-weight: 500;
+  }
+}
+
+.admin-event-detail__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-event-detail__back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--color-admin-panel-border);
+  border-radius: 0.65rem;
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-black);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(231 200 115 / 45%);
+    outline-offset: 2px;
+  }
+}
+
+.admin-event-detail__card {
+  @extend %admin-page-panel;
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}
+
+.admin-event-detail__media {
+  background: rgb(0 0 0 / 4%);
+  min-height: 200px;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    object-fit: cover;
+  }
+}
+
+.admin-event-detail__content {
+  padding: 1.25rem 1.35rem 1.5rem;
+  display: grid;
+  gap: 1.1rem;
+  align-content: start;
+}
+
+.admin-event-detail__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.admin-event-detail__title {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+  font-weight: 650;
+  color: var(--color-black);
+  line-height: 1.25;
+  flex: 1;
+  min-width: 12rem;
+}
+
+.admin-event-detail__specs {
+  margin: 0;
+  display: grid;
+  gap: 0.85rem 1.25rem;
+
+  @media (min-width: 520px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-event-detail__spec {
+  margin: 0;
+  min-width: 0;
+
+  dt {
+    margin: 0 0 0.2rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-admin-stat-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-black);
+    line-height: 1.45;
+    word-break: break-word;
+  }
+}
+
+.admin-event-detail__spec--block {
+  grid-column: 1 / -1;
+}
+
+.admin-event-detail__description {
+  white-space: pre-wrap;
+}

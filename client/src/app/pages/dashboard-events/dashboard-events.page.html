@@ -164,7 +164,14 @@
                 <span class="admin-entity-page__pill">{{ event.status || 'upcoming' }}</span>
               </td>
               <td class="text-end">
-                <button type="button" class="admin-entity-page__icon-btn" aria-label="View event"><i class="fa-regular fa-eye"></i></button>
+                <button
+                  type="button"
+                  class="admin-entity-page__icon-btn"
+                  aria-label="View event details"
+                  (click)="goToEventDetail(event)"
+                >
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                </button>
                 <button
                   type="button"
                   class="admin-entity-page__icon-btn"
