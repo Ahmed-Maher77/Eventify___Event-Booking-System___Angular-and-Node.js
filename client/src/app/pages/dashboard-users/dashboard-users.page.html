@@ -27,14 +27,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Ahmed Maher</td>
-            <td>ahmedmaher-admin@eventify.com</td>
-            <td><span class="admin-directory__pill">Admin</span></td>
-            <td>May 01, 2026</td>
-          </tr>
+          @for (row of pagedRows(); track row.id) {
+            <tr>
+              <td>{{ row.name }}</td>
+              <td>{{ row.email }}</td>
+              <td>
+                <span class="admin-directory__pill">{{ row.role }}</span>
+              </td>
+              <td>{{ row.joined }}</td>
+            </tr>
+          }
         </tbody>
       </table>
+
+      <app-admin-entity-pagination
+        [currentPage]="listPage()"
+        [totalPages]="listTotalPages()"
+        [totalItems]="totalListItems()"
+        itemLabel="members"
+        ariaLabel="Member directory pagination"
+        (pageChange)="onListPageChange($event)"
+      />
     }
   </div>
 </section>

@@ -17,16 +17,22 @@
         <app-section-loader [size]="36" label="Loading message center" />
       </div>
     } @else {
-      <article class="admin-stream__item">
-        <p class="admin-stream__from">From: Sarah Williams</p>
-        <p class="admin-stream__subject">Question about group booking discount</p>
-        <p class="admin-stream__meta">Received 2 hours ago</p>
-      </article>
-      <article class="admin-stream__item">
-        <p class="admin-stream__from">From: Mark Joseph</p>
-        <p class="admin-stream__subject">Need invoice for conference ticket purchase</p>
-        <p class="admin-stream__meta">Received yesterday</p>
-      </article>
+      @for (item of pagedItems(); track item.id) {
+        <article class="admin-stream__item">
+          <p class="admin-stream__from">From: {{ item.from }}</p>
+          <p class="admin-stream__subject">{{ item.subject }}</p>
+          <p class="admin-stream__meta">{{ item.meta }}</p>
+        </article>
+      }
+
+      <app-admin-entity-pagination
+        [currentPage]="listPage()"
+        [totalPages]="listTotalPages()"
+        [totalItems]="totalListItems()"
+        itemLabel="messages"
+        ariaLabel="Message center pagination"
+        (pageChange)="onListPageChange($event)"
+      />
     }
   </div>
 </section>

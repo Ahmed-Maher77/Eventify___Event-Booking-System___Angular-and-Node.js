@@ -1,0 +1,43 @@
+@if (showPagination()) {
+  <nav class="admin-entity-page__catalog-pagination" [attr.aria-label]="ariaLabel()">
+    <button
+      type="button"
+      class="admin-entity-page__page-btn"
+      [disabled]="!hasPrevious()"
+      (click)="previous()"
+    >
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      Prev
+    </button>
+
+    <div class="admin-entity-page__page-numbers">
+      @for (token of tokens(); track token + '-' + $index) {
+        @if (isEllipsis(token)) {
+          <span class="admin-entity-page__page-ellipsis" aria-hidden="true">...</span>
+        } @else if (isPageNumber(token)) {
+          <button
+            type="button"
+            class="admin-entity-page__page-btn admin-entity-page__page-btn--number"
+            [class.is-active]="currentPage() === token"
+            (click)="emitPage(token)"
+          >
+            {{ token }}
+          </button>
+        }
+      }
+    </div>
+
+    <button type="button" class="admin-entity-page__page-btn" [disabled]="!hasNext()" (click)="next()">
+      Next
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <span class="admin-entity-page__page-meta">
+      Page {{ currentPage() }} of {{ totalPages() }}
+      @if (totalItems() > 0) {
+        <span class="admin-entity-page__page-meta-sep" aria-hidden="true">·</span>
+        {{ totalItems() }} {{ itemLabel() }}
+      }
+    </span>
+  </nav>
+}

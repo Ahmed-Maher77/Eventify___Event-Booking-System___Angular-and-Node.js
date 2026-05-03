@@ -26,13 +26,26 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>audience1@example.com</td>
-            <td><span class="admin-audience__pill">Active</span></td>
-            <td>Apr 29, 2026</td>
-          </tr>
+          @for (row of pagedRows(); track row.id) {
+            <tr>
+              <td>{{ row.email }}</td>
+              <td>
+                <span class="admin-audience__pill">{{ row.status }}</span>
+              </td>
+              <td>{{ row.subscribed }}</td>
+            </tr>
+          }
         </tbody>
       </table>
+
+      <app-admin-entity-pagination
+        [currentPage]="listPage()"
+        [totalPages]="listTotalPages()"
+        [totalItems]="totalListItems()"
+        itemLabel="subscribers"
+        ariaLabel="Audience list pagination"
+        (pageChange)="onListPageChange($event)"
+      />
     }
   </div>
 </section>

@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
+import { AdminEntityPaginationComponent } from '../../shared/admin-entity-pagination/admin-entity-pagination.component';
 import { AdminEventFormModalComponent } from '../../shared/admin-event-form-modal/admin-event-form-modal.component';
 import { Button } from '../../shared/button/button';
 import {
@@ -23,8 +24,6 @@ import {
 } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 
-type CatalogPaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
-
 @Component({
   selector: 'app-dashboard-events-page',
   standalone: true,
@@ -36,6 +35,7 @@ type CatalogPaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
     SectionLoader,
     CustomNativeSelectComponent,
     AdminEventFormModalComponent,
+    AdminEntityPaginationComponent,
   ],
   templateUrl: './dashboard-events.page.html',
   styleUrl: './dashboard-events.page.scss'
@@ -153,39 +153,6 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     return raw || DashboardEventsPage.CATALOG_IMAGE_FALLBACK;
   }
 
-  protected catalogHasPreviousPage(): boolean {
-    return this.catalogPage() > 1;
-  }
-
-  protected catalogHasNextPage(): boolean {
-    return this.catalogPage() < this.catalogTotalPages();
-  }
-
-  protected get catalogPaginationTokens(): CatalogPaginationToken[] {
-    const total = this.catalogTotalPages();
-    const current = this.catalogPage();
-    if (total <= 0) {
-      return [];
-    }
-    if (total <= 5) {
-      return Array.from({ length: total }, (_, idx) => idx + 1);
-    }
-    const tokens: CatalogPaginationToken[] = [1];
-    const middleStart = Math.max(2, current - 1);
-    const middleEnd = Math.min(total - 1, current + 1);
-    if (middleStart > 2) {
-      tokens.push('ellipsis-left');
-    }
-    for (let page = middleStart; page <= middleEnd; page += 1) {
-      tokens.push(page);
-    }
-    if (middleEnd < total - 1) {
-      tokens.push('ellipsis-right');
-    }
-    tokens.push(total);
-    return tokens;
-  }
-
   protected goToCatalogPage(page: number): void {
     const total = this.catalogTotalPages();
     const next = Math.max(1, Math.min(page, total));
@@ -194,14 +161,6 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     }
     this.catalogPage.set(next);
     this.loadEvents();
-  }
-
-  protected goToCatalogPreviousPage(): void {
-    this.goToCatalogPage(this.catalogPage() - 1);
-  }
-
-  protected goToCatalogNextPage(): void {
-    this.goToCatalogPage(this.catalogPage() + 1);
   }
 
   protected clearCatalogFilters(): void {
