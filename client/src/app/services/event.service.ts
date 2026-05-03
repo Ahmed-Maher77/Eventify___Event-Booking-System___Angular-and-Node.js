@@ -53,6 +53,8 @@ export type EventStatusFilter = 'upcoming' | 'ongoing' | 'completed' | 'cancelle
 export interface EventQueryOptions {
   page?: number;
   limit?: number;
+  /** Full-text style: server matches title OR description (see API `search`). */
+  search?: string;
   name?: string;
   category?: string;
   /** Filter by one or more categories (multi: repeated `categories=` + comma `category=`; single: both set to one slug). */
@@ -104,6 +106,10 @@ export class EventService {
       .set('limit', String(this.normalizePageLimit(options.limit)))
       .set('sort', options.sort ?? 'date')
       .set('order', options.order ?? 'asc');
+
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
 
     if (options.name?.trim()) {
       params = params.set('name', options.name.trim());

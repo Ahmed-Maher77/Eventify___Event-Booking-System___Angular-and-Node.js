@@ -20,6 +20,105 @@
     />
   </header>
 
+  <div class="admin-entity-page__catalog-filters-wrap">
+    <button
+      type="button"
+      id="catalog-filters-toggle"
+      class="admin-entity-page__filters-toggle"
+      [attr.aria-expanded]="catalogFiltersExpanded()"
+      aria-controls="catalog-filters-panel"
+      (click)="toggleCatalogFilters()"
+    >
+      <i
+        class="fa-solid admin-entity-page__filters-toggle-icon"
+        [class.fa-chevron-right]="!catalogFiltersExpanded()"
+        [class.fa-chevron-down]="catalogFiltersExpanded()"
+        aria-hidden="true"
+      ></i>
+      <span>Filters &amp; sort</span>
+      @if (hasActiveCatalogFilters()) {
+        <span class="admin-entity-page__filters-active-badge">Active</span>
+      }
+    </button>
+
+    <div
+      id="catalog-filters-panel"
+      class="admin-entity-page__catalog-filters-body"
+      role="region"
+      aria-labelledby="catalog-filters-toggle"
+      [hidden]="!catalogFiltersExpanded()"
+    >
+  <div class="admin-entity-page__catalog-filters" [formGroup]="catalogFilterForm">
+    <div class="admin-entity-page__catalog-filters-grid">
+      <label class="admin-entity-page__filter-field">
+        <span class="admin-entity-page__filter-label">Search</span>
+        <input
+          class="admin-entity-page__filter-input"
+          type="search"
+          formControlName="search"
+          placeholder="Title or description"
+          autocomplete="off"
+        />
+      </label>
+      <label class="admin-entity-page__filter-field">
+        <span class="admin-entity-page__filter-label">Location</span>
+        <input
+          class="admin-entity-page__filter-input"
+          type="text"
+          formControlName="location"
+          placeholder="City, venue…"
+          autocomplete="off"
+        />
+      </label>
+      <label class="admin-entity-page__filter-field">
+        <span class="admin-entity-page__filter-label">Category</span>
+        <select class="admin-entity-page__filter-input" formControlName="category">
+          <option value="">All categories</option>
+          @for (cat of categoryOptions; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </label>
+      <label class="admin-entity-page__filter-field">
+        <span class="admin-entity-page__filter-label">Status</span>
+        <select class="admin-entity-page__filter-input" formControlName="status">
+          @for (opt of catalogStatusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+      <label class="admin-entity-page__filter-field">
+        <span class="admin-entity-page__filter-label">Sort by</span>
+        <select class="admin-entity-page__filter-input" formControlName="sort">
+          @for (opt of catalogSortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+      <label class="admin-entity-page__filter-field">
+        <span class="admin-entity-page__filter-label">Order</span>
+        <select class="admin-entity-page__filter-input" formControlName="order">
+          @for (opt of catalogOrderOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+    </div>
+    <div class="admin-entity-page__catalog-filters-actions">
+      <app-button
+        label="Clear filters"
+        variant="outline"
+        size="md"
+        [rounded]="true"
+        buttonType="button"
+        customClass="diagonal-swipe-hover"
+        (pressed)="clearCatalogFilters()"
+      />
+    </div>
+  </div>
+    </div>
+  </div>
+
   <div class="admin-entity-page__panel table-responsive">
     @if (isLoadingEvents()) {
       <div class="admin-entity-page__loader-wrap">
@@ -28,7 +127,13 @@
     } @else if (listErrorMessage) {
       <p class="admin-entity-page__state-message is-error">{{ listErrorMessage }}</p>
     } @else if (!events().length) {
-      <p class="admin-entity-page__state-message">No events found yet.</p>
+      <p class="admin-entity-page__state-message">
+        @if (hasActiveCatalogFilters()) {
+          No events match your filters. Try adjusting search or filters.
+        } @else {
+          No events found yet.
+        }
+      </p>
     } @else {
       <table class="table admin-entity-page__table align-middle mb-0">
         <thead>

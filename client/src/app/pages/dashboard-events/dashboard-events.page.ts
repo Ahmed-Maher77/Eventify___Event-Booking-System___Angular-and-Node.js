@@ -13,11 +13,19 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, finalize, takeUntil } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
 import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
-import { CreateEventPayload, EventApiItem, EventService } from '../../services/event.service';
+import {
+  CreateEventPayload,
+  EventApiItem,
+  EventQueryOptions,
+  EventService,
+  EventSortField,
+  EventSortOrder,
+  EventStatusFilter,
+} from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 
 type CatalogPaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
@@ -49,12 +57,42 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     'sports',
     'other'
   ];
+
+  protected readonly catalogSortOptions: { value: EventSortField; label: string }[] = [
+    { value: 'date', label: 'Date' },
+    { value: 'title', label: 'Title' },
+    { value: 'price', label: 'Price' },
+    { value: 'createdAt', label: 'Created' }
+  ];
+
+  protected readonly catalogOrderOptions: { value: EventSortOrder; label: string }[] = [
+    { value: 'asc', label: 'Ascending' },
+    { value: 'desc', label: 'Descending' }
+  ];
+
+  protected readonly catalogStatusOptions: { value: '' | EventStatusFilter; label: string }[] = [
+    { value: '', label: 'All statuses' },
+    { value: 'upcoming', label: 'Upcoming' },
+    { value: 'ongoing', label: 'Ongoing' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
+
+  protected readonly catalogFilterForm = this.fb.nonNullable.group({
+    search: [''],
+    location: [''],
+    category: [''],
+    status: [''],
+    sort: ['date' as EventSortField],
+    order: ['asc' as EventSortOrder]
+  });
   protected readonly events = signal<EventApiItem[]>([]);
   protected readonly isLoadingEvents = signal(false);
   protected readonly catalogPage = signal(1);
   protected readonly catalogTotalPages = signal(1);
   protected readonly catalogTotalEvents = signal(0);
   protected readonly catalogPageSize = EventService.MAX_EVENTS_PER_PAGE;
+  protected readonly catalogFiltersExpanded = signal(false);
   protected isAddModalOpen = false;
   protected readonly editingEventId = signal<string | null>(null);
   protected readonly isLoadingEventDetail = signal(false);
@@ -110,6 +148,19 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       this.isAddModalOpen = false;
       this.resetFormState();
     });
+
+    this.catalogFilterForm.valueChanges
+      .pipe(
+        debounceTime(280),
+        distinctUntilChanged(
+          (a, b) => JSON.stringify(a) === JSON.stringify(b)
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.catalogPage.set(1);
+        this.loadEvents();
+      });
 
     this.loadEvents();
   }
@@ -173,6 +224,36 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
 
   protected goToCatalogNextPage(): void {
     this.goToCatalogPage(this.catalogPage() + 1);
+  }
+
+  protected clearCatalogFilters(): void {
+    this.catalogFilterForm.reset(
+      {
+        search: '',
+        location: '',
+        category: '',
+        status: '',
+        sort: 'date',
+        order: 'asc'
+      },
+      { emitEvent: false }
+    );
+    this.catalogPage.set(1);
+    this.loadEvents();
+  }
+
+  protected hasActiveCatalogFilters(): boolean {
+    const v = this.catalogFilterForm.getRawValue();
+    return !!(
+      (v.search ?? '').trim() ||
+      (v.location ?? '').trim() ||
+      (v.category ?? '').trim() ||
+      (v.status ?? '').trim()
+    );
+  }
+
+  protected toggleCatalogFilters(): void {
+    this.catalogFiltersExpanded.update((open) => !open);
   }
 
   protected openAddEventModal(): void {
@@ -461,17 +542,37 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
+  private buildCatalogQueryOptions(): EventQueryOptions {
+    const f = this.catalogFilterForm.getRawValue();
+    const search = (f.search ?? '').trim();
+    const location = (f.location ?? '').trim();
+    const category = (f.category ?? '').trim();
+    const statusRaw = (f.status ?? '').trim().toLowerCase();
+    const allowedStatus: EventStatusFilter[] = ['upcoming', 'ongoing', 'completed', 'cancelled'];
+    const status = allowedStatus.includes(statusRaw as EventStatusFilter)
+      ? (statusRaw as EventStatusFilter)
+      : undefined;
+    const sort = (f.sort ?? 'date') as EventSortField;
+    const order = (f.order ?? 'asc') as EventSortOrder;
+
+    return {
+      page: this.catalogPage(),
+      limit: this.catalogPageSize,
+      sort,
+      order,
+      search: search || undefined,
+      location: location || undefined,
+      category: category || undefined,
+      status
+    };
+  }
+
   private loadEvents(): void {
     this.isLoadingEvents.set(true);
     this.listErrorMessage = '';
 
     this.eventService
-      .getEvents({
-        page: this.catalogPage(),
-        limit: this.catalogPageSize,
-        sort: 'date',
-        order: 'asc',
-      })
+      .getEvents(this.buildCatalogQueryOptions())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
