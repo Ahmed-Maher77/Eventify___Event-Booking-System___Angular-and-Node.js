@@ -465,7 +465,7 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     this.featuredEventsSubscription = this.eventService
       .getFeaturedEvents({
         category: this.toApiCategory(this.activeCategory),
-        limit: 12
+        limit: 10
       })
       .pipe(
         finalize(() => {

@@ -84,13 +84,24 @@ export interface CreateEventPayload {
   providedIn: 'root',
 })
 export class EventService {
+  /** Maximum events returned per page for catalog-style lists. */
+  static readonly MAX_EVENTS_PER_PAGE = 10;
+
   private readonly http = inject(HttpClient);
   private readonly eventsApiUrl = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/events`;
+
+  private normalizePageLimit(requested?: number): number {
+    const max = EventService.MAX_EVENTS_PER_PAGE;
+    const fallback = max;
+    const n = Math.floor(Number(requested));
+    const base = Number.isFinite(n) && n > 0 ? n : fallback;
+    return Math.min(max, Math.max(1, base));
+  }
 
   getEvents(options: EventQueryOptions = {}): Observable<EventsApiResponse> {
     let params = new HttpParams()
       .set('page', String(options.page ?? 1))
-      .set('limit', String(options.limit ?? 12))
+      .set('limit', String(this.normalizePageLimit(options.limit)))
       .set('sort', options.sort ?? 'date')
       .set('order', options.order ?? 'asc');
 
@@ -160,7 +171,7 @@ export class EventService {
     return this.getEvents({
       name: options.name,
       category: options.category,
-      limit: options.limit ?? 12,
+      limit: options.limit ?? EventService.MAX_EVENTS_PER_PAGE,
       sort: 'date',
       order: 'asc',
       status: 'upcoming',

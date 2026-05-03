@@ -58,7 +58,7 @@ export class EventsPage implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
-  private readonly defaultPageLimit = 9;
+  private readonly defaultPageLimit = 10;
   protected readonly minAllowedPrice = 0;
   protected readonly maxAllowedPrice = 1000;
   protected readonly priceStep = 10;

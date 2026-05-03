@@ -54,7 +54,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected readonly catalogPage = signal(1);
   protected readonly catalogTotalPages = signal(1);
   protected readonly catalogTotalEvents = signal(0);
-  protected readonly catalogPageSize = 10;
+  protected readonly catalogPageSize = EventService.MAX_EVENTS_PER_PAGE;
   protected isAddModalOpen = false;
   protected readonly editingEventId = signal<string | null>(null);
   protected readonly isLoadingEventDetail = signal(false);
