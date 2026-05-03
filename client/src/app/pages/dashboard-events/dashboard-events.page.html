@@ -49,7 +49,14 @@
               </td>
               <td class="text-end">
                 <button type="button" class="admin-entity-page__icon-btn" aria-label="View event"><i class="fa-regular fa-eye"></i></button>
-                <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit event"><i class="fa-regular fa-pen-to-square"></i></button>
+                <button
+                  type="button"
+                  class="admin-entity-page__icon-btn"
+                  aria-label="Edit event"
+                  (click)="openEditEventModal(event)"
+                >
+                  <i class="fa-regular fa-pen-to-square"></i>
+                </button>
                 <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete event"><i class="fa-regular fa-trash-can"></i></button>
               </td>
             </tr>
@@ -61,11 +68,16 @@
 </section>
 
 @if (isAddModalOpen) {
-  <div class="admin-event-modal is-open" role="dialog" aria-modal="true" aria-label="Add event dialog">
+  <div
+    class="admin-event-modal is-open"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="editingEventId() ? 'Edit event dialog' : 'Add event dialog'"
+  >
     <button
       type="button"
       class="admin-event-modal__backdrop"
-      aria-label="Close add event dialog"
+      [attr.aria-label]="editingEventId() ? 'Close edit event dialog' : 'Close add event dialog'"
       (click)="closeAddEventModal()"
     ></button>
 
@@ -73,17 +85,27 @@
       <div class="admin-event-modal__header">
         <div class="admin-event-modal__heading">
           <span class="admin-event-modal__icon-shell" aria-hidden="true">
-            <i class="fa-solid fa-calendar-plus"></i>
+            @if (editingEventId()) {
+              <i class="fa-solid fa-pen-to-square"></i>
+            } @else {
+              <i class="fa-solid fa-calendar-plus"></i>
+            }
           </span>
           <div class="admin-event-modal__heading-copy">
-            <h3 class="admin-event-modal__title">Create New Event</h3>
-            <p class="admin-event-modal__subtitle">Add event details, set availability, and publish it to your catalog.</p>
+            <h3 class="admin-event-modal__title">{{ editingEventId() ? 'Edit Event' : 'Create New Event' }}</h3>
+            <p class="admin-event-modal__subtitle">
+              {{
+                editingEventId()
+                  ? 'Update details, availability, and imagery for this catalog entry.'
+                  : 'Add event details, set availability, and publish it to your catalog.'
+              }}
+            </p>
           </div>
         </div>
         <button
           type="button"
           class="admin-event-modal__close-btn"
-          aria-label="Close add event dialog"
+          [attr.aria-label]="editingEventId() ? 'Close edit event dialog' : 'Close add event dialog'"
           (click)="closeAddEventModal()"
         >
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -92,6 +114,11 @@
 
       <div class="admin-event-modal__content">
         <div class="admin-event-modal__content-inner">
+        @if (isLoadingEventDetail()) {
+          <div class="admin-entity-page__loader-wrap admin-event-modal__form-loader">
+            <app-section-loader [size]="36" label="Loading event" />
+          </div>
+        } @else {
         <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
           <div class="admin-event-form__feedback" #formFeedback>
             @if (formErrorMessage()) {
@@ -253,7 +280,7 @@
               (pressed)="closeAddEventModal()"
             />
             <app-button
-              label="Create Event"
+              [label]="editingEventId() ? 'Save changes' : 'Create Event'"
               variant="primary"
               size="md"
               buttonType="submit"
@@ -263,6 +290,7 @@
             />
           </div>
         </form>
+        }
         </div>
       </div>
     </div>

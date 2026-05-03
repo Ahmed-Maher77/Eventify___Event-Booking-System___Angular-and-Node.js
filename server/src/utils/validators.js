@@ -90,14 +90,7 @@ const validateCreateEvent = [
   body('date')
     .notEmpty().withMessage('Date is required')
     .bail()
-    .isISO8601().withMessage('Please provide a valid date')
-    .bail()
-    .custom((value) => {
-      if (new Date(value) <= new Date()) {
-        throw new Error('Event date must be in the future');
-      }
-      return true;
-    }),
+    .isISO8601().withMessage('Please provide a valid date'),
   
   body('location')
     .trim()
@@ -155,14 +148,7 @@ const validateCreateEvent = [
 
     body('date')
       .optional()
-      .isISO8601().withMessage('Please provide a valid date')
-      .bail()
-      .custom((value) => {
-        if (new Date(value) <= new Date()) {
-          throw new Error('Event date must be in the future');
-        }
-        return true;
-      }),
+      .isISO8601().withMessage('Please provide a valid date'),
 
     body('location')
       .optional()

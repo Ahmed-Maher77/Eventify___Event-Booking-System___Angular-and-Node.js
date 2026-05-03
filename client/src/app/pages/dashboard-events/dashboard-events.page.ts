@@ -49,7 +49,10 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected readonly events = signal<EventApiItem[]>([]);
   protected readonly isLoadingEvents = signal(false);
   protected isAddModalOpen = false;
+  protected readonly editingEventId = signal<string | null>(null);
+  protected readonly isLoadingEventDetail = signal(false);
   protected readonly isSubmitting = signal(false);
+  private previousEditId: string | null = null;
   protected listErrorMessage = '';
   protected readonly formErrorMessage = signal('');
   protected readonly formSuccessMessage = signal('');
@@ -71,8 +74,32 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.isAddModalOpen = params.get('addEvent') === 'true';
-      this.syncModalState(this.isAddModalOpen);
+      const editParam = params.get('editEvent');
+      const addOpen = params.get('addEvent') === 'true';
+      const editId =
+        editParam && /^[a-f0-9]{24}$/i.test(editParam) ? editParam : null;
+
+      if (editId) {
+        this.isAddModalOpen = true;
+        this.editingEventId.set(editId);
+        if (this.previousEditId !== editId) {
+          this.previousEditId = editId;
+          this.loadEventForEdit(editId);
+        }
+        return;
+      }
+
+      this.previousEditId = null;
+      this.editingEventId.set(null);
+
+      if (addOpen) {
+        this.isAddModalOpen = true;
+        this.resetFormState();
+        return;
+      }
+
+      this.isAddModalOpen = false;
+      this.resetFormState();
     });
 
     this.loadEvents();
@@ -86,7 +113,18 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected openAddEventModal(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { addEvent: 'true' },
+      queryParams: { addEvent: 'true', editEvent: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  protected openEditEventModal(event: EventApiItem): void {
+    if (!event?._id) {
+      return;
+    }
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { editEvent: event._id, addEvent: null },
       queryParamsHandling: 'merge'
     });
   }
@@ -94,7 +132,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected closeAddEventModal(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { addEvent: null },
+      queryParams: { addEvent: null, editEvent: null },
       queryParamsHandling: 'merge'
     });
   }
@@ -169,26 +207,30 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.formSuccessMessage.set('');
     this.isSubmitting.set(true);
 
-    this.eventService
-      .createEvent(payload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.formErrorMessage.set('');
-          this.toast.showSuccess('Event created successfully.');
-          this.loadEvents();
-          this.closeAddEventModal();
-        },
-        error: (error: unknown) => {
-          const message = this.resolveCreateEventErrorMessage(error);
-          this.isSubmitting.set(false);
-          this.formSuccessMessage.set('');
-          this.formErrorMessage.set(message);
-          this.toast.showError(message);
-          this.scrollFormFeedbackIntoView();
-        }
-      });
+    const editParam = this.route.snapshot.queryParamMap.get('editEvent');
+    const editId =
+      editParam && /^[a-f0-9]{24}$/i.test(editParam) ? editParam : null;
+    const request$ = editId
+      ? this.eventService.updateEvent(editId, payload)
+      : this.eventService.createEvent(payload);
+
+    request$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.formErrorMessage.set('');
+        this.toast.showSuccess(editId ? 'Event updated successfully.' : 'Event created successfully.');
+        this.loadEvents();
+        this.closeAddEventModal();
+      },
+      error: (error: unknown) => {
+        const message = this.resolveMutationErrorMessage(error, editId ? 'update' : 'create');
+        this.isSubmitting.set(false);
+        this.formSuccessMessage.set('');
+        this.formErrorMessage.set(message);
+        this.toast.showError(message);
+        this.scrollFormFeedbackIntoView();
+      }
+    });
   }
 
   private scrollFormFeedbackIntoView(): void {
@@ -201,8 +243,11 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     );
   }
 
-  private resolveCreateEventErrorMessage(error: unknown): string {
-    const fallbackMessage = 'Unable to create event right now. Please try again.';
+  private resolveMutationErrorMessage(error: unknown, action: 'create' | 'update'): string {
+    const fallbackMessage =
+      action === 'update'
+        ? 'Unable to update event right now. Please try again.'
+        : 'Unable to create event right now. Please try again.';
     if (error instanceof HttpErrorResponse) {
       const body = error.error;
       if (body && typeof body === 'object' && 'message' in body) {
@@ -218,6 +263,75 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       return maybeMessage || fallbackMessage;
     }
     return fallbackMessage;
+  }
+
+  private loadEventForEdit(id: string): void {
+    this.formErrorMessage.set('');
+    this.formSuccessMessage.set('');
+    this.isLoadingEventDetail.set(true);
+
+    this.eventService
+      .getEvent(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoadingEventDetail.set(false);
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          const data = res.data;
+          if (!data) {
+            this.toast.showError('Event not found.');
+            this.closeAddEventModal();
+            return;
+          }
+          this.patchFormFromEvent(data);
+        },
+        error: () => {
+          this.toast.showError('Unable to load this event for editing.');
+          this.closeAddEventModal();
+        }
+      });
+  }
+
+  private patchFormFromEvent(event: EventApiItem): void {
+    const rawCat = String(event.category ?? '').toLowerCase() as CreateEventPayload['category'];
+    const category = this.categoryOptions.includes(rawCat) ? rawCat : 'conference';
+
+    this.addEventForm.patchValue({
+      title: event.title ?? '',
+      description: (event.description ?? '').trim(),
+      date: this.toDatetimeLocalValue(event.date),
+      location: event.location ?? '',
+      category,
+      capacity: event.capacity ?? 100,
+      price: event.price ?? 0,
+      imageUrl: ''
+    });
+
+    const img = (event.image ?? '').trim();
+    if (DashboardEventsPage.IMAGE_URL_PATTERN.test(img)) {
+      this.setPictureMode('url');
+      this.addEventForm.patchValue({ imageUrl: img });
+    } else {
+      this.setPictureMode('file');
+    }
+
+    this.addEventForm.markAsPristine();
+    this.addEventForm.markAsUntouched();
+    this.isSubmitting.set(false);
+    this.formErrorMessage.set('');
+    this.formSuccessMessage.set('');
+  }
+
+  private toDatetimeLocalValue(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) {
+      return '';
+    }
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   private loadEvents(): void {
@@ -245,6 +359,7 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   }
 
   private resetFormState(): void {
+    this.isLoadingEventDetail.set(false);
     this.addEventForm.reset({
       title: '',
       description: '',
@@ -265,16 +380,6 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.isSubmitting.set(false);
     this.formErrorMessage.set('');
     this.formSuccessMessage.set('');
-  }
-
-  private syncModalState(isOpen: boolean): void {
-    if (isOpen) {
-      this.isAddModalOpen = true;
-      return;
-    }
-
-    this.isAddModalOpen = false;
-    this.resetFormState();
   }
 
   private buildCreateEventPayload(payload: CreateEventPayload): CreateEventPayload | FormData {

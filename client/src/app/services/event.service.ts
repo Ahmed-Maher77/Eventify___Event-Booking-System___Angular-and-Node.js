@@ -34,6 +34,12 @@ export interface EventMutationResponse {
   success?: boolean;
 }
 
+export interface SingleEventApiResponse {
+  success: boolean;
+  message?: string;
+  data: EventApiItem;
+}
+
 export type EventSortField = 'date' | 'price' | 'title' | 'createdAt';
 export type EventSortOrder = 'asc' | 'desc';
 
@@ -159,6 +165,16 @@ export class EventService {
 
   createEvent(payload: CreateEventPayload | FormData): Observable<EventMutationResponse> {
     return this.http.post<EventMutationResponse>(this.eventsApiUrl, payload, {
+      withCredentials: true,
+    });
+  }
+
+  getEvent(id: string): Observable<SingleEventApiResponse> {
+    return this.http.get<SingleEventApiResponse>(`${this.eventsApiUrl}/${id}`);
+  }
+
+  updateEvent(id: string, payload: CreateEventPayload | FormData): Observable<EventMutationResponse> {
+    return this.http.put<EventMutationResponse>(`${this.eventsApiUrl}/${id}`, payload, {
       withCredentials: true,
     });
   }

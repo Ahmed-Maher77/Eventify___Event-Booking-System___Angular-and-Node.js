@@ -397,8 +397,13 @@ const updateEvent = async (req, res) => {
             "price",
         ];
         updatableFields.forEach((field) => {
-            if (req.body.hasOwnProperty(field)) {
-                existingEvent[field] = req.body[field];
+            if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+                const raw = req.body[field];
+                if (field === "capacity" || field === "price") {
+                    existingEvent[field] = Number(raw);
+                } else {
+                    existingEvent[field] = raw;
+                }
             }
         });
 

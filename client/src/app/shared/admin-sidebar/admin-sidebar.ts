@@ -100,7 +100,7 @@ export class AdminSidebar implements OnInit, OnDestroy {
 
   protected openAddEventModal(): void {
     void this.router.navigate(['/dashboard/events'], {
-      queryParams: { addEvent: 'true' }
+      queryParams: { addEvent: 'true', editEvent: null },
     });
   }
 

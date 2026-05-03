@@ -39,9 +39,6 @@ const validateFields_createEvent = (req, res, next) => {
     if (isNaN(eventDate.getTime())) {
         throw new AppError("Date must be a valid date", 400);
     }
-    if (eventDate <= new Date()) {
-        throw new AppError("Date must be in the future", 400);
-    }
 
     // Validate location
     if (!data.location) {
