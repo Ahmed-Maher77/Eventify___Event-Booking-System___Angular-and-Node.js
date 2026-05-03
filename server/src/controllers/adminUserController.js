@@ -38,6 +38,14 @@ const getAllUsers = async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
+    const usersPayload = users.map((doc) => {
+      const plain = doc.toObject();
+      if (plain.createdAt == null && doc._id?.getTimestamp) {
+        plain.createdAt = doc._id.getTimestamp();
+      }
+      return plain;
+    });
+
     const totalUsers = await User.countDocuments(filter);
     const totalPages = Math.ceil(totalUsers / limit);
 
@@ -45,7 +53,7 @@ const getAllUsers = async (req, res, next) => {
       success: true,
       message: "Users retrieved successfully.",
       data: {
-        users,
+        users: usersPayload,
         pagination: {
           currentPage: page,
           totalPages,

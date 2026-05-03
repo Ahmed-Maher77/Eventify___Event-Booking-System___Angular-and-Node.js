@@ -45,7 +45,9 @@ const userSchema = mongoose.Schema({
             ref: "event",
         },
     ],
-});
+},
+{ timestamps: true },
+);
 
 userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;
