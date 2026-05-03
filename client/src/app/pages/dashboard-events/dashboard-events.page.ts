@@ -20,6 +20,8 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
 import { CreateEventPayload, EventApiItem, EventService } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 
+type CatalogPaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
+
 @Component({
   selector: 'app-dashboard-events-page',
   standalone: true,
@@ -49,6 +51,10 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   ];
   protected readonly events = signal<EventApiItem[]>([]);
   protected readonly isLoadingEvents = signal(false);
+  protected readonly catalogPage = signal(1);
+  protected readonly catalogTotalPages = signal(1);
+  protected readonly catalogTotalEvents = signal(0);
+  protected readonly catalogPageSize = 10;
   protected isAddModalOpen = false;
   protected readonly editingEventId = signal<string | null>(null);
   protected readonly isLoadingEventDetail = signal(false);
@@ -116,6 +122,57 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected catalogEventImageSrc(event: EventApiItem): string {
     const raw = (event.image ?? '').trim();
     return raw || DashboardEventsPage.CATALOG_IMAGE_FALLBACK;
+  }
+
+  protected catalogHasPreviousPage(): boolean {
+    return this.catalogPage() > 1;
+  }
+
+  protected catalogHasNextPage(): boolean {
+    return this.catalogPage() < this.catalogTotalPages();
+  }
+
+  protected get catalogPaginationTokens(): CatalogPaginationToken[] {
+    const total = this.catalogTotalPages();
+    const current = this.catalogPage();
+    if (total <= 0) {
+      return [];
+    }
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, idx) => idx + 1);
+    }
+    const tokens: CatalogPaginationToken[] = [1];
+    const middleStart = Math.max(2, current - 1);
+    const middleEnd = Math.min(total - 1, current + 1);
+    if (middleStart > 2) {
+      tokens.push('ellipsis-left');
+    }
+    for (let page = middleStart; page <= middleEnd; page += 1) {
+      tokens.push(page);
+    }
+    if (middleEnd < total - 1) {
+      tokens.push('ellipsis-right');
+    }
+    tokens.push(total);
+    return tokens;
+  }
+
+  protected goToCatalogPage(page: number): void {
+    const total = this.catalogTotalPages();
+    const next = Math.max(1, Math.min(page, total));
+    if (next === this.catalogPage()) {
+      return;
+    }
+    this.catalogPage.set(next);
+    this.loadEvents();
+  }
+
+  protected goToCatalogPreviousPage(): void {
+    this.goToCatalogPage(this.catalogPage() - 1);
+  }
+
+  protected goToCatalogNextPage(): void {
+    this.goToCatalogPage(this.catalogPage() + 1);
   }
 
   protected openAddEventModal(): void {
@@ -409,21 +466,38 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.listErrorMessage = '';
 
     this.eventService
-      .getEvents({ page: 1, limit: 50, sort: 'date', order: 'asc' })
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoadingEvents.set(false);
-        })
-      )
+      .getEvents({
+        page: this.catalogPage(),
+        limit: this.catalogPageSize,
+        sort: 'date',
+        order: 'asc',
+      })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           const list = response.data?.events ?? [];
+          const pag = response.data?.pagination;
+          const totalPages = Math.max(1, pag?.totalPages ?? 1);
+          const totalEvents = pag?.totalEvents ?? list.length;
+          const current = this.catalogPage();
+
+          if (current > totalPages) {
+            this.catalogPage.set(totalPages);
+            this.loadEvents();
+            return;
+          }
+
+          this.catalogTotalPages.set(totalPages);
+          this.catalogTotalEvents.set(totalEvents);
           this.events.set(list);
+          this.isLoadingEvents.set(false);
         },
         error: () => {
           this.events.set([]);
+          this.catalogTotalPages.set(1);
+          this.catalogTotalEvents.set(0);
           this.listErrorMessage = 'Unable to load event catalog at the moment.';
+          this.isLoadingEvents.set(false);
         },
       });
   }

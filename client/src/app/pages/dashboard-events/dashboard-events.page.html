@@ -83,6 +83,55 @@
           }
         </tbody>
       </table>
+
+      @if (catalogTotalPages() > 1) {
+        <nav class="admin-entity-page__catalog-pagination" aria-label="Event catalog pagination">
+          <button
+            type="button"
+            class="admin-entity-page__page-btn"
+            [disabled]="!catalogHasPreviousPage()"
+            (click)="goToCatalogPreviousPage()"
+          >
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            Prev
+          </button>
+
+          <div class="admin-entity-page__page-numbers">
+            @for (token of catalogPaginationTokens; track token + '-' + $index) {
+              @if (token === 'ellipsis-left' || token === 'ellipsis-right') {
+                <span class="admin-entity-page__page-ellipsis" aria-hidden="true">...</span>
+              } @else {
+                <button
+                  type="button"
+                  class="admin-entity-page__page-btn admin-entity-page__page-btn--number"
+                  [class.is-active]="catalogPage() === token"
+                  (click)="goToCatalogPage(token)"
+                >
+                  {{ token }}
+                </button>
+              }
+            }
+          </div>
+
+          <button
+            type="button"
+            class="admin-entity-page__page-btn"
+            [disabled]="!catalogHasNextPage()"
+            (click)="goToCatalogNextPage()"
+          >
+            Next
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
+
+          <span class="admin-entity-page__page-meta">
+            Page {{ catalogPage() }} of {{ catalogTotalPages() }}
+            @if (catalogTotalEvents() > 0) {
+              <span class="admin-entity-page__page-meta-sep" aria-hidden="true">·</span>
+              {{ catalogTotalEvents() }} events
+            }
+          </span>
+        </nav>
+      }
     }
   </div>
 </section>
