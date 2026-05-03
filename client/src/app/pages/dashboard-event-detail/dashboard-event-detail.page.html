@@ -40,7 +40,7 @@
               [rounded]="true"
               leftIcon="fa-regular fa-pen-to-square"
               customClass="admin-event-detail__banner-btn admin-event-detail__banner-btn--ghost"
-              (pressed)="openEditInCatalog(ev)"
+              (pressed)="openEventEditModal()"
             />
           </div>
         </div>
@@ -170,3 +170,11 @@
     </div>
   }
 </section>
+
+@if (eventEditModalOpen()) {
+  <app-admin-event-form-modal
+    [editingEventId]="event()?._id ?? null"
+    (closed)="closeEventEditModal()"
+    (saved)="onEventEditSaved()"
+  />
+}

@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { EventApiItem, EventService } from '../../services/event.service';
+import { AdminEventFormModalComponent } from '../../shared/admin-event-form-modal/admin-event-form-modal.component';
 import { Button } from '../../shared/button/button';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 
 @Component({
   selector: 'app-dashboard-event-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, SectionLoader, Button],
+  imports: [CommonModule, RouterLink, SectionLoader, Button, AdminEventFormModalComponent],
   templateUrl: './dashboard-event-detail.page.html',
   styleUrl: './dashboard-event-detail.page.scss'
 })
@@ -18,12 +19,12 @@ export class DashboardEventDetailPage implements OnInit {
   private static readonly IMAGE_FALLBACK = '/images/event-placeholder.svg';
 
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly eventService = inject(EventService);
 
   protected readonly event = signal<EventApiItem | null>(null);
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly eventEditModalOpen = signal(false);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -65,14 +66,29 @@ export class DashboardEventDetailPage implements OnInit {
     return null;
   }
 
-  /** Same flow as catalog row “Edit”: catalog page opens the modal via `editEvent` query param. */
-  protected openEditInCatalog(ev: EventApiItem): void {
-    if (!ev?._id) {
+  protected openEventEditModal(): void {
+    if (!this.event()?._id) {
       return;
     }
-    void this.router.navigate(['/dashboard/events'], {
-      queryParams: { editEvent: ev._id, addEvent: null }
-    });
+    this.eventEditModalOpen.set(true);
+  }
+
+  protected closeEventEditModal(): void {
+    this.eventEditModalOpen.set(false);
+  }
+
+  protected onEventEditSaved(): void {
+    const id = this.route.snapshot.paramMap.get('id')?.trim();
+    if (id) {
+      this.eventService.getEvent(id).subscribe({
+        next: (res) => {
+          if (res?.data) {
+            this.event.set(res.data);
+          }
+        },
+      });
+    }
+    this.eventEditModalOpen.set(false);
   }
 
   protected seatsSnapshot(e: EventApiItem): { available: number; capacity: number } | null {
