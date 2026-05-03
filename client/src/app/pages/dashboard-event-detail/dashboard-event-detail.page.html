@@ -34,21 +34,12 @@
           </nav>
           <div class="admin-event-detail__banner-actions">
             <app-button
-              label="Back to catalog"
+              label="Edit event"
               variant="outline"
               size="md"
               [rounded]="true"
-              leftIcon="fa-solid fa-arrow-left"
-              routerLink="/dashboard/events"
-              customClass="admin-event-detail__banner-btn admin-event-detail__banner-btn--ghost"
-            />
-            <app-button
-              label="Edit event"
-              variant="primary"
-              size="md"
-              [rounded]="true"
               leftIcon="fa-regular fa-pen-to-square"
-              customClass="admin-event-detail__banner-btn admin-entity-page__primary-btn diagonal-swipe-hover"
+              customClass="admin-event-detail__banner-btn admin-event-detail__banner-btn--ghost"
               (pressed)="openEditInCatalog(ev)"
             />
           </div>

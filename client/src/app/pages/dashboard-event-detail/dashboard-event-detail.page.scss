@@ -12,15 +12,6 @@
   margin-inline: 0;
 }
 
-.admin-entity-page__primary-btn.ev-btn {
-  border: 1px solid var(--color-primary);
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: var(--color-black);
-  min-height: 2.5rem;
-  padding: 0 1rem;
-}
-
 .admin-entity-page__state-message {
   margin: 0;
   padding: 0.75rem 1rem;
@@ -58,8 +49,8 @@
   margin-top: calc(-1 * var(--admin-content-padding-block, 1.5rem));
   margin-inline: calc(-1 * var(--admin-page-bleed));
   width: calc(100% + 2 * var(--admin-page-bleed));
-  min-height: clamp(280px, 38vh, 440px);
-  max-height: min(520px, 52vh);
+  min-height: clamp(380px, 52vh, 560px);
+  max-height: min(720px, 68vh);
 }
 
 .admin-event-detail__banner-media {
@@ -304,7 +295,6 @@
   display: grid;
   gap: 1rem 1.5rem;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  border-top: 1px solid rgb(0 0 0 / 7%);
 }
 
 .admin-event-detail__metric {
@@ -386,12 +376,15 @@
   border: none;
   border-radius: 0;
   box-shadow: none;
+  padding-top: 20px;
 }
 
 .admin-event-detail__block--aside {
   @media (min-width: 840px) {
-    padding-inline-start: clamp(1.25rem, 3vw, 2rem);
     border-inline-start: 1px solid rgb(0 0 0 / 8%);
+    & > * > *, & > h2 {
+      padding-inline-start: clamp(1.25rem, 3vw, 2rem);
+    }
   }
 
   @media (max-width: 839px) {
