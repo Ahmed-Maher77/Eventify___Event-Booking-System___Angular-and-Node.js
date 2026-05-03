@@ -7,90 +7,141 @@
     <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
     <a routerLink="/dashboard/events" class="admin-event-detail__text-link">Back to event catalog</a>
   } @else if (event(); as ev) {
-    <nav class="admin-event-detail__breadcrumb" aria-label="Breadcrumb">
-      <ol class="admin-event-detail__crumbs">
-        <li>
-          <a routerLink="/dashboard">Dashboard</a>
-        </li>
-        <li>
-          <a routerLink="/dashboard/events">Event catalog</a>
-        </li>
-        <li aria-current="page">{{ ev.title }}</li>
-      </ol>
-    </nav>
+    <header class="admin-event-detail__masthead">
+      <nav class="admin-event-detail__breadcrumb" aria-label="Breadcrumb">
+        <ol class="admin-event-detail__crumbs">
+          <li>
+            <a routerLink="/dashboard">Dashboard</a>
+          </li>
+          <li>
+            <a routerLink="/dashboard/events">Event catalog</a>
+          </li>
+          <li aria-current="page">{{ ev.title }}</li>
+        </ol>
+      </nav>
+      <div class="admin-event-detail__masthead-actions">
+        <app-button
+          label="Edit event"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          leftIcon="fa-regular fa-pen-to-square"
+          customClass="admin-event-detail__toolbar-btn admin-entity-page__primary-btn diagonal-swipe-hover"
+          (pressed)="openEditInCatalog(ev)"
+        />
+      </div>
+    </header>
 
-    <article class="admin-event-detail__card">
-      <div class="admin-event-detail__media">
+    <div class="admin-event-detail__stage">
+      <div class="admin-event-detail__visual">
         <img
           [src]="coverImageSrc(ev)"
           [alt]="'Cover image for ' + ev.title"
-          width="960"
-          height="540"
+          width="1200"
+          height="675"
           loading="eager"
         />
       </div>
-
-      <div class="admin-event-detail__content">
-        <div class="admin-event-detail__title-row">
-          <h1 class="admin-event-detail__title">{{ ev.title }}</h1>
-          <span class="admin-entity-page__pill">{{ ev.status || 'upcoming' }}</span>
+      <div class="admin-event-detail__intro">
+        <p class="admin-event-detail__eyebrow">Event overview</p>
+        <h1 class="admin-event-detail__headline">{{ ev.title }}</h1>
+        <div class="admin-event-detail__badges">
+          <span class="admin-event-detail__status-pill">{{ (ev.status || 'upcoming') | titlecase }}</span>
+          <span class="admin-event-detail__category-chip">{{ ev.category | titlecase }}</span>
         </div>
+      </div>
+    </div>
 
-        <dl class="admin-event-detail__specs">
-          <div class="admin-event-detail__spec">
-            <dt>Date &amp; time</dt>
-            <dd>{{ ev.date | date: 'EEEE, MMM d, y' }} · {{ ev.date | date: 'shortTime' }}</dd>
-          </div>
-          <div class="admin-event-detail__spec">
-            <dt>Location</dt>
-            <dd>{{ ev.location }}</dd>
-          </div>
-          <div class="admin-event-detail__spec">
-            <dt>Category</dt>
-            <dd>{{ ev.category }}</dd>
-          </div>
-          <div class="admin-event-detail__spec">
-            <dt>Ticket price</dt>
-            <dd>{{ ev.price | currency }}</dd>
-          </div>
-          @if (ev.capacity != null) {
-            <div class="admin-event-detail__spec">
-              <dt>Capacity</dt>
-              <dd>{{ ev.capacity }}</dd>
-            </div>
+    <ul class="admin-event-detail__metrics" aria-label="Key details">
+      <li class="admin-event-detail__metric">
+        <span class="admin-event-detail__metric-icon" aria-hidden="true">
+          <i class="fa-regular fa-calendar"></i>
+        </span>
+        <div class="admin-event-detail__metric-body">
+          <span class="admin-event-detail__metric-label">When</span>
+          <span class="admin-event-detail__metric-value">
+            {{ ev.date | date: 'EEE, MMM d, y' }}
+            <span class="admin-event-detail__metric-sub">{{ ev.date | date: 'shortTime' }}</span>
+          </span>
+        </div>
+      </li>
+      <li class="admin-event-detail__metric">
+        <span class="admin-event-detail__metric-icon" aria-hidden="true">
+          <i class="fa-solid fa-location-dot"></i>
+        </span>
+        <div class="admin-event-detail__metric-body">
+          <span class="admin-event-detail__metric-label">Venue</span>
+          <span class="admin-event-detail__metric-value">{{ ev.location }}</span>
+        </div>
+      </li>
+      <li class="admin-event-detail__metric">
+        <span class="admin-event-detail__metric-icon" aria-hidden="true">
+          <i class="fa-solid fa-ticket"></i>
+        </span>
+        <div class="admin-event-detail__metric-body">
+          <span class="admin-event-detail__metric-label">Ticket price</span>
+          <span class="admin-event-detail__metric-value">{{ ev.price | currency }}</span>
+        </div>
+      </li>
+      <li class="admin-event-detail__metric">
+        <span class="admin-event-detail__metric-icon" aria-hidden="true">
+          <i class="fa-solid fa-users"></i>
+        </span>
+        <div class="admin-event-detail__metric-body">
+          <span class="admin-event-detail__metric-label">Capacity</span>
+          @if (seatsSnapshot(ev); as seats) {
+            <span class="admin-event-detail__metric-value">
+              {{ seats.available }} available
+              <span class="admin-event-detail__metric-sub">of {{ seats.capacity }} total</span>
+            </span>
+          } @else if (ev.capacity != null) {
+            <span class="admin-event-detail__metric-value">{{ ev.capacity }} guests</span>
+          } @else {
+            <span class="admin-event-detail__metric-value admin-event-detail__metric-value--muted">—</span>
           }
-          @if (ev.availableSeats != null) {
-            <div class="admin-event-detail__spec">
-              <dt>Available seats</dt>
-              <dd>{{ ev.availableSeats }}</dd>
-            </div>
-          }
+        </div>
+      </li>
+    </ul>
+
+    <div class="admin-event-detail__split">
+      <section class="admin-event-detail__panel admin-event-detail__panel--main" aria-labelledby="event-detail-about">
+        <h2 id="event-detail-about" class="admin-event-detail__panel-title">About this event</h2>
+        @if (ev.description?.trim()) {
+          <div class="admin-event-detail__prose">{{ ev.description }}</div>
+        } @else {
+          <p class="admin-event-detail__empty-note">No description has been added for this event yet.</p>
+        }
+      </section>
+
+      <aside class="admin-event-detail__panel admin-event-detail__panel--aside" aria-labelledby="event-detail-meta">
+        <h2 id="event-detail-meta" class="admin-event-detail__panel-title">Record</h2>
+        <dl class="admin-event-detail__meta-list">
           @if (creatorLabel(ev); as creator) {
-            <div class="admin-event-detail__spec">
+            <div class="admin-event-detail__meta-row">
               <dt>Created by</dt>
               <dd>{{ creator }}</dd>
             </div>
           }
           @if (ev.createdAt) {
-            <div class="admin-event-detail__spec">
+            <div class="admin-event-detail__meta-row">
               <dt>Created</dt>
               <dd>{{ ev.createdAt | date: 'medium' }}</dd>
             </div>
           }
           @if (ev.updatedAt && ev.updatedAt !== ev.createdAt) {
-            <div class="admin-event-detail__spec">
+            <div class="admin-event-detail__meta-row">
               <dt>Last updated</dt>
               <dd>{{ ev.updatedAt | date: 'medium' }}</dd>
             </div>
           }
-          @if (ev.description?.trim()) {
-            <div class="admin-event-detail__spec admin-event-detail__spec--block">
-              <dt>Description</dt>
-              <dd class="admin-event-detail__description">{{ ev.description }}</dd>
+          @if (ev.imagePublicId) {
+            <div class="admin-event-detail__meta-row">
+              <dt>Image asset</dt>
+              <dd class="admin-event-detail__mono">{{ ev.imagePublicId }}</dd>
             </div>
           }
         </dl>
-      </div>
-    </article>
+      </aside>
+    </div>
   }
 </section>

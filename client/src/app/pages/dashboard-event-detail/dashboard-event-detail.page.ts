@@ -4,12 +4,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { EventApiItem, EventService } from '../../services/event.service';
+import { Button } from '../../shared/button/button';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 
 @Component({
   selector: 'app-dashboard-event-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, SectionLoader],
+  imports: [CommonModule, RouterLink, SectionLoader, Button],
   templateUrl: './dashboard-event-detail.page.html',
   styleUrl: './dashboard-event-detail.page.scss'
 })
@@ -64,7 +65,25 @@ export class DashboardEventDetailPage implements OnInit {
     return null;
   }
 
-  protected goToCatalog(): void {
-    void this.router.navigate(['/dashboard/events']);
+  /** Same flow as catalog row “Edit”: catalog page opens the modal via `editEvent` query param. */
+  protected openEditInCatalog(ev: EventApiItem): void {
+    if (!ev?._id) {
+      return;
+    }
+    void this.router.navigate(['/dashboard/events'], {
+      queryParams: { editEvent: ev._id, addEvent: null }
+    });
+  }
+
+  protected seatsSnapshot(e: EventApiItem): { available: number; capacity: number } | null {
+    if (e.capacity == null || e.availableSeats == null) {
+      return null;
+    }
+    const capacity = Number(e.capacity);
+    const available = Number(e.availableSeats);
+    if (!Number.isFinite(capacity) || capacity < 1 || !Number.isFinite(available) || available < 0) {
+      return null;
+    }
+    return { available, capacity };
   }
 }
