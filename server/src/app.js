@@ -26,6 +26,8 @@ import { uploadImageBuffer } from "./utils/cloudinaryUpload.js";
 dns.setServers(["8.8.8.8"]);
 
 const app = express();
+// Prefer qs-style parsing (matches Express 4) so repeated keys and nested params behave predictably.
+app.set("query parser", "extended");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, finalize, takeUntil } from 'rxjs';
+import { Subject, finalize, switchMap, takeUntil } from 'rxjs';
 import { FeaturedEventCard } from '../../components/featured-event-card/featured-event-card';
 import { mapEventApiItemToFeaturedCard } from '../../components/featured-event-card/featured-event-card.mapper';
 import { FeaturedEventCardData } from '../../components/featured-event-card/featured-event-card.model';
@@ -11,6 +11,7 @@ import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-h
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 import {
   EventApiItem,
+  EventsApiResponse,
   EventQueryOptions,
   EventService,
   EventSortField,
@@ -18,6 +19,7 @@ import {
 } from '../../services/event.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 type EventCategoryTab =
   | 'all'
@@ -87,6 +89,8 @@ export class EventsPage implements OnInit, OnDestroy {
   protected errorMessage = '';
   protected totalEvents = 0;
   protected totalPages = 1;
+  /** True when the API returned non-matching rows and we dropped them in the browser — totals are for the visible list only. */
+  protected eventTotalsAreClientFiltered = false;
   protected areFiltersVisibleOnMobile = false;
   protected animationSeed = 0;
   protected readonly favoriteEventIds = new Set<string>();
@@ -264,10 +268,30 @@ export class EventsPage implements OnInit, OnDestroy {
       this.loadFavoriteEventIds();
     }
 
-    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.queryState = this.mapParamsToQueryState(params);
-      this.loadEvents();
-    });
+    this.route.queryParamMap
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((params) => {
+          this.queryState = this.mapParamsToQueryState(params);
+          this.isLoading.set(true);
+          this.errorMessage = '';
+          return this.eventService.getEvents(this.buildEventQueryOptions()).pipe(
+            finalize(() => {
+              this.isLoading.set(false);
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.applyEventsApiResponse(response);
+        },
+        error: () => {
+          this.applyFallbackPagination();
+          this.errorMessage = '';
+          this.animationSeed += 1;
+        },
+      });
   }
 
   ngOnDestroy(): void {
@@ -365,7 +389,27 @@ export class EventsPage implements OnInit, OnDestroy {
   }
 
   protected retryLoad(): void {
-    this.loadEvents();
+    this.queryState = this.mapParamsToQueryState(this.route.snapshot.queryParamMap);
+    this.isLoading.set(true);
+    this.errorMessage = '';
+    this.eventService
+      .getEvents(this.buildEventQueryOptions())
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading.set(false);
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.applyEventsApiResponse(response);
+        },
+        error: () => {
+          this.applyFallbackPagination();
+          this.errorMessage = '';
+          this.animationSeed += 1;
+        },
+      });
   }
 
   protected onFavoriteToggled(eventId: string): void {
@@ -449,12 +493,20 @@ export class EventsPage implements OnInit, OnDestroy {
     return tokens;
   }
 
+  /** `?debugFilters=1` in the URL, or `environment.debugEventFilters` in dev builds. */
+  private isEventFilterDebug(params?: import('@angular/router').ParamMap): boolean {
+    const fromMap = params?.get('debugFilters');
+    const fromSnapshot = this.route.snapshot.queryParamMap.get('debugFilters');
+    return (fromMap ?? fromSnapshot) === '1' || environment.debugEventFilters === true;
+  }
+
   private updateUrlFromQueryState(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
         name: this.queryState.name || null,
-        categories: this.queryState.categories.length ? this.queryState.categories.join(',') : null,
+        // Array → repeated `categories=` keys so we never lose values (comma in one param or `get()` vs `getAll()`).
+        categories: this.queryState.categories.length ? [...this.queryState.categories] : null,
         location: this.queryState.location || null,
         minPrice: this.queryState.minPrice > this.minAllowedPrice ? this.queryState.minPrice : null,
         maxPrice: this.queryState.maxPrice < this.maxAllowedPrice ? this.queryState.maxPrice : null,
@@ -462,16 +514,29 @@ export class EventsPage implements OnInit, OnDestroy {
         order: this.queryState.order === 'asc' ? null : this.queryState.order,
         page: this.queryState.page > 1 ? this.queryState.page : null,
         limit: null,
+        debugFilters: this.isEventFilterDebug() ? '1' : null,
       },
       queryParamsHandling: '',
     });
   }
 
   private mapParamsToQueryState(params: import('@angular/router').ParamMap): EventsQueryState {
-    const categoriesFromUrl = (params.get('categories') ?? '')
-      .split(',')
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean);
+    let categoriesFromUrl = [
+      ...new Set(
+        params
+          .getAll('categories')
+          .flatMap((segment) =>
+            segment
+              .split(',')
+              .map((value) => value.trim().toLowerCase())
+              .filter(Boolean),
+          ),
+      ),
+    ];
+    const legacyCategory = (params.get('category') ?? '').trim().toLowerCase();
+    if (categoriesFromUrl.length === 0 && legacyCategory && legacyCategory !== 'all') {
+      categoriesFromUrl = [legacyCategory];
+    }
     const sortFromUrl = (params.get('sort') ?? 'date').toLowerCase();
     const orderFromUrl = (params.get('order') ?? 'asc').toLowerCase();
     const pageFromUrl = Number(params.get('page') ?? '1');
@@ -510,110 +575,108 @@ export class EventsPage implements OnInit, OnDestroy {
     };
   }
 
-  private loadEvents(): void {
-    this.isLoading.set(true);
-    this.errorMessage = '';
-
-    const query: EventQueryOptions = {
-      name: this.queryState.name,
-      category: this.queryState.categories.length === 1 ? this.queryState.categories[0] : undefined,
-      location: this.queryState.location,
-      minPrice: this.queryState.minPrice,
-      maxPrice: this.queryState.maxPrice,
+  private buildEventQueryOptions(): EventQueryOptions {
+    const name = this.queryState.name?.trim() ?? '';
+    const location = this.queryState.location?.trim() ?? '';
+    const debugFilters = this.isEventFilterDebug();
+    return {
+      name: name || undefined,
+      categories:
+        this.queryState.categories.length > 0 ? [...this.queryState.categories] : undefined,
+      location: location || undefined,
+      minPrice:
+        this.queryState.minPrice > this.minAllowedPrice ? this.queryState.minPrice : undefined,
+      maxPrice:
+        this.queryState.maxPrice < this.maxAllowedPrice ? this.queryState.maxPrice : undefined,
       sort: this.queryState.sort,
       order: this.queryState.order,
       page: this.queryState.page,
       limit: this.queryState.limit,
+      debugFilters,
     };
+  }
 
-    this.eventService
-      .getEvents(query)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isLoading.set(false);
-        }),
-      )
-      .subscribe({
-        next: (response) => {
-          try {
-            const apiEvents = response.data?.events ?? [];
-            const pagination = response.data?.pagination;
-            const filteredEvents =
-              this.queryState.categories.length > 1
-                ? apiEvents.filter((event) =>
-                    this.queryState.categories.includes(event.category as EventCategoryTab),
-                  )
-                : apiEvents;
-            const hasServerPagination =
-              typeof pagination?.totalPages === 'number' &&
-              typeof pagination?.totalEvents === 'number' &&
-              typeof pagination?.currentPage === 'number';
-            const responseLimit = Number(pagination?.limit);
-            const effectiveLimit =
-              Number.isFinite(responseLimit) && responseLimit > 0
-                ? Math.floor(responseLimit)
-                : this.queryState.limit;
-            this.queryState.limit = effectiveLimit;
-            const serverLimit = Number(pagination?.limit ?? effectiveLimit);
-            const serverCurrentPage = Number(pagination?.currentPage ?? this.queryState.page);
-            const serverReturnsPagedChunk =
-              hasServerPagination &&
-              Number.isFinite(serverLimit) &&
-              serverLimit > 0 &&
-              serverCurrentPage === this.queryState.page &&
-              filteredEvents.length <= serverLimit;
-            const isClientSideMultiCategoryFilter = this.queryState.categories.length > 1;
-            const shouldUseClientPagination =
-              isClientSideMultiCategoryFilter || !serverReturnsPagedChunk;
+  /** When the API ignores category filters, drop rows that do not match the current sidebar selection. */
+  private narrowApiEventsToSelectedCategories(events: EventApiItem[]): EventApiItem[] {
+    if (this.queryState.categories.length === 0) {
+      return events;
+    }
+    const allowed = new Set(this.queryState.categories.map((c) => c.toLowerCase()));
+    return events.filter((e) => allowed.has(String(e?.category ?? '').toLowerCase()));
+  }
 
-            const sourceEvents = filteredEvents.length ? filteredEvents : this.fallbackEvents;
-            const normalizedLimit = Math.max(1, effectiveLimit);
-            const computedTotalEvents = shouldUseClientPagination
-              ? sourceEvents.length
-              : (pagination?.totalEvents ?? sourceEvents.length);
-            const computedTotalPages = Math.max(
-              1,
-              shouldUseClientPagination
-                ? Math.ceil(computedTotalEvents / normalizedLimit)
-                : (pagination?.totalPages ?? Math.ceil(computedTotalEvents / normalizedLimit)),
-            );
+  private applyEventsApiResponse(response: EventsApiResponse): void {
+    try {
+      const rawEvents = response.data?.events ?? [];
+      const apiEvents = this.narrowApiEventsToSelectedCategories(rawEvents);
+      const serverReturnedUnfilteredRows =
+        this.queryState.categories.length > 0 &&
+        rawEvents.length > 0 &&
+        apiEvents.length < rawEvents.length;
+      const pagination = response.data?.pagination;
+      const hasServerPagination =
+        pagination != null &&
+        typeof pagination.totalPages === 'number' &&
+        typeof pagination.totalEvents === 'number';
+      const responseLimit = Number(pagination?.limit);
+      const effectiveLimit =
+        Number.isFinite(responseLimit) && responseLimit > 0
+          ? Math.floor(responseLimit)
+          : this.queryState.limit;
+      const normalizedLimit = Math.max(1, effectiveLimit);
+      this.queryState.limit = effectiveLimit;
 
-            this.totalEvents = computedTotalEvents;
-            this.totalPages = computedTotalPages;
-
-            if (this.queryState.page > this.totalPages) {
-              this.queryState.page = this.totalPages;
-              this.updateUrlFromQueryState();
-              return;
-            }
-
-            const pagedEvents = shouldUseClientPagination
-              ? sourceEvents.slice(
-                  (this.queryState.page - 1) * normalizedLimit,
-                  this.queryState.page * normalizedLimit,
-                )
-              : sourceEvents;
-            this.events = pagedEvents.map((event) => {
-              const card = mapEventApiItemToFeaturedCard(event);
-              return { ...card, isFavorite: this.favoriteEventIds.has(card.id) };
-            });
-            this.animationSeed += 1;
-          } catch {
-            this.applyFallbackPagination();
-            this.errorMessage = '';
-            this.animationSeed += 1;
-          }
-        },
-        error: () => {
-          this.applyFallbackPagination();
-          this.errorMessage = '';
-          this.animationSeed += 1;
-        },
-      });
+      if (hasServerPagination) {
+        let totalEventsCount = pagination.totalEvents;
+        let totalPagesCount = Math.max(1, pagination.totalPages);
+        this.eventTotalsAreClientFiltered = false;
+        if (serverReturnedUnfilteredRows) {
+          // Ratio-based totals implied more matches than are visible on this page — confusing (e.g. "9" vs 3 cards).
+          // Use only what we can prove from the narrowed page until the API filters correctly.
+          this.eventTotalsAreClientFiltered = true;
+          totalEventsCount = apiEvents.length;
+          totalPagesCount = Math.max(1, Math.ceil(totalEventsCount / normalizedLimit));
+        }
+        this.totalEvents = totalEventsCount;
+        this.totalPages = totalPagesCount;
+        if (this.queryState.page > this.totalPages) {
+          this.queryState.page = this.totalPages;
+          this.updateUrlFromQueryState();
+          return;
+        }
+        this.events = apiEvents.map((event: EventApiItem) => {
+          const card = mapEventApiItemToFeaturedCard(event);
+          return { ...card, isFavorite: this.favoriteEventIds.has(card.id) };
+        });
+      } else {
+        this.eventTotalsAreClientFiltered = false;
+        const total = apiEvents.length;
+        this.totalEvents = total;
+        this.totalPages = Math.max(1, Math.ceil(total / normalizedLimit));
+        if (this.queryState.page > this.totalPages) {
+          this.queryState.page = this.totalPages;
+          this.updateUrlFromQueryState();
+          return;
+        }
+        const slice = apiEvents.slice(
+          (this.queryState.page - 1) * normalizedLimit,
+          this.queryState.page * normalizedLimit,
+        );
+        this.events = slice.map((event: EventApiItem) => {
+          const card = mapEventApiItemToFeaturedCard(event);
+          return { ...card, isFavorite: this.favoriteEventIds.has(card.id) };
+        });
+      }
+      this.animationSeed += 1;
+    } catch {
+      this.applyFallbackPagination();
+      this.errorMessage = '';
+      this.animationSeed += 1;
+    }
   }
 
   private applyFallbackPagination(): void {
+    this.eventTotalsAreClientFiltered = false;
     const normalizedLimit = Math.max(1, this.queryState.limit);
     const totalFallbackEvents = this.fallbackEvents.length;
     this.totalEvents = totalFallbackEvents;

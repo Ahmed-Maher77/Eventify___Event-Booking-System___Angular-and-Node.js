@@ -70,6 +70,126 @@ describe("Event API", () => {
             expect(mockFind).toHaveBeenCalledTimes(1);
             expect(mockCountDocuments).toHaveBeenCalledTimes(1);
         });
+
+        it("applies category $in filter when multiple categories query params are sent", async () => {
+            const queryBuilder = {
+                populate: jest.fn().mockReturnThis(),
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue([]),
+            };
+
+            mockFind.mockReturnValue(queryBuilder);
+            mockCountDocuments.mockResolvedValue(0);
+
+            await request(app).get(
+                "/api/events?page=1&limit=9&categories=concert&categories=conference",
+            );
+
+            expect(mockFind).toHaveBeenCalledTimes(1);
+            const filterArg = mockFind.mock.calls[0][0];
+            expect(filterArg).toEqual(
+                expect.objectContaining({
+                    category: { $in: ["concert", "conference"] },
+                }),
+            );
+        });
+
+        it("applies category $in filter for comma-separated categories param", async () => {
+            const queryBuilder = {
+                populate: jest.fn().mockReturnThis(),
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue([]),
+            };
+
+            mockFind.mockReturnValue(queryBuilder);
+            mockCountDocuments.mockResolvedValue(0);
+
+            await request(app).get(
+                "/api/events?page=1&limit=9&categories=concert,conference",
+            );
+
+            expect(mockFind).toHaveBeenCalledTimes(1);
+            const filterArg = mockFind.mock.calls[0][0];
+            expect(filterArg).toEqual(
+                expect.objectContaining({
+                    category: { $in: ["concert", "conference"] },
+                }),
+            );
+        });
+
+        it("applies category $in filter for legacy comma-separated category param", async () => {
+            const queryBuilder = {
+                populate: jest.fn().mockReturnThis(),
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue([]),
+            };
+
+            mockFind.mockReturnValue(queryBuilder);
+            mockCountDocuments.mockResolvedValue(0);
+
+            await request(app).get(
+                "/api/events?page=1&limit=9&category=concert,conference",
+            );
+
+            expect(mockFind).toHaveBeenCalledTimes(1);
+            const filterArg = mockFind.mock.calls[0][0];
+            expect(filterArg).toEqual(
+                expect.objectContaining({
+                    category: { $in: ["concert", "conference"] },
+                }),
+            );
+        });
+
+        it("does not add empty price object when minPrice/maxPrice are empty strings", async () => {
+            const queryBuilder = {
+                populate: jest.fn().mockReturnThis(),
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue([]),
+            };
+
+            mockFind.mockReturnValue(queryBuilder);
+            mockCountDocuments.mockResolvedValue(0);
+
+            await request(app).get(
+                "/api/events?page=1&limit=9&categories=concert&categories=conference&minPrice=&maxPrice=",
+            );
+
+            const filterArg = mockFind.mock.calls[0][0];
+            expect(filterArg.price).toBeUndefined();
+            expect(filterArg).toEqual(
+                expect.objectContaining({
+                    category: { $in: ["concert", "conference"] },
+                }),
+            );
+        });
+
+        it("applies category $in when client sends comma-joined categories + category (Angular EventService)", async () => {
+            const queryBuilder = {
+                populate: jest.fn().mockReturnThis(),
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue([]),
+            };
+
+            mockFind.mockReturnValue(queryBuilder);
+            mockCountDocuments.mockResolvedValue(0);
+
+            await request(app).get(
+                "/api/events?page=1&limit=9&sort=date&order=asc&categories=concert%2Cconference&category=concert%2Cconference&debugFilters=1",
+            );
+
+            expect(mockFind).toHaveBeenCalledTimes(1);
+            const filterArg = mockFind.mock.calls[0][0];
+            expect(filterArg).toEqual(
+                expect.objectContaining({
+                    category: { $in: ["concert", "conference"] },
+                }),
+            );
+        });
     });
 
     describe("GET /api/events/:id", () => {

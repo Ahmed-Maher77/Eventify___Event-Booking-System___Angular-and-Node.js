@@ -3,4 +3,6 @@
  */
 export const environment = {
   backendApiUrl: '/api',
+  /** When true, Events page logs filter traces without `?debugFilters=1` (keep false for production). */
+  debugEventFilters: false,
 };

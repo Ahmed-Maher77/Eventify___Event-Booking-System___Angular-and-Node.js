@@ -44,6 +44,8 @@ export interface EventQueryOptions {
   limit?: number;
   name?: string;
   category?: string;
+  /** Filter by one or more categories (multi: repeated `categories=` + comma `category=`; single: both set to one slug). */
+  categories?: string[];
   location?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -52,6 +54,8 @@ export interface EventQueryOptions {
   status?: EventStatusFilter;
   sort?: EventSortField;
   order?: EventSortOrder;
+  /** When true, sends `debugFilters=1` so the API logs filter breakdown; also logs request in the browser console. */
+  debugFilters?: boolean;
 }
 
 export interface CreateEventPayload {
@@ -83,20 +87,43 @@ export class EventService {
       params = params.set('name', options.name.trim());
     }
 
-    const normalizedCategory = options.category?.trim().toLowerCase();
-    if (normalizedCategory && normalizedCategory !== 'all') {
-      params = params.set('category', normalizedCategory);
+    const fromList = [
+      ...new Set(
+        (options.categories ?? [])
+          .map((c) => c.trim().toLowerCase())
+          .filter((c) => c && c !== 'all'),
+      ),
+    ];
+    const single = options.category?.trim().toLowerCase();
+    const categoryParams =
+      fromList.length > 0
+        ? fromList
+        : single && single !== 'all'
+          ? [single]
+          : [];
+    if (categoryParams.length > 0) {
+      if (categoryParams.length === 1) {
+        params = params.set('categories', categoryParams[0]);
+        params = params.set('category', categoryParams[0]);
+      } else {
+        // Send as repeated query parameters (e.g., ?categories=a&categories=b)
+        // This is standard for REST APIs and guarantees the backend parses it as an array.
+        for (const c of categoryParams) {
+          params = params.append('categories', c);
+          params = params.append('category', c);
+        }
+      }
     }
 
     if (options.location?.trim()) {
       params = params.set('location', options.location.trim());
     }
 
-    if (typeof options.minPrice === 'number') {
+    if (typeof options.minPrice === 'number' && !Number.isNaN(options.minPrice)) {
       params = params.set('minPrice', String(options.minPrice));
     }
 
-    if (typeof options.maxPrice === 'number') {
+    if (typeof options.maxPrice === 'number' && !Number.isNaN(options.maxPrice)) {
       params = params.set('maxPrice', String(options.maxPrice));
     }
 

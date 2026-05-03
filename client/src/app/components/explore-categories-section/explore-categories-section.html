@@ -14,7 +14,7 @@
         <a
           class="explore-categories__card"
           [routerLink]="['/events']"
-          [queryParams]="{ category: categoryToQuery(category.name) }"
+          [queryParams]="{ categories: categoryToQuery(category.name) }"
           [attr.aria-label]="'Browse ' + category.name + ' events'"
         >
           <span class="explore-categories__icon-shell" aria-hidden="true">

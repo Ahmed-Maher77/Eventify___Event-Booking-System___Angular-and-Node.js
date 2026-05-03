@@ -124,7 +124,13 @@
             <p class="events-page__result-count">
               Showing <span class="events-page__result-mark">{{ totalEvents }}</span> events
             </p>
-            <p class="events-page__toolbar-hint">Refine filters or sorting to narrow results.</p>
+            <p class="events-page__toolbar-hint">
+              @if (eventTotalsAreClientFiltered) {
+                Totals match the cards shown for your category filters (full counts need the API to filter by category).
+              } @else {
+                Refine filters or sorting to narrow results.
+              }
+            </p>
           </div>
 
           <label class="events-page__sort-wrap" for="events-sort-select">
