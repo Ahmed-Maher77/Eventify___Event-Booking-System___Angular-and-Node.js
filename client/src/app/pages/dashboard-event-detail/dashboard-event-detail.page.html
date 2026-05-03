@@ -83,10 +83,8 @@
           </span>
           <div class="admin-event-detail__metric-body">
             <span class="admin-event-detail__metric-label">When</span>
-            <span class="admin-event-detail__metric-value">
-              {{ ev.date | date: 'EEE, MMM d, y' }}
-              <span class="admin-event-detail__metric-sub">{{ ev.date | date: 'shortTime' }}</span>
-            </span>
+            <span class="admin-event-detail__metric-value">{{ ev.date | date: 'EEE, MMM d, y' }}</span>
+            <span class="admin-event-detail__metric-sub">{{ ev.date | date: 'shortTime' }}</span>
           </div>
         </li>
         <li class="admin-event-detail__metric">
@@ -114,10 +112,8 @@
           <div class="admin-event-detail__metric-body">
             <span class="admin-event-detail__metric-label">Capacity</span>
             @if (seatsSnapshot(ev); as seats) {
-              <span class="admin-event-detail__metric-value">
-                {{ seats.available }} available
-                <span class="admin-event-detail__metric-sub">of {{ seats.capacity }} total</span>
-              </span>
+              <span class="admin-event-detail__metric-value">{{ seats.available }} available</span>
+              <span class="admin-event-detail__metric-sub">of {{ seats.capacity }} total seats</span>
             } @else if (ev.capacity != null) {
               <span class="admin-event-detail__metric-value">{{ ev.capacity }} guests</span>
             } @else {

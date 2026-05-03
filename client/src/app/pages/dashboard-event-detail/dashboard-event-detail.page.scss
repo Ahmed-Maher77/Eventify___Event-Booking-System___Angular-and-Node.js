@@ -289,71 +289,112 @@
 }
 
 .admin-event-detail__metrics {
+  --metric-label: rgb(88 78 64);
+  --metric-body-text: rgb(28 26 22);
+  --metric-support: rgb(95 88 78);
+
   list-style: none;
   margin: 0;
-  padding: 1.1rem 0 0;
+  padding: 0;
   display: grid;
-  gap: 1rem 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1px solid rgb(0 0 0 / 7%);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgb(255 253 248 / 92%) 0%, rgb(252 249 242 / 88%) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 70%) inset;
+  overflow: hidden;
 }
 
 .admin-event-detail__metric {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
   gap: 0.75rem;
   margin: 0;
-  padding: 0;
+  padding: 1rem 1.1rem;
   background: none;
   border: none;
   box-shadow: none;
+
+  @media (min-width: 720px) {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.2rem 1.2rem 1.35rem;
+    min-height: 100%;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgb(0 0 0 / 6%);
+
+    @media (min-width: 720px) {
+      border-bottom: 0;
+      border-inline-end: 1px solid rgb(0 0 0 / 6%);
+    }
+  }
+}
+
+@media (min-width: 720px) {
+  .admin-event-detail__metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .admin-event-detail__metric-icon {
   flex-shrink: 0;
-  width: 2.35rem;
-  height: 2.35rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.55rem;
-  background: rgb(231 200 115 / 14%);
-  color: var(--color-brown);
-  font-size: 0.98rem;
+  width: 1.4rem;
+  margin-top: 0.1rem;
+  color: rgb(138 106 36);
+  font-size: 1.08rem;
+  line-height: 1;
+
+  @media (min-width: 720px) {
+    margin-top: 0;
+    font-size: 1.2rem;
+  }
 }
 
 .admin-event-detail__metric-body {
-  display: grid;
-  gap: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
   min-width: 0;
+  flex: 1;
 }
 
 .admin-event-detail__metric-label {
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 750;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-admin-stat-muted);
+  letter-spacing: 0.07em;
+  color: var(--metric-label);
+  line-height: 1.25;
 }
 
 .admin-event-detail__metric-value {
-  font-size: 0.94rem;
-  font-weight: 600;
-  color: var(--color-black);
-  line-height: 1.4;
+  font-size: 1.02rem;
+  font-weight: 650;
+  color: var(--metric-body-text);
+  line-height: 1.45;
   word-break: break-word;
+  letter-spacing: -0.01em;
 }
 
 .admin-event-detail__metric-value--muted {
-  color: var(--color-admin-stat-muted);
-  font-weight: 500;
+  color: var(--metric-support);
+  font-weight: 550;
 }
 
 .admin-event-detail__metric-sub {
   display: block;
-  margin-top: 0.12rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-admin-stat-muted);
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 550;
+  color: var(--metric-support);
+  line-height: 1.4;
 }
 
 .admin-event-detail__split {
