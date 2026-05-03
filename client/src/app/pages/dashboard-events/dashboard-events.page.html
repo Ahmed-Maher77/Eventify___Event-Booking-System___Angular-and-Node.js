@@ -21,20 +21,32 @@
   </header>
 
   <div class="admin-entity-page__catalog-filters-wrap">
-    <button
-      type="button"
-      id="catalog-filters-toggle"
-      class="admin-entity-page__filters-toggle"
-      [attr.aria-expanded]="catalogFiltersExpanded()"
-      aria-controls="catalog-filters-panel"
-      (click)="toggleCatalogFilters()"
-    >
-      <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
-      <span>Filters &amp; sort</span>
-      @if (hasActiveCatalogFilters()) {
-        <span class="admin-entity-page__filters-active-badge">Active</span>
-      }
-    </button>
+    <div class="admin-entity-page__catalog-filters-bar">
+      <button
+        type="button"
+        id="catalog-filters-toggle"
+        class="admin-entity-page__filters-toggle"
+        [attr.aria-expanded]="catalogFiltersExpanded()"
+        aria-controls="catalog-filters-panel"
+        (click)="toggleCatalogFilters()"
+      >
+        <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
+        <span>Filters &amp; sort</span>
+        @if (hasActiveCatalogFilters()) {
+          <span class="admin-entity-page__filters-active-badge">Active</span>
+        }
+      </button>
+      <button
+        type="button"
+        class="admin-entity-page__catalog-clear-btn"
+        aria-label="Clear filters"
+        title="Clear filters"
+        (click)="clearCatalogFilters()"
+      >
+        <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+        <span class="admin-entity-page__catalog-clear-label">Clear</span>
+      </button>
+    </div>
 
     <div
       id="catalog-filters-panel"
@@ -100,17 +112,6 @@
           }
         </select>
       </label>
-    </div>
-    <div class="admin-entity-page__catalog-filters-actions">
-      <app-button
-        label="Clear filters"
-        variant="outline"
-        size="md"
-        [rounded]="true"
-        buttonType="button"
-        customClass="diagonal-swipe-hover"
-        (pressed)="clearCatalogFilters()"
-      />
     </div>
   </div>
       </div>
