@@ -70,7 +70,14 @@
                 >
                   <i class="fa-regular fa-pen-to-square"></i>
                 </button>
-                <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete event"><i class="fa-regular fa-trash-can"></i></button>
+                <button
+                  type="button"
+                  class="admin-entity-page__icon-btn is-danger"
+                  aria-label="Delete event"
+                  (click)="openDeleteConfirm(event)"
+                >
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
               </td>
             </tr>
           }
@@ -79,6 +86,52 @@
     }
   </div>
 </section>
+
+@if (eventPendingDelete(); as pendingDelete) {
+  <div
+    class="admin-confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="delete-event-dialog-title"
+    aria-describedby="delete-event-dialog-desc"
+  >
+    <button
+      type="button"
+      class="admin-confirm-modal__backdrop"
+      aria-label="Cancel delete"
+      [disabled]="isDeletingEvent()"
+      (click)="closeDeleteConfirm()"
+    ></button>
+    <div class="admin-confirm-modal__panel">
+      <h3 id="delete-event-dialog-title" class="admin-confirm-modal__title">Delete this event?</h3>
+      <p id="delete-event-dialog-desc" class="admin-confirm-modal__text">
+        This will permanently remove
+        <strong>{{ pendingDelete.title }}</strong>
+        from the catalog. Bookings tied to this event may be affected. This action cannot be undone.
+      </p>
+      <div class="admin-confirm-modal__actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="isDeletingEvent()"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closeDeleteConfirm()"
+        />
+        <app-button
+          label="Delete event"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [loading]="isDeletingEvent()"
+          customClass="admin-confirm-modal__delete-btn diagonal-swipe-hover"
+          (pressed)="confirmDeleteEvent()"
+        />
+      </div>
+    </div>
+  </div>
+}
 
 @if (isAddModalOpen) {
   <div

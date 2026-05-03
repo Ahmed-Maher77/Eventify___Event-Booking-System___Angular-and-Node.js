@@ -145,6 +145,85 @@
   color: var(--color-danger);
 }
 
+.admin-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.admin-confirm-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(14, 14, 14, 0.65);
+  cursor: pointer;
+}
+
+.admin-confirm-modal__backdrop:disabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.admin-confirm-modal__panel {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 1.35rem 1.25rem 1.25rem;
+  border-radius: 14px;
+  border: 2px solid var(--color-admin-panel-border);
+  background: var(--color-white);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.admin-confirm-modal__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: var(--color-black);
+}
+
+.admin-confirm-modal__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-admin-sidebar-text);
+}
+
+.admin-confirm-modal__text strong {
+  color: var(--color-black);
+  font-weight: 600;
+}
+
+.admin-confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.admin-confirm-modal__delete-btn.ev-btn--primary {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.admin-confirm-modal__delete-btn.ev-btn--primary.ev-btn--inactive {
+  opacity: 0.75;
+}
+
 .admin-event-modal {
   position: fixed;
   inset: 0;

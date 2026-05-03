@@ -53,6 +53,8 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected readonly editingEventId = signal<string | null>(null);
   protected readonly isLoadingEventDetail = signal(false);
   protected readonly isSubmitting = signal(false);
+  protected readonly eventPendingDelete = signal<EventApiItem | null>(null);
+  protected readonly isDeletingEvent = signal(false);
   private previousEditId: string | null = null;
   protected listErrorMessage = '';
   protected readonly formErrorMessage = signal('');
@@ -133,6 +135,53 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       queryParams: { editEvent: event._id, addEvent: null },
       queryParamsHandling: 'merge'
     });
+  }
+
+  protected openDeleteConfirm(event: EventApiItem): void {
+    if (!event?._id) {
+      return;
+    }
+    this.eventPendingDelete.set(event);
+  }
+
+  protected closeDeleteConfirm(): void {
+    if (this.isDeletingEvent()) {
+      return;
+    }
+    this.eventPendingDelete.set(null);
+  }
+
+  protected confirmDeleteEvent(): void {
+    const pending = this.eventPendingDelete();
+    if (!pending?._id || this.isDeletingEvent()) {
+      return;
+    }
+    const id = pending._id;
+    this.isDeletingEvent.set(true);
+
+    this.eventService
+      .deleteEvent(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isDeletingEvent.set(false);
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toast.showSuccess('Event deleted successfully.');
+          this.eventPendingDelete.set(null);
+          const editParam = this.route.snapshot.queryParamMap.get('editEvent');
+          if (editParam === id) {
+            this.closeAddEventModal();
+          }
+          this.loadEvents();
+        },
+        error: (error: unknown) => {
+          const message = this.resolveDeleteErrorMessage(error);
+          this.toast.showError(message);
+        }
+      });
   }
 
   protected closeAddEventModal(): void {
@@ -247,6 +296,21 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
       },
       { injector: this.injector }
     );
+  }
+
+  private resolveDeleteErrorMessage(error: unknown): string {
+    const fallbackMessage = 'Unable to delete this event. Please try again.';
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error;
+      if (body && typeof body === 'object' && 'message' in body) {
+        const message = String((body as { message?: string }).message ?? '').trim();
+        if (message) {
+          return message;
+        }
+      }
+      return fallbackMessage;
+    }
+    return fallbackMessage;
   }
 
   private resolveMutationErrorMessage(error: unknown, action: 'create' | 'update'): string {

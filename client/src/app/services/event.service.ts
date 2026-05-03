@@ -34,6 +34,11 @@ export interface EventMutationResponse {
   success?: boolean;
 }
 
+export interface EventDeleteResponse {
+  success: boolean;
+  message?: string;
+}
+
 export interface SingleEventApiResponse {
   success: boolean;
   message?: string;
@@ -175,6 +180,12 @@ export class EventService {
 
   updateEvent(id: string, payload: CreateEventPayload | FormData): Observable<EventMutationResponse> {
     return this.http.put<EventMutationResponse>(`${this.eventsApiUrl}/${id}`, payload, {
+      withCredentials: true,
+    });
+  }
+
+  deleteEvent(id: string): Observable<EventDeleteResponse> {
+    return this.http.delete<EventDeleteResponse>(`${this.eventsApiUrl}/${id}`, {
       withCredentials: true,
     });
   }
