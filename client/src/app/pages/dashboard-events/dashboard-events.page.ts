@@ -29,6 +29,7 @@ import { ToastService } from '../../services/toast.service';
 })
 export class DashboardEventsPage implements OnInit, OnDestroy {
   private static readonly IMAGE_URL_PATTERN = /^https?:\/\/.+/i;
+  private static readonly CATALOG_IMAGE_FALLBACK = '/images/event-placeholder.svg';
   private readonly eventService = inject(EventService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -108,6 +109,11 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  protected catalogEventImageSrc(event: EventApiItem): string {
+    const raw = (event.image ?? '').trim();
+    return raw || DashboardEventsPage.CATALOG_IMAGE_FALLBACK;
   }
 
   protected openAddEventModal(): void {

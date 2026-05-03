@@ -33,15 +33,28 @@
       <table class="table admin-entity-page__table align-middle mb-0">
         <thead>
           <tr>
-            <th>Event</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th class="text-end">Actions</th>
+            <th class="admin-entity-page__th-image" scope="col">
+              <span class="visually-hidden">Event image</span>
+            </th>
+            <th scope="col">Event</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+            <th class="text-end" scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (event of events(); track event._id) {
             <tr>
+              <td class="admin-entity-page__td-image">
+                <img
+                  class="admin-entity-page__catalog-thumb"
+                  [src]="catalogEventImageSrc(event)"
+                  [alt]="'Cover image for ' + event.title"
+                  width="48"
+                  height="48"
+                  loading="lazy"
+                />
+              </td>
               <td>{{ event.title }}</td>
               <td>{{ event.date | date: 'MMM d, y' }}</td>
               <td>
