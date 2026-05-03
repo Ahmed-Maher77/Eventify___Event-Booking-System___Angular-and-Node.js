@@ -44,7 +44,7 @@
         (click)="clearCatalogFilters()"
       >
         <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
-        <span class="admin-entity-page__catalog-clear-label">Clear</span>
+        <span class="admin-entity-page__catalog-clear-label">Clear Filters</span>
       </button>
     </div>
 
@@ -81,36 +81,35 @@
       </label>
       <label class="admin-entity-page__filter-field">
         <span class="admin-entity-page__filter-label">Category</span>
-        <select class="admin-entity-page__filter-input" formControlName="category">
-          <option value="">All categories</option>
-          @for (cat of categoryOptions; track cat) {
-            <option [value]="cat">{{ cat }}</option>
-          }
-        </select>
+        <app-custom-native-select
+          formControlName="category"
+          [options]="catalogCategoryFilterOptions"
+          selectClass="admin-entity-page__filter-input"
+        />
       </label>
       <label class="admin-entity-page__filter-field">
         <span class="admin-entity-page__filter-label">Status</span>
-        <select class="admin-entity-page__filter-input" formControlName="status">
-          @for (opt of catalogStatusOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
-          }
-        </select>
+        <app-custom-native-select
+          formControlName="status"
+          [options]="catalogStatusOptions"
+          selectClass="admin-entity-page__filter-input"
+        />
       </label>
       <label class="admin-entity-page__filter-field">
         <span class="admin-entity-page__filter-label">Sort by</span>
-        <select class="admin-entity-page__filter-input" formControlName="sort">
-          @for (opt of catalogSortOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
-          }
-        </select>
+        <app-custom-native-select
+          formControlName="sort"
+          [options]="catalogSortOptions"
+          selectClass="admin-entity-page__filter-input"
+        />
       </label>
       <label class="admin-entity-page__filter-field">
         <span class="admin-entity-page__filter-label">Order</span>
-        <select class="admin-entity-page__filter-input" formControlName="order">
-          @for (opt of catalogOrderOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
-          }
-        </select>
+        <app-custom-native-select
+          formControlName="order"
+          [options]="catalogOrderOptions"
+          selectClass="admin-entity-page__filter-input"
+        />
       </label>
     </div>
   </div>
@@ -375,23 +374,11 @@
 
             <label class="admin-event-form__field" aria-required="true">
               <span>Category<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
-              <div class="admin-event-form__select-wrap">
-                <select
-                  class="admin-event-form__input"
-                  formControlName="category"
-                  (focus)="setCategorySelectActive(true)"
-                  (blur)="setCategorySelectActive(false)"
-                >
-                  @for (category of categoryOptions; track category) {
-                    <option [value]="category">{{ category }}</option>
-                  }
-                </select>
-                <i
-                  class="fa-solid fa-chevron-down admin-event-form__select-arrow"
-                  [class.is-active]="isCategorySelectActive"
-                  aria-hidden="true"
-                ></i>
-              </div>
+              <app-custom-native-select
+                formControlName="category"
+                [options]="addEventCategorySelectOptions"
+                selectClass="admin-event-form__input"
+              />
             </label>
           </div>
 

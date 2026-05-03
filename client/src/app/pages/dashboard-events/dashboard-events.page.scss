@@ -717,40 +717,6 @@
   }
 }
 
-.admin-event-form__select-wrap {
-  position: relative;
-}
-
-select.admin-event-form__input {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 2.3rem;
-  cursor: pointer;
-}
-
-select.admin-event-form__input::-ms-expand {
-  display: none;
-}
-
-.admin-event-form__select-arrow {
-  position: absolute;
-  right: 0.95rem;
-  top: 50%;
-  transform: translateY(-50%) rotate(0deg);
-  color: var(--color-gray);
-  font-size: 0.85rem;
-  pointer-events: none;
-  transition:
-    transform 180ms ease,
-    color 180ms ease;
-}
-
-.admin-event-form__select-arrow.is-active {
-  transform: translateY(-50%) rotate(180deg);
-  color: var(--color-brown);
-}
-
 .admin-event-form__field {
   small {
     color: var(--color-danger);

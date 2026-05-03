@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.custom-native-select__wrap {
+  position: relative;
+}
+
+select.custom-native-select__native {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.35rem;
+  cursor: pointer;
+}
+
+/* Parent page styles (.admin-entity-page__filter-input etc.) do not pierce this
+   component — restyle the native select by context. */
+:host-context(.admin-entity-page__filter-field) select.custom-native-select__native {
+  min-height: 2.45rem;
+  padding: 0.4rem 2.35rem 0.4rem 0.65rem;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-admin-sidebar-text);
+  background: rgb(255 255 255 / 55%);
+
+  &:focus {
+    outline: 2px solid rgb(231 200 115 / 45%);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+    background: rgb(255 255 255 / 85%);
+  }
+}
+
+:host-context(.admin-event-form__field) select.custom-native-select__native {
+  padding: 0.7rem 2.35rem 0.7rem 0.82rem;
+  border: 1px solid var(--color-chip-border);
+  border-radius: 12px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: 0.95rem;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgb(231 200 115 / 22%);
+  }
+}
+
+select.custom-native-select__native::-ms-expand {
+  display: none;
+}
+
+.custom-native-select__arrow {
+  position: absolute;
+  right: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  color: var(--color-gray);
+  font-size: 0.85rem;
+  pointer-events: none;
+  transition:
+    transform 180ms ease,
+    color 180ms ease;
+}
+
+.custom-native-select__arrow.is-active {
+  transform: translateY(-50%) rotate(180deg);
+  color: var(--color-brown);
+}

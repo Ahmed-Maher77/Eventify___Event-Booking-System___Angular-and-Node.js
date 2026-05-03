@@ -1,0 +1,20 @@
+<div class="custom-native-select__wrap">
+  <select
+    [attr.id]="selectId || null"
+    [class]="mergedSelectClasses"
+    [disabled]="isDisabled"
+    [value]="value"
+    (change)="onSelectChange($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+  >
+    @for (opt of options; track opt.value + '-' + $index) {
+      <option [value]="opt.value">{{ opt.label }}</option>
+    }
+  </select>
+  <i
+    class="fa-solid fa-chevron-down custom-native-select__arrow"
+    [class.is-active]="isFocused"
+    aria-hidden="true"
+  ></i>
+</div>

@@ -15,6 +15,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
 import { Button } from '../../shared/button/button';
+import {
+  CustomNativeSelectComponent,
+  CustomNativeSelectOption,
+} from '../../shared/custom-native-select/custom-native-select';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 import {
@@ -33,7 +37,14 @@ type CatalogPaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
 @Component({
   selector: 'app-dashboard-events-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HighlightedPageHeadingComponent, Button, SectionLoader],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    HighlightedPageHeadingComponent,
+    Button,
+    SectionLoader,
+    CustomNativeSelectComponent,
+  ],
   templateUrl: './dashboard-events.page.html',
   styleUrl: './dashboard-events.page.scss'
 })
@@ -58,25 +69,33 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     'other'
   ];
 
-  protected readonly catalogSortOptions: { value: EventSortField; label: string }[] = [
+  protected readonly catalogSortOptions: CustomNativeSelectOption[] = [
     { value: 'date', label: 'Date' },
     { value: 'title', label: 'Title' },
     { value: 'price', label: 'Price' },
     { value: 'createdAt', label: 'Created' }
   ];
 
-  protected readonly catalogOrderOptions: { value: EventSortOrder; label: string }[] = [
+  protected readonly catalogOrderOptions: CustomNativeSelectOption[] = [
     { value: 'asc', label: 'Ascending' },
     { value: 'desc', label: 'Descending' }
   ];
 
-  protected readonly catalogStatusOptions: { value: '' | EventStatusFilter; label: string }[] = [
+  protected readonly catalogStatusOptions: CustomNativeSelectOption[] = [
     { value: '', label: 'All statuses' },
     { value: 'upcoming', label: 'Upcoming' },
     { value: 'ongoing', label: 'Ongoing' },
     { value: 'completed', label: 'Completed' },
     { value: 'cancelled', label: 'Cancelled' }
   ];
+
+  protected readonly catalogCategoryFilterOptions: CustomNativeSelectOption[] = [
+    { value: '', label: 'All categories' },
+    ...this.categoryOptions.map((c) => ({ value: c, label: c }))
+  ];
+
+  protected readonly addEventCategorySelectOptions: CustomNativeSelectOption[] =
+    this.categoryOptions.map((c) => ({ value: c, label: c }));
 
   protected readonly catalogFilterForm = this.fb.nonNullable.group({
     search: [''],
@@ -104,7 +123,6 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected readonly formErrorMessage = signal('');
   protected readonly formSuccessMessage = signal('');
   protected pictureMode: 'file' | 'url' = 'file';
-  protected isCategorySelectActive = false;
   protected selectedImageName = '';
   private selectedImageFile: File | null = null;
 
@@ -356,10 +374,6 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
     this.selectedImageFile = file;
     this.selectedImageName = file?.name ?? '';
     this.formErrorMessage.set('');
-  }
-
-  protected setCategorySelectActive(isActive: boolean): void {
-    this.isCategorySelectActive = isActive;
   }
 
   protected removeSelectedImage(fileInput?: HTMLInputElement): void {
