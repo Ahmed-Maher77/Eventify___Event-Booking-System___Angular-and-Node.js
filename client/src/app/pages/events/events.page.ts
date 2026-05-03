@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, finalize, switchMap, takeUntil } from 'rxjs';
@@ -56,6 +56,7 @@ export class EventsPage implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
   private readonly defaultPageLimit = 9;
   protected readonly minAllowedPrice = 0;
@@ -278,6 +279,7 @@ export class EventsPage implements OnInit, OnDestroy {
           return this.eventService.getEvents(this.buildEventQueryOptions()).pipe(
             finalize(() => {
               this.isLoading.set(false);
+              this.cdr.detectChanges();
             }),
           );
         }),
@@ -285,6 +287,7 @@ export class EventsPage implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.applyEventsApiResponse(response);
+          this.cdr.detectChanges();
         },
         error: () => {
           this.applyFallbackPagination();
