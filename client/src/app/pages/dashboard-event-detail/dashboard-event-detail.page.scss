@@ -51,6 +51,16 @@
   width: calc(100% + 2 * var(--admin-page-bleed));
   min-height: clamp(380px, 52vh, 560px);
   max-height: min(720px, 68vh);
+
+  @media (min-width: 1200px) {
+    min-height: clamp(440px, 58vh, 720px);
+    max-height: min(900px, 78vh);
+  }
+
+  @media (min-width: 1600px) {
+    min-height: clamp(480px, 60vh, 820px);
+    max-height: min(980px, 82vh);
+  }
 }
 
 .admin-event-detail__banner-media {
