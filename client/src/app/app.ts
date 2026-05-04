@@ -10,7 +10,9 @@ import {
 } from '@angular/router';
 import { AdminMobileSidebarService } from './services/admin-mobile-sidebar.service';
 import { AuthService } from './services/auth.service';
+import { ChatApiService } from './services/chat-api.service';
 import { ChatStoreService } from './services/chat-store.service';
+import { ToastService } from './services/toast.service';
 import { AdminSidebar } from './shared/admin-sidebar/admin-sidebar';
 import { Footer } from './shared/footer/footer';
 import { Header } from './shared/header/header';
@@ -30,10 +32,11 @@ export class App {
   private readonly authService = inject(AuthService);
   protected readonly adminDrawer = inject(AdminMobileSidebarService);
   private readonly chatStoreService = inject(ChatStoreService);
+  private readonly chatApiService = inject(ChatApiService);
+  private readonly toastService = inject(ToastService);
   private scrollAnimationFrameId: number | null = null;
   private loaderShownAtMs = 0;
   private hideLoaderTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private assistantReplyTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private readonly chatbotHintStorageKey = 'eventifyChatbotHintDismissed';
   protected readonly title = signal('eventify-client');
   protected readonly isNavigating = signal(false);
@@ -41,6 +44,7 @@ export class App {
   protected readonly chatMessages = this.chatStoreService.messages;
   protected readonly isChatScreenActive = this.chatStoreService.isChatScreenActive;
   protected readonly isAssistantOnline = this.chatStoreService.isAssistantOnline;
+  protected readonly isSendingChat = this.chatStoreService.isSending;
   protected readonly chatDraftMessage = signal('');
   protected readonly showChatbotHint = signal(false);
 
@@ -104,10 +108,6 @@ export class App {
       clearTimeout(this.hideLoaderTimeoutId);
       this.hideLoaderTimeoutId = null;
     }
-    if (this.assistantReplyTimeoutId) {
-      clearTimeout(this.assistantReplyTimeoutId);
-      this.assistantReplyTimeoutId = null;
-    }
   }
 
   protected isLoggedIn(): boolean {
@@ -131,25 +131,36 @@ export class App {
     this.chatStoreService.deactivateChatScreen();
   }
 
+  protected startNewChat(): void {
+    this.chatStoreService.startNewSession();
+  }
+
   protected submitFloatingChatMessage(): void {
     const message = this.chatDraftMessage().trim();
-    if (!message) {
+    if (!message || this.isSendingChat()) {
+      return;
+    }
+
+    if (!this.isLoggedIn()) {
+      this.toastService.showError('Please log in to chat with our AI assistant.');
       return;
     }
 
     this.chatStoreService.addUserMessage(message);
     this.chatDraftMessage.set('');
+    this.chatStoreService.isSending.set(true);
 
-    if (this.assistantReplyTimeoutId) {
-      clearTimeout(this.assistantReplyTimeoutId);
-    }
-
-    this.assistantReplyTimeoutId = setTimeout(() => {
-      this.chatStoreService.addAssistantMessage(
-        'I can help you discover events by date, category, budget, or location. Tell me what you want and I will suggest the best options.',
-      );
-      this.assistantReplyTimeoutId = null;
-    }, 700);
+    this.chatApiService.getCompletion(this.chatStoreService.messages()).subscribe({
+      next: (reply) => {
+        this.chatStoreService.addAssistantMessage(reply);
+        this.chatStoreService.isSending.set(false);
+      },
+      error: (err) => {
+        console.error('Chat AI Error:', err);
+        this.toastService.showError('Failed to get a response. Please try again later.');
+        this.chatStoreService.isSending.set(false);
+      }
+    });
   }
 
   protected onFloatingChatSubmit(event: Event): void {
