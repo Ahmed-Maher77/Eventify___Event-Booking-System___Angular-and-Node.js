@@ -15,7 +15,7 @@ const getUsersBookings = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
 
     // Filter — only the authenticated user's bookings
-    const filter = { userId: req.user._id };
+    const filter = { userId: req.user.id };
     if (status) filter.status = status;
 
     // Calculate Skip
@@ -167,7 +167,7 @@ const createBooking = async (req, res, next) => {
 
     // Create booking
     const booking = await Booking.create({
-      userId: req.user._id,
+      userId: req.user.id,
       eventId,
       quantity,
       totalPrice,
@@ -247,7 +247,7 @@ const cancelBooking = async (req, res, next) => {
       .populate("eventId", "title date location");
     if (!booking) throw AppError.notFound("Booking not found");
 
-    const isOwner = booking.userId._id.toString() === req.user._id.toString();
+    const isOwner = booking.userId._id.toString() === req.user.id.toString();
     const isAdmin = req.user.role === "admin";
 
     if (!isOwner && !isAdmin)

@@ -192,6 +192,22 @@ const validateBooking = [
 ];
 
 /**
+ * Validate public event review (1–5 hearts + optional message)
+ */
+const validateCreateEventReview = [
+  body('rating')
+    .notEmpty().withMessage('Rating is required')
+    .isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+
+  body('message')
+    .optional()
+    .trim()
+    .isLength({ max: 2000 }).withMessage('Message must be at most 2000 characters'),
+
+  handleValidationErrors
+];
+
+/**
  * Validate contact message submission
  */
 const validateContactMessage = [
@@ -352,6 +368,7 @@ export {
   validateCreateEvent,
   validateUpdateEvent,
   validateBooking,
+  validateCreateEventReview,
   validateContactMessage,
   validateNewsletterSubscription,
   validateContactMessageStatusUpdate,

@@ -19,6 +19,13 @@ interface FavoritesResponse {
   };
 }
 
+interface FavoriteStatusResponse {
+  data: {
+    eventId: string;
+    isFavorite: boolean;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,6 +35,12 @@ export class FavoriteService {
 
   getFavorites(): Observable<FavoritesResponse> {
     return this.http.get<FavoritesResponse>(this.favoritesApiUrl, { withCredentials: true });
+  }
+
+  getFavoriteStatus(eventId: string): Observable<FavoriteStatusResponse> {
+    return this.http.get<FavoriteStatusResponse>(`${this.favoritesApiUrl}/${eventId}/status`, {
+      withCredentials: true,
+    });
   }
 
   addFavorite(eventId: string): Observable<FavoriteMutationResponse> {

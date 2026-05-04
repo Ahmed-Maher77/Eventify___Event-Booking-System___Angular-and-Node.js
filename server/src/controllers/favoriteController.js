@@ -116,6 +116,43 @@ const removeFavorite = async (req, res, next) => {
     }
 };
 
+const getFavoriteStatus = async (req, res, next) => {
+    try {
+        const { eventId } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(eventId)) {
+            throw AppError.badRequest("Invalid Event ID.");
+        }
+
+        const existingEvent = await Event.findById(eventId).select("_id");
+        if (!existingEvent) {
+            throw AppError.notFound("Event not found.");
+        }
+
+        const user = await User.findById(req.user?.id).select("favorites");
+        if (!user) {
+            throw AppError.notFound("User not found.");
+        }
+
+        const isFavorite = user.favorites.some(
+            (favoriteId) => favoriteId.toString() === eventId,
+        );
+
+        res.status(200).json({
+            success: true,
+            data: { eventId, isFavorite },
+        });
+    } catch (error) {
+        if (error instanceof AppError) {
+            return next(error);
+        }
+        return next(
+            AppError.internalError(
+                "An error occurred while checking favorite status.",
+            ),
+        );
+    }
+};
+
 const toggleFavorite = async (req, res, next) => {
     try {
         const { eventId } = req.params;
@@ -170,4 +207,10 @@ const toggleFavorite = async (req, res, next) => {
     }
 };
 
-export { addFavorite, getUserFavorites, removeFavorite, toggleFavorite };
+export {
+    addFavorite,
+    getFavoriteStatus,
+    getUserFavorites,
+    removeFavorite,
+    toggleFavorite,
+};

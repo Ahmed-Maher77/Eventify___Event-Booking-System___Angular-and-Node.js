@@ -1,1 +1,247 @@
-<h1>Event Details Page</h1>
+<section class="public-event-detail">
+  @if (loading()) {
+    <div class="public-event-detail__loader-wrap">
+      <app-section-loader [size]="40" label="Loading event" />
+    </div>
+  } @else if (errorMessage()) {
+    <div class="container py-5">
+      <p class="public-event-detail__error">{{ errorMessage() }}</p>
+      <a routerLink="/events" class="public-event-detail__back-link">Back to events</a>
+    </div>
+  } @else if (event(); as ev) {
+    <div class="public-event-detail__banner">
+      <div class="public-event-detail__banner-media">
+        <img [src]="coverImageSrc(ev)" [alt]="ev.title" width="1600" height="600" loading="eager" />
+      </div>
+      <div class="public-event-detail__banner-gradient" aria-hidden="true"></div>
+
+      <div class="public-event-detail__banner-inner container">
+        <div class="public-event-detail__banner-top">
+          <nav class="public-event-detail__breadcrumb" aria-label="Breadcrumb">
+            <ol class="public-event-detail__crumbs">
+              <li><a routerLink="/">Home</a></li>
+              <li><a routerLink="/events">Events</a></li>
+              <li aria-current="page">{{ ev.title }}</li>
+            </ol>
+          </nav>
+          <div class="public-event-detail__banner-actions">
+            <button
+              type="button"
+              class="public-event-detail__icon-btn"
+              [class.is-active]="isFavorite()"
+              [disabled]="favoriteBusy()"
+              [attr.aria-pressed]="isFavorite()"
+              [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+              (click)="toggleFavorite()"
+            >
+              <i class="fa-solid fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="public-event-detail__banner-bottom">
+          <p class="public-event-detail__eyebrow">Event details</p>
+          <h1 class="public-event-detail__headline">{{ ev.title }}</h1>
+          <div class="public-event-detail__badges">
+            <span class="public-event-detail__status-pill">{{ (ev.status || 'upcoming') | titlecase }}</span>
+            <span class="public-event-detail__category-chip">{{ ev.category | titlecase }}</span>
+          </div>
+          <div class="public-event-detail__banner-facts">
+            <span class="public-event-detail__banner-fact">
+              <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+              {{ ev.date | date: 'EEE, MMM d, y' }}
+              <span class="public-event-detail__banner-fact-sub">{{ ev.date | date: 'shortTime' }}</span>
+            </span>
+            <span class="public-event-detail__banner-fact">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              {{ ev.location }}
+            </span>
+            <span class="public-event-detail__banner-fact">
+              <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+              {{ ev.price | currency }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="public-event-detail__flow container">
+      <ul class="public-event-detail__metrics" aria-label="Key details">
+        <li class="public-event-detail__metric">
+          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>
+          <div class="public-event-detail__metric-body">
+            <span class="public-event-detail__metric-label">When</span>
+            <span class="public-event-detail__metric-value">{{ ev.date | date: 'EEE, MMM d, y' }}</span>
+            <span class="public-event-detail__metric-sub">{{ ev.date | date: 'shortTime' }}</span>
+          </div>
+        </li>
+        <li class="public-event-detail__metric">
+          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>
+          <div class="public-event-detail__metric-body">
+            <span class="public-event-detail__metric-label">Venue</span>
+            <span class="public-event-detail__metric-value">{{ ev.location }}</span>
+          </div>
+        </li>
+        <li class="public-event-detail__metric">
+          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-solid fa-ticket"></i></span>
+          <div class="public-event-detail__metric-body">
+            <span class="public-event-detail__metric-label">Ticket price</span>
+            <span class="public-event-detail__metric-value">{{ ev.price | currency }}</span>
+          </div>
+        </li>
+        <li class="public-event-detail__metric">
+          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span>
+          <div class="public-event-detail__metric-body">
+            <span class="public-event-detail__metric-label">Capacity</span>
+            @if (seatsSnapshot(ev); as seats) {
+              <span class="public-event-detail__metric-value">{{ seats.available }} available</span>
+              <span class="public-event-detail__metric-sub">of {{ seats.capacity }} total seats</span>
+            } @else if (ev.capacity != null) {
+              <span class="public-event-detail__metric-value">{{ ev.capacity }} guests</span>
+            } @else {
+              <span class="public-event-detail__metric-value muted">—</span>
+            }
+          </div>
+        </li>
+      </ul>
+
+      <div class="public-event-detail__split">
+        <section class="public-event-detail__block" aria-labelledby="about-heading">
+          <h2 id="about-heading" class="public-event-detail__block-title">About this event</h2>
+          @if (ev.description?.trim()) {
+            <div class="public-event-detail__prose">{{ ev.description }}</div>
+          } @else {
+            <p class="public-event-detail__empty-note">No description provided.</p>
+          }
+        </section>
+
+        <aside class="public-event-detail__block public-event-detail__block--aside" aria-labelledby="actions-heading">
+          <h2 id="actions-heading" class="public-event-detail__block-title">Tickets</h2>
+          @if (avgRating() != null) {
+            <p class="public-event-detail__rating-summary">
+              <span class="public-event-detail__stars" aria-hidden="true">
+                @for (h of heartsArray(avgRating()!); track $index) {
+                  <i class="fa-solid fa-heart"></i>
+                }
+              </span>
+              <span>{{ avgRating() }} / 5 · {{ reviews().length }} review{{ reviews().length === 1 ? '' : 's' }}</span>
+            </p>
+          }
+
+          @if (showBookingCta()) {
+            @if (auth.isLoggedIn()) {
+              @if (canBook()) {
+                <div class="public-event-detail__book-row">
+                  <label class="public-event-detail__qty-label" for="book-qty">Tickets</label>
+                  <input
+                    id="book-qty"
+                    type="number"
+                    class="public-event-detail__qty-input"
+                    min="1"
+                    [max]="seatsSnapshot(ev)?.available ?? 99"
+                    [ngModel]="bookingQuantity()"
+                    (ngModelChange)="onBookingQtyChange($event)"
+                  />
+                </div>
+                <app-button
+                  label="Book now"
+                  variant="primary"
+                  size="md"
+                  [rounded]="true"
+                  leftIcon="fa-solid fa-ticket"
+                  customClass="public-event-detail__book-btn diagonal-swipe-hover"
+                  [disabled]="bookingSubmitting()"
+                  [loading]="bookingSubmitting()"
+                  (pressed)="submitBooking()"
+                />
+              } @else {
+                <p class="public-event-detail__hint">No seats available for this event.</p>
+              }
+            } @else {
+              <p class="public-event-detail__hint">Log in to book tickets for this event.</p>
+              <a routerLink="/login" [queryParams]="{ returnUrl: '/events/' + ev._id }" class="public-event-detail__text-btn"
+                >Sign in</a
+              >
+            }
+          } @else {
+            <p class="public-event-detail__hint">Booking is not available for this event.</p>
+          }
+        </aside>
+      </div>
+
+      <section class="public-event-detail__reviews" aria-labelledby="reviews-heading">
+        <h2 id="reviews-heading" class="public-event-detail__block-title">Reviews</h2>
+
+        @if (auth.isLoggedIn() && (canReview() || hasReviewed())) {
+          <div class="public-event-detail__review-form-wrap">
+            @if (canReview()) {
+              <p class="public-event-detail__review-lead">Share your experience</p>
+              <div class="public-event-detail__hearts" role="group" aria-label="Rating out of five">
+                @for (n of [1, 2, 3, 4, 5]; track n) {
+                  <button
+                    type="button"
+                    class="public-event-detail__heart"
+                    [class.is-selected]="draftRating() >= n"
+                    [attr.aria-label]="'Rate ' + n + ' out of 5'"
+                    (click)="setRating(n)"
+                  >
+                    <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                  </button>
+                }
+              </div>
+              <label class="public-event-detail__review-label" for="review-msg">Message (optional)</label>
+              <textarea
+                id="review-msg"
+                class="public-event-detail__review-textarea"
+                rows="3"
+                maxlength="2000"
+                placeholder="What stood out?"
+                [ngModel]="draftMessage()"
+                (ngModelChange)="draftMessage.set($event)"
+              ></textarea>
+              <app-button
+                label="Submit review"
+                variant="primary"
+                size="md"
+                [rounded]="true"
+                leftIcon="fa-solid fa-paper-plane"
+                [disabled]="reviewSubmitting() || draftRating() < 1"
+                [loading]="reviewSubmitting()"
+                (pressed)="submitReview()"
+              />
+            } @else if (hasReviewed()) {
+              <p class="public-event-detail__hint">{{ reviewHint() }}</p>
+            }
+          </div>
+        } @else if (auth.isLoggedIn()) {
+          <p class="public-event-detail__hint">{{ reviewHint() }}</p>
+        } @else {
+          <p class="public-event-detail__hint">{{ reviewHint() }}</p>
+        }
+
+        @if (reviews().length) {
+          <ul class="public-event-detail__review-list">
+            @for (r of reviews(); track r._id) {
+              <li class="public-event-detail__review-card">
+                <div class="public-event-detail__review-top">
+                  <span class="public-event-detail__stars" aria-hidden="true">
+                    @for (h of heartsArray(r.rating); track $index) {
+                      <i class="fa-solid fa-heart"></i>
+                    }
+                  </span>
+                  <span class="public-event-detail__review-author">{{ r.authorName }}</span>
+                  <span class="public-event-detail__review-date">{{ r.createdAt | date: 'mediumDate' }}</span>
+                </div>
+                @if (r.message && r.message.trim()) {
+                  <p class="public-event-detail__review-msg">{{ r.message }}</p>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="public-event-detail__empty-note">No reviews yet — be the first when you are eligible.</p>
+        }
+      </section>
+    </div>
+  }
+</section>
