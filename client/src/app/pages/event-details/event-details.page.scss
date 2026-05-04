@@ -726,9 +726,15 @@
   width: 100%;
 }
 
-.public-event-detail__review-filter ::ng-deep .custom-native-select__wrap select {
+.public-event-detail__review-filter ::ng-deep select.custom-native-select__native {
   min-height: 2.55rem;
   font-size: 0.88rem;
+  padding-inline: 0.75rem 2.35rem;
+  padding-block: 0.5rem;
+  border: 1px solid rgb(0 0 0 / 12%);
+  border-radius: 0.45rem;
+  background: #fff;
+  color: rgb(40 36 32);
 }
 
 .public-event-detail__review-head {

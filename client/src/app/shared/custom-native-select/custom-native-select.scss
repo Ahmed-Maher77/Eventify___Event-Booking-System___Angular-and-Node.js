@@ -15,7 +15,8 @@ select.custom-native-select__native {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding-right: 2.35rem;
+  /* Reserve space for chevron + readable inset so label text is not clipped */
+  padding: 0.45rem 2.35rem 0.45rem 0.75rem;
   cursor: pointer;
 }
 
