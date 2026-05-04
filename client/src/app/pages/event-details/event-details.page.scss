@@ -605,10 +605,6 @@
   }
 }
 
-.public-event-detail__review-card--sample {
-  background: linear-gradient(90deg, rgb(255 253 248 / 0%) 0%, rgb(231 200 115 / 12%) 50%, rgb(255 253 248 / 0%) 100%);
-}
-
 .public-event-detail__review-top {
   display: flex;
   flex-wrap: wrap;
@@ -916,7 +912,6 @@
 .public-event-detail__review-helpful {
   margin-top: 0.85rem;
   padding-top: 0.75rem;
-  // border-top: 1px solid rgb(0 0 0 / 6%);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
