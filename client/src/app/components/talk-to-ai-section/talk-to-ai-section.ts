@@ -2,7 +2,10 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from '../../shared/button/button';
+import { ChatApiService } from '../../services/chat-api.service';
 import { ChatStoreService } from '../../services/chat-store.service';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { AiFeatureItem } from './talk-to-ai-section.model';
 import { setupTalkToAiAnimations } from './talk-to-ai-section.animations';
 
@@ -14,6 +17,9 @@ import { setupTalkToAiAnimations } from './talk-to-ai-section.animations';
 })
 export class TalkToAiSection implements AfterViewInit, OnDestroy {
   private readonly chatStoreService = inject(ChatStoreService);
+  private readonly chatApiService = inject(ChatApiService);
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   @ViewChild('talkToAiRoot') private talkToAiRoot?: ElementRef<HTMLElement>;
   private talkToAiContext: ReturnType<typeof setupTalkToAiAnimations> | null = null;
   protected readonly features: AiFeatureItem[] = [
@@ -22,6 +28,7 @@ export class TalkToAiSection implements AfterViewInit, OnDestroy {
     { text: 'Get smart picks for this week or weekend' }
   ];
   protected readonly isAssistantOnline = this.chatStoreService.isAssistantOnline;
+  protected readonly isSendingChat = this.chatStoreService.isSending;
   protected readonly draftMessage = signal('');
   protected readonly isMenuOpen = signal(false);
 
@@ -40,7 +47,12 @@ export class TalkToAiSection implements AfterViewInit, OnDestroy {
 
   protected submitMessage(): void {
     const message = this.draftMessage().trim();
-    if (!message) {
+    if (!message || this.isSendingChat()) {
+      return;
+    }
+
+    if (!this.authService.isLoggedIn()) {
+      this.toastService.showError('Please log in to chat with our AI assistant.');
       return;
     }
 
@@ -48,6 +60,19 @@ export class TalkToAiSection implements AfterViewInit, OnDestroy {
     this.chatStoreService.activateChatScreen();
     this.draftMessage.set('');
     this.isMenuOpen.set(false);
+    this.chatStoreService.isSending.set(true);
+
+    this.chatApiService.getCompletion(this.chatStoreService.messages()).subscribe({
+      next: (reply) => {
+        this.chatStoreService.addAssistantMessage(reply);
+        this.chatStoreService.isSending.set(false);
+      },
+      error: (err) => {
+        console.error('Talk-to-AI Error:', err);
+        this.toastService.showError('Failed to get a response. Please try again later.');
+        this.chatStoreService.isSending.set(false);
+      }
+    });
   }
 
   @HostListener('document:click')
