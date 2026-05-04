@@ -16,19 +16,22 @@ import { EventApiItem, EventService } from '../../services/event.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { ToastService } from '../../services/toast.service';
 import { Button } from '../../shared/button/button';
+import {
+  CustomNativeSelectComponent,
+  CustomNativeSelectOption,
+} from '../../shared/custom-native-select/custom-native-select';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
 
 @Component({
   selector: 'app-event-details-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SectionLoader, Button],
+  imports: [CommonModule, FormsModule, RouterLink, SectionLoader, Button, CustomNativeSelectComponent],
   templateUrl: './event-details.page.html',
   styleUrl: './event-details.page.scss',
 })
 export class EventDetailsPage implements OnInit {
   private static readonly IMAGE_FALLBACK = '/images/event-placeholder.svg';
-  private static readonly REVIEW_PREVIEW_LEN = 220;
 
   /** Static rows for layout preview (not persisted). */
   private static readonly SAMPLE_REVIEWS: EventReviewItem[] = [
@@ -100,6 +103,15 @@ export class EventDetailsPage implements OnInit {
   protected readonly ratingFilter = signal<'all' | '1' | '2' | '3' | '4' | '5'>('all');
   protected readonly expandedReviewIds = signal<Record<string, boolean>>({});
   protected readonly voteBusy = signal<Record<string, boolean>>({});
+
+  protected readonly ratingFilterOptions: CustomNativeSelectOption[] = [
+    { value: 'all', label: 'All ratings' },
+    { value: '5', label: '5 stars' },
+    { value: '4', label: '4 stars' },
+    { value: '3', label: '3 stars' },
+    { value: '2', label: '2 stars' },
+    { value: '1', label: '1 star' },
+  ];
 
   /** Live reviews first, then sample placeholders. */
   protected readonly mergedReviews = computed(() => [
@@ -268,10 +280,6 @@ export class EventDetailsPage implements OnInit {
     return `${years} year${years === 1 ? '' : 's'} ago`;
   }
 
-  protected shouldTruncateMessage(msg: string): boolean {
-    return (msg?.trim().length ?? 0) > EventDetailsPage.REVIEW_PREVIEW_LEN;
-  }
-
   protected isReviewExpanded(id: string): boolean {
     return !!this.expandedReviewIds()[id];
   }
@@ -280,11 +288,14 @@ export class EventDetailsPage implements OnInit {
     this.expandedReviewIds.update((m) => ({ ...m, [id]: !m[id] }));
   }
 
-  protected visibleReviewMessage(r: EventReviewItem): string {
-    const t = (r.message ?? '').trim();
-    if (!t) return '';
-    if (!this.shouldTruncateMessage(t) || this.isReviewExpanded(r._id)) return t;
-    return `${t.slice(0, EventDetailsPage.REVIEW_PREVIEW_LEN).trim()}…`;
+  /**
+   * Heuristic for whether copy likely exceeds ~2 lines at typical column width.
+   * Long messages get CSS line-clamp + “See more”; short ones stay unclamped without a button.
+   */
+  protected reviewMessageNeedsSeeMore(message: string | undefined): boolean {
+    const t = message?.trim() ?? '';
+    if (t.length < 48) return false;
+    return t.length > 108 || t.split(/\s+/).filter(Boolean).length > 20;
   }
 
   protected voteOnReview(r: EventReviewItem, value: ReviewVoteValue): void {
@@ -492,10 +503,6 @@ export class EventDetailsPage implements OnInit {
       default:
         return '';
     }
-  }
-
-  protected heartsArray(n: number): number[] {
-    return Array.from({ length: Math.max(0, Math.min(5, Math.round(n))) }, (_, i) => i);
   }
 
   protected onBookingQtyChange(raw: string | number): void {

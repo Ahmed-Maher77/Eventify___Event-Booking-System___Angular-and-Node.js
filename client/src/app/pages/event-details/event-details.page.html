@@ -61,51 +61,23 @@
               <i class="fa-solid fa-ticket" aria-hidden="true"></i>
               {{ ev.price | currency }}
             </span>
+            @if (seatsSnapshot(ev); as seats) {
+              <span class="public-event-detail__banner-fact">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                {{ seats.available }} / {{ seats.capacity }} seats
+              </span>
+            } @else if (ev.capacity != null) {
+              <span class="public-event-detail__banner-fact">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                {{ ev.capacity }} capacity
+              </span>
+            }
           </div>
         </div>
       </div>
     </div>
 
     <div class="public-event-detail__flow container">
-      <ul class="public-event-detail__metrics" aria-label="Key details">
-        <li class="public-event-detail__metric">
-          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>
-          <div class="public-event-detail__metric-body">
-            <span class="public-event-detail__metric-label">When</span>
-            <span class="public-event-detail__metric-value">{{ ev.date | date: 'EEE, MMM d, y' }}</span>
-            <span class="public-event-detail__metric-sub">{{ ev.date | date: 'shortTime' }}</span>
-          </div>
-        </li>
-        <li class="public-event-detail__metric">
-          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>
-          <div class="public-event-detail__metric-body">
-            <span class="public-event-detail__metric-label">Venue</span>
-            <span class="public-event-detail__metric-value">{{ ev.location }}</span>
-          </div>
-        </li>
-        <li class="public-event-detail__metric">
-          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-solid fa-ticket"></i></span>
-          <div class="public-event-detail__metric-body">
-            <span class="public-event-detail__metric-label">Ticket price</span>
-            <span class="public-event-detail__metric-value">{{ ev.price | currency }}</span>
-          </div>
-        </li>
-        <li class="public-event-detail__metric">
-          <span class="public-event-detail__metric-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span>
-          <div class="public-event-detail__metric-body">
-            <span class="public-event-detail__metric-label">Capacity</span>
-            @if (seatsSnapshot(ev); as seats) {
-              <span class="public-event-detail__metric-value">{{ seats.available }} available</span>
-              <span class="public-event-detail__metric-sub">of {{ seats.capacity }} total seats</span>
-            } @else if (ev.capacity != null) {
-              <span class="public-event-detail__metric-value">{{ ev.capacity }} guests</span>
-            } @else {
-              <span class="public-event-detail__metric-value muted">—</span>
-            }
-          </div>
-        </li>
-      </ul>
-
       <div class="public-event-detail__split">
         <section class="public-event-detail__block" aria-labelledby="about-heading">
           <h2 id="about-heading" class="public-event-detail__block-title">About this event</h2>
@@ -118,20 +90,6 @@
 
         <aside class="public-event-detail__block public-event-detail__block--aside" aria-labelledby="actions-heading">
           <h2 id="actions-heading" class="public-event-detail__block-title">Tickets</h2>
-          @if (avgRatingDisplay() != null) {
-            <p class="public-event-detail__rating-summary">
-              <span class="public-event-detail__stars" aria-hidden="true">
-                @for (h of heartsArray(avgRatingDisplay()!); track $index) {
-                  <i class="fa-solid fa-heart"></i>
-                }
-              </span>
-              <span
-                >{{ avgRatingDisplay() }} / 5 · {{ mergedReviews().length }} review{{
-                  mergedReviews().length === 1 ? '' : 's'
-                }}</span
-              >
-            </p>
-          }
 
           @if (showBookingCta()) {
             @if (auth.isLoggedIn()) {
@@ -177,52 +135,49 @@
       <section class="public-event-detail__reviews" aria-labelledby="reviews-heading">
         <h2 id="reviews-heading" class="public-event-detail__block-title">Reviews</h2>
 
-        @if (auth.isLoggedIn() && (canReview() || hasReviewed())) {
-          <div class="public-event-detail__review-form-wrap">
-            @if (canReview()) {
-              <p class="public-event-detail__review-lead">Share your experience</p>
-              <div class="public-event-detail__hearts" role="group" aria-label="Rating out of five">
-                @for (n of [1, 2, 3, 4, 5]; track n) {
-                  <button
-                    type="button"
-                    class="public-event-detail__heart"
-                    [class.is-selected]="draftRating() >= n"
-                    [attr.aria-label]="'Rate ' + n + ' out of 5'"
-                    (click)="setRating(n)"
-                  >
-                    <i class="fa-solid fa-heart" aria-hidden="true"></i>
-                  </button>
-                }
-              </div>
-              <label class="public-event-detail__review-label" for="review-msg">Message (optional)</label>
-              <textarea
-                id="review-msg"
-                class="public-event-detail__review-textarea"
-                rows="3"
-                maxlength="2000"
-                placeholder="What stood out?"
-                [ngModel]="draftMessage()"
-                (ngModelChange)="draftMessage.set($event)"
-              ></textarea>
-              <app-button
-                label="Submit review"
-                variant="primary"
-                size="md"
-                [rounded]="true"
-                leftIcon="fa-solid fa-paper-plane"
-                [disabled]="reviewSubmitting() || draftRating() < 1"
-                [loading]="reviewSubmitting()"
-                (pressed)="submitReview()"
-              />
-            } @else if (hasReviewed()) {
-              <p class="public-event-detail__hint">{{ reviewHint() }}</p>
+        <div class="public-event-detail__review-form-wrap">
+          @if (auth.isLoggedIn() && canReview()) {
+            <p class="public-event-detail__review-lead">Share your experience</p>
+            <div class="public-event-detail__hearts" role="group" aria-label="Rating out of five">
+              @for (n of [1, 2, 3, 4, 5]; track n) {
+                <button
+                  type="button"
+                  class="public-event-detail__heart"
+                  [class.is-selected]="draftRating() >= n"
+                  [attr.aria-label]="'Rate ' + n + ' out of 5'"
+                  (click)="setRating(n)"
+                >
+                  <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+            <label class="public-event-detail__review-label" for="review-msg">Message (optional)</label>
+            <textarea
+              id="review-msg"
+              class="public-event-detail__review-textarea"
+              rows="3"
+              maxlength="2000"
+              placeholder="What stood out?"
+              [ngModel]="draftMessage()"
+              (ngModelChange)="draftMessage.set($event)"
+            ></textarea>
+            <app-button
+              label="Submit review"
+              variant="primary"
+              size="md"
+              [rounded]="true"
+              leftIcon="fa-solid fa-paper-plane"
+              [disabled]="reviewSubmitting() || draftRating() < 1"
+              [loading]="reviewSubmitting()"
+              (pressed)="submitReview()"
+            />
+          } @else {
+            @let hint = reviewHint();
+            @if (hint) {
+              <p class="public-event-detail__hint">{{ hint }}</p>
             }
-          </div>
-        } @else if (auth.isLoggedIn()) {
-          <p class="public-event-detail__hint">{{ reviewHint() }}</p>
-        } @else {
-          <p class="public-event-detail__hint">{{ reviewHint() }}</p>
-        }
+          }
+        </div>
 
         @if (mergedReviews().length) {
           <div class="public-event-detail__feedback-summary" aria-labelledby="student-feedback-heading">
@@ -296,19 +251,13 @@
               </div>
               <div class="public-event-detail__review-filter">
                 <label class="public-event-detail__review-filter-label" for="review-rating-filter">Filter ratings</label>
-                <select
-                  id="review-rating-filter"
-                  class="public-event-detail__review-filter-select"
+                <app-custom-native-select
+                  selectId="review-rating-filter"
+                  [options]="ratingFilterOptions"
+                  selectClass="public-event-detail__review-filter-select"
                   [ngModel]="ratingFilter()"
                   (ngModelChange)="setRatingFilter($event)"
-                >
-                  <option value="all">All ratings</option>
-                  <option value="5">5 stars</option>
-                  <option value="4">4 stars</option>
-                  <option value="3">3 stars</option>
-                  <option value="2">2 stars</option>
-                  <option value="1">1 star</option>
-                </select>
+                />
               </div>
             </div>
           </div>
@@ -355,25 +304,32 @@
                 </div>
               </div>
 
-              @if (r.message && r.message.trim()) {
-                <p class="public-event-detail__review-msg">{{ visibleReviewMessage(r) }}</p>
-                @if (shouldTruncateMessage(r.message) && !isReviewExpanded(r._id)) {
+              @if (r.message && r.message.trim(); as msg) {
+                <p
+                  class="public-event-detail__review-msg"
+                  [class.public-event-detail__review-msg--clamped]="
+                    reviewMessageNeedsSeeMore(r.message) && !isReviewExpanded(r._id)
+                  "
+                >
+                  {{ msg }}
+                </p>
+                @if (reviewMessageNeedsSeeMore(r.message) && !isReviewExpanded(r._id)) {
                   <button
                     type="button"
                     class="public-event-detail__review-expand"
                     (click)="toggleReviewExpand(r._id)"
                   >
-                    Show more
+                    See more
                     <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                   </button>
                 }
-                @if (shouldTruncateMessage(r.message) && isReviewExpanded(r._id)) {
+                @if (reviewMessageNeedsSeeMore(r.message) && isReviewExpanded(r._id)) {
                   <button
                     type="button"
                     class="public-event-detail__review-expand"
                     (click)="toggleReviewExpand(r._id)"
                   >
-                    Show less
+                    See less
                     <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
                   </button>
                 }
@@ -412,9 +368,7 @@
 
         @if (mergedReviews().length && !filteredReviews().length) {
           <p class="public-event-detail__empty-note">No reviews match your search or filter.</p>
-        }
-
-        @if (!reviews().length) {
+        } @else if (!reviews().length) {
           <p class="public-event-detail__empty-note">No live reviews yet — you can be the first when you are eligible.</p>
         }
       </section>
