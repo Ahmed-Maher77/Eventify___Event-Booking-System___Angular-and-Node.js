@@ -74,21 +74,9 @@
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(
-      180deg,
-      rgb(12 10 8 / 78%) 0%,
-      rgb(12 10 8 / 28%) 32%,
-      rgb(12 10 8 / 12%) 52%,
-      transparent 72%
-    ),
-    linear-gradient(
-      0deg,
-      rgb(8 7 5 / 92%) 0%,
-      rgb(8 7 5 / 55%) 28%,
-      rgb(8 7 5 / 18%) 55%,
-      transparent 78%
-    ),
-    linear-gradient(105deg, rgb(45 32 14 / 35%) 0%, transparent 55%);
+    linear-gradient(180deg, rgb(8 6 4 / 92%) 0%, rgb(12 10 8 / 55%) 38%, rgb(12 10 8 / 18%) 62%, transparent 78%),
+    linear-gradient(0deg, rgb(6 5 4 / 96%) 0%, rgb(8 7 5 / 62%) 35%, rgb(8 7 5 / 28%) 58%, transparent 78%),
+    linear-gradient(105deg, rgb(45 32 14 / 48%) 0%, transparent 55%);
 }
 
 .admin-event-detail__banner-inner {
