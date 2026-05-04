@@ -32,6 +32,7 @@
               [disabled]="favoriteBusy()"
               [attr.aria-pressed]="isFavorite()"
               [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+              [attr.title]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
               (click)="toggleFavorite()"
             >
               <i class="fa-solid fa-heart" aria-hidden="true"></i>

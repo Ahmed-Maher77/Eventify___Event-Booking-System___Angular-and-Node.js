@@ -8,6 +8,7 @@
         class="featured-event-card__favorite-btn"
         [class.is-active]="event.isFavorite"
         [attr.aria-label]="event.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+        [attr.title]="event.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
         (click)="onFavoriteClick($event)"
       >
         <i [class]="event.isFavorite ? 'is-active' : ''" class="fa-solid fa-heart" aria-hidden="true"></i>
