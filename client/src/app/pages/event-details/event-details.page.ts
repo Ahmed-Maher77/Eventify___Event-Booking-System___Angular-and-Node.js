@@ -24,6 +24,31 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
 export class EventDetailsPage implements OnInit {
   private static readonly IMAGE_FALLBACK = '/images/event-placeholder.svg';
 
+  /** Static rows for layout preview (not persisted). */
+  private static readonly SAMPLE_REVIEWS: EventReviewItem[] = [
+    {
+      _id: 'sample-review-1',
+      rating: 5,
+      message: 'Incredible atmosphere and smooth check-in. Would absolutely book again.',
+      createdAt: '2026-01-12T10:30:00.000Z',
+      authorName: 'Jordan P.',
+    },
+    {
+      _id: 'sample-review-2',
+      rating: 4,
+      message: 'Great value for the ticket price. Venue was easy to find.',
+      createdAt: '2026-01-08T16:00:00.000Z',
+      authorName: 'Samira K.',
+    },
+    {
+      _id: 'sample-review-3',
+      rating: 5,
+      message: '',
+      createdAt: '2026-01-03T09:15:00.000Z',
+      authorName: 'Alex M.',
+    },
+  ];
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly eventService = inject(EventService);
@@ -51,12 +76,21 @@ export class EventDetailsPage implements OnInit {
   protected readonly draftRating = signal(0);
   protected readonly draftMessage = signal('');
 
-  protected readonly avgRating = computed(() => {
-    const list = this.reviews();
+  protected readonly displayedReviews = computed(() => [
+    ...EventDetailsPage.SAMPLE_REVIEWS,
+    ...this.reviews(),
+  ]);
+
+  protected readonly avgRatingDisplay = computed(() => {
+    const list = this.displayedReviews();
     if (!list.length) return null;
     const sum = list.reduce((a, r) => a + r.rating, 0);
     return Math.round((sum / list.length) * 10) / 10;
   });
+
+  protected isSampleReview(r: EventReviewItem): boolean {
+    return r._id.startsWith('sample-review-');
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')?.trim();
