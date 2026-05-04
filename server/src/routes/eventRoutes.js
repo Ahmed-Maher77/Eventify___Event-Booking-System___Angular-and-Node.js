@@ -10,11 +10,14 @@ import {
   createEventReview,
   getEventReviews,
   getEventReviewStatus,
+  voteOnEventReview,
 } from "../controllers/eventReviewController.js";
 import {
   validateCreateEvent,
   validateCreateEventReview,
+  validateReviewVote,
   validateUpdateEvent,
+  validateObjectId,
 } from "../utils/validators.js";
 import { authorize, optionalAuth, protect } from "../middlewares/authMiddleware.js";
 import { uploadImage } from "../config/multerConfig.js";
@@ -25,13 +28,21 @@ const router = Router();
 router.get("/", getEvents);
 
 // ======= Event reviews (must be before GET /:id) =======
-router.get("/:id/reviews", getEventReviews);
+router.get("/:id/reviews", optionalAuth, getEventReviews);
 router.get("/:id/review-status", optionalAuth, getEventReviewStatus);
 router.post(
   "/:id/reviews",
   protect,
   validateCreateEventReview,
   createEventReview,
+);
+router.post(
+  "/:id/reviews/:reviewId/vote",
+  protect,
+  ...validateObjectId("id"),
+  ...validateObjectId("reviewId"),
+  validateReviewVote,
+  voteOnEventReview,
 );
 
 // ======= Get single event (public) =======

@@ -7,12 +7,17 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
-import { EventReviewItem, EventReviewService } from '../../services/event-review.service';
+import {
+  EventReviewItem,
+  EventReviewService,
+  ReviewVoteValue,
+} from '../../services/event-review.service';
 import { EventApiItem, EventService } from '../../services/event.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { ToastService } from '../../services/toast.service';
 import { Button } from '../../shared/button/button';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
+import { resolveAvatarUrl } from '../../utils/avatar-url';
 
 @Component({
   selector: 'app-event-details-page',
@@ -23,15 +28,21 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
 })
 export class EventDetailsPage implements OnInit {
   private static readonly IMAGE_FALLBACK = '/images/event-placeholder.svg';
+  private static readonly REVIEW_PREVIEW_LEN = 220;
 
   /** Static rows for layout preview (not persisted). */
   private static readonly SAMPLE_REVIEWS: EventReviewItem[] = [
     {
       _id: 'sample-review-1',
       rating: 5,
-      message: 'Incredible atmosphere and smooth check-in. Would absolutely book again.',
+      message:
+        'Incredible atmosphere and smooth check-in. Would absolutely book again. The staff was attentive and the sound quality exceeded expectations for a venue this size.',
       createdAt: '2026-01-12T10:30:00.000Z',
       authorName: 'Jordan P.',
+      authorPictureUrl: '',
+      helpfulUp: 42,
+      helpfulDown: 1,
+      userVote: null,
     },
     {
       _id: 'sample-review-2',
@@ -39,6 +50,10 @@ export class EventDetailsPage implements OnInit {
       message: 'Great value for the ticket price. Venue was easy to find.',
       createdAt: '2026-01-08T16:00:00.000Z',
       authorName: 'Samira K.',
+      authorPictureUrl: '',
+      helpfulUp: 18,
+      helpfulDown: 3,
+      userVote: null,
     },
     {
       _id: 'sample-review-3',
@@ -46,6 +61,10 @@ export class EventDetailsPage implements OnInit {
       message: '',
       createdAt: '2026-01-03T09:15:00.000Z',
       authorName: 'Alex M.',
+      authorPictureUrl: '',
+      helpfulUp: 6,
+      helpfulDown: 0,
+      userVote: null,
     },
   ];
 
@@ -76,16 +95,47 @@ export class EventDetailsPage implements OnInit {
   protected readonly draftRating = signal(0);
   protected readonly draftMessage = signal('');
 
-  protected readonly displayedReviews = computed(() => [
-    ...EventDetailsPage.SAMPLE_REVIEWS,
+  protected readonly reviewSearchDraft = signal('');
+  protected readonly reviewSearchApplied = signal('');
+  protected readonly ratingFilter = signal<'all' | '1' | '2' | '3' | '4' | '5'>('all');
+  protected readonly expandedReviewIds = signal<Record<string, boolean>>({});
+  protected readonly voteBusy = signal<Record<string, boolean>>({});
+
+  /** Live reviews first, then sample placeholders. */
+  protected readonly mergedReviews = computed(() => [
     ...this.reviews(),
+    ...EventDetailsPage.SAMPLE_REVIEWS,
   ]);
 
+  protected readonly filteredReviews = computed(() => {
+    const q = this.reviewSearchApplied().trim().toLowerCase();
+    const f = this.ratingFilter();
+    return this.mergedReviews().filter((r) => {
+      if (f !== 'all' && r.rating !== Number(f)) return false;
+      if (!q) return true;
+      const msg = (r.message ?? '').toLowerCase();
+      const name = (r.authorName ?? '').toLowerCase();
+      return msg.includes(q) || name.includes(q);
+    });
+  });
+
   protected readonly avgRatingDisplay = computed(() => {
-    const list = this.displayedReviews();
+    const list = this.mergedReviews();
     if (!list.length) return null;
     const sum = list.reduce((a, r) => a + r.rating, 0);
     return Math.round((sum / list.length) * 10) / 10;
+  });
+
+  protected readonly ratingDistribution = computed(() => {
+    const list = this.mergedReviews();
+    const total = list.length;
+    const rows: { level: number; pct: number; count: number }[] = [];
+    for (let level = 5; level >= 1; level--) {
+      const count = list.filter((r) => r.rating === level).length;
+      const pct = total ? Math.round((count / total) * 100) : 0;
+      rows.push({ level, pct, count });
+    }
+    return rows;
   });
 
   protected isSampleReview(r: EventReviewItem): boolean {
@@ -152,6 +202,136 @@ export class EventDetailsPage implements OnInit {
     this.draftRating.set(n);
   }
 
+  protected applyReviewSearch(): void {
+    this.reviewSearchApplied.set(this.reviewSearchDraft().trim());
+  }
+
+  protected onReviewSearchKeydown(ev: KeyboardEvent): void {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      this.applyReviewSearch();
+    }
+  }
+
+  protected setRatingFilter(raw: string): void {
+    if (raw === 'all' || raw === '1' || raw === '2' || raw === '3' || raw === '4' || raw === '5') {
+      this.ratingFilter.set(raw);
+    }
+  }
+
+  protected reviewAvatarUrl(r: EventReviewItem): string {
+    return resolveAvatarUrl(r.authorName ?? 'Guest', r.authorPictureUrl);
+  }
+
+  protected starsForAverage(avg: number): ('full' | 'half' | 'empty')[] {
+    const out: ('full' | 'half' | 'empty')[] = [];
+    let v = Math.max(0, Math.min(5, avg));
+    for (let i = 0; i < 5; i++) {
+      if (v >= 1) {
+        out.push('full');
+        v -= 1;
+      } else if (v >= 0.5) {
+        out.push('half');
+        v = 0;
+      } else if (v >= 0.25) {
+        out.push('half');
+        v = 0;
+      } else {
+        out.push('empty');
+      }
+    }
+    return out;
+  }
+
+  protected starsForRating(rating: number): boolean[] {
+    const n = Math.max(0, Math.min(5, Math.round(rating)));
+    return Array.from({ length: 5 }, (_, i) => i < n);
+  }
+
+  protected relativeReviewTime(iso: string): string {
+    const d = new Date(iso);
+    const ms = Date.now() - d.getTime();
+    if (!Number.isFinite(ms)) return '';
+    const s = Math.floor(ms / 1000);
+    if (s < 45) return 'just now';
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m} minute${m === 1 ? '' : 's'} ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`;
+    const days = Math.floor(h / 24);
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 5) return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`;
+    const years = Math.floor(days / 365);
+    return `${years} year${years === 1 ? '' : 's'} ago`;
+  }
+
+  protected shouldTruncateMessage(msg: string): boolean {
+    return (msg?.trim().length ?? 0) > EventDetailsPage.REVIEW_PREVIEW_LEN;
+  }
+
+  protected isReviewExpanded(id: string): boolean {
+    return !!this.expandedReviewIds()[id];
+  }
+
+  protected toggleReviewExpand(id: string): void {
+    this.expandedReviewIds.update((m) => ({ ...m, [id]: !m[id] }));
+  }
+
+  protected visibleReviewMessage(r: EventReviewItem): string {
+    const t = (r.message ?? '').trim();
+    if (!t) return '';
+    if (!this.shouldTruncateMessage(t) || this.isReviewExpanded(r._id)) return t;
+    return `${t.slice(0, EventDetailsPage.REVIEW_PREVIEW_LEN).trim()}…`;
+  }
+
+  protected voteOnReview(r: EventReviewItem, value: ReviewVoteValue): void {
+    if (this.isSampleReview(r)) return;
+    const eventId = this.event()?._id;
+    if (!eventId) return;
+    if (!this.auth.isLoggedIn()) {
+      void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+    if (this.voteBusy()[r._id]) return;
+    this.voteBusy.update((m) => ({ ...m, [r._id]: true }));
+    this.reviewsApi
+      .voteReview(eventId, r._id, value)
+      .pipe(
+        finalize(() => {
+          this.voteBusy.update((m) => {
+            const next = { ...m };
+            delete next[r._id];
+            return next;
+          });
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          const d = res.data;
+          if (!d) return;
+          this.reviews.update((list) =>
+            list.map((row) =>
+              row._id === r._id
+                ? {
+                    ...row,
+                    helpfulUp: d.helpfulUp,
+                    helpfulDown: d.helpfulDown,
+                    userVote: d.userVote,
+                  }
+                : row,
+            ),
+          );
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.toast.showError(typeof msg === 'string' ? msg : 'Could not record your vote.');
+        },
+      });
+  }
+
   protected submitReview(): void {
     const ev = this.event();
     const id = ev?._id;
@@ -172,8 +352,12 @@ export class EventDetailsPage implements OnInit {
               _id: row._id,
               rating: row.rating,
               message: row.message ?? '',
-              createdAt: row.createdAt,
+              createdAt: row.createdAt ?? new Date().toISOString(),
               authorName: row.authorName ?? 'You',
+              authorPictureUrl: row.authorPictureUrl,
+              helpfulUp: row.helpfulUp ?? 0,
+              helpfulDown: row.helpfulDown ?? 0,
+              userVote: row.userVote ?? null,
             },
             ...list,
           ]);
@@ -282,12 +466,12 @@ export class EventDetailsPage implements OnInit {
         ),
       ),
     }).subscribe(({ fav, status }) => {
-        this.isFavorite.set(!!fav.data?.isFavorite);
-        const d = status.data;
-        this.canReview.set(!!d?.canReview);
-        this.hasReviewed.set(!!d?.hasReviewed);
-        this.reviewBlockReason.set(d?.reason ?? null);
-      });
+      this.isFavorite.set(!!fav.data?.isFavorite);
+      const d = status.data;
+      this.canReview.set(!!d?.canReview);
+      this.hasReviewed.set(!!d?.hasReviewed);
+      this.reviewBlockReason.set(d?.reason ?? null);
+    });
   }
 
   protected reviewHint(): string {

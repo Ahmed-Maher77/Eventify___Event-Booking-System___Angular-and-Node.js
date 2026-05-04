@@ -207,6 +207,14 @@ const validateCreateEventReview = [
   handleValidationErrors
 ];
 
+const validateReviewVote = [
+  body('value')
+    .notEmpty().withMessage('Vote value is required')
+    .isIn(['up', 'down']).withMessage('Value must be up or down'),
+
+  handleValidationErrors
+];
+
 /**
  * Validate contact message submission
  */
@@ -369,6 +377,7 @@ export {
   validateUpdateEvent,
   validateBooking,
   validateCreateEventReview,
+  validateReviewVote,
   validateContactMessage,
   validateNewsletterSubscription,
   validateContactMessageStatusUpdate,

@@ -126,8 +126,8 @@
                 }
               </span>
               <span
-                >{{ avgRatingDisplay() }} / 5 · {{ displayedReviews().length }} review{{
-                  displayedReviews().length === 1 ? '' : 's'
+                >{{ avgRatingDisplay() }} / 5 · {{ mergedReviews().length }} review{{
+                  mergedReviews().length === 1 ? '' : 's'
                 }}</span
               >
             </p>
@@ -224,33 +224,196 @@
           <p class="public-event-detail__hint">{{ reviewHint() }}</p>
         }
 
+        @if (mergedReviews().length) {
+          <div class="public-event-detail__feedback-summary" aria-labelledby="student-feedback-heading">
+            <h3 id="student-feedback-heading" class="public-event-detail__feedback-title">Attendee feedback</h3>
+            <div class="public-event-detail__feedback-grid">
+              <div class="public-event-detail__feedback-score">
+                @if (avgRatingDisplay() != null) {
+                  <p class="public-event-detail__feedback-average">{{ avgRatingDisplay() }}</p>
+                  <div class="public-event-detail__star-row public-event-detail__star-row--lg" aria-hidden="true">
+                    @for (s of starsForAverage(avgRatingDisplay()!); track $index) {
+                      @if (s === 'full') {
+                        <i class="fa-solid fa-star"></i>
+                      } @else if (s === 'half') {
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                      } @else {
+                        <i class="fa-regular fa-star"></i>
+                      }
+                    }
+                  </div>
+                  <p class="public-event-detail__feedback-score-label">Event rating</p>
+                }
+              </div>
+              <div class="public-event-detail__feedback-bars" role="list">
+                @for (row of ratingDistribution(); track row.level) {
+                  <div class="public-event-detail__dist-row" role="listitem">
+                    <div class="public-event-detail__dist-track" [attr.aria-label]="row.level + ' stars: ' + row.pct + ' percent'">
+                      <span class="public-event-detail__dist-fill" [style.width.%]="row.pct"></span>
+                    </div>
+                    <div class="public-event-detail__dist-meta">
+                      <span class="public-event-detail__star-row public-event-detail__star-row--sm" aria-hidden="true">
+                        @for (on of starsForRating(row.level); track $index) {
+                          @if (on) {
+                            <i class="fa-solid fa-star"></i>
+                          } @else {
+                            <i class="fa-regular fa-star"></i>
+                          }
+                        }
+                      </span>
+                      <span class="public-event-detail__dist-pct">{{ row.pct }}%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="public-event-detail__reviews-toolbar">
+            <h3 class="public-event-detail__reviews-subheading">All reviews</h3>
+            <div class="public-event-detail__reviews-toolbar-row">
+              <div class="public-event-detail__review-search">
+                <label class="visually-hidden" for="review-search-input">Search reviews</label>
+                <input
+                  id="review-search-input"
+                  type="search"
+                  class="public-event-detail__review-search-input"
+                  placeholder="Search reviews"
+                  autocomplete="off"
+                  [ngModel]="reviewSearchDraft()"
+                  (ngModelChange)="reviewSearchDraft.set($event)"
+                  (keydown)="onReviewSearchKeydown($event)"
+                />
+                <button
+                  type="button"
+                  class="public-event-detail__review-search-btn"
+                  title="Search reviews"
+                  aria-label="Search reviews"
+                  (click)="applyReviewSearch()"
+                >
+                  <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="public-event-detail__review-filter">
+                <label class="public-event-detail__review-filter-label" for="review-rating-filter">Filter ratings</label>
+                <select
+                  id="review-rating-filter"
+                  class="public-event-detail__review-filter-select"
+                  [ngModel]="ratingFilter()"
+                  (ngModelChange)="setRatingFilter($event)"
+                >
+                  <option value="all">All ratings</option>
+                  <option value="5">5 stars</option>
+                  <option value="4">4 stars</option>
+                  <option value="3">3 stars</option>
+                  <option value="2">2 stars</option>
+                  <option value="1">1 star</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        }
+
         <p class="public-event-detail__sample-note">
-          Sample reviews below are static placeholders for layout preview.
+          Rows marked “Sample” are placeholders so you can preview the layout before live reviews appear.
         </p>
+
         <ul class="public-event-detail__review-list">
-          @for (r of displayedReviews(); track r._id) {
+          @for (r of filteredReviews(); track r._id) {
             <li
               class="public-event-detail__review-card"
               [class.public-event-detail__review-card--sample]="isSampleReview(r)"
             >
-              <div class="public-event-detail__review-top">
-                <span class="public-event-detail__stars" aria-hidden="true">
-                  @for (h of heartsArray(r.rating); track $index) {
-                    <i class="fa-solid fa-heart"></i>
-                  }
-                </span>
-                <span class="public-event-detail__review-author">{{ r.authorName }}</span>
-                @if (isSampleReview(r)) {
-                  <span class="public-event-detail__sample-pill">Sample</span>
-                }
-                <span class="public-event-detail__review-date">{{ r.createdAt | date: 'mediumDate' }}</span>
+              <div class="public-event-detail__review-head">
+                <img
+                  class="public-event-detail__review-avatar"
+                  [src]="reviewAvatarUrl(r)"
+                  [alt]="'Profile photo for ' + r.authorName"
+                  width="40"
+                  height="40"
+                  loading="lazy"
+                />
+                <div class="public-event-detail__review-head-text">
+                  <div class="public-event-detail__review-name-row">
+                    <span class="public-event-detail__review-author">{{ r.authorName }}</span>
+                    @if (isSampleReview(r)) {
+                      <span class="public-event-detail__sample-pill">Sample</span>
+                    }
+                  </div>
+                  <div class="public-event-detail__review-meta-row">
+                    <span class="public-event-detail__star-row public-event-detail__star-row--md" [attr.aria-label]="r.rating + ' out of 5 stars'">
+                      @for (on of starsForRating(r.rating); track $index) {
+                        @if (on) {
+                          <i class="fa-solid fa-star" aria-hidden="true"></i>
+                        } @else {
+                          <i class="fa-regular fa-star" aria-hidden="true"></i>
+                        }
+                      }
+                    </span>
+                    <span class="public-event-detail__review-date">{{ relativeReviewTime(r.createdAt) }}</span>
+                  </div>
+                </div>
               </div>
+
               @if (r.message && r.message.trim()) {
-                <p class="public-event-detail__review-msg">{{ r.message }}</p>
+                <p class="public-event-detail__review-msg">{{ visibleReviewMessage(r) }}</p>
+                @if (shouldTruncateMessage(r.message) && !isReviewExpanded(r._id)) {
+                  <button
+                    type="button"
+                    class="public-event-detail__review-expand"
+                    (click)="toggleReviewExpand(r._id)"
+                  >
+                    Show more
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                  </button>
+                }
+                @if (shouldTruncateMessage(r.message) && isReviewExpanded(r._id)) {
+                  <button
+                    type="button"
+                    class="public-event-detail__review-expand"
+                    (click)="toggleReviewExpand(r._id)"
+                  >
+                    Show less
+                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                  </button>
+                }
               }
+
+              <div class="public-event-detail__review-helpful">
+                <span class="public-event-detail__review-helpful-q">Was this review helpful?</span>
+                <div class="public-event-detail__review-votes" role="group" [attr.aria-label]="'Helpful votes for ' + r.authorName">
+                  <button
+                    type="button"
+                    class="public-event-detail__vote-btn"
+                    [class.is-active]="r.userVote === 'up'"
+                    [disabled]="isSampleReview(r) || voteBusy()[r._id]"
+                    [attr.aria-pressed]="r.userVote === 'up'"
+                    [attr.aria-label]="'Mark review as helpful' + (r.helpfulUp != null ? ', ' + r.helpfulUp + ' votes' : '')"
+                    (click)="voteOnReview(r, 'up')"
+                  >
+                    <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="public-event-detail__vote-btn"
+                    [class.is-active]="r.userVote === 'down'"
+                    [disabled]="isSampleReview(r) || voteBusy()[r._id]"
+                    [attr.aria-pressed]="r.userVote === 'down'"
+                    [attr.aria-label]="'Mark review as not helpful' + (r.helpfulDown != null ? ', ' + r.helpfulDown + ' votes' : '')"
+                    (click)="voteOnReview(r, 'down')"
+                  >
+                    <i class="fa-regular fa-thumbs-down" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
             </li>
           }
         </ul>
+
+        @if (mergedReviews().length && !filteredReviews().length) {
+          <p class="public-event-detail__empty-note">No reviews match your search or filter.</p>
+        }
+
         @if (!reviews().length) {
           <p class="public-event-detail__empty-note">No live reviews yet — you can be the first when you are eligible.</p>
         }

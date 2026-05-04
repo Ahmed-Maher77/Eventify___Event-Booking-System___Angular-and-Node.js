@@ -3,12 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export type ReviewVoteValue = 'up' | 'down';
+
 export interface EventReviewItem {
   _id: string;
   rating: number;
   message: string;
   createdAt: string;
   authorName: string;
+  authorPictureUrl?: string;
+  helpfulUp?: number;
+  helpfulDown?: number;
+  userVote?: ReviewVoteValue | null;
 }
 
 export interface EventReviewsResponse {
@@ -48,7 +54,17 @@ export interface EventReviewStatusResponse {
 export interface CreateEventReviewResponse {
   success: boolean;
   message?: string;
-  data: EventReviewItem & { authorName: string; createdAt?: string };
+  data: EventReviewItem;
+}
+
+export interface ReviewVoteResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    helpfulUp: number;
+    helpfulDown: number;
+    userVote: ReviewVoteValue | null;
+  };
 }
 
 @Injectable({
@@ -59,7 +75,9 @@ export class EventReviewService {
   private readonly base = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/events`;
 
   getReviews(eventId: string): Observable<EventReviewsResponse> {
-    return this.http.get<EventReviewsResponse>(`${this.base}/${eventId}/reviews`);
+    return this.http.get<EventReviewsResponse>(`${this.base}/${eventId}/reviews`, {
+      withCredentials: true,
+    });
   }
 
   getReviewStatus(eventId: string): Observable<EventReviewStatusResponse> {
@@ -70,6 +88,12 @@ export class EventReviewService {
 
   createReview(eventId: string, body: { rating: number; message: string }): Observable<CreateEventReviewResponse> {
     return this.http.post<CreateEventReviewResponse>(`${this.base}/${eventId}/reviews`, body, {
+      withCredentials: true,
+    });
+  }
+
+  voteReview(eventId: string, reviewId: string, value: ReviewVoteValue): Observable<ReviewVoteResponse> {
+    return this.http.post<ReviewVoteResponse>(`${this.base}/${eventId}/reviews/${reviewId}/vote`, { value }, {
       withCredentials: true,
     });
   }
