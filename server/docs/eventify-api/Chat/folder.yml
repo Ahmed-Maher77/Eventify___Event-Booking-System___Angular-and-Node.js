@@ -1,0 +1,38 @@
+info:
+  name: Chat
+  type: folder
+  seq: 5
+
+http:
+  headers:
+    - name: content-type
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Ensure auth token is available for chat requests
+        const token = bru.getEnvVar('authToken');
+        if (!token) {
+          console.warn('Warning: No auth token available. Please login first.');
+        }
+    - type: tests
+      code: |-
+        // Common tests for chat requests
+        test("Response time is acceptable", function() {
+          expect(res.responseTime).to.be.below(10000); // AI responses take longer
+        });
+
+docs:
+  content: |-
+    # Chat Endpoints
+
+    AI Chat assistant endpoints for event discovery and help.
+
+    ## Authentication
+    Requires a valid JWT token in the Authorization header.
+  type: text/markdown

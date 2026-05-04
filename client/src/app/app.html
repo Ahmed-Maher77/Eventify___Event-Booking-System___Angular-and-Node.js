@@ -71,9 +71,21 @@
             </span>
           </div>
         </div>
-        <button type="button" class="chatbot-panel__close" (click)="closeFloatingChat()" aria-label="Close chat">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
+        <div class="chatbot-panel__actions">
+          <button
+            type="button"
+            class="chatbot-panel__action"
+            (click)="startNewChat()"
+            aria-label="Start new chat"
+            title="Start new chat"
+            [disabled]="isSendingChat()"
+          >
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="chatbot-panel__close" (click)="closeFloatingChat()" aria-label="Close chat">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
       </header>
 
       <div class="chatbot-panel__messages">
@@ -96,6 +108,19 @@
             </article>
           }
         }
+
+        @if (isSendingChat()) {
+          <article class="chatbot-message chatbot-message--assistant chatbot-message--typing">
+            <span class="chatbot-message__icon">
+              <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
+            </span>
+            <p aria-label="Assistant is typing">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </p>
+          </article>
+        }
       </div>
 
       <form class="chatbot-panel__input" (submit)="onFloatingChatSubmit($event)">
@@ -106,9 +131,14 @@
           [value]="chatDraftMessage()"
           (input)="onChatDraftInput($event)"
           placeholder="Ask AI assistant..."
+          [disabled]="isSendingChat()"
         />
-        <button type="submit" aria-label="Send message">
-          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        <button type="submit" aria-label="Send message" [disabled]="isSendingChat() || !chatDraftMessage().trim()">
+          @if (isSendingChat()) {
+            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+          } @else {
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+          }
         </button>
       </form>
     </section>

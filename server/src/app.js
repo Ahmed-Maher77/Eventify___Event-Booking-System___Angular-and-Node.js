@@ -20,6 +20,7 @@ import contactRoutes from "./routes/contactRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import { uploadImage } from "./config/multerConfig.js";
 import { uploadImageBuffer } from "./utils/cloudinaryUpload.js";
 
@@ -124,6 +125,7 @@ app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Error handling middleware (must be last)

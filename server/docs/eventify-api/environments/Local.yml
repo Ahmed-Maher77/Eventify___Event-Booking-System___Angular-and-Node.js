@@ -7,7 +7,7 @@ variables:
   - name: timeout
     value: "30000"
   - name: adminEmail
-    value: admin@eventify.com
+    value: mohamed@gmail.com
   - secret: true
     name: adminPassword
   - name: userEmail
