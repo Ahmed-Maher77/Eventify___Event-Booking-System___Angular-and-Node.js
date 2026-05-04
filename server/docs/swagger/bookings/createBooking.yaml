@@ -40,25 +40,25 @@ paths:
                     type: string
                     example: "Booking created successfully"
                   data:
-                    $ref: '#/components/schemas/Booking'
+                    $ref: '#/components/schemas/booking'
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '401':
           description: Unauthorized - Authentication required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
         '404':
           description: Event not found or unavailable
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               examples:
                 eventNotFound:
                   summary: Event not found
@@ -75,4 +75,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'

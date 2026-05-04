@@ -1,0 +1,55 @@
+<section class="admin-audience">
+  <header>
+    <app-highlighted-page-heading
+      titlePrefix="Audience"
+      titleHighlight="List"
+      subtitle="Manage subscribers and monitor newsletter growth."
+      headingLevel="h2"
+      containerClass="admin-heading--container"
+      titleClass="admin-heading--title"
+      subtitleClass="admin-heading--subtitle"
+    />
+  </header>
+
+  <div class="admin-entity-page__panel table-responsive">
+    @if (isLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-section-loader [size]="36" label="Loading audience list" />
+      </div>
+    } @else if (errorMessage()) {
+      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    } @else if (!rows().length && totalListItems() === 0) {
+      <p class="admin-entity-page__state-message">No newsletter subscribers yet.</p>
+    } @else {
+      <table class="table admin-entity-page__table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Subscribed</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row._id) {
+            <tr>
+              <td>{{ row.email }}</td>
+              <td>
+                <span class="admin-audience__pill">{{ row.status | titlecase }}</span>
+              </td>
+              <td>{{ row.createdAt | date: 'mediumDate' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <app-admin-entity-pagination
+        [currentPage]="listPage()"
+        [totalPages]="listTotalPages()"
+        [totalItems]="totalListItems()"
+        itemLabel="subscribers"
+        ariaLabel="Audience list pagination"
+        (pageChange)="onListPageChange($event)"
+      />
+    }
+  </div>
+</section>

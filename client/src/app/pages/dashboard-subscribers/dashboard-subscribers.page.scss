@@ -1,0 +1,87 @@
+@use '../../../sass/components/admin-dashboard-shared';
+
+.admin-audience {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-heading--container {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.admin-heading--title {
+  margin: 0;
+  color: var(--color-black);
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+  font-weight: 650;
+}
+
+.admin-heading--subtitle {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--color-admin-stat-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.admin-audience__eyebrow {
+  margin: 0;
+  color: var(--color-admin-sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.admin-audience__title {
+  margin: 0.2rem 0 0;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.admin-entity-page__panel {
+  @extend %admin-entity-page-panel;
+}
+
+.admin-entity-page__table th {
+  color: var(--color-admin-stat-muted);
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+
+.admin-entity-page__table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+}
+
+.admin-entity-page__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-audience__pill {
+  border-radius: 999px;
+  background: var(--color-admin-pill-bg);
+  color: var(--color-brown);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+}
+
+.admin-page__loader-wrap {
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-entity-page__state-message {
+  margin: 0;
+  padding: 0.75rem;
+  color: var(--color-admin-sidebar-text);
+  font-weight: 500;
+  text-align: center;
+}
+
+.admin-entity-page__state-message.is-error {
+  color: var(--color-danger);
+}

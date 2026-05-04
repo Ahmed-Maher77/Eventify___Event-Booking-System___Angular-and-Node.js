@@ -29,9 +29,19 @@
 }
 
 .ev-btn--md {
-  min-height: 2.8rem;
+  min-height: 3rem;
   padding: 1px 1rem 0;
   font-size: 0.95rem;
+}
+
+.faq-page__assistant-badge-btn {
+  width: 84%;
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: 13px !important;
+  padding-block: 13px !important;
+  z-index: 1 !important;
 }
 
 .ev-btn--lg {
@@ -248,4 +258,26 @@
     border-color: #f5de95;
     color: #f5de95;
   }
+}
+
+:host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__cta,
+:host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__logout-btn {
+  justify-content: center !important;
+  padding-inline: 0 !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+:host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__cta .ev-btn__label,
+:host-context(.admin-sidebar--collapsed) .ev-btn.admin-sidebar__logout-btn .ev-btn__label {
+  display: none !important;
+}
+
+:host-context(.admin-sidebar--collapsed) .ev-btn.diagonal-swipe-hover::before {
+  left: -55px;
+}
+
+:host-context(.admin-sidebar--collapsed) .ev-btn.diagonal-swipe-hover:not(.ev-btn--inactive):hover::before {
+  width: 230%;
 }

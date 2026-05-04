@@ -1,6 +1,6 @@
 components:
   schemas:
-    User:
+    user:
       type: object
       required:
         - name
@@ -46,7 +46,7 @@ components:
           description: Last update timestamp
           example: "2026-04-10T10:00:00.000Z"
 
-    Event:
+    event:
       type: object
       required:
         - title
@@ -145,7 +145,7 @@ components:
           description: Last update timestamp
           example: "2026-04-10T10:00:00.000Z"
 
-    BookingUserRef:
+    bookinguserref:
       type: object
       properties:
         _id:
@@ -160,7 +160,7 @@ components:
           format: email
           example: "mohamed@example.com"
 
-    BookingEventRef:
+    bookingeventref:
       type: object
       properties:
         _id:
@@ -178,7 +178,7 @@ components:
           type: string
           example: "Central Park, New York"
 
-    Booking:
+    booking:
       type: object
       required:
         - userId
@@ -193,12 +193,12 @@ components:
         userId:
           oneOf:
             - type: string
-            - $ref: '#/components/schemas/BookingUserRef'
+            - $ref: '#/components/schemas/bookinguserref'
           description: User reference or populated user object
         eventId:
           oneOf:
             - type: string
-            - $ref: '#/components/schemas/BookingEventRef'
+            - $ref: '#/components/schemas/bookingeventref'
           description: Event reference or populated event object
         quantity:
           type: integer
@@ -224,7 +224,7 @@ components:
           format: date-time
           example: "2026-04-10T10:00:00.000Z"
 
-    Error:
+    error:
       type: object
       properties:
         success:

@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
 import { ExploreCategoryItem } from './explore-categories-section.model';
+import { setupExploreCategoriesAnimations } from './explore-categories-section.animations';
 
 @Component({
   selector: 'app-explore-categories-section',
@@ -10,7 +11,10 @@ import { ExploreCategoryItem } from './explore-categories-section.model';
   templateUrl: './explore-categories-section.html',
   styleUrl: './explore-categories-section.scss',
 })
-export class ExploreCategoriesSection {
+export class ExploreCategoriesSection implements AfterViewInit, OnDestroy {
+  @ViewChild('exploreCategoriesRoot') private exploreCategoriesRoot?: ElementRef<HTMLElement>;
+  private exploreContext: ReturnType<typeof setupExploreCategoriesAnimations> | null = null;
+
   protected readonly categories: ExploreCategoryItem[] = [
     {
       name: 'Concert',
@@ -41,5 +45,14 @@ export class ExploreCategoriesSection {
 
   protected categoryToQuery(categoryName: string): string {
     return categoryName.trim().toLowerCase();
+  }
+
+  ngAfterViewInit(): void {
+    this.exploreContext = setupExploreCategoriesAnimations(this.exploreCategoriesRoot?.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.exploreContext?.revert();
+    this.exploreContext = null;
   }
 }

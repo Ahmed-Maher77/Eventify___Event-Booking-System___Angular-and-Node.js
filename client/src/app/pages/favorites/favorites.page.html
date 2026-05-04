@@ -1,0 +1,50 @@
+<section class="static-info-page favorites-page">
+  <div class="container static-info-page__container">
+    <app-highlighted-page-heading
+      titlePrefix="My"
+      titleHighlight="Favorites"
+      subtitle="Quick access to the events you saved."
+      titleClass="static-info-page__title"
+      subtitleClass="static-info-page__subtitle"
+    />
+
+    @if (isLoading) {
+      <div class="favorites-page__loader-wrap">
+        <app-section-loader [size]="40" label="Loading favorites" />
+      </div>
+    } @else if (errorMessage) {
+      <div class="favorites-page__status-wrap">
+        <p class="favorites-page__status favorites-page__status--error">{{ errorMessage }}</p>
+        <button type="button" class="favorites-page__retry" (click)="retryLoad()">Try again</button>
+      </div>
+    } @else if (!favoriteEvents.length) {
+      <section class="favorites-page__empty-state" aria-live="polite">
+        <span class="favorites-page__empty-icon" aria-hidden="true">
+          <i class="fa-regular fa-heart"></i>
+        </span>
+        <h2 class="favorites-page__empty-title">No favorites yet</h2>
+        <p class="favorites-page__empty-text">
+          Save events you love to build your personal shortlist and come back to them anytime.
+        </p>
+        <app-button
+          label="Explore Events"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          customClass="favorites-page__empty-action diagonal-swipe-hover"
+          [routerLink]="'/events'"
+        />
+      </section>
+    } @else {
+      <div class="favorites-page__grid">
+        @for (event of favoriteEvents; track event.id) {
+          <app-featured-event-card
+            [event]="event"
+            [showFavoriteAction]="true"
+            (favoriteToggled)="onFavoriteToggled($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</section>

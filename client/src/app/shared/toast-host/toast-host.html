@@ -1,0 +1,22 @@
+<div class="toast-host">
+  @if (toastService.active(); as t) {
+    <div
+      class="toast-host__surface"
+      [class.toast-host__surface--success]="t.variant === 'success'"
+      [class.toast-host__surface--error]="t.variant === 'error'"
+      [attr.role]="t.variant === 'error' ? 'alert' : 'status'"
+    >
+      <span class="toast-host__icon" aria-hidden="true">
+        @if (t.variant === 'success') {
+          <i class="fa-solid fa-circle-check"></i>
+        } @else {
+          <i class="fa-solid fa-circle-exclamation"></i>
+        }
+      </span>
+      <p class="toast-host__message">{{ t.message }}</p>
+      <button type="button" class="toast-host__close" aria-label="Dismiss" (click)="toastService.dismiss()">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+</div>

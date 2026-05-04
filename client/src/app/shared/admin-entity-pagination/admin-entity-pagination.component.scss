@@ -1,0 +1,87 @@
+.admin-entity-page__catalog-pagination {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-admin-panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-entity-page__page-numbers {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-entity-page__page-btn {
+  border: 1px solid var(--color-admin-panel-border);
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  min-height: 2.05rem;
+  min-width: 2.05rem;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:not(:disabled):hover {
+    border-color: var(--color-primary);
+    background: rgb(231 200 115 / 14%);
+    color: var(--color-brown);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.admin-entity-page__page-btn--number {
+  padding-inline: 0.5rem;
+}
+
+.admin-entity-page__page-btn--number.is-active {
+  border-color: var(--color-black);
+  background: var(--color-black);
+  color: #fff;
+}
+
+.admin-entity-page__page-ellipsis {
+  color: var(--color-admin-stat-muted);
+  font-size: 0.88rem;
+  line-height: 1;
+  padding-inline: 0.08rem;
+}
+
+.admin-entity-page__page-meta {
+  font-size: 0.8rem;
+  color: var(--color-admin-stat-muted);
+  width: 100%;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .admin-entity-page__page-meta {
+    width: auto;
+    text-align: unset;
+    margin-inline-start: 0.35rem;
+  }
+}
+
+.admin-entity-page__page-meta-sep {
+  margin-inline: 0.35rem;
+}

@@ -106,14 +106,14 @@ const jwtExpiryTime = '7d';
 ### Classes and Models
 
 ```javascript
-// ✅ GOOD - PascalCase for classes and models
+// ✅ GOOD - PascalCase for classes; lowercase strings for Mongoose model names (matches ref:)
 class AppError extends Error { ... }
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('user', userSchema);
 const EventController = { ... };
 
 // ❌ BAD
 const appError = new AppError();
-const user = mongoose.model('User', userSchema);
+const user = mongoose.model('User', userSchema); // breaks ref: 'user' unless registered as 'User'
 ```
 
 ### Database Fields

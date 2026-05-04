@@ -1,0 +1,12 @@
+<div
+  class="admin-recent-booking-item__track"
+  [class.admin-recent-booking-item__track--tail]="isLastInColumn()"
+  aria-hidden="true"
+>
+  <span class="admin-recent-booking-item__dot"></span>
+</div>
+<div class="admin-recent-booking-item__content">
+  <p class="admin-recent-booking-item__time">{{ entry().timeLabel }}</p>
+  <p class="admin-recent-booking-item__title">{{ entry().eventTitle }}</p>
+  <p class="admin-recent-booking-item__meta">{{ entry().ticketSummary }}</p>
+</div>

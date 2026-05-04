@@ -2,14 +2,22 @@
 @use './sass/abstracts/placeholders';
 @use './sass/components/footer-shared';
 @use './sass/components/cta-shared';
+@use './sass/components/about-showcase-shared';
 @use './sass/components/effects-shared';
 @use './sass/components/explore-categories-shared';
 @use './sass/components/featured-events-shared';
+@use './sass/components/faq-shared';
 @use './sass/components/header-shared';
 @use './sass/components/how-it-works-shared';
 @use './sass/components/landing-shared';
 @use './sass/components/not-found-shared';
 @use './sass/components/talk-to-ai-shared';
+@use './sass/components/team-members-shared';
+@use './sass/components/static-info-shared';
+@use './sass/components/profile-page';
+@use './sass/components/admin-sidebar-shared';
+@use './sass/components/admin-dashboard-shared';
+@use './sass/components/contact-shared';
 @use './sass/components/testimonials-shared';
 @use './sass/components/trusted-companies-shared';
 
@@ -23,6 +31,7 @@
   --color-primary: #e7c873;
   --color-black: #1a1a1a;
   --color-brown: #6a4d00;
+  --color-faint-brown: #ab7e00d9;
   --color-text-light: #d8d8d8;
   --color-cta-subtitle: #ededed;
   --color-border-soft: rgb(231 200 115 / 13%);
@@ -71,6 +80,67 @@
   --color-footer-bg-top: #7e5a07;
   --color-footer-bg-bottom: #5b4000;
   --color-footer-glow: rgb(231 200 115 / 20%);
+  --color-team-card-bg: #ffffff;
+  --color-team-overlay-bg: rgb(255 255 255 / 74%);
+  --color-team-overlay-stroke: rgb(255 255 255 / 68%);
+  --color-team-overlay-shadow: rgb(17 24 39 / 22%);
+  --color-team-link: #0d99ff;
+  --color-team-link-hover: #007be0;
+  --color-about-showcase-bg: rgb(231 200 115 / 14%);
+  --color-about-showcase-stroke: rgb(231 200 115 / 32%);
+  --color-about-heading: #1a1a1a;
+  --color-about-point-bg: rgb(255 255 255 / 88%);
+  --color-about-point-stroke: rgb(231 200 115 / 30%);
+  --color-about-point-number: #6a4d00;
+  --color-about-gallery-fallback: #f6f8fa;
+  --color-faq-bg-glow: rgb(231 200 115 / 22%);
+  --color-faq-accent: #e7c873;
+  --color-faq-muted: #52525b;
+  --color-faq-border: rgb(231 200 115 / 30%);
+  --color-faq-card-bg: rgb(255 255 255 / 78%);
+  --color-faq-toggle-bg: rgb(231 200 115 / 24%);
+  --color-faq-toggle-text: #1a1a1a;
+  --color-faq-assistant-border: rgb(231 200 115 / 36%);
+  --color-faq-assistant-bg-start: #f4ecd4;
+  --color-faq-assistant-bg-end: #efe2b7;
+  --color-faq-assistant-glow: rgb(231 200 115 / 40%);
+  --color-faq-badge-bg: rgb(255 255 255 / 86%);
+  --color-faq-badge-border: rgb(231 200 115 / 46%);
+  --color-contact-card-bg: rgb(255 255 255 / 82%);
+  --color-contact-card-border: rgb(231 200 115 / 34%);
+  --color-contact-shadow: rgb(106 77 0 / 9%);
+  --color-contact-muted: #5b6472;
+  --color-contact-link: #1f2937;
+  --color-contact-input-bg: #ffffff;
+  --color-contact-input-border: #e9e5d8;
+  --color-contact-input-placeholder: #9ca3af;
+  --color-contact-focus-ring: rgb(231 200 115 / 30%);
+  --color-contact-social-hover-bg: rgb(231 200 115 / 12%);
+  --color-contact-divider: rgb(231 200 115 / 38%);
+  --color-profile-card-bg: rgb(255 255 255 / 86%);
+  --color-profile-card-border: rgb(231 200 115 / 30%);
+  --color-profile-card-shadow: rgb(106 77 0 / 8%);
+  --color-profile-muted: #5f636f;
+  --color-profile-input-bg: #ffffff;
+  --color-profile-input-border: #e8e4d7;
+  --color-profile-focus-ring: rgb(231 200 115 / 24%);
+  --color-profile-avatar-start: #f3e6bf;
+  --color-profile-avatar-end: #cfac4d;
+  --color-profile-avatar-text: #473100;
+  --color-profile-check-idle: #a3a3a3;
+  --color-profile-danger-bg: rgb(220 38 38 / 4%);
+  --color-profile-danger-border: rgb(220 38 38 / 30%);
+  --color-admin-sidebar-bg: #fffdf7;
+  --color-admin-sidebar-border: rgb(231 200 115 / 28%);
+  --color-admin-sidebar-text: #4b5563;
+  --color-admin-sidebar-muted: #6b7280;
+  --color-admin-sidebar-active-bg: rgb(231 200 115 / 24%);
+  --color-admin-sidebar-active-text: #6a4d00;
+  --color-admin-sidebar-hover-bg: rgb(231 200 115 / 14%);
+  --color-admin-panel-bg: rgb(255 255 255 / 84%);
+  --color-admin-panel-border: rgb(231 200 115 / 24%);
+  --color-admin-stat-muted: #6b7280;
+  --color-admin-pill-bg: rgb(231 200 115 / 16%);
   --logo-grayscale: 1;
   --bgColor-white: #fff;
 }
@@ -114,4 +184,44 @@ app-root {
 ::-moz-selection {
   background: var(--color-primary);
   color: var(--color-black);
+}
+
+/* Shared page-title treatment used on all non-home, non-404 routes. */
+.page-main--faq-theme :is(h1, h2) {
+  color: var(--color-black);
+}
+
+.page-main--faq-theme :is(h1, h2) span {
+  color: var(--color-faq-accent);
+}
+
+/* Reusable heading shape for highlighted page titles. */
+.eventify-title-shape {
+  margin: 0;
+  color: var(--color-black);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.eventify-title-shape span {
+  color: var(--color-faq-accent);
+}
+
+.static-info-page__subtitle {
+  color: var(--color-gray);
+  margin-top: 6px;
+}
+
+.admin-heading--title {
+  font-size: 1.7rem !important;
+}
+
+.admin-heading--subtitle {
+  color: var(--color-gray) !important;
+  margin-top: 2px !important;
+}
+
+/* Reusable admin text link: hover underline animates L→R via ::before */
+.admin-link-underline-ltr {
+  @include mixins.admin-link-underline-ltr;
 }

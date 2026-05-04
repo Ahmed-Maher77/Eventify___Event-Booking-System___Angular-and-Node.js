@@ -1,0 +1,25 @@
+@use './explore-categories-shared';
+
+%eventify-static-info-feature-card {
+  @extend %eventify-explore-card;
+  border: none;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.55rem;
+  border-radius: 12px;
+  background: transparent;
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+  padding: 0 0.8rem;
+
+  @media (max-width: 992px) {
+    padding: 0;
+  }
+}
+
+%eventify-static-info-feature-icon {
+  font-size: 26px;
+  color: var(--color-brown);
+}

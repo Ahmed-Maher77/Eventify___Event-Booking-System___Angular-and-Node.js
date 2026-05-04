@@ -1,0 +1,26 @@
+@use 'sass:map';
+
+$admin-nav-tones: (
+  default: (
+    text: var(--color-admin-sidebar-text),
+    bg: transparent
+  ),
+  active: (
+    text: var(--color-admin-sidebar-active-text),
+    bg: var(--color-admin-sidebar-active-bg)
+  )
+);
+
+%admin-sidebar-panel {
+  border-right: 1px solid var(--color-admin-sidebar-border);
+  background: var(--color-admin-sidebar-bg);
+}
+
+@mixin admin-sidebar-state($state) {
+  $palette: map.get($admin-nav-tones, $state);
+
+  @if $palette {
+    color: map.get($palette, text);
+    background: map.get($palette, bg);
+  }
+}

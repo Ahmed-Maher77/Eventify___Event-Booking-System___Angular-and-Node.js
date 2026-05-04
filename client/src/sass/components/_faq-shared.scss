@@ -1,0 +1,21 @@
+%eventify-faq-shell {
+  border: 1px solid var(--color-faq-border);
+  border-radius: 14px;
+  background: var(--color-faq-card-bg);
+  overflow: hidden;
+}
+
+%eventify-faq-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-faq-toggle-bg);
+  color: var(--color-faq-toggle-text);
+  font-size: 1.35rem;
+  line-height: 1;
+  font-weight: 400;
+  transition: background-color 180ms ease, color 180ms ease;
+}

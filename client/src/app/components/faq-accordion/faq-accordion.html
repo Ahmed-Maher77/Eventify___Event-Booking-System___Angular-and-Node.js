@@ -1,0 +1,23 @@
+<div class="faq-accordion">
+  @for (item of items(); track item.id; let idx = $index) {
+    <article class="faq-item" [class.is-open]="isOpen(idx)">
+      <button
+        type="button"
+        class="faq-item__question"
+        [attr.aria-expanded]="isOpen(idx)"
+        [attr.aria-controls]="'faq-answer-' + item.id"
+        (click)="toggleFaq(idx)"
+      >
+        <span class="faq-item__index">{{ item.id }}</span>
+        <span class="faq-item__text">{{ item.question }}</span>
+        <span class="faq-item__toggle" aria-hidden="true">{{ isOpen(idx) ? '−' : '+' }}</span>
+      </button>
+
+      <div class="faq-item__answer-wrap" [class.is-open]="isOpen(idx)">
+        <p class="faq-item__answer" [id]="'faq-answer-' + item.id">
+          {{ item.answer }}
+        </p>
+      </div>
+    </article>
+  }
+</div>

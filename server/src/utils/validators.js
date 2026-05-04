@@ -90,14 +90,7 @@ const validateCreateEvent = [
   body('date')
     .notEmpty().withMessage('Date is required')
     .bail()
-    .isISO8601().withMessage('Please provide a valid date')
-    .bail()
-    .custom((value) => {
-      if (new Date(value) <= new Date()) {
-        throw new Error('Event date must be in the future');
-      }
-      return true;
-    }),
+    .isISO8601().withMessage('Please provide a valid date'),
   
   body('location')
     .trim()
@@ -121,6 +114,11 @@ const validateCreateEvent = [
     .notEmpty().withMessage('Price is required')
     .bail()
     .isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+
+  body('imageUrl')
+    .optional()
+    .trim()
+    .isURL().withMessage('imageUrl must be a valid URL'),
   
   handleValidationErrors
 ];
@@ -150,14 +148,7 @@ const validateCreateEvent = [
 
     body('date')
       .optional()
-      .isISO8601().withMessage('Please provide a valid date')
-      .bail()
-      .custom((value) => {
-        if (new Date(value) <= new Date()) {
-          throw new Error('Event date must be in the future');
-        }
-        return true;
-      }),
+      .isISO8601().withMessage('Please provide a valid date'),
 
     body('location')
       .optional()
@@ -201,6 +192,98 @@ const validateBooking = [
 ];
 
 /**
+ * Validate public event review (1–5 hearts + optional message)
+ */
+const validateCreateEventReview = [
+  body('rating')
+    .notEmpty().withMessage('Rating is required')
+    .isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+
+  body('message')
+    .optional()
+    .trim()
+    .isLength({ max: 2000 }).withMessage('Message must be at most 2000 characters'),
+
+  handleValidationErrors
+];
+
+const validateReviewVote = [
+  body('value')
+    .notEmpty().withMessage('Vote value is required')
+    .isIn(['up', 'down']).withMessage('Value must be up or down'),
+
+  handleValidationErrors
+];
+
+/**
+ * Validate contact message submission
+ */
+const validateContactMessage = [
+  body('fullName')
+    .trim()
+    .notEmpty().withMessage('Full name is required')
+    .bail()
+    .isLength({ min: 2, max: 80 }).withMessage('Full name must be between 2 and 80 characters'),
+
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .bail()
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+
+  body('subject')
+    .trim()
+    .notEmpty().withMessage('Subject is required')
+    .bail()
+    .isLength({ min: 4, max: 140 }).withMessage('Subject must be between 4 and 140 characters'),
+
+  body('message')
+    .trim()
+    .notEmpty().withMessage('Message is required')
+    .bail()
+    .isLength({ min: 10, max: 2000 }).withMessage('Message must be between 10 and 2000 characters'),
+
+  handleValidationErrors
+];
+
+/**
+ * Validate newsletter subscription submission
+ */
+const validateNewsletterSubscription = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .bail()
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+
+  handleValidationErrors
+];
+
+/**
+ * Validate contact message status update (admin)
+ */
+const validateContactMessageStatusUpdate = [
+  body('status')
+    .notEmpty().withMessage('Status is required')
+    .bail()
+    .isIn(['new', 'reviewed']).withMessage('Status must be either new or reviewed'),
+  handleValidationErrors
+];
+
+/**
+ * Validate newsletter subscriber status update (admin)
+ */
+const validateNewsletterSubscriberStatusUpdate = [
+  body('status')
+    .notEmpty().withMessage('Status is required')
+    .bail()
+    .isIn(['active', 'unsubscribed']).withMessage('Status must be either active or unsubscribed'),
+  handleValidationErrors
+];
+
+/**
  * Validate MongoDB ObjectId parameter
  */
 const validateObjectId = (paramName = 'id') => {
@@ -235,6 +318,39 @@ const validateQuery = [
 ];
 
 /**
+ * Validate admin users list query (search/filter/sort)
+ */
+const validateAdminUsersQuery = [
+  query('page')
+    .optional()
+    .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+
+  query('role')
+    .optional()
+    .isIn(['admin', 'user']).withMessage('Role must be either admin or user'),
+
+  query('search')
+    .optional()
+    .isString().withMessage('Search must be a string')
+    .trim()
+    .isLength({ min: 1, max: 80 }).withMessage('Search must be between 1 and 80 characters'),
+
+  query('sort')
+    .optional()
+    .isIn(['createdAt', 'name', 'email', 'role']).withMessage('Sort must be one of: createdAt, name, email, role'),
+
+  query('order')
+    .optional()
+    .isIn(['asc', 'desc']).withMessage('Order must be either asc or desc'),
+
+  handleValidationErrors
+];
+
+/**
  * Sanitize string input
  * @param {string} str - String to sanitize
  * @returns {string} Sanitized string
@@ -260,6 +376,13 @@ export {
   validateCreateEvent,
   validateUpdateEvent,
   validateBooking,
+  validateCreateEventReview,
+  validateReviewVote,
+  validateContactMessage,
+  validateNewsletterSubscription,
+  validateContactMessageStatusUpdate,
+  validateNewsletterSubscriberStatusUpdate,
+  validateAdminUsersQuery,
   validateObjectId,
   validateQuery,
   handleValidationErrors,

@@ -25,6 +25,14 @@
   }
 }
 
+/* Match admin main content horizontal gutters (vars set on .admin-layout__main) */
+:host-context(.admin-layout__main-footer) .site-footer__inner.container {
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+  padding-inline: var(--admin-content-padding-inline);
+}
+
 .site-footer__top {
   display: grid;
   grid-template-columns: 1fr;
@@ -67,9 +75,14 @@
     color 0.2s ease,
     text-indent 0.2s ease;
 
-  &:hover {
+  &:not(.site-footer__link--active):hover {
     text-indent: 0.4rem;
   }
+}
+
+.site-footer__link--active {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .site-footer__form {
@@ -163,17 +176,24 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+  min-height: 42px;
 }
 
 .site-footer__follow {
   color: var(--color-text-light);
   font-weight: 400;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .site-footer__social-list {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 5px;
+  margin: 0;
 }
 
 .site-footer__social-link {
@@ -181,12 +201,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 42px;
   width: 42px;
   height: 42px;
   border-radius: 999px;
   border: 1px solid transparent;
   font-size: 1.3rem;
-  padding-top: 1px;
+  line-height: 1;
   // font-weight: 700;
   transition:
     color 0.25s ease,
@@ -195,7 +216,13 @@
     background-color 0.25s ease;
 
   i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
     font-size: 1.3rem;
+    line-height: 1;
   }
 }
 
@@ -218,4 +245,31 @@ $social-hover-map: (
 .site-footer__copyright {
   color: var(--color-text-light);
   font-size: 0.9rem;
+}
+
+.site-footer__to-top {
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background-color: rgba(231, 200, 115, 0.14);
+  color: var(--color-white);
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-primary);
+    color: var(--color-black);
+    transform: translateY(-2px);
+  }
+
+  i {
+    font-size: 1rem;
+  }
 }

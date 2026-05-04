@@ -26,13 +26,13 @@ paths:
                     type: string
                     example: "Event retrieved successfully"
                   data:
-                    $ref: '#/components/schemas/Event'
+                    $ref: '#/components/schemas/event'
         '400':
           description: Missing or invalid event ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               examples:
                 missingId:
                   summary: Missing ID
@@ -49,7 +49,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'
               example:
                 success: false
                 message: "Event not found"
@@ -58,4 +58,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/error'

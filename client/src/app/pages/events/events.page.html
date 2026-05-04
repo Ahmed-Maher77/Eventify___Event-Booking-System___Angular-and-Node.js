@@ -1,8 +1,230 @@
 <section class="static-info-page">
   <div class="container static-info-page__container">
-    <h1 class="static-info-page__title">Events</h1>
-    <p class="static-info-page__subtitle">
-      Explore upcoming events and discover experiences tailored to your interests.
-    </p>
+    <header class="events-page__hero">
+      <app-highlighted-page-heading
+        eyebrow="Event Discovery"
+        titlePrefix="Find Your Next"
+        titleHighlight="Experience"
+        subtitle="Explore curated events, adjust filters quickly, and discover what matches your vibe."
+        eyebrowClass="events-page__eyebrow"
+        titleClass="events-page__title"
+        subtitleClass="events-page__subtitle"
+      />
+    </header>
+
+    <div class="events-page row g-4 mt-1">
+      <aside class="col-12 col-xl-3">
+        <button
+          type="button"
+          class="events-page__mobile-toggle btn btn-outline-dark diagonal-swipe-hover"
+          (click)="toggleMobileFilters()"
+        >
+          {{ areFiltersVisibleOnMobile ? 'Hide filters' : 'Show filters' }}
+        </button>
+
+        <form
+          class="events-page__filters"
+          [class.is-collapsed]="!areFiltersVisibleOnMobile"
+          (ngSubmit)="applySidebarFilters()"
+        >
+          <div class="events-page__filter-group">
+            <label class="events-page__label" for="events-search">Search</label>
+            <input
+              id="events-search"
+              type="text"
+              class="form-control"
+              placeholder="Search by name..."
+              [(ngModel)]="queryState.name"
+              name="eventsSearchName"
+            />
+          </div>
+
+          <div class="events-page__filter-group">
+            <label class="events-page__label">Category</label>
+            <div class="events-page__checkbox-list">
+              @for (category of categoryTabs; track category) {
+                <label class="events-page__checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isCategoryChecked(category)"
+                    (change)="toggleCategory(category)"
+                  />
+                  <span>{{ category }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="events-page__filter-group">
+            <label class="events-page__label" for="events-location">Location</label>
+            <input
+              id="events-location"
+              type="text"
+              class="form-control"
+              placeholder="City or venue..."
+              [(ngModel)]="queryState.location"
+              name="eventsLocation"
+            />
+          </div>
+
+          <div class="events-page__filter-group">
+            <div class="events-page__price-header">
+              <label class="events-page__label" for="events-price-range">Max Price</label>
+              <span class="events-page__price-badge">{{ formattedMaxPrice }}</span>
+            </div>
+            <div class="events-page__range-wrap">
+              <input
+                id="events-price-range"
+                class="form-range events-page__price-range"
+                type="range"
+                [min]="minAllowedPrice"
+                [max]="maxAllowedPrice"
+                [step]="priceStep"
+                [(ngModel)]="queryState.maxPrice"
+                (ngModelChange)="onMaxPriceChanged($event)"
+                [style.--range-progress]="maxPriceProgress + '%'"
+                name="eventsPriceRange"
+              />
+              <div class="events-page__range-values" aria-hidden="true">
+                <span>${{ minAllowedPrice }}</span>
+                <span>${{ maxAllowedPrice }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="events-page__actions">
+            <app-button
+              label="Apply Filters"
+              variant="primary"
+              size="sm"
+              buttonType="submit"
+              leftIcon="fa-solid fa-filter"
+              [fullWidth]="true"
+              [rounded]="true"
+              customClass="events-page__action-btn events-page__action-btn--apply diagonal-swipe-hover"
+            ></app-button>
+            <app-button
+              label="Reset Filters"
+              variant="outline"
+              size="sm"
+              buttonType="button"
+              leftIcon="fa-solid fa-rotate-left"
+              [fullWidth]="true"
+              [rounded]="true"
+              customClass="events-page__action-btn events-page__action-btn--reset"
+              (pressed)="clearFilters()"
+            ></app-button>
+          </div>
+        </form>
+      </aside>
+
+      <div class="col-12 col-xl-9">
+        <div class="events-page__toolbar">
+          <div class="events-page__toolbar-meta">
+            <p class="events-page__result-count">
+              Showing <span class="events-page__result-mark">{{ totalEvents }}</span> events
+            </p>
+            <p class="events-page__toolbar-hint">
+              @if (eventTotalsAreClientFiltered) {
+                Totals match the cards shown for your category filters (full counts need the API to filter by category).
+              } @else {
+                Refine filters or sorting to narrow results.
+              }
+            </p>
+          </div>
+
+          <label class="events-page__sort-wrap" for="events-sort-select">
+            <span class="events-page__sort-label">
+              <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+              Sort by
+            </span>
+            <select
+              id="events-sort-select"
+              class="form-select events-page__sort"
+              [ngModel]="queryState.sort + ':' + queryState.order"
+              (ngModelChange)="onSortChanged($event)"
+              name="eventsSort"
+            >
+              @for (option of sortOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (isLoading()) {
+          <div class="events-page__loader-wrap mt-2" aria-label="Loading events">
+            <app-section-loader [size]="40" label="Loading events" />
+          </div>
+        } @else if (errorMessage) {
+          <div class="mt-3 fallback-error-message">
+            <p class="text-danger mb-2">{{ errorMessage }}</p>
+            <button type="button" class="events-page__retry-btn" (click)="retryLoad()">
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+              Try again
+            </button>
+          </div>
+        } @else {
+          <div class="events-page__cards mt-2">
+            @for (event of events; track event.id + '-' + animationSeed; let idx = $index) {
+              <app-featured-event-card
+                class="events-page__event-card"
+                [style.--event-stagger]="idx"
+                [event]="event"
+                [showFavoriteAction]="true"
+                (favoriteToggled)="onFavoriteToggled($event)"
+              ></app-featured-event-card>
+            } @empty {
+              <p class="text-muted">No events match the current filters.</p>
+            }
+          </div>
+
+          @if (totalEvents > 0) {
+            <nav class="events-page__pagination" aria-label="Events pagination">
+              <button
+                type="button"
+                class="events-page__page-btn"
+                [disabled]="!hasPreviousPage"
+                (click)="goToPreviousPage()"
+              >
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                Prev
+              </button>
+
+              <div class="events-page__page-numbers">
+                @for (token of paginationTokens; track token + '-' + $index) {
+                  @if (token === 'ellipsis-left' || token === 'ellipsis-right') {
+                    <span class="events-page__page-ellipsis" aria-hidden="true">...</span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="events-page__page-btn events-page__page-btn--number"
+                      [class.is-active]="queryState.page === token"
+                      (click)="goToPage(token)"
+                    >
+                      {{ token }}
+                    </button>
+                  }
+                }
+              </div>
+
+              <button
+                type="button"
+                class="events-page__page-btn"
+                [disabled]="!hasNextPage"
+                (click)="goToNextPage()"
+              >
+                Next
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+
+              <span class="events-page__page-state"
+                >Page {{ queryState.page }} of {{ totalPages }}</span
+              >
+            </nav>
+          }
+        }
+      </div>
+    </div>
   </div>
 </section>

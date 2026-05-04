@@ -1,8 +1,42 @@
-<section class="static-info-page">
-  <div class="container static-info-page__container">
-    <h1 class="static-info-page__title">Frequently Asked Questions</h1>
-    <p class="static-info-page__subtitle">
-      Find quick answers about booking events, payments, cancellations, and account management.
-    </p>
+<section class="faq-page">
+  <div class="container faq-page__container">
+    <div class="faq-page__content">
+      <header class="faq-page__header">
+        <p class="faq-page__eyebrow">Support</p>
+        <h1 class="faq-page__title">
+          Frequently Ask <span>Questions</span>
+        </h1>
+        <p class="faq-page__subtitle">
+          Find quick answers about bookings, payments, cancellations, and account help.
+        </p>
+      </header>
+
+      <div class="faq-page__list">
+        <app-faq-accordion [items]="faqs"></app-faq-accordion>
+      </div>
+    </div>
+
+    <aside class="faq-page__aside" aria-label="Eventify support assistant">
+      <div class="faq-page__assistant-card">
+        <div class="faq-page__assistant-glow"></div>
+        <img
+          src="/images/tourist-boy-with-hat.png"
+          alt="Tourist boy with hat"
+          class="faq-page__assistant-avatar"
+          loading="lazy"
+        />
+        <app-button
+          label="Eventify Support"
+          variant="primary"
+          size="sm"
+          [rounded]="true"
+          leftIcon="fa-solid fa-headset"
+          [href]="supportWhatsappUrl"
+          target="_blank"
+          rel="noreferrer noopener"
+          customClass="faq-page__assistant-badge diagonal-swipe-hover faq-page__assistant-badge-btn"
+        />
+      </div>
+    </aside>
   </div>
 </section>

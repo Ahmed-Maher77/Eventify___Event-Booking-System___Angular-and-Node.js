@@ -1,1 +1,377 @@
-<h1>Event Details Page</h1>
+<section class="public-event-detail static-info-page">
+  @if (loading()) {
+    <div class="public-event-detail__loader-wrap">
+      <app-section-loader [size]="40" label="Loading event" />
+    </div>
+  } @else if (errorMessage()) {
+    <div class="container py-5">
+      <p class="public-event-detail__error">{{ errorMessage() }}</p>
+      <a routerLink="/events" class="public-event-detail__back-link">Back to events</a>
+    </div>
+  } @else if (event(); as ev) {
+    <div class="public-event-detail__banner">
+      <div class="public-event-detail__banner-media">
+        <img [src]="coverImageSrc(ev)" [alt]="ev.title" width="1600" height="600" loading="eager" />
+      </div>
+      <div class="public-event-detail__banner-gradient" aria-hidden="true"></div>
+
+      <div class="public-event-detail__banner-inner container">
+        <div class="public-event-detail__banner-top">
+          <nav class="public-event-detail__breadcrumb" aria-label="Breadcrumb">
+            <ol class="public-event-detail__crumbs">
+              <li><a routerLink="/">Home</a></li>
+              <li><a routerLink="/events">Events</a></li>
+              <li aria-current="page">{{ ev.title }}</li>
+            </ol>
+          </nav>
+          <div class="public-event-detail__banner-actions">
+            <button
+              type="button"
+              class="public-event-detail__icon-btn"
+              [class.is-active]="isFavorite()"
+              [disabled]="favoriteBusy()"
+              [attr.aria-pressed]="isFavorite()"
+              [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+              [attr.title]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+              (click)="toggleFavorite()"
+            >
+              <i class="fa-solid fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="public-event-detail__banner-bottom">
+          <p class="public-event-detail__eyebrow">Event details</p>
+          <h1 class="public-event-detail__headline">{{ ev.title }}</h1>
+          <div class="public-event-detail__badges">
+            <span class="public-event-detail__status-pill">{{ (ev.status || 'upcoming') | titlecase }}</span>
+            <span class="public-event-detail__category-chip">{{ ev.category | titlecase }}</span>
+          </div>
+          <div class="public-event-detail__banner-facts">
+            <span class="public-event-detail__banner-fact">
+              <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+              {{ ev.date | date: 'EEE, MMM d, y' }}
+              <span class="public-event-detail__banner-fact-sub">{{ ev.date | date: 'shortTime' }}</span>
+            </span>
+            <span class="public-event-detail__banner-fact">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              {{ ev.location }}
+            </span>
+            <span class="public-event-detail__banner-fact">
+              <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+              {{ ev.price | currency }}
+            </span>
+            @if (seatsSnapshot(ev); as seats) {
+              <span class="public-event-detail__banner-fact">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                {{ seats.available }} / {{ seats.capacity }} seats
+              </span>
+            } @else if (ev.capacity != null) {
+              <span class="public-event-detail__banner-fact">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                {{ ev.capacity }} capacity
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="public-event-detail__flow container">
+      <div class="public-event-detail__split">
+        <section class="public-event-detail__block" aria-labelledby="about-heading">
+          <h2 id="about-heading" class="public-event-detail__block-title">About this event</h2>
+          @if (ev.description?.trim()) {
+            <div class="public-event-detail__prose">{{ ev.description }}</div>
+          } @else {
+            <p class="public-event-detail__empty-note">No description provided.</p>
+          }
+        </section>
+
+        <aside class="public-event-detail__block public-event-detail__block--aside" aria-labelledby="actions-heading">
+          <h2 id="actions-heading" class="public-event-detail__block-title">Tickets</h2>
+
+          @if (showBookingCta()) {
+            @if (auth.isLoggedIn()) {
+              @if (canBook()) {
+                <div class="public-event-detail__book-row">
+                  <label class="public-event-detail__qty-label" for="book-qty">Tickets</label>
+                  <input
+                    id="book-qty"
+                    type="number"
+                    class="public-event-detail__qty-input"
+                    min="1"
+                    [max]="seatsSnapshot(ev)?.available ?? 99"
+                    [ngModel]="bookingQuantity()"
+                    (ngModelChange)="onBookingQtyChange($event)"
+                  />
+                </div>
+                <app-button
+                  label="Book now"
+                  variant="primary"
+                  size="md"
+                  [rounded]="true"
+                  leftIcon="fa-solid fa-ticket"
+                  customClass="public-event-detail__book-btn diagonal-swipe-hover"
+                  [disabled]="bookingSubmitting()"
+                  [loading]="bookingSubmitting()"
+                  (pressed)="submitBooking()"
+                />
+              } @else {
+                <p class="public-event-detail__hint">No seats available for this event.</p>
+              }
+            } @else {
+              <p class="public-event-detail__hint">Log in to book tickets for this event.</p>
+              <a routerLink="/login" [queryParams]="{ returnUrl: '/events/' + ev._id }" class="public-event-detail__text-btn"
+                >Sign in</a
+              >
+            }
+          } @else {
+            <p class="public-event-detail__hint">Booking is not available for this event.</p>
+          }
+        </aside>
+      </div>
+
+      <section class="public-event-detail__reviews" aria-labelledby="reviews-heading">
+        <h2 id="reviews-heading" class="public-event-detail__block-title">Reviews</h2>
+
+        <div class="public-event-detail__review-form-wrap">
+          @if (auth.isLoggedIn() && canReview()) {
+            <p class="public-event-detail__review-lead">Share your experience</p>
+            <div class="public-event-detail__hearts" role="group" aria-label="Rating out of five">
+              @for (n of [1, 2, 3, 4, 5]; track n) {
+                <button
+                  type="button"
+                  class="public-event-detail__heart"
+                  [class.is-selected]="draftRating() >= n"
+                  [attr.aria-label]="'Rate ' + n + ' out of 5'"
+                  (click)="setRating(n)"
+                >
+                  <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+            <label class="public-event-detail__review-label" for="review-msg">Message (optional)</label>
+            <textarea
+              id="review-msg"
+              class="public-event-detail__review-textarea"
+              rows="3"
+              maxlength="2000"
+              placeholder="What stood out?"
+              [ngModel]="draftMessage()"
+              (ngModelChange)="draftMessage.set($event)"
+            ></textarea>
+            <app-button
+              label="Submit review"
+              variant="primary"
+              size="md"
+              [rounded]="true"
+              leftIcon="fa-solid fa-paper-plane"
+              [disabled]="reviewSubmitting() || draftRating() < 1"
+              [loading]="reviewSubmitting()"
+              (pressed)="submitReview()"
+            />
+          } @else {
+            @let hint = reviewHint();
+            @if (hint) {
+              <p class="public-event-detail__hint">{{ hint }}</p>
+            }
+          }
+        </div>
+
+        @if (mergedReviews().length) {
+          <div class="public-event-detail__feedback-summary" aria-labelledby="student-feedback-heading">
+            <h3 id="student-feedback-heading" class="public-event-detail__feedback-title">Attendee feedback</h3>
+            <div class="public-event-detail__feedback-grid">
+              <div class="public-event-detail__feedback-score">
+                @if (avgRatingDisplay() != null) {
+                  <p class="public-event-detail__feedback-average">{{ avgRatingDisplay() }}</p>
+                  <div class="public-event-detail__star-row public-event-detail__star-row--lg" aria-hidden="true">
+                    @for (s of starsForAverage(avgRatingDisplay()!); track $index) {
+                      @if (s === 'full') {
+                        <i class="fa-solid fa-star"></i>
+                      } @else if (s === 'half') {
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                      } @else {
+                        <i class="fa-regular fa-star"></i>
+                      }
+                    }
+                  </div>
+                  <p class="public-event-detail__feedback-score-label">Event rating</p>
+                }
+              </div>
+              <div class="public-event-detail__feedback-bars" role="list">
+                @for (row of ratingDistribution(); track row.level) {
+                  <div class="public-event-detail__dist-row" role="listitem">
+                    <div class="public-event-detail__dist-track" [attr.aria-label]="row.level + ' stars: ' + row.pct + ' percent'">
+                      <span class="public-event-detail__dist-fill" [style.width.%]="row.pct"></span>
+                    </div>
+                    <div class="public-event-detail__dist-meta">
+                      <span class="public-event-detail__star-row public-event-detail__star-row--sm" aria-hidden="true">
+                        @for (on of starsForRating(row.level); track $index) {
+                          @if (on) {
+                            <i class="fa-solid fa-star"></i>
+                          } @else {
+                            <i class="fa-regular fa-star"></i>
+                          }
+                        }
+                      </span>
+                      <span class="public-event-detail__dist-pct">{{ row.pct }}%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="public-event-detail__reviews-toolbar">
+            <h3 class="public-event-detail__reviews-subheading">All reviews</h3>
+            <div class="public-event-detail__reviews-toolbar-row">
+              <div class="public-event-detail__review-search">
+                <label class="visually-hidden" for="review-search-input">Search reviews</label>
+                <input
+                  id="review-search-input"
+                  type="search"
+                  class="public-event-detail__review-search-input"
+                  placeholder="Search reviews"
+                  autocomplete="off"
+                  [ngModel]="reviewSearchDraft()"
+                  (ngModelChange)="reviewSearchDraft.set($event)"
+                  (keydown)="onReviewSearchKeydown($event)"
+                />
+                <button
+                  type="button"
+                  class="public-event-detail__review-search-btn"
+                  title="Search reviews"
+                  aria-label="Search reviews"
+                  (click)="applyReviewSearch()"
+                >
+                  <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="public-event-detail__review-filter">
+                <label class="public-event-detail__review-filter-label" for="review-rating-filter">Filter ratings</label>
+                <app-custom-native-select
+                  selectId="review-rating-filter"
+                  [options]="ratingFilterOptions"
+                  selectClass="public-event-detail__review-filter-select"
+                  [ngModel]="ratingFilter()"
+                  (ngModelChange)="setRatingFilter($event)"
+                />
+              </div>
+            </div>
+          </div>
+        }
+
+        <p class="public-event-detail__sample-note">
+          Rows marked “Sample” are placeholders so you can preview the layout before live reviews appear.
+        </p>
+
+        <ul class="public-event-detail__review-list">
+          @for (r of filteredReviews(); track r._id) {
+            <li
+              class="public-event-detail__review-card"
+              [class.public-event-detail__review-card--sample]="isSampleReview(r)"
+            >
+              <div class="public-event-detail__review-head">
+                <img
+                  class="public-event-detail__review-avatar"
+                  [src]="reviewAvatarUrl(r)"
+                  [alt]="'Profile photo for ' + r.authorName"
+                  width="40"
+                  height="40"
+                  loading="lazy"
+                />
+                <div class="public-event-detail__review-head-text">
+                  <div class="public-event-detail__review-name-row">
+                    <span class="public-event-detail__review-author">{{ r.authorName }}</span>
+                    @if (isSampleReview(r)) {
+                      <span class="public-event-detail__sample-pill">Sample</span>
+                    }
+                  </div>
+                  <div class="public-event-detail__review-meta-row">
+                    <span class="public-event-detail__star-row public-event-detail__star-row--md" [attr.aria-label]="r.rating + ' out of 5 stars'">
+                      @for (on of starsForRating(r.rating); track $index) {
+                        @if (on) {
+                          <i class="fa-solid fa-star" aria-hidden="true"></i>
+                        } @else {
+                          <i class="fa-regular fa-star" aria-hidden="true"></i>
+                        }
+                      }
+                    </span>
+                    <span class="public-event-detail__review-date">{{ relativeReviewTime(r.createdAt) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              @if (r.message && r.message.trim(); as msg) {
+                <p
+                  class="public-event-detail__review-msg"
+                  [class.public-event-detail__review-msg--clamped]="
+                    reviewMessageNeedsSeeMore(r.message) && !isReviewExpanded(r._id)
+                  "
+                >
+                  {{ msg }}
+                </p>
+                @if (reviewMessageNeedsSeeMore(r.message) && !isReviewExpanded(r._id)) {
+                  <button
+                    type="button"
+                    class="public-event-detail__review-expand"
+                    (click)="toggleReviewExpand(r._id)"
+                  >
+                    See more
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                  </button>
+                }
+                @if (reviewMessageNeedsSeeMore(r.message) && isReviewExpanded(r._id)) {
+                  <button
+                    type="button"
+                    class="public-event-detail__review-expand"
+                    (click)="toggleReviewExpand(r._id)"
+                  >
+                    See less
+                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                  </button>
+                }
+              }
+
+              <div class="public-event-detail__review-helpful">
+                <span class="public-event-detail__review-helpful-q">Was this review helpful?</span>
+                <div class="public-event-detail__review-votes" role="group" [attr.aria-label]="'Helpful votes for ' + r.authorName">
+                  <button
+                    type="button"
+                    class="public-event-detail__vote-btn"
+                    [class.is-active]="r.userVote === 'up'"
+                    [disabled]="isSampleReview(r) || voteBusy()[r._id]"
+                    [attr.aria-pressed]="r.userVote === 'up'"
+                    [attr.aria-label]="'Mark review as helpful' + (r.helpfulUp != null ? ', ' + r.helpfulUp + ' votes' : '')"
+                    (click)="voteOnReview(r, 'up')"
+                  >
+                    <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="public-event-detail__vote-btn"
+                    [class.is-active]="r.userVote === 'down'"
+                    [disabled]="isSampleReview(r) || voteBusy()[r._id]"
+                    [attr.aria-pressed]="r.userVote === 'down'"
+                    [attr.aria-label]="'Mark review as not helpful' + (r.helpfulDown != null ? ', ' + r.helpfulDown + ' votes' : '')"
+                    (click)="voteOnReview(r, 'down')"
+                  >
+                    <i class="fa-regular fa-thumbs-down" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+
+        @if (mergedReviews().length && !filteredReviews().length) {
+          <p class="public-event-detail__empty-note">No reviews match your search or filter.</p>
+        } @else if (!reviews().length) {
+          <p class="public-event-detail__empty-note">No live reviews yet — you can be the first when you are eligible.</p>
+        }
+      </section>
+    </div>
+  }
+</section>

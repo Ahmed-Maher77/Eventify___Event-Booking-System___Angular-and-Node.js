@@ -4,12 +4,12 @@ const bookingSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: [true, "A Booking must belong to a user."],
     },
     eventId: {
       type: Schema.Types.ObjectId,
-      ref: "Event",
+      ref: "event",
       required: [true, "Booking's Event is required."],
     },
     quantity: {
@@ -35,6 +35,6 @@ const bookingSchema = new Schema(
   { timestamps: true },
 );
 
-const Booking = model("Booking", bookingSchema);
+const Booking = model("booking", bookingSchema);
 
 export default Booking;

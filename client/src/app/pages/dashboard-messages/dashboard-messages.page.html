@@ -1,0 +1,45 @@
+<section class="admin-stream">
+  <header>
+    <app-highlighted-page-heading
+      titlePrefix="Message"
+      titleHighlight="Center"
+      subtitle="Prioritize incoming conversations and team responses."
+      headingLevel="h2"
+      containerClass="admin-heading--container"
+      titleClass="admin-heading--title"
+      subtitleClass="admin-heading--subtitle"
+    />
+  </header>
+
+  <div class="admin-entity-page__panel table-responsive">
+    @if (isLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-section-loader [size]="36" label="Loading message center" />
+      </div>
+    } @else if (errorMessage()) {
+      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    } @else if (!items().length && totalListItems() === 0) {
+      <p class="admin-entity-page__state-message">No contact messages yet.</p>
+    } @else {
+      @for (item of items(); track item._id) {
+        <article class="admin-stream__item">
+          <p class="admin-stream__from">From: {{ item.fullName }} ({{ item.email }})</p>
+          <p class="admin-stream__subject">{{ item.subject }}</p>
+          <p class="admin-stream__meta">
+            {{ item.createdAt | date: 'medium' }}
+            · <span class="admin-stream__status">{{ item.status | titlecase }}</span>
+          </p>
+        </article>
+      }
+
+      <app-admin-entity-pagination
+        [currentPage]="listPage()"
+        [totalPages]="listTotalPages()"
+        [totalItems]="totalListItems()"
+        itemLabel="messages"
+        ariaLabel="Message center pagination"
+        (pageChange)="onListPageChange($event)"
+      />
+    }
+  </div>
+</section>

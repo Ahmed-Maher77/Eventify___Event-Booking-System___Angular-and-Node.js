@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -10,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class NotFoundPage {
   private readonly router = inject(Router);
+  protected readonly searchQuery = signal('');
 
   protected onSearch(event: Event, rawQuery: string): void {
     event.preventDefault();
@@ -18,5 +19,9 @@ export class NotFoundPage {
     void this.router.navigate(['/events'], {
       queryParams: query ? { name: query } : {}
     });
+  }
+
+  protected clearSearch(): void {
+    this.searchQuery.set('');
   }
 }

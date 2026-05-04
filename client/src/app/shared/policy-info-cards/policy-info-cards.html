@@ -1,0 +1,14 @@
+<section class="static-info-page__section policy-info-cards">
+  <h2 class="static-info-page__section-title">{{ sectionTitle }}</h2>
+  <div class="policy-info-cards__grid">
+    @for (card of cards; track card.title) {
+      <article class="static-info-page__card static-info-page__feature-card policy-info-cards__item">
+        <span class="static-info-page__feature-icon policy-info-cards__icon">
+          <i [class]="card.iconClass" aria-hidden="true"></i>
+        </span>
+        <h3 class="static-info-page__feature-title">{{ card.title }}</h3>
+        <p class="static-info-page__feature-text">{{ card.description }}</p>
+      </article>
+    }
+  </div>
+</section>

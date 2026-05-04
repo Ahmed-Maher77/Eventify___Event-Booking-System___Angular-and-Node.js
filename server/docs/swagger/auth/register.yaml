@@ -50,7 +50,7 @@ paths:
                     type: string
                     example: "User registered successfully"
                   data:
-                    $ref: "#/components/schemas/User"
+                    $ref: "#/components/schemas/user"
                   token:
                     type: string
                     description: JWT authentication token
@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/error"
               example:
                 success: false
                 message: "name and email and password are required"
@@ -69,7 +69,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/error"
               example:
                 success: false
                 message: "Email already exists"

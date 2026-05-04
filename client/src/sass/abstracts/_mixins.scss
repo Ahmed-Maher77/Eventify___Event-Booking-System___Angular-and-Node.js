@@ -47,3 +47,13 @@ $breakpoints: (
     transform: scaleX(1);
   }
 }
+
+@mixin admin-link-underline-ltr {
+  text-decoration: none;
+  @include link-underline-base(
+    $bottom: -2px,
+    $height: 2px,
+    $color: currentcolor
+  );
+  @include link-underline-trigger();
+}

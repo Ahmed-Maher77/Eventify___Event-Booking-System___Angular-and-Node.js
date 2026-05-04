@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from '../../shared/button/button';
 import { ChatStoreService } from '../../services/chat-store.service';
 import { AiFeatureItem } from './talk-to-ai-section.model';
+import { setupTalkToAiAnimations } from './talk-to-ai-section.animations';
 
 @Component({
   selector: 'app-talk-to-ai-section',
@@ -11,8 +12,10 @@ import { AiFeatureItem } from './talk-to-ai-section.model';
   templateUrl: './talk-to-ai-section.html',
   styleUrl: './talk-to-ai-section.scss',
 })
-export class TalkToAiSection {
+export class TalkToAiSection implements AfterViewInit, OnDestroy {
   private readonly chatStoreService = inject(ChatStoreService);
+  @ViewChild('talkToAiRoot') private talkToAiRoot?: ElementRef<HTMLElement>;
+  private talkToAiContext: ReturnType<typeof setupTalkToAiAnimations> | null = null;
   protected readonly features: AiFeatureItem[] = [
     { text: 'Find events that match your vibe' },
     { text: 'Compare price, date, and category quickly' },
@@ -54,5 +57,14 @@ export class TalkToAiSection {
 
   protected onMenuAreaClick(event: MouseEvent): void {
     event.stopPropagation();
+  }
+
+  ngAfterViewInit(): void {
+    this.talkToAiContext = setupTalkToAiAnimations(this.talkToAiRoot?.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.talkToAiContext?.revert();
+    this.talkToAiContext = null;
   }
 }

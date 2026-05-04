@@ -1,0 +1,22 @@
+%eventify-about-showcase-panel {
+  // border: 1px solid var(--color-about-showcase-stroke);
+  // border-radius: 18px;
+  // background: var(--color-about-showcase-bg);
+  padding: clamp(1rem, 2vw, 1.6rem);
+  padding-left: 0;
+}
+
+%eventify-about-showcase-point {
+  border-radius: 14px;
+  background: var(--color-about-point-bg);
+  border: 1px solid var(--color-about-point-stroke);
+  padding: 0.95rem;
+}
+
+%eventify-about-showcase-gallery-tile {
+  border-radius: 9px;
+  overflow: hidden;
+  min-height: 130px;
+  background: var(--color-about-gallery-fallback);
+  // box-shadow: 0 10px 24px rgb(0 0 0 / 8%);
+}

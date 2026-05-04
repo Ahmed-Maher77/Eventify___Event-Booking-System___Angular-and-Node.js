@@ -3,7 +3,7 @@
   text-decoration: none;
   transition: color 0.2s ease;
 
-  &:hover {
+  &::not(.site-footer__link--active):hover {
     color: var(--color-white);
   }
 }

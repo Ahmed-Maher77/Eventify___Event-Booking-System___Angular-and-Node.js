@@ -2,43 +2,52 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = mongoose.Schema({
-
     name: {
         type: String,
         required: [true, "Name is required"],
         minlength: [2, "Name must be at least 2 characters long"],
-        maxlength: [50, "Name must be less than 50 characters long"]
+        maxlength: [50, "Name must be less than 50 characters long"],
     },
 
     email: {
         type: String,
         required: [true, "Email is required"],
         unique: true,
-        match: [/\S+@\S+\.\S+/, "Please use a valid email address"]
+        match: [/\S+@\S+\.\S+/, "Please use a valid email address"],
     },
     password: {
         type: String,
         minlength: 6,
         required: [true, "Password is required"],
-        match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-            "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character"]
+        match: [
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+            "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character",
+        ],
     },
     role: {
         type: String,
         enum: ["admin", "user"],
-        default: "user"
+        default: "user",
     },
     pictureUrl: {
         type: String,
         trim: true,
-        default: ""
+        default: "",
     },
     picturePublicId: {
         type: String,
         trim: true,
-        default: ""
+        default: "",
     },
-});
+    favorites: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "event",
+        },
+    ],
+},
+{ timestamps: true },
+);
 
 userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;

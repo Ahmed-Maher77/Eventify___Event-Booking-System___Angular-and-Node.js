@@ -1,9 +1,25 @@
-import { Component, ElementRef, HostListener, ViewChild, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { FavoriteService } from '../../services/favorite.service';
+import { resolveAvatarUrl } from '../../utils/avatar-url';
 import { Button } from '../button/button';
 import { HeaderNavLinksComponent } from './components/header-nav-links/header-nav-links.component';
 import { HeaderUserMenuComponent } from './components/header-user-menu/header-user-menu.component';
+import {
+  runHeaderNavLinksAnimation,
+  runMainHeaderMenuOpenAnimation,
+  setupHeaderAnimations,
+} from './header.animations';
 
 @Component({
   selector: 'app-header',
@@ -12,13 +28,16 @@ import { HeaderUserMenuComponent } from './components/header-user-menu/header-us
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header {
+export class Header implements AfterViewInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly favoriteService = inject(FavoriteService);
   private readonly router = inject(Router);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
+  private headerContext: ReturnType<typeof setupHeaderAnimations> | null = null;
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly isMainHeaderNavOpen = signal(false);
+  protected readonly favoriteCount = signal(0);
   protected readonly navLinks = [
     { label: 'Home', route: '/' },
     { label: 'Events', route: '/events' },
@@ -39,13 +58,7 @@ export class Header {
   }
 
   protected getProfileImageUrl(): string {
-    const pictureUrl = this.authService.userData?.pictureUrl?.trim();
-    if (pictureUrl) {
-      return pictureUrl;
-    }
-
-    const encodedName = encodeURIComponent(this.getDisplayName());
-    return `https://ui-avatars.com/api/?name=${encodedName}&background=E7C873&color=1A1A1A&bold=true`;
+    return resolveAvatarUrl(this.getDisplayName(), this.authService.userData?.pictureUrl);
   }
 
   protected isHomeRoute(): boolean {
@@ -60,6 +73,9 @@ export class Header {
 
   protected toggleProfileMenu(): void {
     this.isProfileMenuOpen.update((value) => !value);
+    if (this.isProfileMenuOpen()) {
+      this.refreshFavoriteCount();
+    }
   }
 
   protected closeProfileMenu(): void {
@@ -75,10 +91,18 @@ export class Header {
     const isDesktop = window.matchMedia('(min-width: 992px)').matches;
     if (isDesktop) {
       this.isMainHeaderNavOpen.set(false);
+      this.syncBodyScrollLock();
       return;
     }
 
     this.isMainHeaderNavOpen.update((value) => !value);
+    this.syncBodyScrollLock();
+    if (this.isMainHeaderNavOpen()) {
+      requestAnimationFrame(() => {
+        runMainHeaderMenuOpenAnimation();
+        runHeaderNavLinksAnimation(this.headerNavRoot?.nativeElement);
+      });
+    }
     if (!this.isMainHeaderNavOpen()) {
       this.closeProfileMenu();
     }
@@ -91,8 +115,23 @@ export class Header {
 
   protected logout(): void {
     this.authService.logout();
+    this.favoriteCount.set(0);
     this.isProfileMenuOpen.set(false);
     this.closeNavCollapse();
+  }
+
+  ngAfterViewInit(): void {
+    this.headerContext = setupHeaderAnimations(
+      this.hostElement.nativeElement,
+      this.headerNavRoot?.nativeElement,
+    );
+    this.refreshFavoriteCount();
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+    this.headerContext?.revert();
+    this.headerContext = null;
   }
 
   @HostListener('document:click', ['$event'])
@@ -127,6 +166,27 @@ export class Header {
   private closeNavCollapse(): void {
     this.isMainHeaderNavOpen.set(false);
     this.closeProfileMenu();
+    this.syncBodyScrollLock();
+  }
+
+  private syncBodyScrollLock(): void {
+    document.body.style.overflow = this.isMainHeaderNavOpen() ? 'hidden' : '';
+  }
+
+  private refreshFavoriteCount(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.favoriteCount.set(0);
+      return;
+    }
+
+    this.favoriteService.getFavorites().subscribe({
+      next: (response) => {
+        this.favoriteCount.set(response.data?.totalFavorites ?? 0);
+      },
+      error: () => {
+        this.favoriteCount.set(0);
+      },
+    });
   }
 
   private getActiveRoutePath(): string | undefined {

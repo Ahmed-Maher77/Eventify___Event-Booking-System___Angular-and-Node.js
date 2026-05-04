@@ -1,0 +1,225 @@
+<div
+  class="admin-event-modal is-open"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="editingEventId() ? 'Edit event dialog' : 'Add event dialog'"
+>
+  <button
+    type="button"
+    class="admin-event-modal__backdrop"
+    [attr.aria-label]="editingEventId() ? 'Close edit event dialog' : 'Close add event dialog'"
+    (click)="closeModal()"
+  ></button>
+
+  <div class="admin-event-modal__panel is-open">
+    <div class="admin-event-modal__header">
+      <div class="admin-event-modal__heading">
+        <span class="admin-event-modal__icon-shell" aria-hidden="true">
+          @if (editingEventId()) {
+            <i class="fa-solid fa-pen-to-square"></i>
+          } @else {
+            <i class="fa-solid fa-calendar-plus"></i>
+          }
+        </span>
+        <div class="admin-event-modal__heading-copy">
+          <h3 class="admin-event-modal__title">{{ editingEventId() ? 'Edit Event' : 'Create New Event' }}</h3>
+          <p class="admin-event-modal__subtitle">
+            {{
+              editingEventId()
+                ? 'Update details, availability, and imagery for this catalog entry.'
+                : 'Add event details, set availability, and publish it to your catalog.'
+            }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="admin-event-modal__close-btn"
+        [attr.aria-label]="editingEventId() ? 'Close edit event dialog' : 'Close add event dialog'"
+        (click)="closeModal()"
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="admin-event-modal__content">
+      <div class="admin-event-modal__content-inner">
+        @if (isLoadingEventDetail()) {
+          <div class="admin-entity-page__loader-wrap admin-event-modal__form-loader">
+            <app-section-loader [size]="36" label="Loading event" />
+          </div>
+        } @else {
+          <form class="admin-event-form" [formGroup]="addEventForm" (ngSubmit)="submitAddEvent()">
+            <div class="admin-event-form__feedback" #formFeedback>
+              @if (formErrorMessage()) {
+                <p class="admin-event-form__message is-error">{{ formErrorMessage() }}</p>
+              }
+              @if (formSuccessMessage()) {
+                <p class="admin-event-form__message is-success">{{ formSuccessMessage() }}</p>
+              }
+            </div>
+
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Title<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+              <input class="admin-event-form__input" type="text" formControlName="title" placeholder="Event title" />
+              @if (addEventForm.controls.title.touched && addEventForm.controls.title.invalid) {
+                <small>Title must be between 3 and 100 characters.</small>
+              }
+            </label>
+
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Description<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+              <textarea
+                class="admin-event-form__input"
+                rows="4"
+                formControlName="description"
+                placeholder="Event description"
+              ></textarea>
+              @if (addEventForm.controls.description.touched && addEventForm.controls.description.invalid) {
+                <small>Description must be between 10 and 1000 characters.</small>
+              }
+            </label>
+
+            <div class="admin-event-form__row">
+              <label class="admin-event-form__field" aria-required="true">
+                <span>Date & time<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+                <input class="admin-event-form__input" type="datetime-local" formControlName="date" />
+                @if (addEventForm.controls.date.touched && addEventForm.controls.date.invalid) {
+                  <small>Date is required.</small>
+                }
+              </label>
+
+              <label class="admin-event-form__field" aria-required="true">
+                <span>Category<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+                <app-custom-native-select
+                  formControlName="category"
+                  [options]="addEventCategorySelectOptions"
+                  selectClass="admin-event-form__input"
+                />
+              </label>
+            </div>
+
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Location<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+              <input
+                class="admin-event-form__input"
+                type="text"
+                formControlName="location"
+                placeholder="City, venue, or address"
+              />
+              @if (addEventForm.controls.location.touched && addEventForm.controls.location.invalid) {
+                <small>Location must be between 3 and 200 characters.</small>
+              }
+            </label>
+
+            <div class="admin-event-form__row">
+              <label class="admin-event-form__field" aria-required="true">
+                <span>Capacity<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+                <input class="admin-event-form__input" type="number" formControlName="capacity" min="1" />
+                @if (addEventForm.controls.capacity.touched && addEventForm.controls.capacity.invalid) {
+                  <small>Capacity must be at least 1.</small>
+                }
+              </label>
+
+              <label class="admin-event-form__field" aria-required="true">
+                <span>Price (USD)<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+                <input class="admin-event-form__input" type="number" formControlName="price" min="0" step="0.01" />
+                @if (addEventForm.controls.price.touched && addEventForm.controls.price.invalid) {
+                  <small>Price cannot be negative.</small>
+                }
+              </label>
+            </div>
+
+            <div class="admin-event-form__field">
+              <span>Event image (optional)</span>
+              <div class="admin-event-form__mode-switch" role="tablist" aria-label="Event image source">
+                <button
+                  type="button"
+                  class="admin-event-form__mode-btn"
+                  [class.is-active]="pictureMode === 'file'"
+                  [attr.aria-selected]="pictureMode === 'file'"
+                  (click)="setPictureMode('file')"
+                >
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  class="admin-event-form__mode-btn"
+                  [class.is-active]="pictureMode === 'url'"
+                  [attr.aria-selected]="pictureMode === 'url'"
+                  (click)="setPictureMode('url')"
+                >
+                  Use URL
+                </button>
+              </div>
+            </div>
+
+            @if (pictureMode === 'file') {
+              <div class="admin-event-form__field">
+                <label class="admin-event-form__upload-dropzone">
+                  <i class="fa-solid fa-cloud-arrow-up admin-event-form__upload-icon" aria-hidden="true"></i>
+                  <span class="admin-event-form__upload-cta">{{ selectedImageName ? 'Change image' : 'Upload image' }}</span>
+                  <span class="admin-event-form__upload-instructions">PNG, JPG, WEBP, GIF - Max 5MB</span>
+                  <span class="admin-event-form__upload-file-name">{{ selectedImageName || 'No file selected' }}</span>
+                  <input
+                    #eventImageInput
+                    id="admin-event-form-image-input"
+                    type="file"
+                    class="admin-event-form__file-native-input"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    (change)="onImageSelected($event)"
+                  />
+                </label>
+                @if (selectedImageName) {
+                  <div class="admin-event-form__selected-file">
+                    <span class="admin-event-form__selected-file-name">
+                      <i class="fa-solid fa-file-image" aria-hidden="true"></i>
+                      {{ selectedImageName }}
+                    </span>
+                    <button
+                      type="button"
+                      class="admin-event-form__selected-file-remove"
+                      (click)="removeSelectedImage(eventImageInput)"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <label class="admin-event-form__field">
+                <span>Image URL</span>
+                <input class="admin-event-form__input" type="url" formControlName="imageUrl" placeholder="https://..." />
+                @if (addEventForm.controls.imageUrl.touched && addEventForm.controls.imageUrl.invalid) {
+                  <small>Enter a valid URL starting with http:// or https://</small>
+                } @else {
+                  <small class="admin-event-form__hint">Paste a direct image URL.</small>
+                }
+              </label>
+            }
+
+            <div class="admin-event-form__actions">
+              <app-button
+                label="Cancel"
+                variant="outline"
+                size="md"
+                [rounded]="true"
+                customClass="admin-event-form__cancel-btn diagonal-swipe-hover"
+                (pressed)="closeModal()"
+              />
+              <app-button
+                [label]="editingEventId() ? 'Save changes' : 'Create Event'"
+                variant="primary"
+                size="md"
+                buttonType="submit"
+                [rounded]="true"
+                [loading]="isSubmitting()"
+                customClass="admin-event-form__submit-btn diagonal-swipe-hover"
+              />
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+<section class="policy-landing">
+  <i [class]="badgeIconClass + ' policy-landing__icon'" aria-hidden="true"></i>
+
+  <app-highlighted-page-heading
+    [titlePrefix]="titlePrefix"
+    [titleHighlight]="titleHighlight"
+    [subtitle]="subtitle"
+    titleClass="static-info-page__title"
+    subtitleClass="static-info-page__subtitle"
+  />
+
+  @if (lastUpdatedText) {
+    <p class="policy-landing__updated">
+      <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+      {{ lastUpdatedText }}
+    </p>
+  }
+</section>

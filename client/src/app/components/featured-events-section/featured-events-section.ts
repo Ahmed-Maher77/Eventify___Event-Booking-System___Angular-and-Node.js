@@ -1,10 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  HostListener,
+  isDevMode,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FeaturedEventCard } from '../featured-event-card/featured-event-card';
 import { FeaturedEventCardData } from '../featured-event-card/featured-event-card.model';
+import { mapEventApiItemToFeaturedCard } from '../featured-event-card/featured-event-card.mapper';
 import { SectionHeadingComponent } from '../../shared/section-heading/section-heading';
+import { EventService } from '../../services/event.service';
 import { register } from 'swiper/element/bundle';
 import type { SwiperContainer } from 'swiper/element';
+import { Subscription, finalize } from 'rxjs';
 
 register();
 
@@ -22,6 +38,15 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chipsTrack') private chipsTrack?: ElementRef<HTMLElement>;
   private filterAnimationTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private syncUiRafId: number | null = null;
+  private featuredEventsSubscription: Subscription | null = null;
+  private sectionLayoutObserver: ResizeObserver | null = null;
+  private sectionVisibilityObserver: IntersectionObserver | null = null;
+  /** Coalesced rAF so ResizeObserver work runs after the browser finishes delivery (avoids Zone "loop" ErrorEvent). */
+  private resizeObserverRafId: number | null = null;
+  private layoutRetryCount = 0;
+  private readonly eventService = inject(EventService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
 
   protected readonly categories = [
     'All',
@@ -51,71 +76,9 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   protected currentSlidesPerView = 1;
   protected showPagination = false;
 
-  protected readonly events: FeaturedEventCardData[] = [
-    {
-      id: 'evt-1',
-      title: 'Neon Nights 2024',
-      category: 'Concert',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Concert.png'
-    },
-    {
-      id: 'evt-2',
-      title: 'Neon Nights 2024',
-      category: 'Workshop',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Workshop.png'
-    },
-    {
-      id: 'evt-3',
-      title: 'Neon Nights 2024',
-      category: 'Conference',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Conference.jpg'
-    },
-    {
-      id: 'evt-4',
-      title: 'Neon Nights 2024',
-      category: 'Seminar',
-      dateText: 'Oct 24, 2024 • 20:00',
-      location: 'Madison Square Garden, NY',
-      priceFrom: '$45.00',
-      imageUrl: '/images/Seminar.jpg'
-    },
-    {
-      id: 'evt-5',
-      title: 'City Beats Festival',
-      category: 'Concert',
-      dateText: 'Nov 2, 2024 • 19:30',
-      location: 'Staples Center, LA',
-      priceFrom: '$39.00',
-      imageUrl: '/images/Concert-1.png'
-    },
-    {
-      id: 'evt-6',
-      title: 'Championship Fan Day',
-      category: 'Sports',
-      dateText: 'Nov 18, 2024 • 17:00',
-      location: 'National Arena, Chicago',
-      priceFrom: '$32.00',
-      imageUrl: '/images/Sports.jpg'
-    },
-    // {
-    //   id: 'evt-7',
-    //   title: 'Creative Communities Meetup',
-    //   category: 'Other',
-    //   dateText: 'Dec 1, 2024 • 18:30',
-    //   location: 'Downtown Hub, Austin',
-    //   priceFrom: '$18.00',
-    //   imageUrl: 'https://www.figma.com/api/mcp/asset/c057786c-9e8f-48cb-a74a-308d3c9f12b7'
-    // }
-  ];
+  protected events: FeaturedEventCardData[] = [];
+  protected isLoadingEvents = true;
+  protected loadError: string | null = null;
 
   protected setCategory(category: (typeof this.categories)[number]): void {
     if (this.activeCategory === category) {
@@ -125,16 +88,11 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     this.activeCategory = category;
     this.isFiltering = true;
     this.updateResponsiveState();
-
-    this.scheduleUiSync();
+    this.loadFeaturedEvents();
   }
 
   protected get filteredEvents(): FeaturedEventCardData[] {
-    if (this.activeCategory === 'All') {
-      return this.events;
-    }
-
-    return this.events.filter((event) => event.category === this.activeCategory);
+    return this.events;
   }
 
   protected get hasCategories(): boolean {
@@ -145,6 +103,10 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     return this.filteredEvents.length > 0;
   }
 
+  protected retryLoadFeatured(): void {
+    this.loadFeaturedEvents();
+  }
+
   protected get shouldUseSwiper(): boolean {
     return this.filteredEvents.length > this.currentSlidesPerView;
   }
@@ -152,9 +114,11 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     // Initialize responsive-driven template values before first change detection cycle.
     this.updateResponsiveState();
+    this.loadFeaturedEvents();
   }
 
   ngAfterViewInit(): void {
+    this.attachSectionLayoutWatchers();
     this.configureSwiper();
     queueMicrotask(() => this.updateTabsOverflowState());
   }
@@ -169,12 +133,22 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
       cancelAnimationFrame(this.syncUiRafId);
       this.syncUiRafId = null;
     }
+
+    if (this.resizeObserverRafId !== null) {
+      cancelAnimationFrame(this.resizeObserverRafId);
+      this.resizeObserverRafId = null;
+    }
+
+    this.featuredEventsSubscription?.unsubscribe();
+    this.featuredEventsSubscription = null;
+    this.detachSectionLayoutWatchers();
   }
 
   @HostListener('window:resize')
   protected onWindowResize(): void {
     this.updateResponsiveState();
     this.configureSwiper();
+    this.patchSwiperLayout('window-resize');
     this.updateTabsOverflowState();
   }
 
@@ -205,6 +179,127 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
 
   protected getCategoryIcon(category: (typeof this.categories)[number]): string {
     return this.categoryIcons[category];
+  }
+
+  /** Dev-only tracing for Swiper / layout timing issues. */
+  private dbg(message: string, detail?: Record<string, unknown>): void {
+    if (!isDevMode()) {
+      return;
+    }
+    if (detail) {
+      console.debug(`[FeaturedEvents] ${message}`, detail);
+    } else {
+      console.debug(`[FeaturedEvents] ${message}`);
+    }
+  }
+
+  private attachSectionLayoutWatchers(): void {
+    this.detachSectionLayoutWatchers();
+    const root = this.featuredSectionRoot?.nativeElement;
+    if (!root) {
+      this.dbg('attachSectionLayoutWatchers: no #featuredSectionRoot');
+      return;
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.sectionLayoutObserver = new ResizeObserver(() => {
+        if (this.resizeObserverRafId !== null) {
+          cancelAnimationFrame(this.resizeObserverRafId);
+        }
+        this.resizeObserverRafId = requestAnimationFrame(() => {
+          this.resizeObserverRafId = null;
+          this.ngZone.run(() => {
+            this.dbg('ResizeObserver: section box changed (rAF)');
+            this.updateResponsiveState();
+            this.configureSwiper();
+            this.patchSwiperLayout('resize-observer');
+          });
+        });
+      });
+      this.sectionLayoutObserver.observe(root);
+    }
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      this.sectionVisibilityObserver = new IntersectionObserver(
+        (entries) => {
+          const hit = entries.some((e) => e.isIntersecting);
+          const ratios = entries.map((e) => Number(e.intersectionRatio.toFixed(3)));
+          this.dbg('IntersectionObserver callback', { hit, ratios });
+          if (!hit) {
+            return;
+          }
+          requestAnimationFrame(() => {
+            this.ngZone.run(() => {
+              this.dbg('IntersectionObserver: visible — remeasuring Swiper (rAF)');
+              this.updateResponsiveState();
+              this.configureSwiper();
+              this.patchSwiperLayout('intersection');
+              this.cdr.markForCheck();
+            });
+          });
+        },
+        { root: null, rootMargin: '140px 0px', threshold: [0, 0.01, 0.05] }
+      );
+      this.sectionVisibilityObserver.observe(root);
+    }
+  }
+
+  private detachSectionLayoutWatchers(): void {
+    this.sectionLayoutObserver?.disconnect();
+    this.sectionLayoutObserver = null;
+    this.sectionVisibilityObserver?.disconnect();
+    this.sectionVisibilityObserver = null;
+  }
+
+  /** Swiper often measures 0×0 when initialized off-screen; force a geometry pass. */
+  private patchSwiperLayout(source: string): void {
+    if (!this.shouldUseSwiper) {
+      return;
+    }
+
+    const host = this.featuredSwiper?.nativeElement;
+    const swiper = host?.swiper;
+    if (!host?.isConnected || !swiper) {
+      this.dbg('patchSwiperLayout: skipped', {
+        source,
+        hasViewChild: !!this.featuredSwiper,
+        hasInstance: !!swiper,
+      });
+      return;
+    }
+
+    const rect = host.getBoundingClientRect();
+    this.dbg('patchSwiperLayout', {
+      source,
+      width: rect.width,
+      height: rect.height,
+      slides: swiper.slides?.length,
+    });
+
+    swiper.updateSize();
+    swiper.updateSlides();
+    swiper.update();
+    if (this.filteredEvents.length > 0) {
+      swiper.slideTo(0, 0);
+    }
+  }
+
+  private scheduleLayoutRetry(reason: string): void {
+    const maxRetries = 6;
+    if (this.layoutRetryCount >= maxRetries) {
+      this.dbg('scheduleLayoutRetry: max retries', { reason, maxRetries });
+      return;
+    }
+    this.layoutRetryCount += 1;
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.dbg('layout retry tick', { reason, attempt: this.layoutRetryCount });
+        this.updateResponsiveState();
+        this.configureSwiper();
+        this.patchSwiperLayout(`retry:${reason}`);
+        this.cdr.markForCheck();
+      });
+    }, 0);
   }
 
   private animateFilteredSlides(): void {
@@ -253,12 +348,22 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private configureSwiper(): void {
-    if (!this.shouldUseSwiper || !this.featuredSwiper) {
+    if (!this.shouldUseSwiper) {
+      this.dbg('configureSwiper: skip (shouldUseSwiper false)');
+      return;
+    }
+
+    if (!this.featuredSwiper) {
+      this.dbg('configureSwiper: #featuredSwiper not ready — scheduling retry');
+      if (this.filteredEvents.length > 0) {
+        this.scheduleLayoutRetry('viewchild-missing');
+      }
       return;
     }
 
     const swiperElement = this.featuredSwiper.nativeElement;
     if (!swiperElement.isConnected) {
+      this.dbg('configureSwiper: swiper host not connected');
       return;
     }
 
@@ -298,6 +403,30 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
     }
 
     swiperElement.initialize();
+    queueMicrotask(() => this.patchSwiperLayout('post-initialize-microtask'));
+  }
+
+  private runFeaturedSyncPass(source: string, options: { animate: boolean }): void {
+    this.updateResponsiveState();
+    const host = this.featuredSwiper?.nativeElement;
+    const rect = host?.getBoundingClientRect();
+    this.dbg('runFeaturedSyncPass', {
+      source,
+      eventCount: this.filteredEvents.length,
+      shouldUseSwiper: this.shouldUseSwiper,
+      hasSwiperViewChild: !!this.featuredSwiper,
+      swiperBox: rect ? { w: rect.width, h: rect.height } : null,
+    });
+
+    this.configureSwiper();
+    this.patchSwiperLayout(source);
+
+    if (options.animate) {
+      this.animateFilteredSlides();
+    }
+
+    this.updateTabsOverflowState();
+    this.cdr.markForCheck();
   }
 
   private scheduleUiSync(): void {
@@ -308,27 +437,67 @@ export class FeaturedEventsSection implements OnInit, AfterViewInit, OnDestroy {
 
     this.syncUiRafId = requestAnimationFrame(() => {
       this.syncUiRafId = null;
-      this.configureSwiper();
+      this.layoutRetryCount = 0;
 
-      const swiperElement = this.featuredSwiper?.nativeElement;
-      const swiper = swiperElement?.swiper;
-      if (this.shouldUseSwiper && swiper) {
-        swiper.update();
-        if (this.filteredEvents.length > 0) {
-          swiper.slideTo(0, 380);
+      this.runFeaturedSyncPass('rAF:1-layout', { animate: false });
+
+      requestAnimationFrame(() => {
+        this.runFeaturedSyncPass('rAF:2-layout+animate', { animate: true });
+
+        if (this.filterAnimationTimeoutId) {
+          clearTimeout(this.filterAnimationTimeoutId);
         }
-      }
 
-      this.animateFilteredSlides();
-
-      if (this.filterAnimationTimeoutId) {
-        clearTimeout(this.filterAnimationTimeoutId);
-      }
-
-      this.filterAnimationTimeoutId = setTimeout(() => {
-        this.isFiltering = false;
-        this.filterAnimationTimeoutId = null;
-      }, 420);
+        this.filterAnimationTimeoutId = setTimeout(() => {
+          this.isFiltering = false;
+          this.filterAnimationTimeoutId = null;
+          this.cdr.markForCheck();
+        }, 420);
+      });
     });
   }
+
+  private loadFeaturedEvents(): void {
+    this.featuredEventsSubscription?.unsubscribe();
+    this.layoutRetryCount = 0;
+    this.isLoadingEvents = true;
+    this.loadError = null;
+    this.featuredEventsSubscription = this.eventService
+      .getFeaturedEvents({
+        category: this.toApiCategory(this.activeCategory),
+        limit: 10
+      })
+      .pipe(
+        finalize(() => {
+          this.isLoadingEvents = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const list = response.data?.events ?? [];
+          this.events = list.map((event) => mapEventApiItemToFeaturedCard(event));
+          this.loadError = null;
+          this.updateResponsiveState();
+          this.scheduleUiSync();
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.events = [];
+          this.loadError = 'We could not load events right now. Check your connection and try again.';
+          this.updateResponsiveState();
+          this.scheduleUiSync();
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private toApiCategory(category: (typeof this.categories)[number]): string | undefined {
+    if (category === 'All') {
+      return undefined;
+    }
+
+    return category.toLowerCase();
+  }
+
 }

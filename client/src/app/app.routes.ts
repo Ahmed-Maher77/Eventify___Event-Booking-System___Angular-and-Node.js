@@ -70,6 +70,11 @@ const userProtectedRoutes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'favorites',
+    loadComponent: () => import('./pages/favorites/favorites.page').then((m) => m.FavoritesPage),
+    canActivate: [authGuard]
+  },
+  {
     path: 'profile/orders',
     loadComponent: () =>
       import('./pages/profile-orders/profile-orders.page').then((m) => m.ProfileOrdersPage),
@@ -84,6 +89,14 @@ const adminProtectedRoutes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'dashboard/events/:id',
+    loadComponent: () =>
+      import('./pages/dashboard-event-detail/dashboard-event-detail.page').then(
+        (m) => m.DashboardEventDetailPage
+      ),
+    canActivate: [adminGuard]
+  },
+  {
     path: 'dashboard/events',
     loadComponent: () =>
       import('./pages/dashboard-events/dashboard-events.page').then((m) => m.DashboardEventsPage),
@@ -94,6 +107,34 @@ const adminProtectedRoutes: Routes = [
     loadComponent: () =>
       import('./pages/dashboard-bookings/dashboard-bookings.page').then(
         (m) => m.DashboardBookingsPage
+      ),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/users',
+    loadComponent: () =>
+      import('./pages/dashboard-users/dashboard-users.page').then((m) => m.DashboardUsersPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/messages',
+    loadComponent: () =>
+      import('./pages/dashboard-messages/dashboard-messages.page').then((m) => m.DashboardMessagesPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/subscribers',
+    loadComponent: () =>
+      import('./pages/dashboard-subscribers/dashboard-subscribers.page').then(
+        (m) => m.DashboardSubscribersPage
+      ),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/assistant-logs',
+    loadComponent: () =>
+      import('./pages/dashboard-assistant-logs/dashboard-assistant-logs.page').then(
+        (m) => m.DashboardAssistantLogsPage
       ),
     canActivate: [adminGuard]
   }

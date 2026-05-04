@@ -6,17 +6,124 @@
   <app-header></app-header>
 
   <!-- <main class="container py-4 page-main page-main--with-fixed-header"> -->
-  <main class="page-main">
-      <router-outlet></router-outlet>
+  <main class="page-main" [class.page-main--faq-theme]="useFaqTheme()">
+    <router-outlet></router-outlet>
   </main>
 } @else {
   <div class="admin-layout">
     <app-admin-sidebar></app-admin-sidebar>
+    @if (adminDrawer.isDrawerOpen()) {
+      <button
+        type="button"
+        class="admin-layout__drawer-backdrop"
+        aria-label="Close menu"
+        (click)="adminDrawer.closeDrawer()"
+      ></button>
+    }
 
-    <main class="admin-content p-4 page-main">
-      <router-outlet></router-outlet>
-    </main>
+    <div class="admin-layout__main">
+      <main class="admin-content page-main" [class.page-main--faq-theme]="useFaqTheme()">
+        @if (!adminDrawer.isDrawerOpen()) {
+          <div class="admin-layout__mobile-toolbar">
+            <button
+              type="button"
+              class="admin-layout__menu-toggle"
+              aria-label="Open navigation menu"
+              (click)="adminDrawer.openDrawer()"
+            >
+              <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+        <router-outlet></router-outlet>
+      </main>
+      <div class="admin-layout__main-footer">
+        <app-footer></app-footer>
+      </div>
+    </div>
   </div>
 }
 
-<app-footer></app-footer>
+@if (!showAdminSidebar()) {
+  <app-footer></app-footer>
+
+  <div class="chatbot-fab">
+  @if (showChatbotHint() && !isChatScreenActive()) {
+    <div class="chatbot-fab__hint" role="status" aria-live="polite">
+      <p>Need help finding an event? Ask our AI assistant.</p>
+      <button type="button" class="chatbot-fab__hint-close" aria-label="Dismiss hint" (click)="dismissChatbotHint()">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+
+  @if (isChatScreenActive()) {
+    <section class="chatbot-panel" aria-label="AI chat assistant">
+      <header class="chatbot-panel__header">
+        <div class="chatbot-panel__assistant">
+          <span class="chatbot-panel__assistant-icon">
+            <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
+          </span>
+          <div>
+            <strong>Eventify AI Assistant</strong>
+            <span class="chatbot-panel__status" [class.is-offline]="!isAssistantOnline()">
+              {{ isAssistantOnline() ? 'Online' : 'Offline' }}
+            </span>
+          </div>
+        </div>
+        <button type="button" class="chatbot-panel__close" (click)="closeFloatingChat()" aria-label="Close chat">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="chatbot-panel__messages">
+        @if (chatMessages().length === 0) {
+          <article class="chatbot-message chatbot-message--assistant">
+            <span class="chatbot-message__icon">
+              <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
+            </span>
+            <p>Hi! Tell me your preferred event type, budget, or date and I will suggest matches.</p>
+          </article>
+        } @else {
+          @for (message of chatMessages(); track message.id) {
+            <article class="chatbot-message chatbot-message--{{ message.role }}">
+              @if (message.role === 'assistant') {
+                <span class="chatbot-message__icon">
+                  <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
+                </span>
+              }
+              <p>{{ message.content }}</p>
+            </article>
+          }
+        }
+      </div>
+
+      <form class="chatbot-panel__input" (submit)="onFloatingChatSubmit($event)">
+        <label class="visually-hidden" for="chatbot-fab-input">Type your message</label>
+        <input
+          id="chatbot-fab-input"
+          type="text"
+          [value]="chatDraftMessage()"
+          (input)="onChatDraftInput($event)"
+          placeholder="Ask AI assistant..."
+        />
+        <button type="submit" aria-label="Send message">
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        </button>
+      </form>
+    </section>
+  }
+
+  <button
+    type="button"
+    class="chatbot-fab__trigger"
+    aria-label="Open AI chat assistant"
+    data-tooltip="Ask Eventify AI"
+    (click)="openFloatingChat()"
+  >
+    <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
+  </button>
+  </div>
+}
+
+<app-toast-host />

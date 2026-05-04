@@ -1,0 +1,30 @@
+<section class="admin-assistant">
+  <header>
+    <app-highlighted-page-heading
+      titlePrefix="Assistant"
+      titleHighlight="Activity"
+      subtitle="Review AI assistant usage and response performance."
+      headingLevel="h2"
+      containerClass="admin-heading--container"
+      titleClass="admin-heading--title"
+      subtitleClass="admin-heading--subtitle"
+    />
+  </header>
+
+  <div class="admin-entity-page__panel table-responsive">
+    @if (isLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-section-loader [size]="36" label="Loading assistant activity" />
+      </div>
+    } @else {
+      <article class="admin-assistant__entry">
+        <p class="admin-assistant__entry-title">Intent: Find upcoming music events</p>
+        <p class="admin-assistant__entry-meta">Processed at 17:08 • 1.2 sec response</p>
+      </article>
+      <article class="admin-assistant__entry">
+        <p class="admin-assistant__entry-title">Intent: Recommend budget workshops</p>
+        <p class="admin-assistant__entry-meta">Processed at 16:54 • 980 ms response</p>
+      </article>
+    }
+  </div>
+</section>

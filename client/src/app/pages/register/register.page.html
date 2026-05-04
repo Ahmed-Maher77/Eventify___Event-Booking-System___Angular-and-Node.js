@@ -15,7 +15,7 @@
           <p class="auth-page__subtitle">Set up your profile and start exploring events.</p>
 
           @if (errorMessage()) {
-            <div class="auth-page__alert" role="alert">{{ errorMessage() }}</div>
+            <div #authAlert class="auth-page__alert" role="alert">{{ errorMessage() }}</div>
           }
 
           <form class="auth-page__form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
@@ -51,15 +51,53 @@
               <label for="register-password" class="auth-page__label"
                 >Password <span class="auth-page__required">*</span></label
               >
-              <input
-                id="register-password"
-                type="password"
-                class="auth-page__input"
-                formControlName="password"
-                placeholder="Create your password"
-              />
+              <div class="auth-page__password-wrap">
+                <input
+                  id="register-password"
+                  [type]="isPasswordVisible() ? 'text' : 'password'"
+                  class="auth-page__input auth-page__input--password"
+                  formControlName="password"
+                  placeholder="Create your password"
+                />
+                <button
+                  type="button"
+                  class="auth-page__password-toggle"
+                  [attr.aria-label]="isPasswordVisible() ? 'Hide password' : 'Show password'"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <i [class]="isPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'" aria-hidden="true"></i>
+                </button>
+              </div>
+              <ul class="auth-page__password-checklist">
+                <li [class.is-met]="hasMinLength">
+                  <i [class]="hasMinLength ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'" aria-hidden="true"></i>
+                  At least 6 characters
+                </li>
+                <li [class.is-met]="hasUppercase">
+                  <i [class]="hasUppercase ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'" aria-hidden="true"></i>
+                  One uppercase letter (A-Z)
+                </li>
+                <li [class.is-met]="hasLowercase">
+                  <i [class]="hasLowercase ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'" aria-hidden="true"></i>
+                  One lowercase letter (a-z)
+                </li>
+                <li [class.is-met]="hasNumber">
+                  <i [class]="hasNumber ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'" aria-hidden="true"></i>
+                  One number (0-9)
+                </li>
+                <li [class.is-met]="hasSpecialCharacter">
+                  <i
+                    [class]="hasSpecialCharacter ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"
+                    aria-hidden="true"
+                  ></i>
+                  One special character (@$!%*?&)
+                </li>
+              </ul>
               @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
-                <small class="auth-page__error">Password must be at least 6 characters.</small>
+                <small class="auth-page__error">
+                  Password must be at least 6 characters long and include uppercase, lowercase, number, and special
+                  character.
+                </small>
               }
             </div>
 
@@ -97,6 +135,7 @@
                   <span class="auth-page__upload-file-name">{{ selectedImageName() || 'No file selected' }}</span>
                 </label>
                 <input
+                  #registerImageInput
                   id="register-image"
                   type="file"
                   class="auth-page__file-native-input"
@@ -104,7 +143,19 @@
                   (change)="onImageSelected($event)"
                 />
                 @if (selectedImageName()) {
-                  <small class="auth-page__hint">Selected: {{ selectedImageName() }}</small>
+                  <div class="auth-page__selected-file">
+                    <span class="auth-page__selected-file-name">
+                      <i class="fa-solid fa-file-image" aria-hidden="true"></i>
+                      {{ selectedImageName() }}
+                    </span>
+                    <button
+                      type="button"
+                      class="auth-page__selected-file-remove"
+                      (click)="removeSelectedImage(registerImageInput)"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 }
               </div>
             } @else {

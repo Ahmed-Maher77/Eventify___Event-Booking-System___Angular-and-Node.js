@@ -1,0 +1,407 @@
+@use '../../../sass/components/admin-dashboard-shared';
+
+.admin-entity-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-heading--container {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.admin-heading--title {
+  margin: 0;
+  color: var(--color-black);
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+  font-weight: 650;
+}
+
+.admin-heading--subtitle {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--color-admin-stat-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.admin-entity-page__eyebrow {
+  margin: 0;
+  color: var(--color-admin-sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.admin-entity-page__title {
+  margin: 0.2rem 0 0;
+  color: var(--color-black);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.admin-entity-page__panel {
+  @extend %admin-entity-page-panel;
+}
+
+.admin-entity-page__table th {
+  color: var(--color-admin-stat-muted);
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+
+.admin-entity-page__th-image {
+  width: 1%;
+  padding-inline-end: 0.25rem;
+  white-space: nowrap;
+}
+
+.admin-entity-page__td-image {
+  width: 1%;
+  vertical-align: middle;
+  padding-inline-end: 0.5rem;
+}
+
+.admin-entity-page__catalog-thumb {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 0.45rem;
+  object-fit: cover;
+  border: 1px solid var(--color-admin-panel-border);
+  background: var(--color-admin-pill-bg, #f4f4f4);
+}
+
+.admin-entity-page__table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+  tr td:last-child {
+    width: 100%;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+}
+
+.admin-entity-page__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-entity-page__pill {
+  border-radius: 999px;
+  background: var(--color-admin-pill-bg);
+  color: var(--color-brown);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+}
+
+.admin-entity-page__catalog-filters-wrap {
+  margin-bottom: 1.15rem;
+}
+
+.admin-entity-page__catalog-filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.35rem;
+  min-width: 0;
+}
+
+.admin-entity-page__filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.2rem 0.4rem 0;
+  margin: 0;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-admin-sidebar-text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-black);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(231 200 115 / 55%);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.admin-entity-page__filters-toggle-icon {
+  font-size: 0.72rem;
+  opacity: 0.85;
+  transition: transform 0.32s ease;
+}
+
+.admin-entity-page__catalog-filters-wrap:has(.admin-entity-page__catalog-filters-body.is-open)
+  .admin-entity-page__catalog-filters-bar
+  .admin-entity-page__filters-toggle-icon {
+  transform: rotate(90deg);
+}
+
+.admin-entity-page__filters-active-badge {
+  margin-inline-start: 0.15rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgb(231 200 115 / 35%);
+  color: var(--color-brown);
+}
+
+.admin-entity-page__catalog-filters-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+  overflow: hidden;
+
+  &:not(.is-open) {
+    pointer-events: none;
+  }
+
+  &.is-open {
+    grid-template-rows: 1fr;
+  }
+}
+
+.admin-entity-page__catalog-filters-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-entity-page__catalog-filters-body {
+    transition-duration: 0.01ms;
+  }
+
+  .admin-entity-page__filters-toggle-icon {
+    transition-duration: 0.01ms;
+  }
+}
+
+.admin-entity-page__catalog-filters {
+  margin-bottom: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.admin-entity-page__catalog-filters-grid {
+  display: grid;
+  gap: 0.75rem 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  align-items: end;
+}
+
+.admin-entity-page__filter-field {
+  display: grid;
+  gap: 0.28rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.admin-entity-page__filter-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-admin-stat-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-entity-page__filter-input {
+  width: 100%;
+  min-height: 2.45rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-admin-sidebar-text);
+  background: rgb(255 255 255 / 55%);
+
+  &:focus {
+    outline: 2px solid rgb(231 200 115 / 45%);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+    background: rgb(255 255 255 / 85%);
+  }
+}
+
+.admin-entity-page__catalog-clear-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.45rem;
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--color-danger);
+  font-size: 0.88rem;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    color: var(--color-brown);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(220 38 38 / 45%);
+    outline-offset: 2px;
+  }
+
+  i {
+    font-size: 1.05rem;
+  }
+}
+
+.admin-entity-page__catalog-clear-label {
+  line-height: 1;
+}
+
+.admin-entity-page__primary-btn {
+  &.ev-btn {
+    border: 1px solid var(--color-primary);
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: var(--color-black);
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+}
+
+.admin-entity-page__icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-admin-panel-border);
+  border-radius: 0.55rem;
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+}
+
+.admin-entity-page__icon-btn.is-danger {
+  color: var(--color-danger);
+}
+
+.admin-entity-page__state-message {
+  margin: 0;
+  padding: 0.75rem;
+  color: var(--color-admin-sidebar-text);
+  font-weight: 500;
+  text-align: center;
+}
+
+.admin-entity-page__loader-wrap {
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-entity-page__state-message.is-error {
+  color: var(--color-danger);
+}
+
+.admin-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.admin-confirm-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(14, 14, 14, 0.65);
+  cursor: pointer;
+}
+
+.admin-confirm-modal__backdrop:disabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.admin-confirm-modal__panel {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 1.35rem 1.25rem 1.25rem;
+  border-radius: 14px;
+  border: 2px solid var(--color-admin-panel-border);
+  background: var(--color-white);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.admin-confirm-modal__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: var(--color-black);
+}
+
+.admin-confirm-modal__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-admin-sidebar-text);
+}
+
+.admin-confirm-modal__text strong {
+  color: var(--color-black);
+  font-weight: 600;
+}
+
+.admin-confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.diagonal-swipe-hover::before {
+  background-color: #7f1d1d;
+}
+
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  color: #fff;
+  border-color: #b91c1c;
+  background-color: #b91c1c;
+}
+
+:host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.ev-btn--inactive {
+  opacity: 0.75;
+}

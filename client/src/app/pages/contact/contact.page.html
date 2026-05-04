@@ -1,8 +1,155 @@
-<section class="static-info-page">
-  <div class="container static-info-page__container">
-    <h1 class="static-info-page__title">Contact Us</h1>
-    <p class="static-info-page__subtitle">
-      Reach out to the Eventify team for support, feedback, partnerships, or general inquiries.
-    </p>
+<section #contactPageRoot class="contact-page">
+  <div class="container">
+    <header class="contact-page__header">
+      <p class="contact-page__eyebrow">Get In Touch</p>
+      <h1 class="contact-page__title">Let's Build <span>Something Great</span></h1>
+      <p class="contact-page__subtitle">
+        Tell us what you are planning and the Eventify team will respond with practical support,
+        product guidance, and fast answers.
+      </p>
+    </header>
+
+    <div class="row g-4 g-xl-5 align-items-stretch contact-page__layout">
+      <div class="col-12 col-lg-5">
+        <article class="contact-page__info-card h-100">
+          <div class="contact-page__meta-block">
+            <h2 class="contact-page__meta-title">Email</h2>
+            <a class="contact-page__meta-value" href="mailto:ahmedmaher.dev1@gmail.com">support@eventify.com</a>
+          </div>
+
+          <div class="contact-page__meta-block">
+            <h2 class="contact-page__meta-title">Phone</h2>
+            <a class="contact-page__meta-value" href="tel:+201150383416">+20 115 038 3416</a>
+          </div>
+
+          <div class="contact-page__meta-block">
+            <h2 class="contact-page__meta-title">Socials</h2>
+            <nav class="contact-page__social-list" aria-label="Eventify social media links">
+              @for (socialLink of socialLinks; track socialLink.label) {
+                <a
+                  [href]="socialLink.url"
+                  class="contact-page__social-link contact-page__social-link--{{ socialLink.modifier }}"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <span>{{ socialLink.label }}</span>
+                  <i class="fa-solid fa-arrow-right contact-page__social-arrow" aria-hidden="true"></i>
+                </a>
+              }
+            </nav>
+          </div>
+        </article>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <article class="contact-page__form-card h-100">
+          <form class="contact-page__form" [formGroup]="contactForm" (ngSubmit)="submitContactForm()">
+            <label class="contact-page__field">
+              <span class="contact-page__field-label">Full Name <span class="contact-page__required">*</span></span>
+              <input
+                class="contact-page__input"
+                [class.contact-page__input--invalid]="isFieldInvalid('fullName')"
+                type="text"
+                formControlName="fullName"
+                placeholder="e.g. Ahmed Maher"
+              />
+              @if (controls.fullName.touched && controls.fullName.invalid) {
+                <small class="contact-page__feedback contact-page__feedback--error">
+                  @if (controls.fullName.hasError('required')) {
+                    Full name is required.
+                  } @else if (controls.fullName.hasError('minlength')) {
+                    Full name must be at least 2 characters.
+                  }
+                </small>
+              }
+            </label>
+
+            <label class="contact-page__field">
+              <span class="contact-page__field-label">Email Address <span class="contact-page__required">*</span></span>
+              <input
+                class="contact-page__input"
+                [class.contact-page__input--invalid]="isFieldInvalid('email')"
+                type="email"
+                formControlName="email"
+                placeholder="e.g. name@company.com"
+              />
+              @if (controls.email.touched && controls.email.invalid) {
+                <small class="contact-page__feedback contact-page__feedback--error">
+                  @if (controls.email.hasError('required')) {
+                    Email address is required.
+                  } @else if (controls.email.hasError('email')) {
+                    Please enter a valid email address.
+                  }
+                </small>
+              }
+            </label>
+
+            <label class="contact-page__field">
+              <span class="contact-page__field-label">Subject <span class="contact-page__required">*</span></span>
+              <input
+                class="contact-page__input"
+                [class.contact-page__input--invalid]="isFieldInvalid('subject')"
+                type="text"
+                formControlName="subject"
+                placeholder="e.g. Partnership inquiry"
+              />
+              @if (controls.subject.touched && controls.subject.invalid) {
+                <small class="contact-page__feedback contact-page__feedback--error">
+                  @if (controls.subject.hasError('required')) {
+                    Subject is required.
+                  } @else if (controls.subject.hasError('minlength')) {
+                    Subject must be at least 4 characters.
+                  }
+                </small>
+              }
+            </label>
+
+            <label class="contact-page__field">
+              <span class="contact-page__field-label">Message <span class="contact-page__required">*</span></span>
+              <textarea
+                class="contact-page__input contact-page__input--textarea"
+                [class.contact-page__input--invalid]="isFieldInvalid('message')"
+                formControlName="message"
+                placeholder="Share your idea, goals, and timeline..."
+              ></textarea>
+              @if (controls.message.touched && controls.message.invalid) {
+                <small class="contact-page__feedback contact-page__feedback--error">
+                  @if (controls.message.hasError('required')) {
+                    Message is required.
+                  } @else if (controls.message.hasError('minlength')) {
+                    Message must be at least 10 characters.
+                  }
+                </small>
+              }
+            </label>
+
+            @if (isSubmitted()) {
+              <p class="contact-page__feedback contact-page__feedback--success">
+                Message sent. Our team will get back to you shortly.
+              </p>
+            }
+            @if (errorMessage()) {
+              <p class="contact-page__feedback contact-page__feedback--error">
+                {{ errorMessage() }}
+              </p>
+            }
+
+            <div class="contact-page__submit-wrap">
+              <app-button
+                label="Send Message"
+                variant="primary"
+                size="md"
+                [rounded]="true"
+                rightIcon="fa-solid fa-arrow-right"
+                customClass="contact-page__submit-btn diagonal-swipe-hover"
+                buttonType="submit"
+                [disabled]="contactForm.invalid || isSubmitting()"
+                [loading]="isSubmitting()"
+              />
+            </div>
+          </form>
+        </article>
+      </div>
+    </div>
   </div>
 </section>

@@ -1,13 +1,90 @@
 import AppError from "../middlewares/AppError.js";
 import Event from "../models/Event.js";
 import mongoose from "mongoose";
+import parseurl from "parseurl";
 import {
     deleteCloudinaryImage,
     uploadImageBuffer,
 } from "../utils/cloudinaryUpload.js";
 
+/** Normalize `categories` query (string, repeated keys, or qs array/object) into a list of slugs. */
+const parseCategoriesQueryParam = (raw) => {
+    if (raw === undefined || raw === null) {
+        return [];
+    }
+    if (Array.isArray(raw)) {
+        return [
+            ...new Set(
+                raw
+                    .flatMap((item) => String(item).split(","))
+                    .map((c) => c.trim().toLowerCase())
+                    .filter(Boolean)
+                    .filter((c) => c !== "all"),
+            ),
+        ];
+    }
+    if (typeof raw === "object") {
+        return [
+            ...new Set(
+                Object.values(raw)
+                    .flatMap((item) => String(item).split(","))
+                    .map((c) => c.trim().toLowerCase())
+                    .filter(Boolean)
+                    .filter((c) => c !== "all"),
+            ),
+        ];
+    }
+    const s = String(raw).trim();
+    if (!s || s === "[object Object]") {
+        return [];
+    }
+    return [
+        ...new Set(
+            s
+                .split(",")
+                .map((c) => c.trim().toLowerCase())
+                .filter(Boolean)
+                .filter((c) => c !== "all"),
+        ),
+    ];
+};
+
+/**
+ * Every `categories=` value from the request URL (duplicate-safe).
+ * Prefer `parseurl(req).query` — same source the router uses — then fall back to `originalUrl` / `url`.
+ */
+const collectCategoriesFromRequestUrl = (req) => {
+    const values = [];
+    try {
+        const parsed = parseurl(req);
+        if (parsed?.query) {
+            values.push(
+                ...new URLSearchParams(parsed.query).getAll("categories"),
+            );
+        }
+    } catch {
+        /* ignore */
+    }
+    const urls = [req.originalUrl, req.url].filter(
+        (u) => typeof u === "string" && u.length > 0,
+    );
+    for (const url of urls) {
+        const qIdx = url.indexOf("?");
+        if (qIdx === -1) {
+            continue;
+        }
+        const qs = url.slice(qIdx + 1).split("#")[0];
+        try {
+            values.push(...new URLSearchParams(qs).getAll("categories"));
+        } catch {
+            /* ignore */
+        }
+    }
+    return values;
+};
+
 // ======= Get all events (public) =======
-// /api/events?page=1&limit=10&search=music&category=concert&sort=date&order=desc
+// /api/events?categories=concert,workshop — optional legacy alias: ?category=concert (same as categories=concert)
 const getEvents = async (req, res) => {
     try {
         // Extract query parameters with defaults
@@ -15,12 +92,13 @@ const getEvents = async (req, res) => {
             page = 1,
             limit = 10,
             search = "",
-            category = "",
+            name = "",
             location = "",
             minPrice,
             maxPrice,
             startDate,
             endDate,
+            status = "",
             sort = "date",
             order = "desc",
         } = req.query;
@@ -30,47 +108,130 @@ const getEvents = async (req, res) => {
         const limitNumber = Math.max(parseInt(limit) || 10, 1);
         const skip = (pageNumber - 1) * limitNumber;
 
-        // Build filter criteria object
+        const featuredCategories = [
+            "concert",
+            "conference",
+            "workshop",
+            "seminar",
+            "sports",
+        ];
+        const allowedCategoryValues = [...featuredCategories, "other"];
+
+        // Build filter criteria object (category + text search may both need $or — use $and parts)
         const filter = {};
+        const andParts = [];
 
         if (search) {
-            filter.$or = [
-                { title: { $regex: search, $options: "i" } },
-                { description: { $regex: search, $options: "i" } },
-            ];
+            andParts.push({
+                $or: [
+                    { title: { $regex: search, $options: "i" } },
+                    { description: { $regex: search, $options: "i" } },
+                ],
+            });
         }
 
-        if (category) {
-            filter.category = category;
+        const urlCategoryStrings = collectCategoriesFromRequestUrl(req);
+        const fromQuery = parseCategoriesQueryParam(req.query.categories);
+        const fromCategoryAlias = parseCategoriesQueryParam(req.query.category);
+        const fromUrl = parseCategoriesQueryParam(urlCategoryStrings);
+        let categoryList = [
+            ...new Set([...fromQuery, ...fromCategoryAlias, ...fromUrl]),
+        ];
+
+        if (categoryList.length > 0) {
+            const normalized = [...new Set(categoryList)].filter((c) =>
+                allowedCategoryValues.includes(c),
+            );
+            if (normalized.length > 0) {
+                const hasOther = normalized.includes("other");
+                const withoutOther = normalized.filter((c) => c !== "other");
+
+                if (hasOther && withoutOther.length > 0) {
+                    andParts.push({
+                        $or: [
+                            { category: { $in: withoutOther } },
+                            { category: { $nin: featuredCategories } },
+                        ],
+                    });
+                } else if (hasOther) {
+                    andParts.push({ category: { $nin: featuredCategories } });
+                } else {
+                    andParts.push({ category: { $in: withoutOther } });
+                }
+            }
+        }
+
+        if (andParts.length === 1) {
+            Object.assign(filter, andParts[0]);
+        } else if (andParts.length > 1) {
+            filter.$and = andParts;
+        }
+
+        if (name) {
+            filter.title = { $regex: name, $options: "i" };
         }
 
         if (location) {
             filter.location = { $regex: location, $options: "i" };
         }
 
-        if (minPrice !== undefined || maxPrice !== undefined) {
+        // Only add bounds that are present and numeric. If `minPrice=` / `maxPrice=` appear as empty
+        // strings, `filter.price = {}` alone matches no numeric `price` field in MongoDB → zero rows.
+        const priceGte =
+            minPrice !== undefined &&
+            minPrice !== "" &&
+            !Number.isNaN(Number(minPrice))
+                ? Number(minPrice)
+                : null;
+        const priceLte =
+            maxPrice !== undefined &&
+            maxPrice !== "" &&
+            !Number.isNaN(Number(maxPrice))
+                ? Number(maxPrice)
+                : null;
+        if (priceGte !== null || priceLte !== null) {
             filter.price = {};
-            if (minPrice !== undefined && minPrice !== "") {
-                filter.price.$gte = Number(minPrice);
+            if (priceGte !== null) {
+                filter.price.$gte = priceGte;
             }
-            if (maxPrice !== undefined && maxPrice !== "") {
-                filter.price.$lte = Number(maxPrice);
+            if (priceLte !== null) {
+                filter.price.$lte = priceLte;
             }
         }
 
-        if (startDate || endDate) {
+        const startD =
+            startDate && String(startDate).trim()
+                ? new Date(startDate)
+                : null;
+        const endD =
+            endDate && String(endDate).trim() ? new Date(endDate) : null;
+        const startOk = startD && !Number.isNaN(startD.getTime());
+        const endOk = endD && !Number.isNaN(endD.getTime());
+        if (startOk || endOk) {
             filter.date = {};
-            if (startDate) {
-                filter.date.$gte = new Date(startDate);
+            if (startOk) {
+                filter.date.$gte = startD;
             }
-            if (endDate) {
-                filter.date.$lte = new Date(endDate);
+            if (endOk) {
+                filter.date.$lte = endD;
             }
+        }
+
+        const allowedStatuses = [
+            "upcoming",
+            "ongoing",
+            "completed",
+            "cancelled",
+        ];
+        if (status && allowedStatuses.includes(String(status).toLowerCase())) {
+            filter.status = String(status).toLowerCase();
         }
 
         const allowedSortFields = ["date", "price", "title", "createdAt"];
         const sortField = allowedSortFields.includes(sort) ? sort : "date";
         const sortOrder = order === "asc" ? 1 : -1;
+
+
 
         // Get events and total count in parallel
         const [events, totalEvents] = await Promise.all([
@@ -83,6 +244,8 @@ const getEvents = async (req, res) => {
         ]);
 
         const totalPages = Math.ceil(totalEvents / limitNumber);
+
+
 
         // Send response with events and pagination info
         res.status(200).json({
@@ -154,13 +317,15 @@ const createEvent = async (req, res) => {
             category,
             capacity,
             price,
-            imageUrl
+            imageUrl,
         } = req.body;
-        
+
         const creatorId = req.user?.id || req.body.createdBy;
 
         if (!creatorId || !mongoose.Types.ObjectId.isValid(creatorId)) {
-            throw AppError.unauthorized("Authentication required to create event");
+            throw AppError.unauthorized(
+                "Authentication required to create event",
+            );
         }
 
         // create new event instance + save it in db
@@ -232,8 +397,13 @@ const updateEvent = async (req, res) => {
             "price",
         ];
         updatableFields.forEach((field) => {
-            if (req.body.hasOwnProperty(field)) {
-                existingEvent[field] = req.body[field];
+            if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+                const raw = req.body[field];
+                if (field === "capacity" || field === "price") {
+                    existingEvent[field] = Number(raw);
+                } else {
+                    existingEvent[field] = raw;
+                }
             }
         });
 

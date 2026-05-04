@@ -1,0 +1,176 @@
+<section class="admin-entity-page admin-event-detail">
+  @if (loading()) {
+    <div class="admin-event-detail__loader-wrap">
+      <app-section-loader [size]="36" label="Loading event" />
+    </div>
+  } @else if (errorMessage()) {
+    <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
+    <a routerLink="/dashboard/events" class="admin-event-detail__text-link">Back to event catalog</a>
+  } @else if (event(); as ev) {
+    <div class="admin-event-detail__banner">
+      <div class="admin-event-detail__banner-media">
+        <img
+          [src]="coverImageSrc(ev)"
+          [alt]="'Cover image for ' + ev.title"
+          width="1600"
+          height="600"
+          loading="eager"
+        />
+      </div>
+      <div class="admin-event-detail__banner-gradient" aria-hidden="true"></div>
+
+      <div class="admin-event-detail__banner-inner">
+        <div class="admin-event-detail__banner-top">
+          <nav class="admin-event-detail__breadcrumb admin-event-detail__breadcrumb--on-banner" aria-label="Breadcrumb">
+            <ol class="admin-event-detail__crumbs">
+              <li>
+                <a routerLink="/dashboard">Dashboard</a>
+              </li>
+              <li>
+                <a routerLink="/dashboard/events">Event catalog</a>
+              </li>
+              <li aria-current="page">{{ ev.title }}</li>
+            </ol>
+          </nav>
+          <div class="admin-event-detail__banner-actions">
+            <app-button
+              label="Edit event"
+              variant="outline"
+              size="md"
+              [rounded]="true"
+              leftIcon="fa-regular fa-pen-to-square"
+              customClass="admin-event-detail__banner-btn admin-event-detail__banner-btn--ghost"
+              (pressed)="openEventEditModal()"
+            />
+          </div>
+        </div>
+
+        <div class="admin-event-detail__banner-bottom">
+          <p class="admin-event-detail__eyebrow admin-event-detail__eyebrow--on-banner">Event overview</p>
+          <h1 class="admin-event-detail__headline admin-event-detail__headline--on-banner">{{ ev.title }}</h1>
+          <div class="admin-event-detail__badges admin-event-detail__badges--on-banner">
+            <span class="admin-event-detail__status-pill admin-event-detail__status-pill--on-banner">
+              {{ (ev.status || 'upcoming') | titlecase }}
+            </span>
+            <span class="admin-event-detail__category-chip admin-event-detail__category-chip--on-banner">
+              {{ ev.category | titlecase }}
+            </span>
+          </div>
+          <div class="admin-event-detail__banner-facts">
+            <span class="admin-event-detail__banner-fact">
+              <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+              {{ ev.date | date: 'EEE, MMM d, y' }}
+              <span class="admin-event-detail__banner-fact-sub">{{ ev.date | date: 'shortTime' }}</span>
+            </span>
+            <span class="admin-event-detail__banner-fact">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              {{ ev.location }}
+            </span>
+            <span class="admin-event-detail__banner-fact">
+              <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+              {{ ev.price | currency }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-event-detail__flow">
+      <ul class="admin-event-detail__metrics" aria-label="Key details">
+        <li class="admin-event-detail__metric">
+          <span class="admin-event-detail__metric-icon" aria-hidden="true">
+            <i class="fa-regular fa-calendar"></i>
+          </span>
+          <div class="admin-event-detail__metric-body">
+            <span class="admin-event-detail__metric-label">When</span>
+            <span class="admin-event-detail__metric-value">{{ ev.date | date: 'EEE, MMM d, y' }}</span>
+            <span class="admin-event-detail__metric-sub">{{ ev.date | date: 'shortTime' }}</span>
+          </div>
+        </li>
+        <li class="admin-event-detail__metric">
+          <span class="admin-event-detail__metric-icon" aria-hidden="true">
+            <i class="fa-solid fa-location-dot"></i>
+          </span>
+          <div class="admin-event-detail__metric-body">
+            <span class="admin-event-detail__metric-label">Venue</span>
+            <span class="admin-event-detail__metric-value">{{ ev.location }}</span>
+          </div>
+        </li>
+        <li class="admin-event-detail__metric">
+          <span class="admin-event-detail__metric-icon" aria-hidden="true">
+            <i class="fa-solid fa-ticket"></i>
+          </span>
+          <div class="admin-event-detail__metric-body">
+            <span class="admin-event-detail__metric-label">Ticket price</span>
+            <span class="admin-event-detail__metric-value">{{ ev.price | currency }}</span>
+          </div>
+        </li>
+        <li class="admin-event-detail__metric">
+          <span class="admin-event-detail__metric-icon" aria-hidden="true">
+            <i class="fa-solid fa-users"></i>
+          </span>
+          <div class="admin-event-detail__metric-body">
+            <span class="admin-event-detail__metric-label">Capacity</span>
+            @if (seatsSnapshot(ev); as seats) {
+              <span class="admin-event-detail__metric-value">{{ seats.available }} available</span>
+              <span class="admin-event-detail__metric-sub">of {{ seats.capacity }} total seats</span>
+            } @else if (ev.capacity != null) {
+              <span class="admin-event-detail__metric-value">{{ ev.capacity }} guests</span>
+            } @else {
+              <span class="admin-event-detail__metric-value admin-event-detail__metric-value--muted">—</span>
+            }
+          </div>
+        </li>
+      </ul>
+
+      <div class="admin-event-detail__split">
+        <section class="admin-event-detail__block" aria-labelledby="event-detail-about">
+          <h2 id="event-detail-about" class="admin-event-detail__block-title">About this event</h2>
+          @if (ev.description?.trim()) {
+            <div class="admin-event-detail__prose">{{ ev.description }}</div>
+          } @else {
+            <p class="admin-event-detail__empty-note">No description has been added for this event yet.</p>
+          }
+        </section>
+
+        <aside class="admin-event-detail__block admin-event-detail__block--aside" aria-labelledby="event-detail-meta">
+          <h2 id="event-detail-meta" class="admin-event-detail__block-title">Record</h2>
+          <dl class="admin-event-detail__meta-list">
+            @if (creatorLabel(ev); as creator) {
+              <div class="admin-event-detail__meta-row">
+                <dt>Created by</dt>
+                <dd>{{ creator }}</dd>
+              </div>
+            }
+            @if (ev.createdAt) {
+              <div class="admin-event-detail__meta-row">
+                <dt>Created</dt>
+                <dd>{{ ev.createdAt | date: 'medium' }}</dd>
+              </div>
+            }
+            @if (ev.updatedAt && ev.updatedAt !== ev.createdAt) {
+              <div class="admin-event-detail__meta-row">
+                <dt>Last updated</dt>
+                <dd>{{ ev.updatedAt | date: 'medium' }}</dd>
+              </div>
+            }
+            @if (ev.imagePublicId) {
+              <div class="admin-event-detail__meta-row">
+                <dt>Image asset</dt>
+                <dd class="admin-event-detail__mono">{{ ev.imagePublicId }}</dd>
+              </div>
+            }
+          </dl>
+        </aside>
+      </div>
+    </div>
+  }
+</section>
+
+@if (eventEditModalOpen()) {
+  <app-admin-event-form-modal
+    [editingEventId]="event()?._id ?? null"
+    (closed)="closeEventEditModal()"
+    (saved)="onEventEditSaved()"
+  />
+}

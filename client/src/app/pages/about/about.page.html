@@ -1,8 +1,115 @@
-<section class="static-info-page">
+<section #aboutPageRoot class="static-info-page">
   <div class="container static-info-page__container">
-    <h1 class="static-info-page__title">About Eventify</h1>
-    <p class="static-info-page__subtitle">
-      Eventify helps you discover, book, and manage events with a smooth and reliable experience.
-    </p>
+
+    <section class="static-info-page__about-showcase">
+      <div class="row g-4 align-items-center">
+        <div class="col-12 col-xl-7">
+          <div class="static-info-page__about-panel">
+            <app-highlighted-page-heading
+              titlePrefix="About"
+              titleHighlight="Us"
+              subtitle="Eventify is built on service, integrity, and excellence. We design every flow to make discovering and booking events simple, transparent, and enjoyable."
+              headingLevel="h2"
+              titleClass="static-info-page__about-title"
+              subtitleClass="static-info-page__about-lead"
+            />
+
+            <div class="row g-3 mt-1">
+              @for (item of aboutHighlights; track item.title) {
+                <div class="col-12 col-md-6">
+                  <article class="static-info-page__about-point h-100">
+                    <p class="static-info-page__about-point-index">{{ item.index }}</p>
+                    <h3 class="static-info-page__about-point-title">{{ item.title }}</h3>
+                    <p class="static-info-page__about-point-text">{{ item.description }}</p>
+                  </article>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+          <div class="static-info-page__about-gallery">
+            @for (image of aboutGalleryImages; track image.src; let idx = $index) {
+              <figure class="static-info-page__about-gallery-item static-info-page__about-gallery-item--{{ idx + 1 }}">
+                <img [src]="image.src" [alt]="image.alt" loading="lazy" />
+              </figure>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="static-info-page__section static-info-page__section--grid my-5">
+      <article class="static-info-page__card static-info-page__feature-card">
+        <div class="static-info-page__feature-head">
+          <p class="static-info-page__feature-kicker">What drives us</p>
+          <h2 class="static-info-page__feature-title">Mission</h2>
+        </div>
+        <p class="static-info-page__feature-text">
+          Make event discovery and booking simple, trustworthy, and accessible for everyone.
+        </p>
+      </article>
+
+      <article class="static-info-page__card static-info-page__feature-card">
+        <div class="static-info-page__feature-head">
+          <p class="static-info-page__feature-kicker">Where we are heading</p>
+          <h2 class="static-info-page__feature-title">Vision</h2>
+        </div>
+        <p class="static-info-page__feature-text">
+          Become the go-to platform for event experiences across categories, cities, and communities.
+        </p>
+      </article>
+    </section>
+
+    <section class="static-info-page__section static-info-page__team-showcase my-5 py-2 pt-4">
+      <header class="static-info-page__team-header">
+        <app-section-heading
+          title="Meet Our Team Of Experts"
+          subtitle="The people behind Eventify product quality, performance, and experience."
+          align="center"
+        />
+      </header>
+
+      <div class="row g-3 g-xl-4 mt-1">
+        @for (member of teamMembers; track member.name) {
+          <div class="col-12 col-sm-6 col-xl-3">
+            <article class="team-member-card">
+              <img [src]="member.imageUrl" [alt]="member.name" class="team-member-card__image" loading="lazy" />
+              <div class="team-member-card__overlay">
+                <div class="team-member-card__details">
+                  <h3 class="team-member-card__name">{{ member.name }}</h3>
+                  <p class="team-member-card__role">{{ member.role }}</p>
+                </div>
+                <a
+                  [href]="member.profileUrl"
+                  class="team-member-card__link"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  [attr.aria-label]="'Open profile for ' + member.name"
+                >
+                  <i class="fa-solid fa-link fs-5" aria-hidden="true"></i>
+                </a>
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="static-info-page__section static-info-page__cta my-3 mt-5">
+      <h2 class="static-info-page__section-title">Ready to explore events?</h2>
+      <p class="static-info-page__text">
+        Discover your next favorite event and book in minutes with Eventify.
+      </p>
+      <app-button
+        label="Browse Events"
+        variant="primary"
+        size="md"
+        [rounded]="true"
+        customClass="static-info-page__cta-btn diagonal-swipe-hover mt-2"
+        [routerLink]="'/events'"
+      />
+    </section>
   </div>
 </section>

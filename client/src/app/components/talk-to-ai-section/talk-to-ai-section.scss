@@ -149,8 +149,12 @@
   align-items: center;
   justify-content: center;
   background: var(--color-light-brown);
-  color: var(--color-white);
-  font-size: 13px;
+
+  img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
 }
 
 .talk-to-ai__online {
@@ -180,14 +184,42 @@
 }
 
 .talk-to-ai__bubble--assistant {
-  background: var(--color-chip-bg);
-  color: var(--color-meta-text);
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+
+  p {
+    margin: 0;
+    background: var(--color-chip-bg);
+    color: var(--color-meta-text);
+    border-radius: 8px;
+    padding: 0.7rem 0.75rem;
+    line-height: 1.42;
+  }
 }
 
 .talk-to-ai__bubble--user {
   margin-left: auto;
   background: var(--color-light-brown);
   color: var(--color-white);
+}
+
+.talk-to-ai__bubble-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--color-faint-brown);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+
+  img {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+  }
 }
 
 .talk-to-ai__result {

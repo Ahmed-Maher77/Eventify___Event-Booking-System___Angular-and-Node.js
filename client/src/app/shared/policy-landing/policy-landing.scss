@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.policy-landing {
+  margin-top: 40px;
+  margin-inline: auto;
+  width: min(100%, 860px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.policy-landing__icon {
+  margin: 0 0 1rem;
+  display: inline-block;
+  color: var(--color-brown);
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.policy-landing__updated {
+  margin: 0.3rem 0 0;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgb(231 200 115 / 44%);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  color: var(--color-brown);
+  background: rgb(255 255 255 / 66%);
+  font-weight: 500;
+  font-size: 0.84rem;
+}
