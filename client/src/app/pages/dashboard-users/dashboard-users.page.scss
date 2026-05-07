@@ -253,6 +253,41 @@
 .admin-entity-page__table {
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
+
+  th:nth-child(1),
+  td:nth-child(1) {
+    min-width: 170px;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    min-width: 220px;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3),
+  th:nth-child(4),
+  td:nth-child(4) {
+    min-width: 110px;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    min-width: 130px;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6) {
+    min-width: 170px;
+    white-space: nowrap;
+  }
+
+  td.text-end {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
 }
 
 .admin-entity-page__table tbody tr:last-child td {
@@ -282,8 +317,8 @@
 }
 
 .admin-entity-page__icon-btn {
-  width: 2rem;
-  height: 2rem;
+  width: 2.2rem;
+  height: 2.2rem;
   border: 1px solid var(--color-admin-panel-border);
   border-radius: 0.55rem;
   background: #fff;
@@ -315,20 +350,16 @@
   }
 }
 
-.admin-directory__view-btn {
-  box-shadow: 0 4px 10px rgb(15 23 42 / 6%);
-}
-
 .admin-directory__row-action {
   border: 1px solid rgb(0 0 0 / 10%);
   background: #fff;
   color: var(--color-admin-sidebar-text);
   border-radius: 0.5rem;
-  padding: 0.3rem 0.55rem;
+  min-height: 2.2rem;
+  padding: 0 0.65rem;
   font-size: 0.76rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  margin-left: 0.35rem;
 
   &:hover:not(:disabled) {
     border-color: var(--color-primary);

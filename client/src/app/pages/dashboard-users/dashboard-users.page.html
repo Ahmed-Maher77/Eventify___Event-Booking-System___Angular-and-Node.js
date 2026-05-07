@@ -1,5 +1,7 @@
 <section class="admin-directory">
-  <header class="admin-entity-page__header d-flex justify-content-between align-items-start gap-3 flex-wrap">
+  <header
+    class="admin-entity-page__header d-flex justify-content-between align-items-start gap-3 flex-wrap"
+  >
     <app-highlighted-page-heading
       titlePrefix="Member"
       titleHighlight="Directory"
@@ -30,7 +32,10 @@
         aria-controls="directory-filters-panel"
         (click)="toggleDirectoryFilters()"
       >
-        <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
+        <i
+          class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon"
+          aria-hidden="true"
+        ></i>
         <span>Filters &amp; sort</span>
       </button>
       <button
@@ -130,7 +135,10 @@
                 <span class="admin-directory__pill">{{ row.role | titlecase }}</span>
               </td>
               <td>
-                <span class="admin-directory__status-pill" [class.is-inactive]="row.isActive === false">
+                <span
+                  class="admin-directory__status-pill"
+                  [class.is-inactive]="row.isActive === false"
+                >
                   {{ row.isActive === false ? 'Inactive' : 'Active' }}
                 </span>
               </td>
@@ -144,14 +152,6 @@
                   (click)="goToUserDetail(row)"
                 >
                   <i class="fa-regular fa-eye" aria-hidden="true"></i>
-                </button>
-                <button
-                  type="button"
-                  class="admin-directory__row-action"
-                  [disabled]="isUserActionDisabled(row)"
-                  (click)="requestRoleToggle(row)"
-                >
-                  {{ row.role === 'admin' ? 'Set as user' : 'Set as admin' }}
                 </button>
                 <button
                   type="button"
@@ -208,14 +208,17 @@
           Update role for
           <strong>{{ pending.user.name }}</strong>
           to
-          <strong>{{ pending.nextRole === 'admin' ? 'Admin' : 'User' }}</strong>.
+          <strong>{{ pending.nextRole === 'admin' ? 'Admin' : 'User' }}</strong
+          >.
         } @else {
           @if (pending.nextIsActive) {
             Restore account access for
-            <strong>{{ pending.user.name }}</strong>.
+            <strong>{{ pending.user.name }}</strong
+            >.
           } @else {
             Disable account access for
-            <strong>{{ pending.user.name }}</strong>.
+            <strong>{{ pending.user.name }}</strong
+            >.
           }
         }
       </p>
@@ -244,8 +247,5 @@
 }
 
 @if (isCreateModalOpen()) {
-  <app-admin-create-admin-modal
-    (closed)="closeCreateAdminModal()"
-    (saved)="onAdminCreated()"
-  />
+  <app-admin-create-admin-modal (closed)="closeCreateAdminModal()" (saved)="onAdminCreated()" />
 }
