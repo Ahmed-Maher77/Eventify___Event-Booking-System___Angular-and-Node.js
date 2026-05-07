@@ -1,6 +1,7 @@
 import Booking from "../models/Booking.js";
 import Event from "../models/Event.js";
 import User from "../models/User.js";
+import ContactMessage from "../models/ContactMessage.js";
 
 export const getDashboardStats = async (req, res, next) => {
   try {
@@ -118,6 +119,98 @@ export const getRecentBookings = async (req, res, next) => {
       success: true,
       message: "Recent bookings retrieved successfully",
       data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getNeedsAttention = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+    const oneWeekAgo = new Date(now);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const twoWeeksAgo = new Date(oneWeekAgo);
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
+
+    const [upcomingLowSalesCount, unreadMessagesCount, oldestUnreadMessage, newMembersThisWeek, newMembersPriorWeek] =
+      await Promise.all([
+        Event.aggregate([
+          {
+            $match: {
+              date: { $gte: now, $lte: in48Hours },
+              status: { $in: ["upcoming", "ongoing"] },
+            },
+          },
+          {
+            $lookup: {
+              from: "bookings",
+              let: { eventId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ["$eventId", "$$eventId"] },
+                        { $eq: ["$status", "confirmed"] },
+                      ],
+                    },
+                  },
+                },
+                {
+                  $group: {
+                    _id: null,
+                    confirmedTickets: { $sum: "$quantity" },
+                  },
+                },
+              ],
+              as: "bookingStats",
+            },
+          },
+          {
+            $addFields: {
+              confirmedTickets: {
+                $ifNull: [{ $arrayElemAt: ["$bookingStats.confirmedTickets", 0] }, 0],
+              },
+            },
+          },
+          { $match: { confirmedTickets: { $lt: 10 } } },
+          { $count: "count" },
+        ]),
+        ContactMessage.countDocuments({ status: "new" }),
+        ContactMessage.findOne({ status: "new" }).sort({ createdAt: 1 }).select("createdAt"),
+        User.countDocuments({
+          role: "user",
+          createdAt: { $gte: oneWeekAgo },
+        }),
+        User.countDocuments({
+          role: "user",
+          createdAt: { $gte: twoWeeksAgo, $lt: oneWeekAgo },
+        }),
+      ]);
+
+    const oldestHours = oldestUnreadMessage?.createdAt
+      ? Math.max(
+          0,
+          Math.floor((now.getTime() - new Date(oldestUnreadMessage.createdAt).getTime()) / (1000 * 60 * 60)),
+        )
+      : 0;
+
+    res.status(200).json({
+      success: true,
+      message: "Needs attention summary retrieved successfully",
+      data: {
+        lowSalesUpcomingEvents48h: upcomingLowSalesCount?.[0]?.count ?? 0,
+        unreadMessages: {
+          count: unreadMessagesCount,
+          oldestHours,
+        },
+        newMembers: {
+          thisWeek: newMembersThisWeek,
+          priorWeek: newMembersPriorWeek,
+        },
+      },
     });
   } catch (error) {
     next(error);

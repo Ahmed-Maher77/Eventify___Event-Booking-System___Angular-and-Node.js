@@ -382,6 +382,20 @@ const validateAdminUsersQuery = [
   handleValidationErrors
 ];
 
+const validateAdminUserRoleUpdate = [
+  body('role')
+    .exists().withMessage('Role is required')
+    .isIn(['admin', 'user']).withMessage('Role must be either admin or user'),
+  handleValidationErrors
+];
+
+const validateAdminUserStatusUpdate = [
+  body('isActive')
+    .exists().withMessage('isActive is required')
+    .isBoolean().withMessage('isActive must be a boolean'),
+  handleValidationErrors
+];
+
 /**
  * Validate admin bookings list query (search/filter/sort)
  */
@@ -524,6 +538,8 @@ export {
   validateNewsletterSubscriberStatusUpdate,
   validateAdminBookingsQuery,
   validateAdminUsersQuery,
+  validateAdminUserRoleUpdate,
+  validateAdminUserStatusUpdate,
   validateAdminContactMessagesQuery,
   validateAdminNewsletterSubscribersQuery,
   validateAdminCreation,

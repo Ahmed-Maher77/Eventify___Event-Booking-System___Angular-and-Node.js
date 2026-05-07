@@ -32,9 +32,6 @@
       >
         <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
         <span>Filters &amp; sort</span>
-        @if (hasActiveDirectoryFilters()) {
-          <span class="admin-entity-page__filters-active-badge">Active</span>
-        }
       </button>
       <button
         type="button"
@@ -119,6 +116,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Status</th>
             <th>Joined</th>
             <th class="text-end">Actions</th>
           </tr>
@@ -131,15 +129,38 @@
               <td>
                 <span class="admin-directory__pill">{{ row.role | titlecase }}</span>
               </td>
+              <td>
+                <span class="admin-directory__status-pill" [class.is-inactive]="row.isActive === false">
+                  {{ row.isActive === false ? 'Inactive' : 'Active' }}
+                </span>
+              </td>
               <td>{{ row.createdAt | date: 'mediumDate' }}</td>
               <td class="text-end">
                 <button
                   type="button"
-                  class="admin-entity-page__icon-btn"
+                  class="admin-entity-page__icon-btn admin-directory__view-btn"
                   aria-label="View user details"
+                  [disabled]="isUserActionDisabled(row)"
                   (click)="goToUserDetail(row)"
                 >
                   <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="admin-directory__row-action"
+                  [disabled]="isUserActionDisabled(row)"
+                  (click)="requestRoleToggle(row)"
+                >
+                  {{ row.role === 'admin' ? 'Set as user' : 'Set as admin' }}
+                </button>
+                <button
+                  type="button"
+                  class="admin-directory__row-action"
+                  [class.is-danger]="row.isActive !== false"
+                  [disabled]="isUserActionDisabled(row)"
+                  (click)="requestStatusToggle(row)"
+                >
+                  {{ row.isActive === false ? 'Reactivate' : 'Deactivate' }}
                 </button>
               </td>
             </tr>
@@ -158,6 +179,69 @@
     }
   </div>
 </section>
+
+@if (pendingAction(); as pending) {
+  <div
+    class="admin-confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="member-action-dialog-title"
+    aria-describedby="member-action-dialog-desc"
+  >
+    <button
+      type="button"
+      class="admin-confirm-modal__backdrop"
+      aria-label="Cancel action"
+      [disabled]="isUserActionDisabled(pending.user)"
+      (click)="closePendingActionModal()"
+    ></button>
+    <div class="admin-confirm-modal__panel">
+      <h3 id="member-action-dialog-title" class="admin-confirm-modal__title">
+        @if (pending.type === 'role') {
+          Change member role?
+        } @else {
+          {{ pending.nextIsActive ? 'Reactivate member?' : 'Deactivate member?' }}
+        }
+      </h3>
+      <p id="member-action-dialog-desc" class="admin-confirm-modal__text">
+        @if (pending.type === 'role') {
+          Update role for
+          <strong>{{ pending.user.name }}</strong>
+          to
+          <strong>{{ pending.nextRole === 'admin' ? 'Admin' : 'User' }}</strong>.
+        } @else {
+          @if (pending.nextIsActive) {
+            Restore account access for
+            <strong>{{ pending.user.name }}</strong>.
+          } @else {
+            Disable account access for
+            <strong>{{ pending.user.name }}</strong>.
+          }
+        }
+      </p>
+      <div class="admin-confirm-modal__actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="isUserActionDisabled(pending.user)"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closePendingActionModal()"
+        />
+        <app-button
+          label="Confirm"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [loading]="isUserActionDisabled(pending.user)"
+          customClass="diagonal-swipe-hover"
+          (pressed)="confirmPendingAction()"
+        />
+      </div>
+    </div>
+  </div>
+}
 
 @if (isCreateModalOpen()) {
   <app-admin-create-admin-modal

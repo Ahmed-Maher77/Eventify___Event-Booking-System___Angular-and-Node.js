@@ -64,6 +64,7 @@ export interface AdminUserListItem {
   name: string;
   email: string;
   role: 'admin' | 'user';
+  isActive?: boolean;
   pictureUrl?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -94,6 +95,14 @@ export interface CreateAdminPayload {
 }
 
 export interface CreateAdminResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AdminUserListItem;
+  };
+}
+
+export interface AdminUserMutationResponse {
   success: boolean;
   message: string;
   data: {
@@ -187,6 +196,22 @@ export interface AdminRecentBookingsResponse {
   success: boolean;
   message: string;
   data: AdminRecentBooking[];
+}
+
+export interface AdminNeedsAttentionResponse {
+  success: boolean;
+  message: string;
+  data: {
+    lowSalesUpcomingEvents48h: number;
+    unreadMessages: {
+      count: number;
+      oldestHours: number;
+    };
+    newMembers: {
+      thisWeek: number;
+      priorWeek: number;
+    };
+  };
 }
 export interface AdminAssistantActivityListItem {
   _id: string;
@@ -317,6 +342,22 @@ export class AdminDashboardService {
     });
   }
 
+  updateUserRole(id: string, role: 'admin' | 'user'): Observable<AdminUserMutationResponse> {
+    return this.http.patch<AdminUserMutationResponse>(
+      `${this.adminBase}/users/${id}/role`,
+      { role },
+      { withCredentials: true },
+    );
+  }
+
+  updateUserStatus(id: string, isActive: boolean): Observable<AdminUserMutationResponse> {
+    return this.http.patch<AdminUserMutationResponse>(
+      `${this.adminBase}/users/${id}/status`,
+      { isActive },
+      { withCredentials: true },
+    );
+  }
+
   getContactMessages(options: AdminContactMessagesQuery = {}): Observable<AdminContactMessagesResponse> {
     let params = new HttpParams()
       .set('page', String(options.page ?? 1))
@@ -410,6 +451,11 @@ export class AdminDashboardService {
   getRecentBookings(): Observable<AdminRecentBookingsResponse> {
     return this.http.get<AdminRecentBookingsResponse>(`${this.adminBase}/recent-bookings`, {
       withCredentials: true,});}
+  getNeedsAttention(): Observable<AdminNeedsAttentionResponse> {
+    return this.http.get<AdminNeedsAttentionResponse>(`${this.adminBase}/needs-attention`, {
+      withCredentials: true,
+    });
+  }
   getAssistantActivities(options: { page?: number; limit?: number } = {}): Observable<AdminAssistantActivitiesResponse> {
     const params = new HttpParams()
       .set('page', String(options.page ?? 1))

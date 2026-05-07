@@ -155,6 +155,14 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
     return '—';
   }
 
+  protected bookingEventLabel(b: AdminBookingListItem): string {
+    const e = b.eventId;
+    if (e && typeof e === 'object' && 'title' in e && (e as { title?: string }).title) {
+      return (e as { title: string }).title;
+    }
+    return '—';
+  }
+
   private loadBookings(): void {
     const requestId = ++this.latestRequestId;
     this.isLoading.set(true);

@@ -267,6 +267,138 @@
   font-size: 0.78rem;
 }
 
+.admin-directory__status-pill {
+  border-radius: 999px;
+  background: rgb(16 185 129 / 12%);
+  color: #047857;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.admin-directory__status-pill.is-inactive {
+  background: rgb(220 38 38 / 10%);
+  color: #b91c1c;
+}
+
+.admin-entity-page__icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-admin-panel-border);
+  border-radius: 0.55rem;
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 40%, white);
+    color: var(--color-black);
+    background: rgb(255 255 255 / 96%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(231 200 115 / 55%);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.admin-directory__view-btn {
+  box-shadow: 0 4px 10px rgb(15 23 42 / 6%);
+}
+
+.admin-directory__row-action {
+  border: 1px solid rgb(0 0 0 / 10%);
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-left: 0.35rem;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-black);
+  }
+
+  &.is-danger {
+    border-color: rgb(220 38 38 / 30%);
+    color: var(--color-danger);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.admin-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.admin-confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(14, 14, 14, 0.65);
+}
+
+.admin-confirm-modal__panel {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 1.35rem 1.25rem 1.25rem;
+  border-radius: 14px;
+  border: 2px solid var(--color-admin-panel-border);
+  background: var(--color-white);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.admin-confirm-modal__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: var(--color-black);
+}
+
+.admin-confirm-modal__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-admin-sidebar-text);
+}
+
+.admin-confirm-modal__text strong {
+  color: var(--color-black);
+  font-weight: 600;
+}
+
+.admin-confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
 .admin-page__loader-wrap {
   min-height: 170px;
   display: flex;
