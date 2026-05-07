@@ -21,6 +21,16 @@ export interface BookingCreateResponse {
   };
 }
 
+export interface UserBookingsSummaryResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    pagination?: {
+      totalBookings?: number;
+    };
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,5 +40,11 @@ export class BookingService {
 
   createBooking(payload: BookingCreatePayload): Observable<BookingCreateResponse> {
     return this.http.post<BookingCreateResponse>(this.url, payload, { withCredentials: true });
+  }
+
+  getUserBookingsSummary(): Observable<UserBookingsSummaryResponse> {
+    return this.http.get<UserBookingsSummaryResponse>(`${this.url}?page=1&limit=1`, {
+      withCredentials: true,
+    });
   }
 }

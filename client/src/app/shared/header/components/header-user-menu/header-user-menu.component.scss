@@ -36,7 +36,7 @@
   display: inline-flex;
 }
 
-.eventify-header__favorites-badge {
+.eventify-header__bookings-badge {
   position: absolute;
   top: -0.35rem;
   right: -0.35rem;
@@ -181,6 +181,17 @@
     background: rgb(231 200 115 / 24%);
     color: var(--color-primary);
   }
+}
+
+.eventify-header__profile-link-count {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 0.1rem 0.42rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  background: rgb(255 255 255 / 16%);
+  color: inherit;
 }
 
 .eventify-header__profile-link-icon {
