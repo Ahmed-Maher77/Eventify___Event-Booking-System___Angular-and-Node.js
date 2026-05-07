@@ -111,10 +111,12 @@
                 <button
                   type="button"
                   class="admin-audience__btn is-danger"
+                  aria-label="Delete subscriber"
+                  title="Delete subscriber"
                   [disabled]="isUpdatingRowId() === row._id || isDeletingRowId() === row._id"
                   (click)="deleteSubscriber(row)"
                 >
-                  Delete
+                  <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
                 </button>
               </td>
             </tr>
