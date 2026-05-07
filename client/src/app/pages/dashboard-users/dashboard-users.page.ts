@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
 import {
   ADMIN_LIST_PAGE_SIZE,
@@ -9,6 +10,8 @@ import {
   AdminUserListItem,
 } from '../../services/admin-dashboard.service';
 import { AdminEntityPaginationComponent } from '../../shared/admin-entity-pagination/admin-entity-pagination.component';
+import { Button } from '../../shared/button/button';
+import { AdminCreateAdminModalComponent } from '../../shared/admin-create-admin-modal/admin-create-admin-modal.component';
 import {
   CustomNativeSelectComponent,
   CustomNativeSelectOption,
@@ -26,9 +29,11 @@ type MemberSortOrder = 'asc' | 'desc';
     CommonModule,
     ReactiveFormsModule,
     HighlightedPageHeadingComponent,
+    Button,
     SectionLoader,
     CustomNativeSelectComponent,
     AdminEntityPaginationComponent,
+    AdminCreateAdminModalComponent,
   ],
   templateUrl: './dashboard-users.page.html',
   styleUrl: './dashboard-users.page.scss',
@@ -36,6 +41,7 @@ type MemberSortOrder = 'asc' | 'desc';
 export class DashboardUsersPage implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminDashboardService);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
   protected readonly directorySortOptions: CustomNativeSelectOption[] = [
@@ -70,6 +76,7 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
   protected readonly totalListItems = signal(0);
   protected readonly rows = signal<AdminUserListItem[]>([]);
   protected readonly directoryFiltersExpanded = signal(false);
+  protected readonly isCreateModalOpen = signal(false);
 
   ngOnInit(): void {
     this.directoryFilterForm.valueChanges
@@ -117,6 +124,23 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
   protected hasActiveDirectoryFilters(): boolean {
     const v = this.directoryFilterForm.getRawValue();
     return !!((v.search ?? '').trim() || (v.role ?? '').trim());
+  }
+
+  protected goToUserDetail(user: AdminUserListItem): void {
+    void this.router.navigate(['/dashboard/users', user._id]);
+  }
+
+  protected openCreateAdminModal(): void {
+    this.isCreateModalOpen.set(true);
+  }
+
+  protected closeCreateAdminModal(): void {
+    this.isCreateModalOpen.set(false);
+  }
+
+  protected onAdminCreated(): void {
+    this.loadUsers();
+    this.closeCreateAdminModal();
   }
 
   private loadUsers(): void {

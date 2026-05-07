@@ -72,6 +72,29 @@ export interface AdminUsersResponse {
   };
 }
 
+export interface AdminUserDetailResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AdminUserListItem;
+  };
+}
+
+export interface CreateAdminPayload {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface CreateAdminResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AdminUserListItem;
+  };
+}
+
 export interface AdminContactMessagesPagination extends AdminPaginationCore {
   totalMessages: number;
 }
@@ -212,6 +235,18 @@ export class AdminDashboardService {
     }
     return this.http.get<AdminUsersResponse>(`${this.adminBase}/users`, {
       params,
+      withCredentials: true,
+    });
+  }
+
+  getUserById(id: string): Observable<AdminUserDetailResponse> {
+    return this.http.get<AdminUserDetailResponse>(`${this.adminBase}/users/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  createAdmin(payload: CreateAdminPayload): Observable<CreateAdminResponse> {
+    return this.http.post<CreateAdminResponse>(`${this.adminBase}/users`, payload, {
       withCredentials: true,
     });
   }
