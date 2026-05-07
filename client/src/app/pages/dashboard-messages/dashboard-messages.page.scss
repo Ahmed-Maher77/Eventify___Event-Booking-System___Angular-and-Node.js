@@ -200,6 +200,16 @@
   min-width: 0;
 }
 
+.admin-entity-page__filter-field--search {
+  grid-column: span 2;
+}
+
+@media (width <= 700px) {
+  .admin-entity-page__filter-field--search {
+    grid-column: span 1;
+  }
+}
+
 .admin-entity-page__filter-label {
   font-size: 0.78rem;
   font-weight: 600;
