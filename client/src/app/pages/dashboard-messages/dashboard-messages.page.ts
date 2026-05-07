@@ -159,6 +159,12 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
             next.delete(item._id);
             return next;
           });
+
+          // If this was the last visible item on a non-first page, move back one page.
+          if (this.items().length === 1 && this.listPage() > 1) {
+            this.listPage.set(this.listPage() - 1);
+          }
+
           this.items.update((rows) => rows.filter((row) => row._id !== item._id));
           this.totalListItems.set(Math.max(0, this.totalListItems() - 1));
           this.loadMessages();
@@ -225,10 +231,14 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
     this.errorMessage.set(null);
     const f = this.filterForm.getRawValue();
     const search = f.search.trim();
+    const safePage = Math.max(1, this.listPage());
+    if (safePage !== this.listPage()) {
+      this.listPage.set(safePage);
+    }
 
     this.adminApi
       .getContactMessages({
-        page: this.listPage(),
+        page: safePage,
         limit: ADMIN_LIST_PAGE_SIZE,
         status: f.status || undefined,
         search: search || undefined,
