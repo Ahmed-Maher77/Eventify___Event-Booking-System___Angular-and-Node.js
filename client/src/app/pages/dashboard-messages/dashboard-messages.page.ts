@@ -69,6 +69,7 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
   protected readonly activeStatusTab = signal<'all' | 'new' | 'reviewed'>('all');
   protected readonly actionInProgressId = signal<string | null>(null);
   protected readonly isBulkActionLoading = signal(false);
+  protected readonly expandedMessageIds = signal<Set<string>>(new Set());
 
   ngOnInit(): void {
     this.filterForm.valueChanges
@@ -153,6 +154,11 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
       .pipe(finalize(() => this.actionInProgressId.set(null)))
       .subscribe({
         next: () => {
+          this.expandedMessageIds.update((ids) => {
+            const next = new Set(ids);
+            next.delete(item._id);
+            return next;
+          });
           this.items.update((rows) => rows.filter((row) => row._id !== item._id));
           this.totalListItems.set(Math.max(0, this.totalListItems() - 1));
           this.loadMessages();
@@ -182,6 +188,26 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
 
   protected hasAnyReviewed(): boolean {
     return this.items().some((item) => item.status === 'reviewed');
+  }
+
+  protected toggleMessageExpanded(id: string): void {
+    this.expandedMessageIds.update((ids) => {
+      const next = new Set(ids);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  protected isMessageExpanded(id: string): boolean {
+    return this.expandedMessageIds().has(id);
+  }
+
+  protected shouldShowMessageToggle(item: AdminContactMessageListItem): boolean {
+    return (item.message ?? '').trim().length > 80;
   }
 
   protected hasActiveFilters(): boolean {

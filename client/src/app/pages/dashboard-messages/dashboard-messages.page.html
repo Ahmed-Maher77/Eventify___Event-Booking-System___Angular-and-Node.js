@@ -153,48 +153,70 @@
     } @else {
       @for (item of items(); track item._id) {
         <article class="admin-stream__item">
-          <header class="admin-stream__item-head">
-            <div class="admin-stream__identity">
+          <header class="admin-stream__item-header">
+            <div class="admin-stream__sender">
               <p class="admin-stream__name">{{ item.fullName }}</p>
               <a class="admin-stream__email" [href]="'mailto:' + item.email">{{ item.email }}</a>
             </div>
-            <span class="admin-stream__status-badge">{{ item.status | titlecase }}</span>
+            <span
+              class="admin-stream__status-badge"
+              [class.is-reviewed]="item.status === 'reviewed'"
+              [class.is-new]="item.status === 'new'"
+            >
+              {{ item.status === 'new' ? 'Unread' : 'Read' }}
+            </span>
           </header>
 
-          <p class="admin-stream__subject">
-            <span class="admin-stream__label">Subject:</span>
-            {{ item.subject }}
-          </p>
-          <p class="admin-stream__message">{{ item.message }}</p>
-          <p class="admin-stream__meta">
-            Received {{ item.createdAt | date: 'medium' }}
-          </p>
+          <section class="admin-stream__item-content">
+            <h3 class="admin-stream__subject">{{ item.subject }}</h3>
+            <p class="admin-stream__message" [class.is-expanded]="isMessageExpanded(item._id)">
+              {{ item.message }}
+            </p>
+          </section>
 
-          <div class="admin-stream__row-actions">
-            <button
-              type="button"
-              class="admin-stream__action-btn"
-              [disabled]="isMessageActionDisabled(item) || item.status === 'reviewed'"
-              (click)="markMessageAsReviewed(item)"
-            >
-              Mark as read
-            </button>
-            <button
-              type="button"
-              class="admin-stream__action-btn"
-              [disabled]="isMessageActionDisabled(item) || item.status === 'new'"
-              (click)="markMessageAsNew(item)"
-            >
-              Mark as unread
-            </button>
-            <button
-              type="button"
-              class="admin-stream__action-btn is-danger"
-              [disabled]="isMessageActionDisabled(item)"
-              (click)="deleteMessage(item)"
-            >
-              Delete
-            </button>
+          <div class="admin-stream__item-footer">
+            <p class="admin-stream__meta">Received {{ item.createdAt | date: 'medium' }}</p>
+            <div class="admin-stream__row-actions">
+              @if (shouldShowMessageToggle(item)) {
+                <button
+                  type="button"
+                  class="admin-stream__show-more"
+                  [disabled]="isMessageActionDisabled(item)"
+                  (click)="toggleMessageExpanded(item._id)"
+                >
+                  {{ isMessageExpanded(item._id) ? 'Show less' : 'Show more' }}
+                </button>
+              }
+              @if (item.status === 'new') {
+                <button
+                  type="button"
+                  class="admin-stream__action-btn"
+                  [disabled]="isMessageActionDisabled(item)"
+                  (click)="markMessageAsReviewed(item)"
+                >
+                  Mark as read
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="admin-stream__action-btn"
+                  [disabled]="isMessageActionDisabled(item)"
+                  (click)="markMessageAsNew(item)"
+                >
+                  Mark as unread
+                </button>
+              }
+              <button
+                type="button"
+                class="admin-stream__action-btn is-danger"
+                aria-label="Delete message"
+                title="Delete message"
+                [disabled]="isMessageActionDisabled(item)"
+                (click)="deleteMessage(item)"
+              >
+                <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
         </article>
       }
