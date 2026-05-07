@@ -12,6 +12,54 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
+    <div class="admin-stream__toolbar">
+      <div class="admin-stream__tabs" role="tablist" aria-label="Message status tabs">
+        <button
+          type="button"
+          class="admin-stream__tab-btn"
+          [class.is-active]="isActiveStatusTab('all')"
+          (click)="setStatusTab('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="admin-stream__tab-btn"
+          [class.is-active]="isActiveStatusTab('new')"
+          (click)="setStatusTab('new')"
+        >
+          Unread
+        </button>
+        <button
+          type="button"
+          class="admin-stream__tab-btn"
+          [class.is-active]="isActiveStatusTab('reviewed')"
+          (click)="setStatusTab('reviewed')"
+        >
+          Read
+        </button>
+      </div>
+
+      <div class="admin-stream__bulk-actions">
+        <button
+          type="button"
+          class="admin-stream__action-btn"
+          [disabled]="isBulkActionLoading() || !hasAnyNew()"
+          (click)="markAllAsReviewed()"
+        >
+          Mark all as read
+        </button>
+        <button
+          type="button"
+          class="admin-stream__action-btn"
+          [disabled]="isBulkActionLoading() || !hasAnyReviewed()"
+          (click)="markAllAsNew()"
+        >
+          Mark all as unread
+        </button>
+      </div>
+    </div>
+
     <div class="admin-entity-page__catalog-filters-wrap">
       <div class="admin-entity-page__catalog-filters-bar">
         <button
@@ -24,9 +72,6 @@
         >
           <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
           <span>Filters &amp; sort</span>
-          @if (hasActiveFilters()) {
-            <span class="admin-entity-page__filters-active-badge">Active</span>
-          }
         </button>
         <button
           type="button"
@@ -108,12 +153,49 @@
     } @else {
       @for (item of items(); track item._id) {
         <article class="admin-stream__item">
-          <p class="admin-stream__from">From: {{ item.fullName }} ({{ item.email }})</p>
-          <p class="admin-stream__subject">{{ item.subject }}</p>
-          <p class="admin-stream__meta">
-            {{ item.createdAt | date: 'medium' }}
-            · <span class="admin-stream__status">{{ item.status | titlecase }}</span>
+          <header class="admin-stream__item-head">
+            <div class="admin-stream__identity">
+              <p class="admin-stream__name">{{ item.fullName }}</p>
+              <a class="admin-stream__email" [href]="'mailto:' + item.email">{{ item.email }}</a>
+            </div>
+            <span class="admin-stream__status-badge">{{ item.status | titlecase }}</span>
+          </header>
+
+          <p class="admin-stream__subject">
+            <span class="admin-stream__label">Subject:</span>
+            {{ item.subject }}
           </p>
+          <p class="admin-stream__message">{{ item.message }}</p>
+          <p class="admin-stream__meta">
+            Received {{ item.createdAt | date: 'medium' }}
+          </p>
+
+          <div class="admin-stream__row-actions">
+            <button
+              type="button"
+              class="admin-stream__action-btn"
+              [disabled]="isMessageActionDisabled(item) || item.status === 'reviewed'"
+              (click)="markMessageAsReviewed(item)"
+            >
+              Mark as read
+            </button>
+            <button
+              type="button"
+              class="admin-stream__action-btn"
+              [disabled]="isMessageActionDisabled(item) || item.status === 'new'"
+              (click)="markMessageAsNew(item)"
+            >
+              Mark as unread
+            </button>
+            <button
+              type="button"
+              class="admin-stream__action-btn is-danger"
+              [disabled]="isMessageActionDisabled(item)"
+              (click)="deleteMessage(item)"
+            >
+              Delete
+            </button>
+          </div>
         </article>
       }
 

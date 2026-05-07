@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, finalize, forkJoin, map, of, switchMap, takeUntil } from 'rxjs';
 import {
   ADMIN_LIST_PAGE_SIZE,
   AdminContactMessageListItem,
@@ -66,6 +66,9 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
   protected readonly totalListItems = signal(0);
   protected readonly items = signal<AdminContactMessageListItem[]>([]);
   protected readonly filtersExpanded = signal(false);
+  protected readonly activeStatusTab = signal<'all' | 'new' | 'reviewed'>('all');
+  protected readonly actionInProgressId = signal<string | null>(null);
+  protected readonly isBulkActionLoading = signal(false);
 
   ngOnInit(): void {
     this.filterForm.valueChanges
@@ -115,9 +118,79 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
     this.loadMessages();
   }
 
+  protected setStatusTab(status: 'all' | 'new' | 'reviewed'): void {
+    this.activeStatusTab.set(status);
+    this.filterForm.patchValue(
+      {
+        status: status === 'all' ? '' : status,
+      },
+      { emitEvent: true },
+    );
+  }
+
+  protected isActiveStatusTab(status: 'all' | 'new' | 'reviewed'): boolean {
+    return this.activeStatusTab() === status;
+  }
+
+  protected markMessageAsReviewed(item: AdminContactMessageListItem): void {
+    this.updateSingleMessageStatus(item, 'reviewed');
+  }
+
+  protected markMessageAsNew(item: AdminContactMessageListItem): void {
+    this.updateSingleMessageStatus(item, 'new');
+  }
+
+  protected deleteMessage(item: AdminContactMessageListItem): void {
+    if (!window.confirm(`Delete message from ${item.fullName}? This action cannot be undone.`)) {
+      return;
+    }
+
+    this.actionInProgressId.set(item._id);
+    this.errorMessage.set(null);
+
+    this.adminApi
+      .deleteContactMessage(item._id)
+      .pipe(finalize(() => this.actionInProgressId.set(null)))
+      .subscribe({
+        next: () => {
+          this.items.update((rows) => rows.filter((row) => row._id !== item._id));
+          this.totalListItems.set(Math.max(0, this.totalListItems() - 1));
+          this.loadMessages();
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.errorMessage.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to delete this message. Please try again.',
+          );
+        },
+      });
+  }
+
+  protected markAllAsReviewed(): void {
+    this.bulkUpdateVisibleMessagesStatus('reviewed');
+  }
+
+  protected markAllAsNew(): void {
+    this.bulkUpdateVisibleMessagesStatus('new');
+  }
+
+  protected hasAnyNew(): boolean {
+    return this.items().some((item) => item.status === 'new');
+  }
+
+  protected hasAnyReviewed(): boolean {
+    return this.items().some((item) => item.status === 'reviewed');
+  }
+
   protected hasActiveFilters(): boolean {
     const f = this.filterForm.getRawValue();
     return !!f.search.trim() || !!f.status.trim() || f.sort !== 'createdAt' || f.order !== 'desc';
+  }
+
+  protected isMessageActionDisabled(item: AdminContactMessageListItem): boolean {
+    return this.actionInProgressId() === item._id || this.isBulkActionLoading();
   }
 
   private loadMessages(): void {
@@ -174,6 +247,76 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
             typeof msg === 'string' && msg.trim()
               ? msg
               : 'Unable to load messages. Please try again.',
+          );
+        },
+      });
+  }
+
+  private updateSingleMessageStatus(
+    item: AdminContactMessageListItem,
+    status: 'new' | 'reviewed',
+  ): void {
+    if (item.status === status) {
+      return;
+    }
+
+    this.actionInProgressId.set(item._id);
+    this.errorMessage.set(null);
+
+    this.adminApi
+      .updateContactMessageStatus(item._id, status)
+      .pipe(finalize(() => this.actionInProgressId.set(null)))
+      .subscribe({
+        next: () => {
+          this.items.update((rows) =>
+            rows.map((row) => (row._id === item._id ? { ...row, status } : row)),
+          );
+          this.loadMessages();
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.errorMessage.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to update message status. Please try again.',
+          );
+        },
+      });
+  }
+
+  private bulkUpdateVisibleMessagesStatus(status: 'new' | 'reviewed'): void {
+    const targets = this.items().filter((item) => item.status !== status);
+    if (!targets.length) {
+      return;
+    }
+
+    this.isBulkActionLoading.set(true);
+    this.errorMessage.set(null);
+
+    const requests = targets.map((item) =>
+      this.adminApi.updateContactMessageStatus(item._id, status).pipe(
+        map(() => ({ ok: true as const })),
+      ),
+    );
+
+    forkJoin(requests)
+      .pipe(
+        switchMap(() => {
+          this.items.update((rows) => rows.map((row) => ({ ...row, status })));
+          return of(null);
+        }),
+        finalize(() => this.isBulkActionLoading.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.loadMessages();
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.errorMessage.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to update all selected messages. Please try again.',
           );
         },
       });

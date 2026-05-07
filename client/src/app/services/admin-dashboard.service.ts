@@ -119,6 +119,12 @@ export interface AdminContactMessagesResponse {
   };
 }
 
+export interface AdminContactMessageMutationResponse {
+  success: boolean;
+  message: string;
+  data: AdminContactMessageListItem;
+}
+
 export interface AdminNewsletterPagination extends AdminPaginationCore {
   totalSubscribers: number;
 }
@@ -311,6 +317,23 @@ export class AdminDashboardService {
     }
     return this.http.get<AdminContactMessagesResponse>(`${this.adminBase}/contact-messages`, {
       params,
+      withCredentials: true,
+    });
+  }
+
+  updateContactMessageStatus(
+    id: string,
+    status: 'new' | 'reviewed',
+  ): Observable<AdminContactMessageMutationResponse> {
+    return this.http.patch<AdminContactMessageMutationResponse>(
+      `${this.adminBase}/contact-messages/${id}/status`,
+      { status },
+      { withCredentials: true },
+    );
+  }
+
+  deleteContactMessage(id: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(`${this.adminBase}/contact-messages/${id}`, {
       withCredentials: true,
     });
   }
