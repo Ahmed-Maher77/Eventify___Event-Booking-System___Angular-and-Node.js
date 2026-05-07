@@ -1,0 +1,69 @@
+<section class="admin-user-detail">
+  <header class="admin-user-detail__header">
+    <app-highlighted-page-heading
+      titlePrefix="User"
+      titleHighlight="Profile"
+      subtitle="Detailed view of member account information."
+      headingLevel="h2"
+      containerClass="admin-heading--container"
+      titleClass="admin-heading--title"
+      subtitleClass="admin-heading--subtitle"
+    />
+    <app-button
+      label="Back to Directory"
+      variant="dark"
+      size="sm"
+      [rounded]="true"
+      leftIcon="fa-solid fa-arrow-left"
+      customClass="diagonal-swipe-hover"
+      routerLink="/dashboard/users"
+    />
+  </header>
+
+  @if (loading) {
+  <div class="admin-page__loader-wrap">
+    <app-section-loader [size]="36" label="Loading user profile" />
+  </div>
+  } @else if (error) {
+  <p class="admin-entity-page__state-message is-error">{{ error }}</p>
+  } @else if (user) {
+  <div class="admin-entity-page__panel">
+    <div class="user-profile-grid">
+      <div class="profile-main">
+        <div class="profile-field">
+          <span class="profile-label">Full Name</span>
+          <span class="profile-value">{{ user.name }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="profile-label">Email Address</span>
+          <span class="profile-value">{{ user.email }}</span>
+        </div>
+        <div class="profile-field">
+          <span class="profile-label">Account Role</span>
+          <span class="profile-value">
+            <span class="admin-directory__pill">{{ user.role | titlecase }}</span>
+          </span>
+        </div>
+        <div class="profile-field">
+          <span class="profile-label">Member Since</span>
+          <span class="profile-value">{{ user.createdAt | date: 'longDate' }}</span>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <h3 class="actions-title">Account Actions</h3>
+        <app-button
+          label="View User Bookings"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          leftIcon="fa-solid fa-ticket"
+          customClass="diagonal-swipe-hover w-100"
+          [routerLink]="['/dashboard/bookings']"
+          [queryParams]="{ userId: user._id }"
+        />
+      </div>
+    </div>
+  </div>
+  }
+</section>
