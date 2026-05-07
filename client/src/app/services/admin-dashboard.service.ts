@@ -456,10 +456,49 @@ export class AdminDashboardService {
       withCredentials: true,
     });
   }
-  getAssistantActivities(options: { page?: number; limit?: number } = {}): Observable<AdminAssistantActivitiesResponse> {
-    const params = new HttpParams()
+  getAssistantActivities(options: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    model?: string;
+    sort?: 'createdAt' | 'responseMs' | 'relevantEventsCount' | 'status' | 'model';
+    order?: 'asc' | 'desc';
+    minResponseMs?: number;
+    maxResponseMs?: number;
+    startDate?: string;
+    endDate?: string;
+  } = {}): Observable<AdminAssistantActivitiesResponse> {
+    let params = new HttpParams()
       .set('page', String(options.page ?? 1))
       .set('limit', String(options.limit ?? ADMIN_LIST_PAGE_SIZE));
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.status?.trim()) {
+      params = params.set('status', options.status.trim());
+    }
+    if (options.model?.trim()) {
+      params = params.set('model', options.model.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
+    if (options.minResponseMs != null) {
+      params = params.set('minResponseMs', String(options.minResponseMs));
+    }
+    if (options.maxResponseMs != null) {
+      params = params.set('maxResponseMs', String(options.maxResponseMs));
+    }
+    if (options.startDate) {
+      params = params.set('startDate', options.startDate);
+    }
+    if (options.endDate) {
+      params = params.set('endDate', options.endDate);
+    }
 
     return this.http.get<AdminAssistantActivitiesResponse>(`${this.adminBase}/assistant-activity`, {
       params,

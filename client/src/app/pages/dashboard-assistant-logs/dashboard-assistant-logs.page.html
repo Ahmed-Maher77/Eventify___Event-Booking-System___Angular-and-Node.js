@@ -12,7 +12,115 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
-    <h3 class="admin-assistant__list-title">Recent Interactions</h3>
+    <div class="admin-assistant__toolbar">
+      <h3 class="admin-assistant__list-title">Recent Interactions</h3>
+      <button
+        type="button"
+        class="admin-assistant__export-btn"
+        [disabled]="isExportingCsv() || !rows().length"
+        (click)="exportCsv()"
+      >
+        Export CSV
+      </button>
+    </div>
+
+    <div class="admin-entity-page__catalog-filters-wrap">
+      <div class="admin-entity-page__catalog-filters-bar">
+        <button
+          type="button"
+          id="assistant-filters-toggle"
+          class="admin-entity-page__filters-toggle"
+          [attr.aria-expanded]="filtersExpanded()"
+          aria-controls="assistant-filters-panel"
+          (click)="toggleFilters()"
+        >
+          <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
+          <span>Filters &amp; sort</span>
+          @if (hasActiveFilters()) {
+            <span class="admin-entity-page__filters-active-badge">Active</span>
+          }
+        </button>
+        <button
+          type="button"
+          class="admin-entity-page__catalog-clear-btn"
+          aria-label="Clear filters"
+          title="Clear filters"
+          (click)="clearFilters()"
+        >
+          <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+          <span class="admin-entity-page__catalog-clear-label">Clear Filters</span>
+        </button>
+      </div>
+
+      <div
+        id="assistant-filters-panel"
+        class="admin-entity-page__catalog-filters-body"
+        [class.is-open]="filtersExpanded()"
+        role="region"
+        aria-labelledby="assistant-filters-toggle"
+        [attr.aria-hidden]="!filtersExpanded()"
+      >
+        <div class="admin-entity-page__catalog-filters-inner">
+          <div class="admin-entity-page__catalog-filters" [formGroup]="filterForm">
+            <div class="admin-entity-page__catalog-filters-grid">
+              <label class="admin-entity-page__filter-field admin-entity-page__filter-field--search">
+                <span class="admin-entity-page__filter-label">Search</span>
+                <input
+                  class="admin-entity-page__filter-input"
+                  type="search"
+                  formControlName="search"
+                  placeholder="Prompt, response, or model"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Status</span>
+                <app-custom-native-select
+                  formControlName="status"
+                  [options]="statusOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Model</span>
+                <input
+                  class="admin-entity-page__filter-input"
+                  type="text"
+                  formControlName="model"
+                  placeholder="e.g. gpt-4o-mini"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Latency</span>
+                <app-custom-native-select
+                  formControlName="latencyBucket"
+                  [options]="latencyOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Sort by</span>
+                <app-custom-native-select
+                  formControlName="sort"
+                  [options]="sortOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Order</span>
+                <app-custom-native-select
+                  formControlName="order"
+                  [options]="orderOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading assistant activity" />
@@ -37,30 +145,59 @@
             </span>
           </div>
 
+          <div class="admin-assistant__entry-prompt">
+            <div class="admin-assistant__entry-block-head">
+              <strong>Prompt</strong>
+              <div class="admin-assistant__entry-block-actions">
+                <button
+                  type="button"
+                  class="admin-assistant__inline-btn"
+                  (click)="copyText('Prompt', activity.userQuery)"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+            <p class="admin-assistant__prompt-text">
+              {{ activity.userQuery }}
+            </p>
+          </div>
+
           <div class="admin-assistant__entry-response">
-            <strong>AI:</strong>
+            <div class="admin-assistant__entry-block-head">
+              <strong>Response</strong>
+              <div class="admin-assistant__entry-block-actions">
+                <button
+                  type="button"
+                  class="admin-assistant__inline-btn"
+                  (click)="copyText('Response', activity.aiResponse)"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
             <div
               class="admin-assistant__markdown"
               [class.admin-assistant__markdown--truncated]="
-                !isExpanded(activity._id) && shouldTruncate(activity.aiResponse)
+                !isResponseExpanded(activity._id) && shouldTruncate(activity.aiResponse)
               "
               [innerHTML]="activity.aiResponse | markdown"
             ></div>
-
             @if (shouldTruncate(activity.aiResponse)) {
               <button
                 type="button"
                 class="admin-assistant__show-more"
-                (click)="toggleExpand(activity._id)"
+                (click)="toggleResponseExpand(activity._id)"
               >
-                {{ isExpanded(activity._id) ? 'Show Less' : 'Show More' }}
+                {{ isResponseExpanded(activity._id) ? 'Show less' : 'Show more' }}
               </button>
             }
           </div>
 
           <p class="admin-assistant__entry-meta">
             User: {{ activity.userId?.name || 'Guest' }} •
-            {{ activity.createdAt | date: 'MMM d, h:mm a' }} • {{ activity.responseMs }}ms • RAG:
+            {{ activity.createdAt | date: 'MMM d, h:mm a' }} •
+            <span [class]="getLatencyBadgeClass(activity.responseMs)">{{ activity.responseMs }}ms</span> • RAG:
             {{ activity.relevantEventsCount }} events
           </p>
         </article>
