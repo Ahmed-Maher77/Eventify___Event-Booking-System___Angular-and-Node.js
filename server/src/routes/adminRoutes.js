@@ -4,6 +4,7 @@ import {
   getUserById,
   createAdmin,
 } from "../controllers/adminUserController.js";
+import { getDashboardStats, getRecentBookings } from "../controllers/adminDashboardController.js";
 import { getAllBookings } from "../controllers/bookingController.js";
 import { getAllAssistantActivities } from "../controllers/adminAssistantActivityController.js";
 import {
@@ -31,7 +32,9 @@ router.use(protect, authorize(["admin"]));
 
 //             ==> GET <==
 // ---- Get All Bookings [Admin ONLY] ----
+router.get("/dashboard-stats", getDashboardStats);
 router.get("/bookings", getAllBookings);
+router.get("/recent-bookings",getRecentBookings)
 router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/users/:id", validateObjectId("id"), getUserById);
 router.get("/contact-messages", getAllContactMessages);
