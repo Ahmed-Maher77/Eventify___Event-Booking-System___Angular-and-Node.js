@@ -117,12 +117,13 @@
 
   &.is-open {
     grid-template-rows: 1fr;
+    overflow: visible;
   }
 }
 
 .admin-entity-page__catalog-filters-inner {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
