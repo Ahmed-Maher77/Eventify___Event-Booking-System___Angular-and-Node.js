@@ -12,6 +12,7 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
+    <h3 class="admin-assistant__list-title">Recent Interactions</h3>
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading assistant activity" />
@@ -40,8 +41,21 @@
             <strong>AI:</strong>
             <div
               class="admin-assistant__markdown"
+              [class.admin-assistant__markdown--truncated]="
+                !isExpanded(activity._id) && shouldTruncate(activity.aiResponse)
+              "
               [innerHTML]="activity.aiResponse | markdown"
             ></div>
+
+            @if (shouldTruncate(activity.aiResponse)) {
+              <button
+                type="button"
+                class="admin-assistant__show-more"
+                (click)="toggleExpand(activity._id)"
+              >
+                {{ isExpanded(activity._id) ? 'Show Less' : 'Show More' }}
+              </button>
+            }
           </div>
 
           <p class="admin-assistant__entry-meta">

@@ -2,7 +2,7 @@
 
 .admin-assistant {
   display: grid;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .admin-heading--container {
@@ -25,19 +25,11 @@
   line-height: 1.55;
 }
 
-.admin-assistant__eyebrow {
-  margin: 0;
-  color: var(--color-admin-sidebar-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.74rem;
-  font-weight: 600;
-}
-
-.admin-assistant__title {
-  margin: 0.2rem 0 0;
+.admin-assistant__list-title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 650;
   color: var(--color-black);
-  font-size: clamp(1.35rem, 2vw, 1.8rem);
 }
 
 .admin-entity-page__panel {
@@ -51,6 +43,12 @@
   border-radius: 0.7rem;
   background: #fff;
   padding: 0.85rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px);
+    border-color: var(--color-brown-light);
+  }
 }
 
 .admin-assistant__entry-header {
@@ -60,13 +58,8 @@
   gap: 1rem;
 }
 
-.admin-assistant__entry-title,
-.admin-assistant__entry-meta,
-.admin-assistant__entry-response {
-  margin: 0;
-}
-
 .admin-assistant__entry-title {
+  margin: 0;
   color: var(--color-black);
   font-weight: 600;
   line-height: 1.4;
@@ -90,15 +83,18 @@
 
 .admin-assistant__entry-response {
   margin-top: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 0.4rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
   background: #f8fafc;
   color: var(--color-black);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   line-height: 1.5;
+  position: relative;
 
   strong {
     color: var(--color-admin-sidebar-muted);
+    display: block;
+    margin-bottom: 0.25rem;
   }
 }
 
@@ -114,10 +110,32 @@
   li {
     margin-bottom: 0.25rem;
   }
+
+  &--truncated {
+    max-height: 100px;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  }
+}
+
+.admin-assistant__show-more {
+  border: none;
+  background: transparent;
+  color: var(--color-light-brown);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--color-brown);
+  }
 }
 
 .admin-assistant__entry-meta {
-  margin-top: 0.6rem;
+  margin: 0.6rem 0 0;
   color: var(--color-admin-stat-muted);
   font-size: 0.8rem;
 }
@@ -154,4 +172,3 @@
     opacity: 0.9;
   }
 }
-

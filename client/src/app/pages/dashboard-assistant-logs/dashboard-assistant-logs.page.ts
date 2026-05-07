@@ -33,6 +33,7 @@ export class DashboardAssistantLogsPage implements OnInit {
   protected readonly listTotalPages = signal(1);
   protected readonly totalListItems = signal(0);
   protected readonly rows = signal<AdminAssistantActivityListItem[]>([]);
+  protected readonly expandedIds = signal<Set<string>>(new Set());
 
   ngOnInit(): void {
     this.loadActivities();
@@ -41,6 +42,24 @@ export class DashboardAssistantLogsPage implements OnInit {
   protected onListPageChange(page: number): void {
     this.listPage.set(page);
     this.loadActivities();
+  }
+
+  protected toggleExpand(id: string): void {
+    const next = new Set(this.expandedIds());
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    this.expandedIds.set(next);
+  }
+
+  protected isExpanded(id: string): boolean {
+    return this.expandedIds().has(id);
+  }
+
+  protected shouldTruncate(text: string): boolean {
+    return (text?.length || 0) > 250;
   }
 
   private loadActivities(): void {
@@ -73,4 +92,3 @@ export class DashboardAssistantLogsPage implements OnInit {
       });
   }
 }
-
