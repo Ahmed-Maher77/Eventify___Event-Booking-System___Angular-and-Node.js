@@ -212,7 +212,7 @@
                 aria-label="Delete message"
                 title="Delete message"
                 [disabled]="isMessageActionDisabled(item)"
-                (click)="deleteMessage(item)"
+                (click)="requestDeleteMessage(item)"
               >
                 <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
               </button>
@@ -232,3 +232,70 @@
     }
   </div>
 </section>
+
+@if (pendingAction(); as pending) {
+  <div
+    class="admin-confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="message-action-dialog-title"
+    aria-describedby="message-action-dialog-desc"
+  >
+    <button
+      type="button"
+      class="admin-confirm-modal__backdrop"
+      aria-label="Cancel action"
+      [disabled]="isMessageActionDisabled(pending.item)"
+      (click)="closePendingActionModal()"
+    ></button>
+    <div class="admin-confirm-modal__panel">
+      <h3 id="message-action-dialog-title" class="admin-confirm-modal__title">
+        @if (pending.type === 'delete') {
+          Delete this message?
+        } @else {
+          @if (pending.nextStatus === 'reviewed') {
+            Mark as read?
+          } @else {
+            Mark as unread?
+          }
+        }
+      </h3>
+      <p id="message-action-dialog-desc" class="admin-confirm-modal__text">
+        @if (pending.type === 'delete') {
+          This will permanently remove the message from
+          <strong>{{ pending.item.fullName }}</strong>
+          ({{ pending.item.email }}). This action cannot be undone.
+        } @else {
+          Update message status for
+          <strong>{{ pending.item.fullName }}</strong>
+          to
+          <strong>{{ pending.nextStatus === 'reviewed' ? 'Read' : 'Unread' }}</strong>.
+        }
+      </p>
+      <div class="admin-confirm-modal__actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="isMessageActionDisabled(pending.item)"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closePendingActionModal()"
+        />
+        <app-button
+          [label]="pending.type === 'delete' ? 'Delete message' : 'Confirm'"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [loading]="isMessageActionDisabled(pending.item)"
+          [customClass]="
+            pending.type === 'delete'
+              ? 'admin-confirm-modal__delete-btn diagonal-swipe-hover'
+              : 'diagonal-swipe-hover'
+          "
+          (pressed)="confirmPendingAction()"
+        />
+      </div>
+    </div>
+  </div>
+}

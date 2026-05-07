@@ -13,6 +13,8 @@ import {
   CustomNativeSelectComponent,
   CustomNativeSelectOption,
 } from '../../shared/custom-native-select/custom-native-select';
+import { ToastService } from '../../services/toast.service';
+import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 
@@ -26,6 +28,7 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
     SectionLoader,
     AdminEntityPaginationComponent,
     CustomNativeSelectComponent,
+    Button,
   ],
   templateUrl: './dashboard-messages.page.html',
   styleUrl: './dashboard-messages.page.scss',
@@ -33,6 +36,7 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
 export class DashboardMessagesPage implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminDashboardService);
   private readonly fb = inject(FormBuilder);
+  private readonly toastService = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
   private latestRequestId = 0;
 
@@ -70,6 +74,11 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
   protected readonly actionInProgressId = signal<string | null>(null);
   protected readonly isBulkActionLoading = signal(false);
   protected readonly expandedMessageIds = signal<Set<string>>(new Set());
+  protected readonly pendingAction = signal<{
+    type: 'delete' | 'status';
+    item: AdminContactMessageListItem;
+    nextStatus?: 'new' | 'reviewed';
+  } | null>(null);
 
   ngOnInit(): void {
     this.filterForm.valueChanges
@@ -134,18 +143,39 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
   }
 
   protected markMessageAsReviewed(item: AdminContactMessageListItem): void {
-    this.updateSingleMessageStatus(item, 'reviewed');
+    this.requestStatusAction(item, 'reviewed');
   }
 
   protected markMessageAsNew(item: AdminContactMessageListItem): void {
-    this.updateSingleMessageStatus(item, 'new');
+    this.requestStatusAction(item, 'new');
   }
 
-  protected deleteMessage(item: AdminContactMessageListItem): void {
-    if (!window.confirm(`Delete message from ${item.fullName}? This action cannot be undone.`)) {
+  protected requestDeleteMessage(item: AdminContactMessageListItem): void {
+    this.pendingAction.set({ type: 'delete', item });
+  }
+
+  protected closePendingActionModal(): void {
+    if (this.isBulkActionLoading()) {
+      return;
+    }
+    this.pendingAction.set(null);
+  }
+
+  protected confirmPendingAction(): void {
+    const pending = this.pendingAction();
+    if (!pending) {
       return;
     }
 
+    if (pending.type === 'delete') {
+      this.executeDeleteMessage(pending.item);
+      return;
+    }
+
+    this.updateSingleMessageStatus(pending.item, pending.nextStatus ?? 'reviewed');
+  }
+
+  private executeDeleteMessage(item: AdminContactMessageListItem): void {
     this.actionInProgressId.set(item._id);
     this.errorMessage.set(null);
 
@@ -154,6 +184,7 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
       .pipe(finalize(() => this.actionInProgressId.set(null)))
       .subscribe({
         next: () => {
+          this.pendingAction.set(null);
           this.expandedMessageIds.update((ids) => {
             const next = new Set(ids);
             next.delete(item._id);
@@ -167,6 +198,7 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
 
           this.items.update((rows) => rows.filter((row) => row._id !== item._id));
           this.totalListItems.set(Math.max(0, this.totalListItems() - 1));
+          this.toastService.showSuccess('Message deleted successfully.');
           this.loadMessages();
         },
         error: (err: HttpErrorResponse) => {
@@ -178,6 +210,13 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
           );
         },
       });
+  }
+
+  private requestStatusAction(item: AdminContactMessageListItem, status: 'new' | 'reviewed'): void {
+    if (item.status === status) {
+      return;
+    }
+    this.pendingAction.set({ type: 'status', item, nextStatus: status });
   }
 
   protected markAllAsReviewed(): void {
@@ -304,8 +343,12 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
       .pipe(finalize(() => this.actionInProgressId.set(null)))
       .subscribe({
         next: () => {
+          this.pendingAction.set(null);
           this.items.update((rows) =>
             rows.map((row) => (row._id === item._id ? { ...row, status } : row)),
+          );
+          this.toastService.showSuccess(
+            status === 'reviewed' ? 'Message marked as read.' : 'Message marked as unread.',
           );
           this.loadMessages();
         },
@@ -345,6 +388,11 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
+          this.toastService.showSuccess(
+            status === 'reviewed'
+              ? 'All visible messages marked as read.'
+              : 'All visible messages marked as unread.',
+          );
           this.loadMessages();
         },
         error: (err: HttpErrorResponse) => {
