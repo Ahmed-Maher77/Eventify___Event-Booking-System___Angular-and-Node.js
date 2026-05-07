@@ -1,0 +1,75 @@
+info:
+  name: Get Chat Completion
+  type: http
+  seq: 1
+  tags:
+    - chat
+    - ai
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/chat/completions"
+  headers:
+    - name: content-type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What events are happening in New York?"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("Status is 200 OK", function() {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Response has reply", function() {
+          expect(res.body.data).to.have.property('reply');
+          expect(res.body.data.reply).to.be.a('string');
+        });
+
+        test("Success is true", function() {
+          expect(res.body.success).to.equal(true);
+        });
+
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.success
+      operator: eq
+      value: "true"
+    - expression: res.body.data.reply
+      operator: isString
+
+settings:
+  encodeUrl: true
+  timeout: 60000
+
+docs:
+  content: |-
+    # Get Chat Completion
+
+    Send messages to the AI assistant and get a reply.
+
+    ## Authentication
+    Requires a valid user JWT token.
+
+    ## Request Body
+    - `messages` (array, required): Array of message objects `{ role, content }`
+
+    ## Response
+    Returns the assistant's reply.
+  type: text/markdown

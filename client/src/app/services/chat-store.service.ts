@@ -7,6 +7,8 @@ import { ChatMessage } from './chat-store.model';
 export class ChatStoreService {
   readonly isChatScreenActive = signal(false);
   readonly isAssistantOnline = signal(this.getOnlineStatus());
+  readonly isSending = signal(false);
+  readonly sessionId = signal(this.generateSessionId());
   readonly messages = signal<ChatMessage[]>([]);
 
   constructor() {
@@ -58,6 +60,18 @@ export class ChatStoreService {
 
   clearMessages(): void {
     this.messages.set([]);
+  }
+
+  startNewSession(): void {
+    this.clearMessages();
+    this.sessionId.set(this.generateSessionId());
+  }
+
+  private generateSessionId(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return `${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
   }
 
   private generateMessageId(): string {

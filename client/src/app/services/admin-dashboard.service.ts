@@ -72,6 +72,29 @@ export interface AdminUsersResponse {
   };
 }
 
+export interface AdminUserDetailResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AdminUserListItem;
+  };
+}
+
+export interface CreateAdminPayload {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface CreateAdminResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AdminUserListItem;
+  };
+}
+
 export interface AdminContactMessagesPagination extends AdminPaginationCore {
   totalMessages: number;
 }
@@ -114,6 +137,64 @@ export interface AdminNewsletterSubscribersResponse {
   data: {
     subscribers: AdminNewsletterSubscriberListItem[];
     pagination: AdminNewsletterPagination;
+  };
+}
+
+export interface AdminDashboardStatsData {
+  totalRevenue: number;
+  ticketsSold: number;
+  activeUsers: number;
+  activeEvents: number;
+  revenueChange: number;
+  ticketsChange: number;
+  activeUsersChange: number;
+  newEventsThisWeek: number;
+  chartData: ChartData[];
+}
+
+
+export interface ChartData {
+  date: string;
+  bookings: number;
+}
+export interface AdminDashboardStatsResponse {
+  success: boolean;
+  message: string;
+  data: AdminDashboardStatsData;
+}
+
+export interface AdminRecentBooking {
+  id: string;
+  createdAt: string;
+  eventTitle: string;
+  quantity: number;
+  status: string;
+}
+
+export interface AdminRecentBookingsResponse {
+  success: boolean;
+  message: string;
+  data: AdminRecentBooking[];
+}
+export interface AdminAssistantActivityListItem {
+  _id: string;
+  userId: null | { _id: string; name: string; email: string };
+  sessionId: string;
+  userQuery: string;
+  aiResponse: string;
+  model: string;
+  responseMs: number;
+  relevantEventsCount: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminAssistantActivitiesResponse {
+  status: string;
+  results: number;
+  total: number;
+  data: {
+    activities: AdminAssistantActivityListItem[];
   };
 }
 
@@ -194,6 +275,18 @@ export class AdminDashboardService {
     });
   }
 
+  getUserById(id: string): Observable<AdminUserDetailResponse> {
+    return this.http.get<AdminUserDetailResponse>(`${this.adminBase}/users/${id}`, {
+      withCredentials: true,
+    });
+  }
+
+  createAdmin(payload: CreateAdminPayload): Observable<CreateAdminResponse> {
+    return this.http.post<CreateAdminResponse>(`${this.adminBase}/users`, payload, {
+      withCredentials: true,
+    });
+  }
+
   getContactMessages(options: AdminContactMessagesQuery = {}): Observable<AdminContactMessagesResponse> {
     let params = new HttpParams()
       .set('page', String(options.page ?? 1))
@@ -217,6 +310,29 @@ export class AdminDashboardService {
       params = params.set('status', options.status.trim());
     }
     return this.http.get<AdminNewsletterSubscribersResponse>(`${this.adminBase}/newsletter-subscribers`, {
+      params,
+      withCredentials: true,
+    });
+  }
+
+  getDashboardStats(options: Number = 30): Observable<AdminDashboardStatsResponse> {
+    let params = new HttpParams()
+      .set('period', String(options));
+    return this.http.get<AdminDashboardStatsResponse>(`${this.adminBase}/dashboard-stats`, {
+      params,
+      withCredentials: true,
+    });
+  }
+
+  getRecentBookings(): Observable<AdminRecentBookingsResponse> {
+    return this.http.get<AdminRecentBookingsResponse>(`${this.adminBase}/recent-bookings`, {
+      withCredentials: true,});}
+  getAssistantActivities(options: { page?: number; limit?: number } = {}): Observable<AdminAssistantActivitiesResponse> {
+    const params = new HttpParams()
+      .set('page', String(options.page ?? 1))
+      .set('limit', String(options.limit ?? ADMIN_LIST_PAGE_SIZE));
+
+    return this.http.get<AdminAssistantActivitiesResponse>(`${this.adminBase}/assistant-activity`, {
       params,
       withCredentials: true,
     });

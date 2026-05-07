@@ -103,9 +103,14 @@
               placeholder="Type your request..."
               [ngModel]="draftMessage()"
               (ngModelChange)="draftMessage.set($event)"
+              [disabled]="isSendingChat()"
             />
-            <button type="submit" aria-label="Send AI request">
-              <i class="fa-solid fa-paper-plane"></i>
+            <button type="submit" aria-label="Send AI request" [disabled]="isSendingChat() || !draftMessage().trim()">
+              @if (isSendingChat()) {
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+              } @else {
+                <i class="fa-solid fa-paper-plane"></i>
+              }
             </button>
           </form>
         </article>

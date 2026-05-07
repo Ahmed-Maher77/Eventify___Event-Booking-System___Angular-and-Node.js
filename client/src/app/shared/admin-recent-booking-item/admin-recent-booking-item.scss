@@ -24,24 +24,20 @@
     min-height: 0.85rem;
     margin-top: 5px;
     border-radius: 1px;
-    background: linear-gradient(
-      180deg,
-      rgb(231 200 115 / 58%) 0%,
-      rgb(231 200 115 / 18%) 72%,
-      rgb(231 200 115 / 6%) 100%
-    );
+    background: linear-gradient(180deg,
+        rgb(231 200 115 / 58%) 0%,
+        rgb(231 200 115 / 18%) 72%,
+        rgb(231 200 115 / 6%) 100%);
   }
 
   &--tail::after {
     flex: 0 0 auto;
     min-height: 1.15rem;
     max-height: 1.45rem;
-    background: linear-gradient(
-      180deg,
-      rgb(231 200 115 / 52%) 0%,
-      rgb(231 200 115 / 12%) 55%,
-      transparent 100%
-    );
+    background: linear-gradient(180deg,
+        rgb(231 200 115 / 52%) 0%,
+        rgb(231 200 115 / 12%) 55%,
+        transparent 100%);
   }
 }
 
@@ -88,4 +84,13 @@
   margin: 0;
   font-size: 0.8rem;
   color: var(--color-admin-stat-muted);
+}
+
+.admin-recent-booking-item__status {
+  font-size: 0.7em;
+  font-weight: 600;
+  padding: 0.15em 0.5em;
+  background-color: #fef08a;
+  color: #854d0e;
+  border-radius: 999px;
 }

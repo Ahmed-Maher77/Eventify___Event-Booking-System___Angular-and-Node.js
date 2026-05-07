@@ -1,0 +1,127 @@
+<div
+  class="admin-event-modal is-open"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="create-admin-modal-title"
+>
+  <button
+    type="button"
+    class="admin-event-modal__backdrop"
+    aria-label="Close create admin dialog"
+    (click)="closeModal()"
+  ></button>
+
+  <div class="admin-event-modal__panel is-open">
+    <div class="admin-event-modal__header">
+      <div class="admin-event-modal__heading">
+        <span class="admin-event-modal__icon-shell" aria-hidden="true">
+          <i class="fa-solid fa-user-shield"></i>
+        </span>
+        <div class="admin-event-modal__heading-copy">
+          <h3 id="create-admin-modal-title" class="admin-event-modal__title">Create New Admin</h3>
+          <p class="admin-event-modal__subtitle">
+            Grant administrative access to a new team member.
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="admin-event-modal__close-btn"
+        aria-label="Close create admin dialog"
+        (click)="closeModal()"
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="admin-event-modal__content">
+      <div class="admin-event-modal__content-inner">
+        <form [formGroup]="createAdminForm" (ngSubmit)="submitCreateAdmin()" class="admin-event-form">
+          <div class="admin-event-form__feedback" #formFeedback>
+            @if (formErrorMessage()) {
+              <p class="admin-event-form__message is-error">
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
+                {{ formErrorMessage() }}
+              </p>
+            }
+          </div>
+
+          <label class="admin-event-form__field" aria-required="true">
+            <span>Full Name<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+            <input
+              type="text"
+              formControlName="name"
+              placeholder="e.g. John Doe"
+              class="admin-event-form__input"
+            />
+            @if (createAdminForm.get('name')?.touched && createAdminForm.get('name')?.invalid) {
+              <small>Name is required (2-50 characters).</small>
+            }
+          </label>
+
+          <label class="admin-event-form__field" aria-required="true">
+            <span>Email Address<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="john@example.com"
+              class="admin-event-form__input"
+            />
+            @if (createAdminForm.get('email')?.touched && createAdminForm.get('email')?.invalid) {
+              <small>Please enter a valid email address.</small>
+            }
+          </label>
+
+          <div class="admin-event-form__row">
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Password<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="••••••••"
+                class="admin-event-form__input"
+              />
+              @if (createAdminForm.get('password')?.touched && createAdminForm.get('password')?.invalid) {
+                <small>Min 6 chars, uppercase, lowercase, number, special char.</small>
+              }
+            </label>
+
+            <label class="admin-event-form__field" aria-required="true">
+              <span>Confirm Password<span class="admin-event-form__required-mark" aria-hidden="true"></span></span>
+              <input
+                type="password"
+                formControlName="confirmPassword"
+                placeholder="••••••••"
+                class="admin-event-form__input"
+              />
+              @if (createAdminForm.get('confirmPassword')?.touched && (createAdminForm.get('confirmPassword')?.invalid || createAdminForm.hasError('notMatching'))) {
+                <small>Passwords must match.</small>
+              }
+            </label>
+          </div>
+
+          <div class="admin-event-form__actions">
+            <app-button
+              label="Cancel"
+              variant="outline"
+              size="md"
+              [rounded]="true"
+              [disabled]="isSubmitting()"
+              customClass="admin-event-form__cancel-btn diagonal-swipe-hover"
+              (pressed)="closeModal()"
+            />
+            <app-button
+              label="Create Admin"
+              variant="primary"
+              size="md"
+              buttonType="submit"
+              [rounded]="true"
+              [loading]="isSubmitting()"
+              customClass="admin-event-form__submit-btn diagonal-swipe-hover"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

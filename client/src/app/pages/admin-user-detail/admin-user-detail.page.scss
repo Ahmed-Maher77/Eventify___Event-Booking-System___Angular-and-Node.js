@@ -1,0 +1,76 @@
+.admin-user-detail {
+  padding-bottom: 2rem;
+}
+
+.admin-user-detail__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.user-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2.5rem;
+  padding: 1.5rem;
+}
+
+.profile-main {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.profile-field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.profile-label {
+  font-size: 0.85rem;
+  color: var(--color-admin-stat-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.profile-value {
+  font-size: 1.1rem;
+  color: var(--color-black);
+  font-weight: 500;
+}
+
+.profile-actions {
+  background: var(--color-about-showcase-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  height: fit-content;
+}
+
+.actions-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-brown);
+  margin-bottom: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-directory__pill {
+  background: #e9ecef;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .user-profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-actions {
+    order: -1;
+  }
+}

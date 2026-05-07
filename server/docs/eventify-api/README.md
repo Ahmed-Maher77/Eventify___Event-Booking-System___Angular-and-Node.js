@@ -30,7 +30,10 @@ eventify-api/
 │   ├── Create Booking.yml         # POST /api/bookings
 │   ├── Update Booking Status.yml   # PATCH /api/bookings/:id (admin)
 │   └── Cancel Booking.yml          # DELETE /api/bookings/:id
-└── Admin/                          # Admin management endpoints
+├── Chat/                           # AI Chat assistant endpoints
+│   ├── folder.yml                 # Folder settings
+│   └── Get Chat Completion.yml     # POST /api/chat/completions
+├── Admin/                          # Admin management endpoints
    ├── folder.yml                 # Folder settings
    └── Get All Bookings.yml       # GET /api/admin/bookings
 ```

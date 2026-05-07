@@ -68,5 +68,57 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
-export { getAllUsers };
+// ---- Get User By ID [Admin ONLY] ----
+const getUserById = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password -__v");
+
+    if (!user) {
+      throw AppError.notFound("User not found.");
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully.",
+      data: { user },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(AppError.internalError("An error occurred when retrieving the user."));
+  }
+};
+
+// ---- Create New Admin [Admin ONLY] ----
+const createAdmin = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw AppError.badRequest("A user with this email already exists.");
+    }
+
+    const newAdmin = await User.create({
+      name,
+      email,
+      password,
+      role: "admin",
+    });
+
+    const userPayload = newAdmin.toObject();
+    delete userPayload.password;
+    delete userPayload.__v;
+
+    res.status(201).json({
+      success: true,
+      message: "Admin created successfully.",
+      data: { user: userPayload },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(AppError.internalError("An error occurred when creating the admin."));
+  }
+};
+
+export { getAllUsers, getUserById, createAdmin };
 

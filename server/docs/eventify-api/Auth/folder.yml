@@ -8,6 +8,15 @@ http:
     - name: content-type
       value: application/json
 
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        // Common tests for auth requests
+        test("Response time is acceptable", function() {
+          expect(res.responseTime).to.be.below(5000);
+        });
+
 docs:
   content: |-
     # Authentication Endpoints

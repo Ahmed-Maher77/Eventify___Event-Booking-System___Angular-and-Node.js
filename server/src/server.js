@@ -1,9 +1,6 @@
-import dotenv from "dotenv";
+import "./config/env.js";
 import app from "./app.js";
 import connectDB from "./config/db.js";
-
-// Load env vars first
-dotenv.config({ path: "./.env" });
 
 // Connect to database
 await connectDB();
