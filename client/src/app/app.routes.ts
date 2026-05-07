@@ -117,6 +117,12 @@ const adminProtectedRoutes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'dashboard/users/:userId',
+    loadComponent: () =>
+      import('./pages/admin-user-detail/admin-user-detail.page').then((m) => m.AdminUserDetailPage),
+    canActivate: [adminGuard]
+  },
+  {
     path: 'dashboard/messages',
     loadComponent: () =>
       import('./pages/dashboard-messages/dashboard-messages.page').then((m) => m.DashboardMessagesPage),

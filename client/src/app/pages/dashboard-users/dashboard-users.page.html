@@ -1,5 +1,5 @@
 <section class="admin-directory">
-  <header>
+  <header class="admin-entity-page__header d-flex justify-content-between align-items-start gap-3 flex-wrap">
     <app-highlighted-page-heading
       titlePrefix="Member"
       titleHighlight="Directory"
@@ -8,6 +8,15 @@
       containerClass="admin-heading--container"
       titleClass="admin-heading--title"
       subtitleClass="admin-heading--subtitle"
+    />
+    <app-button
+      label="Create Admin"
+      variant="primary"
+      size="md"
+      [rounded]="true"
+      leftIcon="fa-solid fa-user-plus"
+      customClass="admin-entity-page__primary-btn diagonal-swipe-hover"
+      (pressed)="openCreateAdminModal()"
     />
   </header>
 
@@ -111,6 +120,7 @@
             <th>Email</th>
             <th>Role</th>
             <th>Joined</th>
+            <th class="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -122,6 +132,16 @@
                 <span class="admin-directory__pill">{{ row.role | titlecase }}</span>
               </td>
               <td>{{ row.createdAt | date: 'mediumDate' }}</td>
+              <td class="text-end">
+                <button
+                  type="button"
+                  class="admin-entity-page__icon-btn"
+                  aria-label="View user details"
+                  (click)="goToUserDetail(row)"
+                >
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                </button>
+              </td>
             </tr>
           }
         </tbody>
@@ -138,3 +158,10 @@
     }
   </div>
 </section>
+
+@if (isCreateModalOpen()) {
+  <app-admin-create-admin-modal
+    (closed)="closeCreateAdminModal()"
+    (saved)="onAdminCreated()"
+  />
+}

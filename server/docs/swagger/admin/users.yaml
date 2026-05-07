@@ -1,0 +1,185 @@
+tags:
+  - name: Admin - Users
+    description: User management endpoints for administrators
+
+paths:
+  /api/admin/users:
+    get:
+      summary: Get all users (Admin only)
+      description: Retrieve a paginated list of users with filtering and sorting options.
+      tags:
+        - Admin - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of users per page
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, user]
+          description: Filter by role
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by name or email
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [createdAt, name, email, role]
+            default: createdAt
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        200:
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Users retrieved successfully.
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/user'
+                      pagination:
+                        type: object
+                        properties:
+                          currentPage:
+                            type: integer
+                          totalPages:
+                            type: integer
+                          totalUsers:
+                            type: integer
+                          limit:
+                            type: integer
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden (Not an admin)
+
+    post:
+      summary: Create a new admin (Admin only)
+      description: Create a new user with administrative privileges.
+      tags:
+        - Admin - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - confirmPassword
+              properties:
+                name:
+                  type: string
+                  example: Admin User
+                email:
+                  type: string
+                  example: admin2@example.com
+                password:
+                  type: string
+                  example: Password123!
+                confirmPassword:
+                  type: string
+                  example: Password123!
+      responses:
+        201:
+          description: Admin created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Admin created successfully.
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/user'
+        400:
+          description: Bad request (validation errors)
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden (Not an admin)
+
+  /api/admin/users/{id}:
+    get:
+      summary: Get user by ID (Admin only)
+      description: Retrieve detailed information for a specific user.
+      tags:
+        - Admin - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        200:
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User retrieved successfully.
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/user'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden (Not an admin)
+        404:
+          description: User not found
