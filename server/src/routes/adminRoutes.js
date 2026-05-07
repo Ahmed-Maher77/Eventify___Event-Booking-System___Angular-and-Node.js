@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getDashboardStats, getRecentBookings } from "../controllers/adminDashboardController.js";
 import { getAllUsers } from "../controllers/adminUserController.js";
 import { getAllBookings } from "../controllers/bookingController.js";
+import { getAllAssistantActivities } from "../controllers/adminAssistantActivityController.js";
 import {
   deleteContactMessage,
   getAllContactMessages,
@@ -32,6 +33,8 @@ router.get("/recent-bookings",getRecentBookings)
 router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/contact-messages", getAllContactMessages);
 router.get("/newsletter-subscribers", getAllNewsletterSubscribers);
+router.get("/assistant-activity", getAllAssistantActivities);
+
 
 router.patch(
   "/contact-messages/:id/status",

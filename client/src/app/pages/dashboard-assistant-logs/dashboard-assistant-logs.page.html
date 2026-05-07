@@ -12,19 +12,71 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
+    <h3 class="admin-assistant__list-title">Recent Interactions</h3>
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading assistant activity" />
       </div>
+    } @else if (errorMessage()) {
+      <div class="admin-page__error-wrap">
+        <p class="admin-page__error-text">{{ errorMessage() }}</p>
+        <button class="admin-page__error-btn" (click)="ngOnInit()">Try Again</button>
+      </div>
     } @else {
-      <article class="admin-assistant__entry">
-        <p class="admin-assistant__entry-title">Intent: Find upcoming music events</p>
-        <p class="admin-assistant__entry-meta">Processed at 17:08 • 1.2 sec response</p>
-      </article>
-      <article class="admin-assistant__entry">
-        <p class="admin-assistant__entry-title">Intent: Recommend budget workshops</p>
-        <p class="admin-assistant__entry-meta">Processed at 16:54 • 980 ms response</p>
-      </article>
+      @for (activity of rows(); track activity._id) {
+        <article class="admin-assistant__entry">
+          <div class="admin-assistant__entry-header">
+            <p class="admin-assistant__entry-title">
+              {{ activity.userQuery }}
+            </p>
+            <span
+              class="admin-assistant__status-badge"
+              [class.admin-assistant__status-badge--success]="activity.status === 'success'"
+            >
+              {{ activity.status }}
+            </span>
+          </div>
+
+          <div class="admin-assistant__entry-response">
+            <strong>AI:</strong>
+            <div
+              class="admin-assistant__markdown"
+              [class.admin-assistant__markdown--truncated]="
+                !isExpanded(activity._id) && shouldTruncate(activity.aiResponse)
+              "
+              [innerHTML]="activity.aiResponse | markdown"
+            ></div>
+
+            @if (shouldTruncate(activity.aiResponse)) {
+              <button
+                type="button"
+                class="admin-assistant__show-more"
+                (click)="toggleExpand(activity._id)"
+              >
+                {{ isExpanded(activity._id) ? 'Show Less' : 'Show More' }}
+              </button>
+            }
+          </div>
+
+          <p class="admin-assistant__entry-meta">
+            User: {{ activity.userId?.name || 'Guest' }} •
+            {{ activity.createdAt | date: 'MMM d, h:mm a' }} • {{ activity.responseMs }}ms • RAG:
+            {{ activity.relevantEventsCount }} events
+          </p>
+        </article>
+      } @empty {
+        <div class="admin-page__empty-wrap">
+          <p class="admin-page__empty-text">No assistant activity recorded yet.</p>
+        </div>
+      }
+
+      @if (listTotalPages() > 1) {
+        <app-admin-entity-pagination
+          [currentPage]="listPage()"
+          [totalPages]="listTotalPages()"
+          (pageChange)="onListPageChange($event)"
+        />
+      }
     }
   </div>
 </section>

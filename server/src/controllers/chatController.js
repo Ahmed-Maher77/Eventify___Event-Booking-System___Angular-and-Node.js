@@ -1,17 +1,23 @@
 import AppError from "../middlewares/AppError.js";
 import aiChatProvider from "../services/aiChatProvider.js";
 import knowledgeBaseService from "../services/knowledgeBaseService.js";
+import AssistantActivity from "../models/AssistantActivity.js";
 
 /**
  * Chat Controller
  * Manages chatbot interactions with RAG support
  */
 export const getChatCompletion = async (req, res, next) => {
+  const startTime = Date.now();
   try {
-    const { messages } = req.body;
+    const { messages, sessionId } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       throw AppError.badRequest("Messages are required and must be an array.");
+    }
+
+    if (!sessionId) {
+      throw AppError.badRequest("Session ID is required.");
     }
 
     const lastMessage = messages[messages.length - 1]?.content || "";
@@ -54,6 +60,19 @@ Always prioritize these events when making recommendations. If the user asks for
     ];
 
     const reply = await aiChatProvider.generateChatReply(chatMessages);
+    const responseMs = Date.now() - startTime;
+
+    // 4. Log Activity (Asynchronously to not block response)
+    AssistantActivity.create({
+      userId: req.user?.id || null,
+      sessionId,
+      userQuery: lastMessage,
+      aiResponse: reply,
+      model: aiChatProvider.model || "llama-3.1-8b-instant",
+      responseMs,
+      relevantEventsCount: relevantEvents.length,
+      status: "success",
+    }).catch((err) => console.error("Failed to log assistant activity:", err));
 
     res.status(200).json({
       status: "success",
@@ -62,6 +81,8 @@ Always prioritize these events when making recommendations. If the user asks for
       },
     });
   } catch (error) {
+    // Log failure if needed
     next(error);
   }
 };
+

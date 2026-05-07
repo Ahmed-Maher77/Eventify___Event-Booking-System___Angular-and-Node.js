@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnDestroy, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   NavigationCancel,
@@ -8,6 +8,7 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AdminMobileSidebarService } from './services/admin-mobile-sidebar.service';
 import { AuthService } from './services/auth.service';
 import { ChatApiService } from './services/chat-api.service';
@@ -18,11 +19,11 @@ import { Footer } from './shared/footer/footer';
 import { Header } from './shared/header/header';
 import { Loader } from './shared/loader/loader';
 import { ToastHost } from './shared/toast-host/toast-host';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MarkdownPipe } from './utils/markdown.pipe';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Loader, Header, AdminSidebar, Footer, ToastHost],
+  imports: [RouterOutlet, Loader, Header, AdminSidebar, Footer, ToastHost, MarkdownPipe],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -150,17 +151,19 @@ export class App {
     this.chatDraftMessage.set('');
     this.chatStoreService.isSending.set(true);
 
-    this.chatApiService.getCompletion(this.chatStoreService.messages()).subscribe({
-      next: (reply) => {
-        this.chatStoreService.addAssistantMessage(reply);
-        this.chatStoreService.isSending.set(false);
-      },
-      error: (err) => {
-        console.error('Chat AI Error:', err);
-        this.toastService.showError('Failed to get a response. Please try again later.');
-        this.chatStoreService.isSending.set(false);
-      }
-    });
+    this.chatApiService
+      .getCompletion(this.chatStoreService.messages(), this.chatStoreService.sessionId())
+      .subscribe({
+        next: (reply) => {
+          this.chatStoreService.addAssistantMessage(reply);
+          this.chatStoreService.isSending.set(false);
+        },
+        error: (err) => {
+          console.error('Chat AI Error:', err);
+          this.toastService.showError('Failed to get a response. Please try again later.');
+          this.chatStoreService.isSending.set(false);
+        },
+      });
   }
 
   protected onFloatingChatSubmit(event: Event): void {
