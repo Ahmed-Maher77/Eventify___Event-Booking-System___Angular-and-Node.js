@@ -5,6 +5,7 @@ export interface AdminRecentBookingItemData {
   timeLabel: string;
   eventTitle: string;
   ticketSummary: string;
+  status : string;
 }
 
 @Component({
