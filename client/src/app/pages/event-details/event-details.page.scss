@@ -348,6 +348,12 @@
   margin-bottom: 0.85rem;
 }
 
+.public-event-detail__ticket-stack {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+}
+
 .public-event-detail__qty-label {
   font-size: 0.78rem;
   font-weight: 600;
@@ -363,7 +369,18 @@
 }
 
 .public-event-detail__book-btn {
-  margin-top: 0.25rem;
+  margin-top: 0.1rem;
+}
+
+.public-event-detail__book-btn--booked {
+  opacity: 1;
+}
+
+:host ::ng-deep .public-event-detail__book-btn--booked.ev-btn:disabled {
+  border-color: rgb(16 185 129 / 36%);
+  color: #047857;
+  background: rgb(16 185 129 / 10%);
+  cursor: not-allowed;
 }
 
 .public-event-detail__hint {
@@ -374,6 +391,9 @@
 }
 
 .public-event-detail__text-btn {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
   font-weight: 650;
   color: var(--color-brown);
   text-decoration: none;
@@ -508,6 +528,7 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
   }
 }
