@@ -442,6 +442,35 @@
   }
 }
 
+.chatbot-message__markdown {
+  background: var(--color-chip-bg);
+  color: var(--color-meta-text);
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-width: 84%;
+
+  p:first-child { margin-top: 0; padding: 0; }
+  p:last-child { margin-bottom: 0; padding: 0; }
+  
+  ul, ol {
+    margin: 0.5rem 0;
+    padding-left: 1.2rem;
+  }
+
+  li {
+    margin-bottom: 0.25rem;
+  }
+
+  code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+}
+
 .chatbot-message--assistant p {
   background: var(--color-chip-bg);
   color: var(--color-meta-text);
