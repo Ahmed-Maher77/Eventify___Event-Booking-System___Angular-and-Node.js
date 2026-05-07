@@ -33,19 +33,19 @@ export class ContactPage implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly socialLinks = [
     {
+      label: 'Facebook',
+      url: 'https://m.facebook.com/ahmed.maher.algohary',
+      modifier: 'facebook'
+    },
+    {
       label: 'LinkedIn',
-      url: 'https://www.linkedin.com',
+      url: 'https://www.linkedin.com/in/ahmed-maher-algohary',
       modifier: 'linkedin'
     },
     {
       label: 'GitHub',
-      url: 'https://github.com',
+      url: 'https://github.com/Ahmed-Maher77',
       modifier: 'github'
-    },
-    {
-      label: 'Facebook',
-      url: 'https://www.facebook.com',
-      modifier: 'facebook'
     }
   ] as const;
 
