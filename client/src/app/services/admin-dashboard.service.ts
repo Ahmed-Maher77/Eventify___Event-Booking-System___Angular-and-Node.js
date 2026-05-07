@@ -225,6 +225,9 @@ export interface AdminNewsletterSubscribersQuery {
   page?: number;
   limit?: number;
   status?: string;
+  search?: string;
+  sort?: 'createdAt' | 'email' | 'status';
+  order?: 'asc' | 'desc';
 }
 
 @Injectable({
@@ -309,10 +312,37 @@ export class AdminDashboardService {
     if (options.status?.trim()) {
       params = params.set('status', options.status.trim());
     }
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
     return this.http.get<AdminNewsletterSubscribersResponse>(`${this.adminBase}/newsletter-subscribers`, {
       params,
       withCredentials: true,
     });
+  }
+
+  updateNewsletterSubscriberStatus(
+    id: string,
+    status: 'active' | 'unsubscribed',
+  ): Observable<{ success: boolean; message: string; data: AdminNewsletterSubscriberListItem }> {
+    return this.http.patch<{ success: boolean; message: string; data: AdminNewsletterSubscriberListItem }>(
+      `${this.adminBase}/newsletter-subscribers/${id}/status`,
+      { status },
+      { withCredentials: true },
+    );
+  }
+
+  deleteNewsletterSubscriber(id: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(
+      `${this.adminBase}/newsletter-subscribers/${id}`,
+      { withCredentials: true },
+    );
   }
 
   getDashboardStats(options: Number = 30): Observable<AdminDashboardStatsResponse> {

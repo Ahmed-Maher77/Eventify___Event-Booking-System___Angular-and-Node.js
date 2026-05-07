@@ -21,6 +21,7 @@ import { authorize, protect } from "../middlewares/authMiddleware.js";
 import {
   validateContactMessageStatusUpdate,
   validateNewsletterSubscriberStatusUpdate,
+  validateAdminNewsletterSubscribersQuery,
   validateAdminUsersQuery,
   validateAdminCreation,
   validateObjectId,
@@ -38,7 +39,7 @@ router.get("/recent-bookings",getRecentBookings)
 router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/users/:id", validateObjectId("id"), getUserById);
 router.get("/contact-messages", getAllContactMessages);
-router.get("/newsletter-subscribers", getAllNewsletterSubscribers);
+router.get("/newsletter-subscribers", validateAdminNewsletterSubscribersQuery, getAllNewsletterSubscribers);
 router.get("/assistant-activity", getAllAssistantActivities);
 
 //             ==> POST <==
