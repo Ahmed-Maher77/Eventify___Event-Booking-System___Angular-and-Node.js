@@ -20,6 +20,7 @@ import {
 import { authorize, protect } from "../middlewares/authMiddleware.js";
 import {
   validateContactMessageStatusUpdate,
+  validateAdminBookingsQuery,
   validateAdminContactMessagesQuery,
   validateNewsletterSubscriberStatusUpdate,
   validateAdminNewsletterSubscribersQuery,
@@ -35,7 +36,7 @@ router.use(protect, authorize(["admin"]));
 //             ==> GET <==
 // ---- Get All Bookings [Admin ONLY] ----
 router.get("/dashboard-stats", getDashboardStats);
-router.get("/bookings", getAllBookings);
+router.get("/bookings", validateAdminBookingsQuery, getAllBookings);
 router.get("/recent-bookings",getRecentBookings)
 router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/users/:id", validateObjectId("id"), getUserById);

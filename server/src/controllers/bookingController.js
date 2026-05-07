@@ -55,7 +55,7 @@ const getUsersBookings = async (req, res, next) => {
 const getAllBookings = async (req, res, next) => {
   try {
     // Query Parameters
-    const { status, userId, eventId } = req.query;
+    const { status, userId, eventId, search, sort, order } = req.query;
 
     // Pagination
     const page = Number(req.query.page) || 1;
@@ -76,20 +76,68 @@ const getAllBookings = async (req, res, next) => {
       filter.eventId = eventId;
     }
 
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+    if (trimmedSearch) {
+      const searchRegex = new RegExp(trimmedSearch, "i");
+      const matchedUsers = await mongoose.model("user").find(
+        {
+          $or: [{ name: searchRegex }, { email: searchRegex }],
+        },
+        { _id: 1 },
+      );
+      const userIds = matchedUsers.map((user) => user._id);
+
+      const matchedEvents = await mongoose.model("event").find(
+        { title: searchRegex },
+        { _id: 1 },
+      );
+      const eventIds = matchedEvents.map((event) => event._id);
+
+      filter.$or = [
+        ...(userIds.length ? [{ userId: { $in: userIds } }] : []),
+        ...(eventIds.length ? [{ eventId: { $in: eventIds } }] : []),
+      ];
+
+      if (!filter.$or.length) {
+        filter.$or = [{ _id: { $in: [] } }];
+      }
+    }
+
+    const sortField = ["createdAt", "status", "quantity", "totalPrice"].includes(sort)
+      ? sort
+      : "createdAt";
+    const sortOrder = order === "asc" ? 1 : -1;
+    const sorting = { [sortField]: sortOrder };
+
     const bookings = await Booking.find(filter)
       .populate("userId", "name email")
       .populate("eventId", "title date location")
+      .sort(sorting)
       .skip(skip)
       .limit(limit);
 
     const totalNumberOfBookings = await Booking.countDocuments(filter);
     const totalPages = Math.ceil(totalNumberOfBookings / limit);
+    const statusBaseFilter = { ...filter };
+    delete statusBaseFilter.status;
+
+    const [pendingCount, confirmedCount, cancelledCount] = await Promise.all([
+      Booking.countDocuments({ ...statusBaseFilter, status: "pending" }),
+      Booking.countDocuments({ ...statusBaseFilter, status: "confirmed" }),
+      Booking.countDocuments({ ...statusBaseFilter, status: "cancelled" }),
+    ]);
 
     res.status(200).json({
       success: true,
       message: "All bookings retrieved successfully",
       data: {
         bookings,
+        statusCounts: {
+          all: pendingCount + confirmedCount + cancelledCount,
+          pending: pendingCount,
+          confirmed: confirmedCount,
+          cancelled: cancelledCount,
+        },
         pagination: {
           currentPage: page,
           totalPages,

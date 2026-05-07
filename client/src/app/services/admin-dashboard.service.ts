@@ -45,6 +45,12 @@ export interface AdminBookingsResponse {
   message: string;
   data: {
     bookings: AdminBookingListItem[];
+    statusCounts?: {
+      all: number;
+      pending: number;
+      confirmed: number;
+      cancelled: number;
+    };
     pagination: AdminBookingsPagination;
   };
 }
@@ -207,9 +213,12 @@ export interface AdminAssistantActivitiesResponse {
 export interface AdminBookingsQuery {
   page?: number;
   limit?: number;
-  status?: string;
+  status?: 'pending' | 'confirmed' | 'cancelled';
   userId?: string;
   eventId?: string;
+  search?: string;
+  sort?: 'createdAt' | 'status' | 'quantity' | 'totalPrice';
+  order?: 'asc' | 'desc';
 }
 
 export interface AdminUsersQuery {
@@ -258,6 +267,15 @@ export class AdminDashboardService {
     }
     if (options.eventId?.trim()) {
       params = params.set('eventId', options.eventId.trim());
+    }
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
     }
     return this.http.get<AdminBookingsResponse>(`${this.adminBase}/bookings`, {
       params,
