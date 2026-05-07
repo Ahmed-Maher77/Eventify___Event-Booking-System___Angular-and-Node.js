@@ -117,6 +117,28 @@ export interface AdminNewsletterSubscribersResponse {
   };
 }
 
+export interface AdminAssistantActivityListItem {
+  _id: string;
+  userId: null | { _id: string; name: string; email: string };
+  sessionId: string;
+  userQuery: string;
+  aiResponse: string;
+  model: string;
+  responseMs: number;
+  relevantEventsCount: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminAssistantActivitiesResponse {
+  status: string;
+  results: number;
+  total: number;
+  data: {
+    activities: AdminAssistantActivityListItem[];
+  };
+}
+
 export interface AdminBookingsQuery {
   page?: number;
   limit?: number;
@@ -217,6 +239,17 @@ export class AdminDashboardService {
       params = params.set('status', options.status.trim());
     }
     return this.http.get<AdminNewsletterSubscribersResponse>(`${this.adminBase}/newsletter-subscribers`, {
+      params,
+      withCredentials: true,
+    });
+  }
+
+  getAssistantActivities(options: { page?: number; limit?: number } = {}): Observable<AdminAssistantActivitiesResponse> {
+    const params = new HttpParams()
+      .set('page', String(options.page ?? 1))
+      .set('limit', String(options.limit ?? ADMIN_LIST_PAGE_SIZE));
+
+    return this.http.get<AdminAssistantActivitiesResponse>(`${this.adminBase}/assistant-activity`, {
       params,
       withCredentials: true,
     });

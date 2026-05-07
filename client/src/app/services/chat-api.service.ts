@@ -21,11 +21,13 @@ export class ChatApiService {
   /**
    * Send messages to the AI assistant and get a reply
    * @param messages Current message history
+   * @param sessionId Current chat session ID for logging
    * @returns Observable of the assistant's reply string
    */
-  getCompletion(messages: ChatMessage[]): Observable<string> {
+  getCompletion(messages: ChatMessage[], sessionId: string): Observable<string> {
     // We only send the role and content to the backend
     const payload = {
+      sessionId,
       messages: messages.map(m => ({
         role: m.role,
         content: m.content

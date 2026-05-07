@@ -62,7 +62,10 @@ export class TalkToAiSection implements AfterViewInit, OnDestroy {
     this.isMenuOpen.set(false);
     this.chatStoreService.isSending.set(true);
 
-    this.chatApiService.getCompletion(this.chatStoreService.messages()).subscribe({
+    this.chatApiService.getCompletion(
+      this.chatStoreService.messages(),
+      this.chatStoreService.sessionId()
+    ).subscribe({
       next: (reply) => {
         this.chatStoreService.addAssistantMessage(reply);
         this.chatStoreService.isSending.set(false);

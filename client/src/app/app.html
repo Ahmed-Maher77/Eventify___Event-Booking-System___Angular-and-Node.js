@@ -103,8 +103,10 @@
                 <span class="chatbot-message__icon">
                   <img src="/images/chatIcon.png" alt="" aria-hidden="true" />
                 </span>
+                <div class="chatbot-message__markdown" [innerHTML]="message.content | markdown"></div>
+              } @else {
+                <p>{{ message.content }}</p>
               }
-              <p>{{ message.content }}</p>
             </article>
           }
         }
