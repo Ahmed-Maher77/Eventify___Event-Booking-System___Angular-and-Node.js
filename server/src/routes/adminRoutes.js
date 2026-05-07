@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { getAllUsers } from "../controllers/adminUserController.js";
+import {
+  getAllUsers,
+  getUserById,
+  createAdmin,
+} from "../controllers/adminUserController.js";
 import { getAllBookings } from "../controllers/bookingController.js";
 import { getAllAssistantActivities } from "../controllers/adminAssistantActivityController.js";
 import {
@@ -17,6 +21,7 @@ import {
   validateContactMessageStatusUpdate,
   validateNewsletterSubscriberStatusUpdate,
   validateAdminUsersQuery,
+  validateAdminCreation,
   validateObjectId,
 } from "../utils/validators.js";
 
@@ -28,10 +33,13 @@ router.use(protect, authorize(["admin"]));
 // ---- Get All Bookings [Admin ONLY] ----
 router.get("/bookings", getAllBookings);
 router.get("/users", validateAdminUsersQuery, getAllUsers);
+router.get("/users/:id", validateObjectId("id"), getUserById);
 router.get("/contact-messages", getAllContactMessages);
 router.get("/newsletter-subscribers", getAllNewsletterSubscribers);
 router.get("/assistant-activity", getAllAssistantActivities);
 
+//             ==> POST <==
+router.post("/users", validateAdminCreation, createAdmin);
 
 router.patch(
   "/contact-messages/:id/status",
