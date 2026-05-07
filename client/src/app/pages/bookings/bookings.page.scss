@@ -103,16 +103,16 @@
 
 .bookings-page__list {
   display: grid;
-  gap: 0.85rem;
+  gap: 1.4rem;
 }
 
 .bookings-page__card {
   border: 1px solid var(--color-admin-panel-border);
   border-radius: 1rem;
   background: #fff;
-  padding: 1rem;
+  padding: 1.4rem 1.5rem;
   display: grid;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .bookings-page__card-head {
@@ -163,6 +163,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.75rem 1rem;
+}
+
+@media (max-width: 700px) {
+  .bookings-page__meta-grid {
+    gap: 1.15rem 1rem;
+    grid-template-columns: 1fr;
+  }
 }
 
 .bookings-page__meta-grid dt {

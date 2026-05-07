@@ -62,7 +62,8 @@
           </span>
           <h2 class="bookings-page__empty-title">No bookings found</h2>
           <p class="bookings-page__empty-text">
-            You do not have bookings in this category yet. Explore events and reserve your next spot.
+            You do not have bookings in this category yet. Explore events and reserve your next
+            spot.
           </p>
           <app-button
             label="Browse events"
@@ -94,7 +95,13 @@
               <dl class="bookings-page__meta-grid">
                 <div>
                   <dt>Event date</dt>
-                  <dd>{{ eventDate(booking) ? (eventDate(booking)! | date: 'fullDate') : 'Not available' }}</dd>
+                  <dd>
+                    {{
+                      eventDate(booking)
+                        ? (eventDate(booking)! | date: 'fullDate')
+                        : 'Not available'
+                    }}
+                  </dd>
                 </div>
                 <div>
                   <dt>Location</dt>
@@ -128,7 +135,9 @@
                 </div>
                 <div>
                   <dt>Booked on</dt>
-                  <dd>{{ booking.createdAt ? (booking.createdAt | date: 'medium') : 'Not available' }}</dd>
+                  <dd>
+                    {{ booking.createdAt ? (booking.createdAt | date: 'medium') : 'Not available' }}
+                  </dd>
                 </div>
               </dl>
 
@@ -185,7 +194,9 @@
           >
             Previous
           </button>
-          <span class="bookings-page__page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+          <span class="bookings-page__page-info"
+            >Page {{ currentPage() }} of {{ totalPages() }}</span
+          >
           <button
             type="button"
             class="bookings-page__page-btn"
