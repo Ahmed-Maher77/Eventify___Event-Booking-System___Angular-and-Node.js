@@ -383,6 +383,40 @@ const validateAdminUsersQuery = [
 ];
 
 /**
+ * Validate admin contact messages list query (search/filter/sort)
+ */
+const validateAdminContactMessagesQuery = [
+  query('page')
+    .optional()
+    .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+
+  query('status')
+    .optional()
+    .isIn(['new', 'reviewed']).withMessage('Status must be either new or reviewed'),
+
+  query('search')
+    .optional()
+    .isString().withMessage('Search must be a string')
+    .trim()
+    .isLength({ min: 1, max: 120 }).withMessage('Search must be between 1 and 120 characters'),
+
+  query('sort')
+    .optional()
+    .isIn(['createdAt', 'fullName', 'email', 'subject', 'status'])
+    .withMessage('Sort must be one of: createdAt, fullName, email, subject, status'),
+
+  query('order')
+    .optional()
+    .isIn(['asc', 'desc']).withMessage('Order must be either asc or desc'),
+
+  handleValidationErrors
+];
+
+/**
  * Validate admin newsletter subscribers list query (search/filter/sort)
  */
 const validateAdminNewsletterSubscribersQuery = [
@@ -448,6 +482,7 @@ export {
   validateContactMessageStatusUpdate,
   validateNewsletterSubscriberStatusUpdate,
   validateAdminUsersQuery,
+  validateAdminContactMessagesQuery,
   validateAdminNewsletterSubscribersQuery,
   validateAdminCreation,
   validateObjectId,

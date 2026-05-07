@@ -33,21 +33,30 @@ const createContactMessage = async (req, res, next) => {
 // ---- Get Contact Messages [Admin ONLY] ----
 const getAllContactMessages = async (req, res, next) => {
   try {
-    const { status } = req.query;
+    const { status, search, sort = "createdAt", order = "desc" } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const filter = {};
     if (status) filter.status = status;
+    if (search?.trim()) {
+      const regex = { $regex: search.trim(), $options: "i" };
+      filter.$or = [{ fullName: regex }, { email: regex }, { subject: regex }];
+    }
+
+    const sortField = ["createdAt", "fullName", "email", "subject", "status"].includes(String(sort))
+      ? String(sort)
+      : "createdAt";
+    const sortOrder = String(order).toLowerCase() === "asc" ? 1 : -1;
 
     const contactMessages = await ContactMessage.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ [sortField]: sortOrder })
       .skip(skip)
       .limit(limit);
 
     const totalMessages = await ContactMessage.countDocuments(filter);
-    const totalPages = Math.ceil(totalMessages / limit);
+    const totalPages = Math.max(1, Math.ceil(totalMessages / limit));
 
     res.status(200).json({
       success: true,

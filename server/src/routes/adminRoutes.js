@@ -20,6 +20,7 @@ import {
 import { authorize, protect } from "../middlewares/authMiddleware.js";
 import {
   validateContactMessageStatusUpdate,
+  validateAdminContactMessagesQuery,
   validateNewsletterSubscriberStatusUpdate,
   validateAdminNewsletterSubscribersQuery,
   validateAdminUsersQuery,
@@ -38,7 +39,7 @@ router.get("/bookings", getAllBookings);
 router.get("/recent-bookings",getRecentBookings)
 router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/users/:id", validateObjectId("id"), getUserById);
-router.get("/contact-messages", getAllContactMessages);
+router.get("/contact-messages", validateAdminContactMessagesQuery, getAllContactMessages);
 router.get("/newsletter-subscribers", validateAdminNewsletterSubscribersQuery, getAllNewsletterSubscribers);
 router.get("/assistant-activity", getAllAssistantActivities);
 

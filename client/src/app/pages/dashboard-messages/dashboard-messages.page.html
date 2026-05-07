@@ -12,6 +12,85 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
+    <div class="admin-entity-page__catalog-filters-wrap">
+      <div class="admin-entity-page__catalog-filters-bar">
+        <button
+          type="button"
+          id="messages-filters-toggle"
+          class="admin-entity-page__filters-toggle"
+          [attr.aria-expanded]="filtersExpanded()"
+          aria-controls="messages-filters-panel"
+          (click)="toggleFilters()"
+        >
+          <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
+          <span>Filters &amp; sort</span>
+          @if (hasActiveFilters()) {
+            <span class="admin-entity-page__filters-active-badge">Active</span>
+          }
+        </button>
+        <button
+          type="button"
+          class="admin-entity-page__catalog-clear-btn"
+          aria-label="Clear filters"
+          title="Clear filters"
+          (click)="clearFilters()"
+        >
+          <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+          <span class="admin-entity-page__catalog-clear-label">Clear Filters</span>
+        </button>
+      </div>
+
+      <div
+        id="messages-filters-panel"
+        class="admin-entity-page__catalog-filters-body"
+        [class.is-open]="filtersExpanded()"
+        role="region"
+        aria-labelledby="messages-filters-toggle"
+        [attr.aria-hidden]="!filtersExpanded()"
+      >
+        <div class="admin-entity-page__catalog-filters-inner">
+          <div class="admin-entity-page__catalog-filters" [formGroup]="filterForm">
+            <div class="admin-entity-page__catalog-filters-grid">
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Search</span>
+                <input
+                  class="admin-entity-page__filter-input"
+                  type="search"
+                  formControlName="search"
+                  placeholder="Name, email, or subject"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Status</span>
+                <app-custom-native-select
+                  formControlName="status"
+                  [options]="statusOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Sort by</span>
+                <app-custom-native-select
+                  formControlName="sort"
+                  [options]="sortOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Order</span>
+                <app-custom-native-select
+                  formControlName="order"
+                  [options]="orderOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading message center" />
@@ -19,7 +98,13 @@
     } @else if (errorMessage()) {
       <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
     } @else if (!items().length && totalListItems() === 0) {
-      <p class="admin-entity-page__state-message">No contact messages yet.</p>
+      <p class="admin-entity-page__state-message">
+        @if (hasActiveFilters()) {
+          No messages match your filters. Try adjusting search or filters.
+        } @else {
+          No contact messages yet.
+        }
+      </p>
     } @else {
       @for (item of items(); track item._id) {
         <article class="admin-stream__item">

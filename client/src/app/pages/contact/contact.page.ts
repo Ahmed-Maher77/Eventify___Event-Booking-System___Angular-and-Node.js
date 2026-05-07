@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Button } from '../../shared/button/button';
+import { AuthService } from '../../services/auth.service';
 import { ContactService } from '../../services/contact.service';
 import { setupContactPageAnimations } from './contact.page.animations';
 
@@ -12,9 +13,10 @@ import { setupContactPageAnimations } from './contact.page.animations';
   templateUrl: './contact.page.html',
   styleUrl: '../../../sass/components/contact-page.scss'
 })
-export class ContactPage implements AfterViewInit, OnDestroy {
+export class ContactPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly contactService = inject(ContactService);
+  private readonly authService = inject(AuthService);
   @ViewChild('contactPageRoot') private contactPageRoot?: ElementRef<HTMLElement>;
   private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
   private contactContext: ReturnType<typeof setupContactPageAnimations> | null = null;
@@ -47,6 +49,10 @@ export class ContactPage implements AfterViewInit, OnDestroy {
     }
   ] as const;
 
+  ngOnInit(): void {
+    this.syncIdentityFieldsWithAuth();
+  }
+
   protected submitContactForm(): void {
     this.isSubmitted.set(false);
     this.errorMessage.set('');
@@ -68,7 +74,13 @@ export class ContactPage implements AfterViewInit, OnDestroy {
       })
       .subscribe({
         next: () => {
-          this.contactForm.reset();
+          this.contactForm.reset({
+            fullName: '',
+            email: '',
+            subject: '',
+            message: '',
+          });
+          this.syncIdentityFieldsWithAuth();
           this.isSubmitted.set(true);
           this.startSuccessMessageTimer();
         },
@@ -111,5 +123,29 @@ export class ContactPage implements AfterViewInit, OnDestroy {
       this.isSubmitted.set(false);
       this.successMessageTimer = null;
     }, 2200);
+  }
+
+  private syncIdentityFieldsWithAuth(): void {
+    const fullNameControl = this.contactForm.controls.fullName;
+    const emailControl = this.contactForm.controls.email;
+    const user = this.authService.userData;
+    const shouldLockIdentity =
+      this.authService.isLoggedIn() && !!user?.name?.trim() && !!user?.email?.trim();
+
+    if (shouldLockIdentity) {
+      this.contactForm.patchValue(
+        {
+          fullName: user?.name?.trim() ?? '',
+          email: user?.email?.trim() ?? '',
+        },
+        { emitEvent: false },
+      );
+      fullNameControl.disable({ emitEvent: false });
+      emailControl.disable({ emitEvent: false });
+      return;
+    }
+
+    fullNameControl.enable({ emitEvent: false });
+    emailControl.enable({ emitEvent: false });
   }
 }

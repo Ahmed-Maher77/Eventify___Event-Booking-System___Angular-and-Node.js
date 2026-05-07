@@ -219,6 +219,9 @@ export interface AdminContactMessagesQuery {
   page?: number;
   limit?: number;
   status?: string;
+  search?: string;
+  sort?: 'createdAt' | 'fullName' | 'email' | 'subject' | 'status';
+  order?: 'asc' | 'desc';
 }
 
 export interface AdminNewsletterSubscribersQuery {
@@ -296,6 +299,15 @@ export class AdminDashboardService {
       .set('limit', String(options.limit ?? ADMIN_LIST_PAGE_SIZE));
     if (options.status?.trim()) {
       params = params.set('status', options.status.trim());
+    }
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
     }
     return this.http.get<AdminContactMessagesResponse>(`${this.adminBase}/contact-messages`, {
       params,
