@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface BookingPopulatedUser {
@@ -114,9 +115,14 @@ export interface UserBookingsQuery {
 export class BookingService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/bookings`;
+  private pendingBookingsCountCache$: Observable<UserBookingsResponse> | null = null;
+  private pendingBookingsCountCacheExpiresAt = 0;
+  private static readonly PENDING_BOOKINGS_COUNT_CACHE_TTL_MS = 120000;
 
   createBooking(payload: BookingCreatePayload): Observable<BookingCreateResponse> {
-    return this.http.post<BookingCreateResponse>(this.url, payload, { withCredentials: true });
+    return this.http
+      .post<BookingCreateResponse>(this.url, payload, { withCredentials: true })
+      .pipe(tap(() => this.invalidatePendingBookingsCountCache()));
   }
 
   getBookingById(id: string): Observable<BookingDetailsResponse> {
@@ -124,22 +130,28 @@ export class BookingService {
   }
 
   cancelBooking(id: string): Observable<BookingCancelResponse> {
-    return this.http.delete<BookingCancelResponse>(`${this.url}/${id}`, { withCredentials: true });
+    return this.http
+      .delete<BookingCancelResponse>(`${this.url}/${id}`, { withCredentials: true })
+      .pipe(tap(() => this.invalidatePendingBookingsCountCache()));
   }
 
   deleteCancelledBooking(id: string): Observable<BookingDeleteResponse> {
-    return this.http.delete<BookingDeleteResponse>(`${this.url}/${id}/remove`, {
-      withCredentials: true,
-    });
+    return this.http
+      .delete<BookingDeleteResponse>(`${this.url}/${id}/remove`, {
+        withCredentials: true,
+      })
+      .pipe(tap(() => this.invalidatePendingBookingsCountCache()));
   }
 
   updateBookingQuantity(
     id: string,
     payload: BookingUpdateQuantityPayload,
   ): Observable<BookingUpdateQuantityResponse> {
-    return this.http.patch<BookingUpdateQuantityResponse>(`${this.url}/${id}/quantity`, payload, {
-      withCredentials: true,
-    });
+    return this.http
+      .patch<BookingUpdateQuantityResponse>(`${this.url}/${id}/quantity`, payload, {
+        withCredentials: true,
+      })
+      .pipe(tap(() => this.invalidatePendingBookingsCountCache()));
   }
 
   getActiveBookingForEvent(eventId: string): Observable<BookingDetailsResponse> {
@@ -164,9 +176,31 @@ export class BookingService {
     return this.http.get<UserBookingsResponse>(endpoint, { withCredentials: true });
   }
 
+  getPendingBookingsCount(): Observable<UserBookingsResponse> {
+    const now = Date.now();
+    if (this.pendingBookingsCountCache$ && now < this.pendingBookingsCountCacheExpiresAt) {
+      return this.pendingBookingsCountCache$;
+    }
+
+    this.pendingBookingsCountCacheExpiresAt = now + BookingService.PENDING_BOOKINGS_COUNT_CACHE_TTL_MS;
+    this.pendingBookingsCountCache$ = this.http
+      .get<UserBookingsResponse>(`${this.url}?page=1&limit=1&status=pending`, {
+        withCredentials: true,
+      })
+      .pipe(
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+    return this.pendingBookingsCountCache$;
+  }
+
   getUserBookingsSummary(): Observable<UserBookingsSummaryResponse> {
     return this.http.get<UserBookingsSummaryResponse>(`${this.url}?page=1&limit=1`, {
       withCredentials: true,
     });
+  }
+
+  private invalidatePendingBookingsCountCache(): void {
+    this.pendingBookingsCountCache$ = null;
+    this.pendingBookingsCountCacheExpiresAt = 0;
   }
 }

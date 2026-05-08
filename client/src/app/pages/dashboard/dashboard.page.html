@@ -1,16 +1,26 @@
 <section class="admin-page">
   <header
-    class="admin-page__header admin-page__header--toolbar d-flex flex-wrap align-items-start justify-content-between gap-3">
-    <app-highlighted-page-heading titlePrefix="Performance" titleHighlight="Insights"
-      subtitle="Track platform health, activity trends, and report snapshots." headingLevel="h2"
-      containerClass="admin-heading--container" titleClass="admin-heading--title"
-      subtitleClass="admin-heading--subtitle" />
+    class="admin-page__header admin-page__header--toolbar d-flex flex-wrap align-items-start justify-content-between gap-3"
+  >
+    <app-highlighted-page-heading
+      titlePrefix="Performance"
+      titleHighlight="Insights"
+      subtitle="Track platform health, activity trends, and report snapshots."
+      headingLevel="h2"
+      containerClass="admin-heading--container"
+      titleClass="admin-heading--title"
+      subtitleClass="admin-heading--subtitle"
+    />
     <div class="admin-page__period" role="group" aria-label="Report period">
       @for (p of periodOptions; track p) {
-      <button type="button" class="admin-page__period-btn" [class.is-active]="selectedPeriod() === p"
-        (click)="selectPeriod(p)">
-        {{ p === 7 ? '7 days' : p === 30 ? '30 days' : '90 days' }}
-      </button>
+        <button
+          type="button"
+          class="admin-page__period-btn"
+          [class.is-active]="selectedPeriod() === p"
+          (click)="selectPeriod(p)"
+        >
+          {{ p === 7 ? '7 days' : p === 30 ? '30 days' : '90 days' }}
+        </button>
       }
     </div>
   </header>
@@ -22,75 +32,129 @@
 
   <section class="admin-page__stats row g-3" aria-label="Key metrics">
     @if (isStatsLoading()) {
-    @for (card of [1, 2, 3, 4]; track card) {
-    <article class="col-12 col-md-6 col-xl-3" aria-hidden="true">
-      <div class="admin-page__panel admin-page__panel--insight admin-page__panel--insight-skeleton">
-        <span class="admin-page__metric-icon-shell admin-page__skeleton-box admin-page__skeleton-box--icon"></span>
-        <div class="admin-page__metric-copy">
-          <span class="admin-page__skeleton-box admin-page__skeleton-box--label"></span>
-          <span class="admin-page__skeleton-box admin-page__skeleton-box--value"></span>
-          <span class="admin-page__skeleton-box admin-page__skeleton-box--delta"></span>
-        </div>
-      </div>
-    </article>
-    }
+      @for (card of [1, 2, 3, 4]; track card) {
+        <article class="col-12 col-md-6 col-xl-3" aria-hidden="true">
+          <div
+            class="admin-page__panel admin-page__panel--insight admin-page__panel--insight-skeleton"
+          >
+            <span
+              class="admin-page__metric-icon-shell admin-page__skeleton-box admin-page__skeleton-box--icon"
+            ></span>
+            <div class="admin-page__metric-copy">
+              <span class="admin-page__skeleton-box admin-page__skeleton-box--label"></span>
+              <span class="admin-page__skeleton-box admin-page__skeleton-box--value"></span>
+              <span class="admin-page__skeleton-box admin-page__skeleton-box--delta"></span>
+            </div>
+          </div>
+        </article>
+      }
     } @else {
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-wallet"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Total revenue</p>
-          <p class="admin-page__metric-value">{{ formattedTotalRevenue() }}</p>
-          <p class="admin-page__metric-delta" [class.admin-page__metric-delta--up]="this.adminDashboardStatsData().revenueChange >= 0" [class.admin-page__metric-delta--down]="this.adminDashboardStatsData().revenueChange < 0">
-            <i class="fa-solid" [class.fa-arrow-trend-up]="this.adminDashboardStatsData().revenueChange >= 0" [class.fa-arrow-trend-down]="this.adminDashboardStatsData().revenueChange < 0" aria-hidden="true"></i> {{ this.adminDashboardStatsData().revenueChange > 0 ? '+' : '' }}{{ this.adminDashboardStatsData().revenueChange }}% vs prior
-          </p>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-wallet"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Total revenue</p>
+            <p class="admin-page__metric-value">{{ formattedTotalRevenue() }}</p>
+            <p
+              class="admin-page__metric-delta"
+              [class.admin-page__metric-delta--up]="
+                this.adminDashboardStatsData().revenueChange >= 0
+              "
+              [class.admin-page__metric-delta--down]="
+                this.adminDashboardStatsData().revenueChange < 0
+              "
+            >
+              <i
+                class="fa-solid"
+                [class.fa-arrow-trend-up]="this.adminDashboardStatsData().revenueChange >= 0"
+                [class.fa-arrow-trend-down]="this.adminDashboardStatsData().revenueChange < 0"
+                aria-hidden="true"
+              ></i>
+              {{ this.adminDashboardStatsData().revenueChange > 0 ? '+' : ''
+              }}{{ this.adminDashboardStatsData().revenueChange }}% vs prior
+            </p>
+          </div>
         </div>
-      </div>
-    </article>
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-users"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Active users</p>
-          <p class="admin-page__metric-value">{{this.adminDashboardStatsData().activeUsers}}</p>
-          <p class="admin-page__metric-delta" [class.admin-page__metric-delta--up]="this.adminDashboardStatsData().activeUsersChange >= 0" [class.admin-page__metric-delta--down]="this.adminDashboardStatsData().activeUsersChange < 0">
-            <i class="fa-solid" [class.fa-arrow-trend-up]="this.adminDashboardStatsData().activeUsersChange >= 0" [class.fa-arrow-trend-down]="this.adminDashboardStatsData().activeUsersChange < 0" aria-hidden="true"></i> {{ this.adminDashboardStatsData().activeUsersChange > 0 ? '+' : '' }}{{ this.adminDashboardStatsData().activeUsersChange }}% vs prior
-          </p>
+      </article>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-users"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Active users</p>
+            <p class="admin-page__metric-value">{{ this.adminDashboardStatsData().activeUsers }}</p>
+            <p
+              class="admin-page__metric-delta"
+              [class.admin-page__metric-delta--up]="
+                this.adminDashboardStatsData().activeUsersChange >= 0
+              "
+              [class.admin-page__metric-delta--down]="
+                this.adminDashboardStatsData().activeUsersChange < 0
+              "
+            >
+              <i
+                class="fa-solid"
+                [class.fa-arrow-trend-up]="this.adminDashboardStatsData().activeUsersChange >= 0"
+                [class.fa-arrow-trend-down]="this.adminDashboardStatsData().activeUsersChange < 0"
+                aria-hidden="true"
+              ></i>
+              {{ this.adminDashboardStatsData().activeUsersChange > 0 ? '+' : ''
+              }}{{ this.adminDashboardStatsData().activeUsersChange }}% vs prior
+            </p>
+          </div>
         </div>
-      </div>
-    </article>
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-ticket"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Tickets sold</p>
-          <p class="admin-page__metric-value">{{ formattedTicketsSold() }}</p>
-          <p class="admin-page__metric-delta" [class.admin-page__metric-delta--up]="this.adminDashboardStatsData().ticketsChange >= 0" [class.admin-page__metric-delta--down]="this.adminDashboardStatsData().ticketsChange < 0">
-            <i class="fa-solid" [class.fa-arrow-trend-up]="this.adminDashboardStatsData().ticketsChange >= 0" [class.fa-arrow-trend-down]="this.adminDashboardStatsData().ticketsChange < 0" aria-hidden="true"></i> {{ this.adminDashboardStatsData().ticketsChange > 0 ? '+' : '' }}{{ this.adminDashboardStatsData().ticketsChange }}% vs prior
-          </p>
+      </article>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-ticket"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Tickets sold</p>
+            <p class="admin-page__metric-value">{{ formattedTicketsSold() }}</p>
+            <p
+              class="admin-page__metric-delta"
+              [class.admin-page__metric-delta--up]="
+                this.adminDashboardStatsData().ticketsChange >= 0
+              "
+              [class.admin-page__metric-delta--down]="
+                this.adminDashboardStatsData().ticketsChange < 0
+              "
+            >
+              <i
+                class="fa-solid"
+                [class.fa-arrow-trend-up]="this.adminDashboardStatsData().ticketsChange >= 0"
+                [class.fa-arrow-trend-down]="this.adminDashboardStatsData().ticketsChange < 0"
+                aria-hidden="true"
+              ></i>
+              {{ this.adminDashboardStatsData().ticketsChange > 0 ? '+' : ''
+              }}{{ this.adminDashboardStatsData().ticketsChange }}% vs prior
+            </p>
+          </div>
         </div>
-      </div>
-    </article>
-    <article class="col-12 col-md-6 col-xl-3">
-      <div class="admin-page__panel admin-page__panel--insight">
-        <span class="admin-page__metric-icon-shell" aria-hidden="true">
-          <i class="fa-solid fa-calendar-check"></i>
-        </span>
-        <div class="admin-page__metric-copy">
-          <p class="admin-page__metric-label">Active events</p>
-          <p class="admin-page__metric-value">{{this.adminDashboardStatsData().activeEvents}}</p>
-          <p class="admin-page__metric-delta admin-page__metric-delta--up">
-            <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +{{ this.adminDashboardStatsData().newEventsThisWeek }} new this week
-          </p>
+      </article>
+      <article class="col-12 col-md-6 col-xl-3">
+        <div class="admin-page__panel admin-page__panel--insight">
+          <span class="admin-page__metric-icon-shell" aria-hidden="true">
+            <i class="fa-solid fa-calendar-check"></i>
+          </span>
+          <div class="admin-page__metric-copy">
+            <p class="admin-page__metric-label">Active events</p>
+            <p class="admin-page__metric-value">
+              {{ this.adminDashboardStatsData().activeEvents }}
+            </p>
+            <p class="admin-page__metric-delta admin-page__metric-delta--up">
+              <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> +{{
+                this.adminDashboardStatsData().newEventsThisWeek
+              }}
+              new this week
+            </p>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
     }
   </section>
 
@@ -98,21 +162,27 @@
     <div class="admin-page__booking-band-inner">
       <div class="admin-page__booking-head">
         <h2 class="admin-page__section-title">Booking volume</h2>
-        <a routerLink="/dashboard/bookings" class="admin-page__inline-link admin-page__booking-head-link">Open booking
-          operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a
+          routerLink="/dashboard/bookings"
+          class="admin-page__inline-link admin-page__booking-head-link"
+          >Open booking operations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i
+        ></a>
       </div>
       <p class="admin-page__chart-caption admin-page__chart-caption--booking">
         Confirmed orders in the selected period.
       </p>
     </div>
     @if (isRecentBookingsLoading()) {
-    <div class="admin-page__booking-loader" aria-label="Loading booking volume">
-      <app-section-loader [size]="36" label="Loading booking volume" />
-    </div>
+      <div class="admin-page__booking-loader" aria-label="Loading booking volume">
+        <app-section-loader [size]="36" label="Loading booking volume" />
+      </div>
     } @else {
-    <div class="admin-page__booking-chart" style="position: relative; height: 320px; width: 100%; padding-top: 1rem;">
-      <canvas #bookingChart aria-label="Bar chart for bookings"></canvas>
-    </div>
+      <div
+        class="admin-page__booking-chart"
+        style="position: relative; height: 320px; width: 100%; padding-top: 1rem"
+      >
+        <canvas #bookingChart aria-label="Bar chart for bookings"></canvas>
+      </div>
     }
   </section>
 
@@ -128,22 +198,31 @@
     } @else if (attentionLoadError(); as attentionError) {
       <div class="admin-page__status-wrap">
         <p class="admin-page__status admin-page__status--error">{{ attentionError }}</p>
-        <button type="button" class="admin-page__retry" (click)="retryNeedsAttention()">Try again</button>
+        <button type="button" class="admin-page__retry" (click)="retryNeedsAttention()">
+          Try again
+        </button>
       </div>
     } @else {
       <ul class="admin-page__alert-list">
         @for (item of attentionItems(); track item.actionLink) {
-          <li class="admin-page__alert" [class.admin-page__alert--warning]="item.type === 'warning'"
+          <li
+            class="admin-page__alert"
+            [class.admin-page__alert--warning]="item.type === 'warning'"
             [class.admin-page__alert--info]="item.type === 'info'"
-            [class.admin-page__alert--neutral]="item.type === 'neutral'">
-            <span class="admin-page__alert-icon" aria-hidden="true"><i [class]="item.icon"></i></span>
+            [class.admin-page__alert--neutral]="item.type === 'neutral'"
+          >
+            <span class="admin-page__alert-icon" aria-hidden="true"
+              ><i [class]="item.icon"></i
+            ></span>
             <div class="admin-page__alert-body">
               <p class="admin-page__alert-title">{{ item.title }}</p>
               <p class="admin-page__alert-meta">
                 {{ item.meta }}
               </p>
             </div>
-            <a [routerLink]="item.actionLink" class="admin-page__alert-action">{{ item.actionLabel }}</a>
+            <a [routerLink]="item.actionLink" class="admin-page__alert-action">{{
+              item.actionLabel
+            }}</a>
           </li>
         }
       </ul>

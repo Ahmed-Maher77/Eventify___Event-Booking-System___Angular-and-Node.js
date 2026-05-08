@@ -201,9 +201,7 @@ const getEvents = async (req, res) => {
         }
 
         const startD =
-            startDate && String(startDate).trim()
-                ? new Date(startDate)
-                : null;
+            startDate && String(startDate).trim() ? new Date(startDate) : null;
         const endD =
             endDate && String(endDate).trim() ? new Date(endDate) : null;
         const startOk = startD && !Number.isNaN(startD.getTime());
@@ -232,8 +230,6 @@ const getEvents = async (req, res) => {
         const sortField = allowedSortFields.includes(sort) ? sort : "date";
         const sortOrder = order === "asc" ? 1 : -1;
 
-
-
         // Get events and total count in parallel
         const [events, totalEvents] = await Promise.all([
             Event.find(filter)
@@ -245,8 +241,6 @@ const getEvents = async (req, res) => {
         ]);
 
         const totalPages = Math.ceil(totalEvents / limitNumber);
-
-
 
         // Send response with events and pagination info
         res.status(200).json({

@@ -11,11 +11,12 @@ import { EventReviewService } from '../../services/event-review.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { ToastService } from '../../services/toast.service';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
+import { ProfileAvatarEditorComponent } from './components/profile-avatar-editor/profile-avatar-editor.component';
 
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [HighlightedPageHeadingComponent, ReactiveFormsModule, Button],
+  imports: [HighlightedPageHeadingComponent, ReactiveFormsModule, Button, ProfileAvatarEditorComponent],
   templateUrl: './profile.page.html',
   styleUrls: [
     '../../../sass/components/static-info-page.scss',
@@ -45,13 +46,22 @@ export class ProfilePage implements OnInit, OnDestroy {
   protected readonly isCurrentPasswordVisible = signal(false);
   protected readonly isNewPasswordVisible = signal(false);
   protected readonly isConfirmPasswordVisible = signal(false);
-  protected readonly emailNotificationsEnabled = signal(this.initialPreferenceValues.emailNotificationsEnabled);
-  protected readonly marketingUpdatesEnabled = signal(this.initialPreferenceValues.marketingUpdatesEnabled);
-  protected readonly bookingRemindersEnabled = signal(this.initialPreferenceValues.bookingRemindersEnabled);
+  protected readonly emailNotificationsEnabled = signal(
+    this.initialPreferenceValues.emailNotificationsEnabled,
+  );
+  protected readonly marketingUpdatesEnabled = signal(
+    this.initialPreferenceValues.marketingUpdatesEnabled,
+  );
+  protected readonly bookingRemindersEnabled = signal(
+    this.initialPreferenceValues.bookingRemindersEnabled,
+  );
   protected readonly isProfileEditMode = signal(false);
 
   protected readonly profileForm = this.fb.group({
-    fullName: [this.initialProfileFormValue.fullName, [Validators.required, Validators.minLength(2)]],
+    fullName: [
+      this.initialProfileFormValue.fullName,
+      [Validators.required, Validators.minLength(2)],
+    ],
     email: [this.initialProfileFormValue.email, [Validators.required, Validators.email]],
     phone: [this.initialProfileFormValue.phone],
     location: [this.initialProfileFormValue.location],
@@ -220,9 +230,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         error: (err: HttpErrorResponse) => {
           const msg = err.error?.message;
           this.toast.showError(
-            typeof msg === 'string' && msg.trim()
-              ? msg
-              : 'Unable to update profile right now.',
+            typeof msg === 'string' && msg.trim() ? msg : 'Unable to update profile right now.',
           );
         },
       });
@@ -280,9 +288,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         error: (err: HttpErrorResponse) => {
           const msg = err.error?.message;
           this.toast.showError(
-            typeof msg === 'string' && msg.trim()
-              ? msg
-              : 'Unable to update password right now.',
+            typeof msg === 'string' && msg.trim() ? msg : 'Unable to update password right now.',
           );
         },
       });
@@ -309,9 +315,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
-  protected onAvatarFileSelected(event: Event): void {
-    const target = event.target as HTMLInputElement | null;
-    const file = target?.files?.[0] ?? null;
+  protected onAvatarFileSelected(file: File | null): void {
     if (!file) {
       return;
     }
@@ -319,15 +323,17 @@ export class ProfilePage implements OnInit, OnDestroy {
     const allowedTypes = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
     if (!allowedTypes.has(file.type)) {
       this.toast.showError('Please select a JPG, PNG, or WEBP image.');
-      if (target) {
-        target.value = '';
-      }
       return;
     }
 
     this.updateAvatarBusy.set(true);
     const payload = new FormData();
-    payload.append('name', this.profileForm.controls.fullName.value?.trim() || this.authService.userData?.name || 'Eventify User');
+    payload.append(
+      'name',
+      this.profileForm.controls.fullName.value?.trim() ||
+        this.authService.userData?.name ||
+        'Eventify User',
+    );
     payload.append('image', file);
 
     this.authService
@@ -336,9 +342,6 @@ export class ProfilePage implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.toast.showSuccess(res.message ?? 'Profile image updated successfully.');
-          if (target) {
-            target.value = '';
-          }
         },
         error: (err: HttpErrorResponse) => {
           const msg = err.error?.message;
@@ -347,9 +350,6 @@ export class ProfilePage implements OnInit, OnDestroy {
               ? msg
               : 'Unable to update profile image right now.',
           );
-          if (target) {
-            target.value = '';
-          }
         },
       });
   }

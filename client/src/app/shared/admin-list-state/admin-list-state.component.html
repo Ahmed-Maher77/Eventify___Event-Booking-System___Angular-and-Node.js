@@ -1,0 +1,7 @@
+@if (isLoading) {
+  <div class="admin-page__loader-wrap">
+    <app-section-loader [size]="36" [label]="loadingLabel" />
+  </div>
+} @else if (errorMessage) {
+  <p class="admin-entity-page__state-message is-error">{{ errorMessage }}</p>
+}

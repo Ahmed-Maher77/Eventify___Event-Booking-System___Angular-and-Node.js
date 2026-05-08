@@ -2,7 +2,14 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, finalize, firstValueFrom, takeUntil } from 'rxjs';
+import {
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  firstValueFrom,
+  takeUntil,
+} from 'rxjs';
 import {
   ADMIN_LIST_PAGE_SIZE,
   AdminDashboardService,
@@ -16,7 +23,7 @@ import {
   CustomNativeSelectOption,
 } from '../../shared/custom-native-select/custom-native-select';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
-import { SectionLoader } from '../../shared/section-loader/section-loader';
+import { AdminListStateComponent } from '../../shared/admin-list-state/admin-list-state.component';
 
 @Component({
   selector: 'app-dashboard-subscribers-page',
@@ -25,10 +32,10 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
     CommonModule,
     ReactiveFormsModule,
     HighlightedPageHeadingComponent,
-    SectionLoader,
     AdminEntityPaginationComponent,
     CustomNativeSelectComponent,
     Button,
+    AdminListStateComponent,
   ],
   templateUrl: './dashboard-subscribers.page.html',
   styleUrl: './dashboard-subscribers.page.scss',

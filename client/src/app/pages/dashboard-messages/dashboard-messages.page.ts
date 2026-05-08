@@ -2,7 +2,17 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, finalize, forkJoin, map, of, switchMap, takeUntil } from 'rxjs';
+import {
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  forkJoin,
+  map,
+  of,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import {
   ADMIN_LIST_PAGE_SIZE,
   AdminContactMessageListItem,
@@ -16,7 +26,7 @@ import {
 import { ToastService } from '../../services/toast.service';
 import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
-import { SectionLoader } from '../../shared/section-loader/section-loader';
+import { AdminListStateComponent } from '../../shared/admin-list-state/admin-list-state.component';
 
 @Component({
   selector: 'app-dashboard-messages-page',
@@ -25,10 +35,10 @@ import { SectionLoader } from '../../shared/section-loader/section-loader';
     CommonModule,
     ReactiveFormsModule,
     HighlightedPageHeadingComponent,
-    SectionLoader,
     AdminEntityPaginationComponent,
     CustomNativeSelectComponent,
     Button,
+    AdminListStateComponent,
   ],
   templateUrl: './dashboard-messages.page.html',
   styleUrl: './dashboard-messages.page.scss',
@@ -373,9 +383,9 @@ export class DashboardMessagesPage implements OnInit, OnDestroy {
     this.errorMessage.set(null);
 
     const requests = targets.map((item) =>
-      this.adminApi.updateContactMessageStatus(item._id, status).pipe(
-        map(() => ({ ok: true as const })),
-      ),
+      this.adminApi
+        .updateContactMessageStatus(item._id, status)
+        .pipe(map(() => ({ ok: true as const }))),
     );
 
     forkJoin(requests)

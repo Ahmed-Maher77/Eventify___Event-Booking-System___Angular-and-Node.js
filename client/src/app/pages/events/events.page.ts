@@ -20,33 +20,19 @@ import {
 import { FavoriteService } from '../../services/favorite.service';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
-
-type EventCategoryTab =
-  | 'all'
-  | 'concert'
-  | 'conference'
-  | 'workshop'
-  | 'seminar'
-  | 'sports'
-  | 'other';
-type PaginationToken = number | 'ellipsis-left' | 'ellipsis-right';
-
-interface EventsQueryState {
-  name: string;
-  categories: EventCategoryTab[];
-  location: string;
-  minPrice: number;
-  maxPrice: number;
-  sort: EventSortField;
-  order: EventSortOrder;
-  page: number;
-  limit: number;
-}
+import { EventCategoryTab, EventsQueryState, PaginationToken } from './events.page.types';
 
 @Component({
   selector: 'app-events-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, FeaturedEventCard, Button, HighlightedPageHeadingComponent, SectionLoader],
+  imports: [
+    CommonModule,
+    FormsModule,
+    FeaturedEventCard,
+    Button,
+    HighlightedPageHeadingComponent,
+    SectionLoader,
+  ],
   templateUrl: './events.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './events.page.scss'],
 })
@@ -526,14 +512,12 @@ export class EventsPage implements OnInit, OnDestroy {
   private mapParamsToQueryState(params: import('@angular/router').ParamMap): EventsQueryState {
     let categoriesFromUrl = [
       ...new Set(
-        params
-          .getAll('categories')
-          .flatMap((segment) =>
-            segment
-              .split(',')
-              .map((value) => value.trim().toLowerCase())
-              .filter(Boolean),
-          ),
+        params.getAll('categories').flatMap((segment) =>
+          segment
+            .split(',')
+            .map((value) => value.trim().toLowerCase())
+            .filter(Boolean),
+        ),
       ),
     ];
     const legacyCategory = (params.get('category') ?? '').trim().toLowerCase();

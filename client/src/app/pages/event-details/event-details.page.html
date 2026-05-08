@@ -44,7 +44,9 @@
           <p class="public-event-detail__eyebrow">Event details</p>
           <h1 class="public-event-detail__headline">{{ ev.title }}</h1>
           <div class="public-event-detail__badges">
-            <span class="public-event-detail__status-pill">{{ (ev.status || 'upcoming') | titlecase }}</span>
+            <span class="public-event-detail__status-pill">{{
+              ev.status || 'upcoming' | titlecase
+            }}</span>
             <span class="public-event-detail__category-chip">{{ ev.category | titlecase }}</span>
             @if (isSoldOut(ev)) {
               <span class="public-event-detail__soldout-pill">Sold out</span>
@@ -54,7 +56,9 @@
             <span class="public-event-detail__banner-fact">
               <i class="fa-regular fa-calendar" aria-hidden="true"></i>
               {{ ev.date | date: 'EEE, MMM d, y' }}
-              <span class="public-event-detail__banner-fact-sub">{{ ev.date | date: 'shortTime' }}</span>
+              <span class="public-event-detail__banner-fact-sub">{{
+                ev.date | date: 'shortTime'
+              }}</span>
             </span>
             <span class="public-event-detail__banner-fact">
               <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
@@ -91,7 +95,10 @@
           }
         </section>
 
-        <aside class="public-event-detail__block public-event-detail__block--aside" aria-labelledby="actions-heading">
+        <aside
+          class="public-event-detail__block public-event-detail__block--aside"
+          aria-labelledby="actions-heading"
+        >
           <h2 id="actions-heading" class="public-event-detail__block-title">Tickets</h2>
 
           @if (showBookingCta()) {
@@ -109,7 +116,10 @@
                     [disabled]="true"
                   />
                   @if (activeBookingId(); as bookingId) {
-                    <a class="public-event-detail__text-btn" [routerLink]="'/bookings/' + bookingId">
+                    <a
+                      class="public-event-detail__text-btn"
+                      [routerLink]="'/bookings/' + bookingId"
+                    >
                       View your booking details
                     </a>
                   }
@@ -152,7 +162,10 @@
               </div>
             } @else {
               <p class="public-event-detail__hint">Log in to book tickets for this event.</p>
-              <a routerLink="/login" [queryParams]="{ returnUrl: '/events/' + ev._id }" class="public-event-detail__text-btn"
+              <a
+                routerLink="/login"
+                [queryParams]="{ returnUrl: '/events/' + ev._id }"
+                class="public-event-detail__text-btn"
                 >Sign in</a
               >
             }
@@ -181,7 +194,9 @@
                 </button>
               }
             </div>
-            <label class="public-event-detail__review-label" for="review-msg">Message (optional)</label>
+            <label class="public-event-detail__review-label" for="review-msg"
+              >Message (optional)</label
+            >
             <textarea
               id="review-msg"
               class="public-event-detail__review-textarea"
@@ -210,13 +225,21 @@
         </div>
 
         @if (reviews().length) {
-          <div class="public-event-detail__feedback-summary" aria-labelledby="student-feedback-heading">
-            <h3 id="student-feedback-heading" class="public-event-detail__feedback-title">Attendee feedback</h3>
+          <div
+            class="public-event-detail__feedback-summary"
+            aria-labelledby="student-feedback-heading"
+          >
+            <h3 id="student-feedback-heading" class="public-event-detail__feedback-title">
+              Attendee feedback
+            </h3>
             <div class="public-event-detail__feedback-grid">
               <div class="public-event-detail__feedback-score">
                 @if (avgRatingDisplay() != null) {
                   <p class="public-event-detail__feedback-average">{{ avgRatingDisplay() }}</p>
-                  <div class="public-event-detail__star-row public-event-detail__star-row--lg" aria-hidden="true">
+                  <div
+                    class="public-event-detail__star-row public-event-detail__star-row--lg"
+                    aria-hidden="true"
+                  >
                     @for (s of starsForAverage(avgRatingDisplay()!); track $index) {
                       @if (s === 'full') {
                         <i class="fa-solid fa-star"></i>
@@ -233,11 +256,17 @@
               <div class="public-event-detail__feedback-bars" role="list">
                 @for (row of ratingDistribution(); track row.level) {
                   <div class="public-event-detail__dist-row" role="listitem">
-                    <div class="public-event-detail__dist-track" [attr.aria-label]="row.level + ' stars: ' + row.pct + ' percent'">
+                    <div
+                      class="public-event-detail__dist-track"
+                      [attr.aria-label]="row.level + ' stars: ' + row.pct + ' percent'"
+                    >
                       <span class="public-event-detail__dist-fill" [style.width.%]="row.pct"></span>
                     </div>
                     <div class="public-event-detail__dist-meta">
-                      <span class="public-event-detail__star-row public-event-detail__star-row--sm" aria-hidden="true">
+                      <span
+                        class="public-event-detail__star-row public-event-detail__star-row--sm"
+                        aria-hidden="true"
+                      >
                         @for (on of starsForRating(row.level); track $index) {
                           @if (on) {
                             <i class="fa-solid fa-star"></i>
@@ -270,7 +299,9 @@
                 />
               </div>
               <div class="public-event-detail__review-filter">
-                <label class="public-event-detail__review-filter-label" for="review-rating-filter">Filter ratings</label>
+                <label class="public-event-detail__review-filter-label" for="review-rating-filter"
+                  >Filter ratings</label
+                >
                 <app-custom-native-select
                   selectId="review-rating-filter"
                   [options]="ratingFilterOptions"
@@ -303,7 +334,10 @@
                     }
                   </div>
                   <div class="public-event-detail__review-meta-row">
-                    <span class="public-event-detail__star-row public-event-detail__star-row--md" [attr.aria-label]="r.rating + ' out of 5 stars'">
+                    <span
+                      class="public-event-detail__star-row public-event-detail__star-row--md"
+                      [attr.aria-label]="r.rating + ' out of 5 stars'"
+                    >
                       @for (on of starsForRating(r.rating); track $index) {
                         @if (on) {
                           <i class="fa-solid fa-star" aria-hidden="true"></i>
@@ -312,7 +346,9 @@
                         }
                       }
                     </span>
-                    <span class="public-event-detail__review-date">{{ relativeReviewTime(r.createdAt) }}</span>
+                    <span class="public-event-detail__review-date">{{
+                      relativeReviewTime(r.createdAt)
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -373,7 +409,11 @@
 
               @if (editingReviewId() === r._id) {
                 <div class="public-event-detail__review-edit">
-                  <div class="public-event-detail__hearts" role="group" aria-label="Edit rating out of five">
+                  <div
+                    class="public-event-detail__hearts"
+                    role="group"
+                    aria-label="Edit rating out of five"
+                  >
                     @for (n of [1, 2, 3, 4, 5]; track n) {
                       <button
                         type="button"
@@ -387,7 +427,10 @@
                       </button>
                     }
                   </div>
-                  <label class="public-event-detail__review-label" [for]="'edit-review-msg-' + r._id">
+                  <label
+                    class="public-event-detail__review-label"
+                    [for]="'edit-review-msg-' + r._id"
+                  >
                     Message (optional)
                   </label>
                   <textarea
@@ -422,7 +465,11 @@
 
               <div class="public-event-detail__review-helpful">
                 <span class="public-event-detail__review-helpful-q">Was this review helpful?</span>
-                <div class="public-event-detail__review-votes" role="group" [attr.aria-label]="'Helpful votes for ' + r.authorName">
+                <div
+                  class="public-event-detail__review-votes"
+                  role="group"
+                  [attr.aria-label]="'Helpful votes for ' + r.authorName"
+                >
                   <button
                     type="button"
                     class="public-event-detail__vote-btn"
@@ -430,7 +477,10 @@
                     [disabled]="voteBusy()[r._id] || isOwnReview(r)"
                     [attr.title]="isOwnReview(r) ? 'You cannot vote on your own review' : null"
                     [attr.aria-pressed]="r.userVote === 'up'"
-                    [attr.aria-label]="'Mark review as helpful' + (r.helpfulUp != null ? ', ' + r.helpfulUp + ' votes' : '')"
+                    [attr.aria-label]="
+                      'Mark review as helpful' +
+                      (r.helpfulUp != null ? ', ' + r.helpfulUp + ' votes' : '')
+                    "
                     (click)="voteOnReview(r, 'up')"
                   >
                     <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i>
@@ -442,7 +492,10 @@
                     [disabled]="voteBusy()[r._id] || isOwnReview(r)"
                     [attr.title]="isOwnReview(r) ? 'You cannot vote on your own review' : null"
                     [attr.aria-pressed]="r.userVote === 'down'"
-                    [attr.aria-label]="'Mark review as not helpful' + (r.helpfulDown != null ? ', ' + r.helpfulDown + ' votes' : '')"
+                    [attr.aria-label]="
+                      'Mark review as not helpful' +
+                      (r.helpfulDown != null ? ', ' + r.helpfulDown + ' votes' : '')
+                    "
                     (click)="voteOnReview(r, 'down')"
                   >
                     <i class="fa-regular fa-thumbs-down" aria-hidden="true"></i>
@@ -456,7 +509,9 @@
         @if (reviews().length && !filteredReviews().length) {
           <p class="public-event-detail__empty-note">No reviews match your search or filter.</p>
         } @else if (!reviews().length) {
-          <p class="public-event-detail__empty-note">No reviews yet — you can be the first when you are eligible.</p>
+          <p class="public-event-detail__empty-note">
+            No reviews yet — you can be the first when you are eligible.
+          </p>
         }
       </section>
     </div>

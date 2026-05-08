@@ -158,9 +158,16 @@
                 <div>
                   <p class="bookings-page__kicker">Reservation</p>
                   @if (eventDetailsLink(booking); as eventLink) {
-                    <a class="bookings-page__title-link" [routerLink]="eventLink" aria-label="Open event details">
+                    <a
+                      class="bookings-page__title-link"
+                      [routerLink]="eventLink"
+                      aria-label="Open event details"
+                    >
                       <h2 class="bookings-page__title">{{ eventTitle(booking) }}</h2>
-                      <i class="fa-solid fa-arrow-right bookings-page__title-link-arrow" aria-hidden="true"></i>
+                      <i
+                        class="fa-solid fa-arrow-right bookings-page__title-link-arrow"
+                        aria-hidden="true"
+                      ></i>
                     </a>
                   } @else {
                     <h2 class="bookings-page__title">{{ eventTitle(booking) }}</h2>

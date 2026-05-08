@@ -217,10 +217,7 @@ export class Header implements AfterViewInit, OnDestroy {
     if (!force && now < this.bookingCountCooldownUntil) {
       return;
     }
-    if (
-      !force &&
-      now - this.bookingCountLastRequestedAt < Header.BOOKING_COUNT_MIN_INTERVAL_MS
-    ) {
+    if (!force && now - this.bookingCountLastRequestedAt < Header.BOOKING_COUNT_MIN_INTERVAL_MS) {
       return;
     }
 
@@ -233,11 +230,17 @@ export class Header implements AfterViewInit, OnDestroy {
         this.bookingCount.set(response.data?.pagination?.totalBookings ?? 0);
       },
       error: (err: unknown) => {
-        const status = typeof err === 'object' && err && 'status' in err ? Number((err as { status?: number }).status) : 0;
+        const status =
+          typeof err === 'object' && err && 'status' in err
+            ? Number((err as { status?: number }).status)
+            : 0;
         if (status === 429) {
           this.bookingCount429Streak = Math.min(this.bookingCount429Streak + 1, 5);
           const retryAfterMs = this.readRetryAfterMs(err);
-          const exponentialMs = Math.min(300000, 30000 * Math.pow(2, this.bookingCount429Streak - 1));
+          const exponentialMs = Math.min(
+            300000,
+            30000 * Math.pow(2, this.bookingCount429Streak - 1),
+          );
           const cooldownMs = Math.max(retryAfterMs, exponentialMs);
           this.bookingCountCooldownUntil = Date.now() + cooldownMs;
           this.bookingCountRequestInFlight = false;

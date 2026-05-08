@@ -70,7 +70,10 @@
           aria-controls="messages-filters-panel"
           (click)="toggleFilters()"
         >
-          <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
+          <i
+            class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon"
+            aria-hidden="true"
+          ></i>
           <span>Filters &amp; sort</span>
         </button>
         <button
@@ -96,7 +99,9 @@
         <div class="admin-entity-page__catalog-filters-inner">
           <div class="admin-entity-page__catalog-filters" [formGroup]="filterForm">
             <div class="admin-entity-page__catalog-filters-grid">
-              <label class="admin-entity-page__filter-field admin-entity-page__filter-field--search">
+              <label
+                class="admin-entity-page__filter-field admin-entity-page__filter-field--search"
+              >
                 <span class="admin-entity-page__filter-label">Search</span>
                 <input
                   class="admin-entity-page__filter-input"
@@ -136,13 +141,12 @@
       </div>
     </div>
 
-    @if (isLoading()) {
-      <div class="admin-page__loader-wrap">
-        <app-section-loader [size]="36" label="Loading message center" />
-      </div>
-    } @else if (errorMessage()) {
-      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
-    } @else if (!items().length && totalListItems() === 0) {
+    <app-admin-list-state
+      [isLoading]="isLoading()"
+      [errorMessage]="errorMessage()"
+      loadingLabel="Loading message center"
+    />
+    @if (!isLoading() && !errorMessage() && !items().length && totalListItems() === 0) {
       <p class="admin-entity-page__state-message">
         @if (hasActiveFilters()) {
           No messages match your filters. Try adjusting search or filters.
@@ -150,7 +154,7 @@
           No contact messages yet.
         }
       </p>
-    } @else {
+    } @else if (!isLoading() && !errorMessage()) {
       @for (item of items(); track item._id) {
         <article class="admin-stream__item">
           <header class="admin-stream__item-header">
@@ -269,7 +273,8 @@
           Update message status for
           <strong>{{ pending.item.fullName }}</strong>
           to
-          <strong>{{ pending.nextStatus === 'reviewed' ? 'Read' : 'Unread' }}</strong>.
+          <strong>{{ pending.nextStatus === 'reviewed' ? 'Read' : 'Unread' }}</strong
+          >.
         }
       </p>
       <div class="admin-confirm-modal__actions">

@@ -3,32 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { EventApiItem } from './event.service';
-
-interface FavoriteMutationResponse {
-  data: {
-    eventId: string;
-    isFavorite: boolean;
-    totalFavorites: number;
-  };
-}
-
-interface FavoritesResponse {
-  data: {
-    favorites: EventApiItem[];
-    totalFavorites: number;
-  };
-}
-
-interface FavoriteStatusResponse {
-  data: {
-    eventId: string;
-    isFavorite: boolean;
-  };
-}
+import {
+  FavoriteMutationResponse,
+  FavoritesResponse,
+  FavoriteStatusResponse,
+} from './favorite.types';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FavoriteService {
   private readonly http = inject(HttpClient);
@@ -65,7 +47,11 @@ export class FavoriteService {
 
   addFavorite(eventId: string): Observable<FavoriteMutationResponse> {
     return this.http
-      .post<FavoriteMutationResponse>(`${this.favoritesApiUrl}/${eventId}`, {}, { withCredentials: true })
+      .post<FavoriteMutationResponse>(
+        `${this.favoritesApiUrl}/${eventId}`,
+        {},
+        { withCredentials: true },
+      )
       .pipe(
         tap((response) => {
           this.totalFavoritesSubject.next(response.data?.totalFavorites ?? 0);
@@ -76,7 +62,9 @@ export class FavoriteService {
 
   removeFavorite(eventId: string): Observable<FavoriteMutationResponse> {
     return this.http
-      .delete<FavoriteMutationResponse>(`${this.favoritesApiUrl}/${eventId}`, { withCredentials: true })
+      .delete<FavoriteMutationResponse>(`${this.favoritesApiUrl}/${eventId}`, {
+        withCredentials: true,
+      })
       .pipe(
         tap((response) => {
           this.totalFavoritesSubject.next(response.data?.totalFavorites ?? 0);
@@ -90,7 +78,7 @@ export class FavoriteService {
       .patch<FavoriteMutationResponse>(
         `${this.favoritesApiUrl}/${eventId}/toggle`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       )
       .pipe(
         tap((response) => {

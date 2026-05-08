@@ -1,10 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { HeaderNavLink } from './header-nav-links.model';
 
-type HeaderNavLink = {
-  label: string;
-  route: string;
-};
 
 @Component({
   selector: 'app-header-nav-links',

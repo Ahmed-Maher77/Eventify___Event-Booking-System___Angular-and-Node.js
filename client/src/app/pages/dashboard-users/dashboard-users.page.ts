@@ -17,11 +17,9 @@ import {
   CustomNativeSelectOption,
 } from '../../shared/custom-native-select/custom-native-select';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
-import { SectionLoader } from '../../shared/section-loader/section-loader';
 import { ToastService } from '../../services/toast.service';
-
-type MemberSortField = 'createdAt' | 'name' | 'email' | 'role';
-type MemberSortOrder = 'asc' | 'desc';
+import { MemberSortField, MemberSortOrder } from './dashboard-users.page.types';
+import { AdminListStateComponent } from '../../shared/admin-list-state/admin-list-state.component';
 
 @Component({
   selector: 'app-dashboard-users-page',
@@ -31,10 +29,10 @@ type MemberSortOrder = 'asc' | 'desc';
     ReactiveFormsModule,
     HighlightedPageHeadingComponent,
     Button,
-    SectionLoader,
     CustomNativeSelectComponent,
     AdminEntityPaginationComponent,
     AdminCreateAdminModalComponent,
+    AdminListStateComponent,
   ],
   templateUrl: './dashboard-users.page.html',
   styleUrl: './dashboard-users.page.scss',
@@ -195,7 +193,9 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.pendingAction.set(null);
-          this.rows.update((rows) => rows.map((row) => (row._id === user._id ? { ...row, role } : row)));
+          this.rows.update((rows) =>
+            rows.map((row) => (row._id === user._id ? { ...row, role } : row)),
+          );
           this.toastService.showSuccess(
             role === 'admin' ? 'User promoted to admin.' : 'User changed to regular member.',
           );

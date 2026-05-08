@@ -102,19 +102,18 @@
   </div>
 
   <div class="admin-entity-page__panel table-responsive">
-    @if (isLoading()) {
-      <div class="admin-page__loader-wrap">
-        <app-section-loader [size]="36" label="Loading member directory" />
-      </div>
-    } @else if (errorMessage()) {
-      <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
-    } @else if (!rows().length && totalListItems() === 0) {
+    <app-admin-list-state
+      [isLoading]="isLoading()"
+      [errorMessage]="errorMessage()"
+      loadingLabel="Loading member directory"
+    />
+    @if (!isLoading() && !errorMessage() && !rows().length && totalListItems() === 0) {
       @if (hasActiveDirectoryFilters()) {
         <p class="admin-entity-page__state-message">No members match your filters.</p>
       } @else {
         <p class="admin-entity-page__state-message">No members yet.</p>
       }
-    } @else {
+    } @else if (!isLoading() && !errorMessage()) {
       <table class="table admin-entity-page__table align-middle mb-0">
         <thead>
           <tr>

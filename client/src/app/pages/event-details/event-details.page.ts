@@ -26,7 +26,14 @@ import { resolveAvatarUrl } from '../../utils/avatar-url';
 @Component({
   selector: 'app-event-details-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SectionLoader, Button, CustomNativeSelectComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    SectionLoader,
+    Button,
+    CustomNativeSelectComponent,
+  ],
   templateUrl: './event-details.page.html',
   styleUrl: './event-details.page.scss',
 })
@@ -144,7 +151,12 @@ export class EventDetailsPage implements OnInit {
     if (e.capacity == null || e.availableSeats == null) return null;
     const capacity = Number(e.capacity);
     const available = Number(e.availableSeats);
-    if (!Number.isFinite(capacity) || capacity < 1 || !Number.isFinite(available) || available < 0) {
+    if (
+      !Number.isFinite(capacity) ||
+      capacity < 1 ||
+      !Number.isFinite(available) ||
+      available < 0
+    ) {
       return null;
     }
     return { available, capacity };
@@ -226,7 +238,6 @@ export class EventDetailsPage implements OnInit {
     }
     return !!this.ownReviewId() && this.ownReviewId() === r._id;
   }
-
 
   protected setRatingFilter(raw: string): void {
     if (raw === 'all' || raw === '1' || raw === '2' || raw === '3' || raw === '4' || raw === '5') {
@@ -608,7 +619,9 @@ export class EventDetailsPage implements OnInit {
     }
 
     forkJoin({
-      fav: this.favorites.getFavoriteStatus(eventId).pipe(catchError(() => of({ data: { isFavorite: false } }))),
+      fav: this.favorites
+        .getFavoriteStatus(eventId)
+        .pipe(catchError(() => of({ data: { isFavorite: false } }))),
       activeBooking: this.bookings
         .getActiveBookingForEvent(eventId)
         .pipe(catchError(() => of({ success: true, data: null }))),

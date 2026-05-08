@@ -293,10 +293,18 @@ const validateUpdateEventReview = [
         .withMessage("Message must be at most 2000 characters"),
 
     (req, res, next) => {
-        const hasRating = Object.prototype.hasOwnProperty.call(req.body, "rating");
-        const hasMessage = Object.prototype.hasOwnProperty.call(req.body, "message");
+        const hasRating = Object.prototype.hasOwnProperty.call(
+            req.body,
+            "rating",
+        );
+        const hasMessage = Object.prototype.hasOwnProperty.call(
+            req.body,
+            "message",
+        );
         if (!hasRating && !hasMessage) {
-            throw AppError.badRequest("Provide rating or message to update the review.");
+            throw AppError.badRequest(
+                "Provide rating or message to update the review.",
+            );
         }
         next();
     },

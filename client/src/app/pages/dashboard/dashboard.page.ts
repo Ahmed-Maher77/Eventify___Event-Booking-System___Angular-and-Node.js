@@ -10,8 +10,7 @@ import { AdminDashboardService, AdminDashboardStatsData, AdminDashboardStatsResp
 import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import Chart from 'chart.js/auto';
-
-export type InsightsPeriod = 7 | 30 | 90;
+import { InsightsPeriod } from './dashboard.page.types';
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,

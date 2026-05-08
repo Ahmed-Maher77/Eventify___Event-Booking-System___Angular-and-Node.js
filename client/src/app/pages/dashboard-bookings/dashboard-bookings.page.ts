@@ -15,12 +15,13 @@ import {
   CustomNativeSelectOption,
 } from '../../shared/custom-native-select/custom-native-select';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
-import { SectionLoader } from '../../shared/section-loader/section-loader';
 import { Button } from '../../shared/button/button';
-
-type BookingStatusTab = 'all' | 'pending' | 'confirmed' | 'cancelled';
-type BookingSortField = 'createdAt' | 'status' | 'quantity' | 'totalPrice';
-type BookingSortOrder = 'asc' | 'desc';
+import { AdminListStateComponent } from '../../shared/admin-list-state/admin-list-state.component';
+import {
+  BookingSortField,
+  BookingSortOrder,
+  BookingStatusTab,
+} from './dashboard-bookings.page.types';
 
 @Component({
   selector: 'app-dashboard-bookings-page',
@@ -29,10 +30,10 @@ type BookingSortOrder = 'asc' | 'desc';
     CommonModule,
     ReactiveFormsModule,
     HighlightedPageHeadingComponent,
-    SectionLoader,
     AdminEntityPaginationComponent,
     CustomNativeSelectComponent,
     Button,
+    AdminListStateComponent,
   ],
   templateUrl: './dashboard-bookings.page.html',
   styleUrl: './dashboard-bookings.page.scss',

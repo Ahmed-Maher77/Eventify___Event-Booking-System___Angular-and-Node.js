@@ -11,37 +11,12 @@
     <div class="row g-4 profile-page__layout">
       <aside class="col-12 col-lg-4">
         <section class="profile-page__card profile-page__card--sidebar">
-          <div class="profile-page__avatar">
-            <img
-              class="profile-page__avatar-image"
-              [class.is-loading]="updateAvatarBusy()"
-              [src]="getProfileImageUrl()"
-              [alt]="(profileForm.controls.fullName.value || 'User') + ' profile picture'"
-            />
-            @if (updateAvatarBusy()) {
-              <span class="profile-page__avatar-loader" aria-label="Uploading profile image" role="status">
-                <span class="profile-page__avatar-loader-spinner" aria-hidden="true"></span>
-              </span>
-            }
-            <label
-              class="profile-page__avatar-edit-btn"
-              for="profile-avatar-file"
-              [class.is-disabled]="updateAvatarBusy()"
-              [attr.aria-disabled]="updateAvatarBusy()"
-              [attr.title]="updateAvatarBusy() ? 'Uploading...' : 'Change profile image'"
-            >
-              <i class="fa-solid fa-pen" aria-hidden="true"></i>
-              <span class="visually-hidden">Change profile image</span>
-            </label>
-            <input
-              id="profile-avatar-file"
-              type="file"
-              class="profile-page__avatar-file-input"
-              accept="image/png,image/jpeg,image/jpg,image/webp"
-              [disabled]="updateAvatarBusy()"
-              (change)="onAvatarFileSelected($event)"
-            />
-          </div>
+          <app-profile-avatar-editor
+            [imageUrl]="getProfileImageUrl()"
+            [altText]="(profileForm.controls.fullName.value || 'User') + ' profile picture'"
+            [busy]="updateAvatarBusy()"
+            (fileSelected)="onAvatarFileSelected($event)"
+          />
           <h2 class="profile-page__name">{{ profileForm.controls.fullName.value }}</h2>
           <p class="profile-page__email">{{ profileForm.controls.email.value }}</p>
           <span class="profile-page__role-badge">{{ authService.userData?.role ?? 'user' }}</span>
@@ -82,7 +57,10 @@
 
       <div class="col-12 col-lg-8">
         <div class="profile-page__content-stack">
-          <section class="profile-page__card" [class.profile-page__card--readonly]="!isProfileEditMode()">
+          <section
+            class="profile-page__card"
+            [class.profile-page__card--readonly]="!isProfileEditMode()"
+          >
             <header class="profile-page__card-header">
               <h2 class="profile-page__card-title">Personal Information</h2>
               <p class="profile-page__card-subtitle">Keep your profile details up to date.</p>
@@ -171,7 +149,9 @@
                     >
                       <i
                         [class]="
-                          isCurrentPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                          isCurrentPasswordVisible()
+                            ? 'fa-regular fa-eye-slash'
+                            : 'fa-regular fa-eye'
                         "
                       ></i>
                     </button>
@@ -243,7 +223,9 @@
                     >
                       <i
                         [class]="
-                          isConfirmPasswordVisible() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                          isConfirmPasswordVisible()
+                            ? 'fa-regular fa-eye-slash'
+                            : 'fa-regular fa-eye'
                         "
                       ></i>
                     </button>
