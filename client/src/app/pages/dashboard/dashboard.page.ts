@@ -26,6 +26,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   protected readonly isStatsLoading = signal(false);
   protected readonly isRecentBookingsLoading = signal(false);
   protected readonly isAttentionLoading = signal(false);
+  protected readonly attentionLoadError = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly bookingChartRef = viewChild<ElementRef<HTMLCanvasElement>>('bookingChart');
@@ -192,6 +193,7 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   private loadNeedsAttention(): void {
     this.isAttentionLoading.set(true);
+    this.attentionLoadError.set(null);
     this.adminApi
       .getNeedsAttention()
       .pipe(finalize(() => this.isAttentionLoading.set(false)))
@@ -199,14 +201,19 @@ export class DashboardPage implements OnInit, OnDestroy {
         next: (res) => {
           this.needsAttention.set(res.data);
         },
-        error: () => {
-          this.needsAttention.set({
-            lowSalesUpcomingEvents48h: 0,
-            unreadMessages: { count: 0, oldestHours: 0 },
-            newMembers: { thisWeek: 0, priorWeek: 0 },
-          });
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.attentionLoadError.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to load attention items right now.',
+          );
         },
       });
+  }
+
+  protected retryNeedsAttention(): void {
+    this.loadNeedsAttention();
   }
 
   private getTimeAgo(dateString: string): string {

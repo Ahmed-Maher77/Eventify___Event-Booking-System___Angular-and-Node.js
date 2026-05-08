@@ -1,10 +1,13 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { Button } from '../../shared/button/button';
 import { AuthService } from '../../services/auth.service';
+import { BookingService } from '../../services/booking.service';
+import { EventReviewService } from '../../services/event-review.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { ToastService } from '../../services/toast.service';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
@@ -19,11 +22,14 @@ import { resolveAvatarUrl } from '../../utils/avatar-url';
     '../../../sass/components/profile-page.scss',
   ],
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   protected readonly authService = inject(AuthService);
+  private readonly bookingService = inject(BookingService);
+  private readonly eventReviewService = inject(EventReviewService);
   private readonly favoriteService = inject(FavoriteService);
   private readonly toast = inject(ToastService);
+  private readonly subscriptions = new Subscription();
   private readonly initialProfileFormValue = {
     fullName: this.authService.userData?.name ?? 'Eventify User',
     email: this.authService.userData?.email ?? 'user@eventify.app',
@@ -58,16 +64,19 @@ export class ProfilePage implements OnInit {
   });
 
   protected readonly favoriteCount = signal(0);
+  protected readonly bookingCount = signal(0);
+  protected readonly reviewCount = signal(0);
   protected readonly deleteAccountConfirmOpen = signal(false);
   protected readonly deleteAccountBusy = signal(false);
+  protected readonly updateAvatarBusy = signal(false);
   protected readonly saveProfileBusy = signal(false);
   protected readonly updatePasswordBusy = signal(false);
 
   protected get quickStats(): { label: string; value: string; tone: 'gold' | 'slate' | 'mint' }[] {
     return [
-      { label: 'Bookings', value: '12', tone: 'gold' },
+      { label: 'Bookings', value: String(this.bookingCount()).padStart(2, '0'), tone: 'gold' },
       { label: 'Favorites', value: String(this.favoriteCount()).padStart(2, '0'), tone: 'slate' },
-      { label: 'Reviews', value: '05', tone: 'mint' },
+      { label: 'Reviews', value: String(this.reviewCount()).padStart(2, '0'), tone: 'mint' },
     ];
   }
 
@@ -118,17 +127,41 @@ export class ProfilePage implements OnInit {
   ngOnInit(): void {
     this.applyProfileEditMode(false);
     if (!this.authService.isLoggedIn()) {
+      this.bookingCount.set(0);
       this.favoriteCount.set(0);
+      this.reviewCount.set(0);
       return;
     }
-    this.favoriteService.getFavorites().subscribe({
-      next: (response) => {
-        this.favoriteCount.set(response.data?.totalFavorites ?? 0);
-      },
-      error: () => {
-        this.favoriteCount.set(0);
-      },
-    });
+    this.subscriptions.add(
+      this.favoriteService.totalFavorites$.subscribe((count) => {
+        this.favoriteCount.set(count);
+      }),
+    );
+    this.subscriptions.add(
+      this.favoriteService.getFavorites().subscribe({
+        next: (response) => {
+          this.favoriteCount.set(response.data?.totalFavorites ?? 0);
+        },
+        error: () => {
+          this.favoriteCount.set(0);
+        },
+      }),
+    );
+    this.subscriptions.add(
+      this.bookingService.getUserBookingsSummary().subscribe({
+        next: (response) => {
+          this.bookingCount.set(response.data?.pagination?.totalBookings ?? 0);
+        },
+        error: () => {
+          this.bookingCount.set(0);
+        },
+      }),
+    );
+    void this.refreshReviewCount();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   protected togglePasswordVisibility(field: 'current' | 'new' | 'confirm'): void {
@@ -276,6 +309,51 @@ export class ProfilePage implements OnInit {
     this.authService.logout();
   }
 
+  protected onAvatarFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    const file = target?.files?.[0] ?? null;
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
+    if (!allowedTypes.has(file.type)) {
+      this.toast.showError('Please select a JPG, PNG, or WEBP image.');
+      if (target) {
+        target.value = '';
+      }
+      return;
+    }
+
+    this.updateAvatarBusy.set(true);
+    const payload = new FormData();
+    payload.append('name', this.profileForm.controls.fullName.value?.trim() || this.authService.userData?.name || 'Eventify User');
+    payload.append('image', file);
+
+    this.authService
+      .updateMyProfile(payload)
+      .pipe(finalize(() => this.updateAvatarBusy.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.toast.showSuccess(res.message ?? 'Profile image updated successfully.');
+          if (target) {
+            target.value = '';
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.toast.showError(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to update profile image right now.',
+          );
+          if (target) {
+            target.value = '';
+          }
+        },
+      });
+  }
+
   protected deleteAccount(): void {
     this.deleteAccountConfirmOpen.set(true);
   }
@@ -316,5 +394,52 @@ export class ProfilePage implements OnInit {
       return;
     }
     this.profileForm.disable({ emitEvent: false });
+  }
+
+  private async refreshReviewCount(): Promise<void> {
+    try {
+      const eventIds = new Set<string>();
+      let page = 1;
+      let totalPages = 1;
+      const limit = 100;
+
+      do {
+        const response = await firstValueFrom(this.bookingService.getUserBookings({ page, limit }));
+        const data = response.data;
+        const bookings = data?.bookings ?? [];
+        const pagination = data?.pagination;
+        totalPages = Math.max(1, pagination?.totalPages ?? 1);
+
+        for (const booking of bookings) {
+          const eventId = booking.eventId;
+          const id = typeof eventId === 'string' ? eventId : eventId?._id;
+          if (id) {
+            eventIds.add(id);
+          }
+        }
+
+        page += 1;
+      } while (page <= totalPages);
+
+      if (!eventIds.size) {
+        this.reviewCount.set(0);
+        return;
+      }
+
+      const reviewChecks = await Promise.all(
+        [...eventIds].map(async (eventId) => {
+          try {
+            const status = await firstValueFrom(this.eventReviewService.getReviewStatus(eventId));
+            return !!status.data?.hasReviewed;
+          } catch {
+            return false;
+          }
+        }),
+      );
+
+      this.reviewCount.set(reviewChecks.filter(Boolean).length);
+    } catch {
+      this.reviewCount.set(0);
+    }
   }
 }

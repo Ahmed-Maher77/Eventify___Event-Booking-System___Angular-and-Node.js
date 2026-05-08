@@ -125,6 +125,11 @@
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="28" label="Loading attention items" />
       </div>
+    } @else if (attentionLoadError(); as attentionError) {
+      <div class="admin-page__status-wrap">
+        <p class="admin-page__status admin-page__status--error">{{ attentionError }}</p>
+        <button type="button" class="admin-page__retry" (click)="retryNeedsAttention()">Try again</button>
+      </div>
     } @else {
       <ul class="admin-page__alert-list">
         @for (item of attentionItems(); track item.actionLink) {

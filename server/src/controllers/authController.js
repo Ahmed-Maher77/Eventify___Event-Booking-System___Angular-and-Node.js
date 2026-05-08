@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import { generateToken } from "../utils/jwtUtils.js";
 import AppError from "../middlewares/AppError.js";
-import { uploadImageBuffer } from "../utils/cloudinaryUpload.js";
+import { deleteCloudinaryImage, uploadImageBuffer } from "../utils/cloudinaryUpload.js";
 import { buildFallbackAvatarUrl } from "../utils/avatarUtils.js";
 import {
     getAuthCookieClearOptions,
@@ -93,6 +93,7 @@ export const updateMyProfile = async (req, res) => {
         throw AppError.notFound("User account not found.");
     }
 
+    const hasName = Object.prototype.hasOwnProperty.call(req.body ?? {}, "name");
     const name = typeof req.body?.name === "string" ? req.body.name.trim() : "";
     const phone = typeof req.body?.phone === "string" ? req.body.phone.trim() : "";
     const location = typeof req.body?.location === "string" ? req.body.location.trim() : "";
@@ -109,10 +110,10 @@ export const updateMyProfile = async (req, res) => {
         "bookingRemindersEnabled",
     );
 
-    if (!name) {
+    if (hasName && !name) {
         throw AppError.badRequest("Name is required.");
     }
-    if (name.length < 2 || name.length > 50) {
+    if (hasName && (name.length < 2 || name.length > 50)) {
         throw AppError.badRequest("Name must be between 2 and 50 characters.");
     }
     if (phone.length > 40) {
@@ -140,9 +141,15 @@ export const updateMyProfile = async (req, res) => {
         throw AppError.badRequest("bookingRemindersEnabled must be a boolean.");
     }
 
-    user.name = name;
-    user.phone = phone;
-    user.location = location;
+    if (hasName) {
+        user.name = name;
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body ?? {}, "phone")) {
+        user.phone = phone;
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body ?? {}, "location")) {
+        user.location = location;
+    }
     if (hasEmailNotificationsEnabled) {
         user.emailNotificationsEnabled = req.body.emailNotificationsEnabled;
     }
@@ -151,6 +158,17 @@ export const updateMyProfile = async (req, res) => {
     }
     if (hasBookingRemindersEnabled) {
         user.bookingRemindersEnabled = req.body.bookingRemindersEnabled;
+    }
+    if (req.file) {
+        const uploadedImage = await uploadImageBuffer(req.file.buffer, {
+            folder: "eventify/users",
+        });
+        const previousPublicId = user.picturePublicId;
+        user.pictureUrl = uploadedImage.secure_url;
+        user.picturePublicId = uploadedImage.public_id;
+        if (previousPublicId && previousPublicId !== user.picturePublicId) {
+            await deleteCloudinaryImage(previousPublicId);
+        }
     }
     // Avoid re-validating unchanged password when saving profile/preferences.
     await user.save({ validateModifiedOnly: true });

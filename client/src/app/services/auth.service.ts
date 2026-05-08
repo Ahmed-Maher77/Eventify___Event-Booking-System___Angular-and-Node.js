@@ -62,7 +62,7 @@ export class AuthService {
     emailNotificationsEnabled?: boolean;
     marketingUpdatesEnabled?: boolean;
     bookingRemindersEnabled?: boolean;
-  }): Observable<{ success: boolean; message?: string; data?: UserData }> {
+  } | FormData): Observable<{ success: boolean; message?: string; data?: UserData }> {
     return this.http
       .patch<{ success: boolean; message?: string; data?: UserData }>(`${this.authApiUrl}/me`, payload, { withCredentials: true })
       .pipe(tap((response) => this.updateStoredUserData(response.data)));

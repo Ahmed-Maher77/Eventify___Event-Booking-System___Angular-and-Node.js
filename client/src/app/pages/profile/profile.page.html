@@ -14,8 +14,32 @@
           <div class="profile-page__avatar">
             <img
               class="profile-page__avatar-image"
+              [class.is-loading]="updateAvatarBusy()"
               [src]="getProfileImageUrl()"
               [alt]="(profileForm.controls.fullName.value || 'User') + ' profile picture'"
+            />
+            @if (updateAvatarBusy()) {
+              <span class="profile-page__avatar-loader" aria-label="Uploading profile image" role="status">
+                <span class="profile-page__avatar-loader-spinner" aria-hidden="true"></span>
+              </span>
+            }
+            <label
+              class="profile-page__avatar-edit-btn"
+              for="profile-avatar-file"
+              [class.is-disabled]="updateAvatarBusy()"
+              [attr.aria-disabled]="updateAvatarBusy()"
+              [attr.title]="updateAvatarBusy() ? 'Uploading...' : 'Change profile image'"
+            >
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+              <span class="visually-hidden">Change profile image</span>
+            </label>
+            <input
+              id="profile-avatar-file"
+              type="file"
+              class="profile-page__avatar-file-input"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              [disabled]="updateAvatarBusy()"
+              (change)="onAvatarFileSelected($event)"
             />
           </div>
           <h2 class="profile-page__name">{{ profileForm.controls.fullName.value }}</h2>
