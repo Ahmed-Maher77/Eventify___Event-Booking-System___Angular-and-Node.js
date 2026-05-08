@@ -280,6 +280,30 @@ const validateCreateEventReview = [
     handleValidationErrors,
 ];
 
+const validateUpdateEventReview = [
+    body("rating")
+        .optional()
+        .isInt({ min: 1, max: 5 })
+        .withMessage("Rating must be between 1 and 5"),
+
+    body("message")
+        .optional()
+        .trim()
+        .isLength({ max: 2000 })
+        .withMessage("Message must be at most 2000 characters"),
+
+    (req, res, next) => {
+        const hasRating = Object.prototype.hasOwnProperty.call(req.body, "rating");
+        const hasMessage = Object.prototype.hasOwnProperty.call(req.body, "message");
+        if (!hasRating && !hasMessage) {
+            throw AppError.badRequest("Provide rating or message to update the review.");
+        }
+        next();
+    },
+
+    handleValidationErrors,
+];
+
 const validateReviewVote = [
     body("value")
         .notEmpty()
@@ -668,6 +692,7 @@ export {
     validateBooking,
     validateBookingQuantityUpdate,
     validateCreateEventReview,
+    validateUpdateEventReview,
     validateReviewVote,
     validateContactMessage,
     validateNewsletterSubscription,
