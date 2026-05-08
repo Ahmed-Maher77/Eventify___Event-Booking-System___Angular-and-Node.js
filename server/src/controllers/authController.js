@@ -81,3 +81,151 @@ export const logout = async (req, res) => {
         message: "Logout successful"
     });
 };
+
+export const updateMyProfile = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        throw AppError.unauthorized("Authentication required");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw AppError.notFound("User account not found.");
+    }
+
+    const name = typeof req.body?.name === "string" ? req.body.name.trim() : "";
+    const phone = typeof req.body?.phone === "string" ? req.body.phone.trim() : "";
+    const location = typeof req.body?.location === "string" ? req.body.location.trim() : "";
+    const hasEmailNotificationsEnabled = Object.prototype.hasOwnProperty.call(
+        req.body ?? {},
+        "emailNotificationsEnabled",
+    );
+    const hasMarketingUpdatesEnabled = Object.prototype.hasOwnProperty.call(
+        req.body ?? {},
+        "marketingUpdatesEnabled",
+    );
+    const hasBookingRemindersEnabled = Object.prototype.hasOwnProperty.call(
+        req.body ?? {},
+        "bookingRemindersEnabled",
+    );
+
+    if (!name) {
+        throw AppError.badRequest("Name is required.");
+    }
+    if (name.length < 2 || name.length > 50) {
+        throw AppError.badRequest("Name must be between 2 and 50 characters.");
+    }
+    if (phone.length > 40) {
+        throw AppError.badRequest("Phone must be at most 40 characters.");
+    }
+    if (location.length > 120) {
+        throw AppError.badRequest("Location must be at most 120 characters.");
+    }
+    if (
+        hasEmailNotificationsEnabled &&
+        typeof req.body.emailNotificationsEnabled !== "boolean"
+    ) {
+        throw AppError.badRequest("emailNotificationsEnabled must be a boolean.");
+    }
+    if (
+        hasMarketingUpdatesEnabled &&
+        typeof req.body.marketingUpdatesEnabled !== "boolean"
+    ) {
+        throw AppError.badRequest("marketingUpdatesEnabled must be a boolean.");
+    }
+    if (
+        hasBookingRemindersEnabled &&
+        typeof req.body.bookingRemindersEnabled !== "boolean"
+    ) {
+        throw AppError.badRequest("bookingRemindersEnabled must be a boolean.");
+    }
+
+    user.name = name;
+    user.phone = phone;
+    user.location = location;
+    if (hasEmailNotificationsEnabled) {
+        user.emailNotificationsEnabled = req.body.emailNotificationsEnabled;
+    }
+    if (hasMarketingUpdatesEnabled) {
+        user.marketingUpdatesEnabled = req.body.marketingUpdatesEnabled;
+    }
+    if (hasBookingRemindersEnabled) {
+        user.bookingRemindersEnabled = req.body.bookingRemindersEnabled;
+    }
+    // Avoid re-validating unchanged password when saving profile/preferences.
+    await user.save({ validateModifiedOnly: true });
+
+    res.status(200).json({
+        success: true,
+        message: "Profile updated successfully.",
+        data: {
+            id: String(user._id),
+            role: user.role,
+            name: user.name,
+            email: user.email,
+            pictureUrl: user.pictureUrl,
+            phone: user.phone || "",
+            location: user.location || "",
+            emailNotificationsEnabled: user.emailNotificationsEnabled,
+            marketingUpdatesEnabled: user.marketingUpdatesEnabled,
+            bookingRemindersEnabled: user.bookingRemindersEnabled,
+        },
+    });
+};
+
+export const updateMyPassword = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        throw AppError.unauthorized("Authentication required");
+    }
+
+    const currentPassword = typeof req.body?.currentPassword === "string" ? req.body.currentPassword : "";
+    const newPassword = typeof req.body?.newPassword === "string" ? req.body.newPassword : "";
+    const confirmPassword = typeof req.body?.confirmPassword === "string" ? req.body.confirmPassword : "";
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        throw AppError.badRequest("Current password, new password, and confirm password are required.");
+    }
+    if (newPassword !== confirmPassword) {
+        throw AppError.badRequest("New password and confirm password do not match.");
+    }
+    if (newPassword.length < 6) {
+        throw AppError.badRequest("New password must be at least 6 characters.");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw AppError.notFound("User account not found.");
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+        throw AppError.badRequest("Current password is incorrect.");
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Password updated successfully.",
+    });
+};
+
+export const deleteMyAccount = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        throw AppError.unauthorized("Authentication required");
+    }
+
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+        throw AppError.notFound("User account not found.");
+    }
+
+    res.clearCookie(getAuthCookieName(), getAuthCookieClearOptions());
+    res.status(200).json({
+        success: true,
+        message: "Your account was deleted successfully.",
+    });
+};

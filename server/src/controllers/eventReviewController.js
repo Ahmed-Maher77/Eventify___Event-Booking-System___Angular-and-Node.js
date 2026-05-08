@@ -86,6 +86,7 @@ async function buildReviewListPayload(reviews, uid) {
         : "";
     return {
       _id: r._id,
+      authorId: u && typeof u === "object" && u._id ? String(u._id) : undefined,
       rating: r.rating,
       message: r.message,
       createdAt: r.createdAt,
@@ -96,6 +97,33 @@ async function buildReviewListPayload(reviews, uid) {
       userVote: uid ? (userVoteByReview.get(idStr) ?? null) : null,
     };
   });
+}
+
+function buildReviewSummaryPayload(reviews) {
+  const totalReviews = reviews.length;
+  const countsByRating = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  let totalRating = 0;
+
+  for (const r of reviews) {
+    const rating = Number(r.rating);
+    if (rating >= 1 && rating <= 5) {
+      countsByRating[rating] += 1;
+      totalRating += rating;
+    }
+  }
+
+  const averageRating = totalReviews ? Math.round((totalRating / totalReviews) * 10) / 10 : 0;
+  const distribution = [5, 4, 3, 2, 1].map((rating) => {
+    const count = countsByRating[rating] ?? 0;
+    const pct = totalReviews ? Math.round((count / totalReviews) * 100) : 0;
+    return { level: rating, count, pct };
+  });
+
+  return {
+    averageRating,
+    totalReviews,
+    distribution,
+  };
 }
 
 export const getEventReviews = async (req, res, next) => {
@@ -115,11 +143,12 @@ export const getEventReviews = async (req, res, next) => {
 
     const uid = userObjectId(req);
     const list = await buildReviewListPayload(reviews, uid);
+    const summary = buildReviewSummaryPayload(reviews);
 
     res.status(200).json({
       success: true,
       message: "Reviews retrieved successfully.",
-      data: { reviews: list, totalReviews: list.length },
+      data: { reviews: list, totalReviews: list.length, summary },
     });
   } catch (error) {
     if (error instanceof AppError) return next(error);
@@ -231,6 +260,7 @@ export const createEventReview = async (req, res, next) => {
       message: "Thank you for your review.",
       data: {
         _id: review._id,
+        authorId: String(uid),
         rating: review.rating,
         message: review.message,
         createdAt: review.createdAt,
@@ -247,6 +277,137 @@ export const createEventReview = async (req, res, next) => {
       return next(AppError.badRequest("You have already reviewed this event."));
     }
     next(AppError.internalError("An error occurred when submitting your review."));
+  }
+};
+
+export const updateEventReview = async (req, res, next) => {
+  try {
+    const { id: eventId, reviewId } = req.params;
+    const { rating, message } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      throw AppError.badRequest("Invalid event id.");
+    }
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      throw AppError.badRequest("Invalid review id.");
+    }
+
+    const uid = userObjectId(req);
+    if (!uid) throw AppError.unauthorized("You must be logged in to edit your review.");
+
+    const review = await EventReview.findOne({
+      _id: reviewId,
+      eventId,
+    }).populate("userId", "name pictureUrl");
+    if (!review) throw AppError.notFound("Review not found.");
+    if (String(review.userId?._id ?? review.userId) !== String(uid)) {
+      throw AppError.forbidden("You can edit only your own review.");
+    }
+
+    if (rating != null) {
+      review.rating = Number(rating);
+    }
+    if (typeof message === "string") {
+      review.message = message.trim();
+    }
+    await review.save();
+
+    const [helpfulUp, helpfulDown, current] = await Promise.all([
+      EventReviewVote.countDocuments({ reviewId: review._id, value: "up" }),
+      EventReviewVote.countDocuments({ reviewId: review._id, value: "down" }),
+      EventReviewVote.findOne({ reviewId: review._id, userId: uid }).select("value").lean(),
+    ]);
+
+    const u = review.userId;
+    const name = u && typeof u === "object" && u.name ? u.name : "You";
+    const pictureUrl =
+      u && typeof u === "object" && typeof u.pictureUrl === "string"
+        ? u.pictureUrl.trim()
+        : "";
+
+    res.status(200).json({
+      success: true,
+      message: "Review updated successfully.",
+      data: {
+        _id: review._id,
+        authorId: String(uid),
+        rating: review.rating,
+        message: review.message,
+        createdAt: review.createdAt,
+        authorName: name,
+        authorPictureUrl: pictureUrl,
+        helpfulUp,
+        helpfulDown,
+        userVote: current?.value ?? null,
+      },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(AppError.internalError("An error occurred when updating your review."));
+  }
+};
+
+export const deleteEventReview = async (req, res, next) => {
+  try {
+    const { id: eventId, reviewId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      throw AppError.badRequest("Invalid event id.");
+    }
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      throw AppError.badRequest("Invalid review id.");
+    }
+
+    const uid = userObjectId(req);
+    if (!uid) throw AppError.unauthorized("You must be logged in to delete your review.");
+
+    const review = await EventReview.findOne({ _id: reviewId, eventId }).select("_id userId");
+    if (!review) throw AppError.notFound("Review not found.");
+    if (String(review.userId) !== String(uid)) {
+      throw AppError.forbidden("You can delete only your own review.");
+    }
+
+    await Promise.all([
+      EventReviewVote.deleteMany({ reviewId: review._id }),
+      review.deleteOne(),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Review deleted successfully.",
+      data: { reviewId: String(review._id) },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(AppError.internalError("An error occurred when deleting your review."));
+  }
+};
+
+export const adminDeleteEventReview = async (req, res, next) => {
+  try {
+    const { id: eventId, reviewId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      throw AppError.badRequest("Invalid event id.");
+    }
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      throw AppError.badRequest("Invalid review id.");
+    }
+
+    const review = await EventReview.findOne({ _id: reviewId, eventId }).select("_id");
+    if (!review) throw AppError.notFound("Review not found.");
+
+    await Promise.all([
+      EventReviewVote.deleteMany({ reviewId: review._id }),
+      review.deleteOne(),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Review deleted by admin successfully.",
+      data: { reviewId: String(review._id) },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(AppError.internalError("An error occurred when deleting review as admin."));
   }
 };
 
@@ -268,8 +429,12 @@ export const voteOnEventReview = async (req, res, next) => {
     const review = await EventReview.findOne({
       _id: reviewId,
       eventId,
-    }).select("_id");
+    }).select("_id userId");
     if (!review) throw AppError.notFound("Review not found.");
+
+    if (String(review.userId) === String(uid)) {
+      throw AppError.forbidden("You cannot vote on your own review.");
+    }
 
     const existing = await EventReviewVote.findOne({
       reviewId: review._id,

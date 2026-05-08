@@ -33,44 +33,6 @@ import { resolveAvatarUrl } from '../../utils/avatar-url';
 export class EventDetailsPage implements OnInit {
   private static readonly IMAGE_FALLBACK = '/images/event-placeholder.svg';
 
-  /** Static rows for layout preview (not persisted). */
-  private static readonly SAMPLE_REVIEWS: EventReviewItem[] = [
-    {
-      _id: 'sample-review-1',
-      rating: 5,
-      message:
-        'Incredible atmosphere and smooth check-in. Would absolutely book again. The staff was attentive and the sound quality exceeded expectations for a venue this size.',
-      createdAt: '2026-01-12T10:30:00.000Z',
-      authorName: 'Jordan P.',
-      authorPictureUrl: '',
-      helpfulUp: 42,
-      helpfulDown: 1,
-      userVote: null,
-    },
-    {
-      _id: 'sample-review-2',
-      rating: 4,
-      message: 'Great value for the ticket price. Venue was easy to find.',
-      createdAt: '2026-01-08T16:00:00.000Z',
-      authorName: 'Samira K.',
-      authorPictureUrl: '',
-      helpfulUp: 18,
-      helpfulDown: 3,
-      userVote: null,
-    },
-    {
-      _id: 'sample-review-3',
-      rating: 5,
-      message: '',
-      createdAt: '2026-01-03T09:15:00.000Z',
-      authorName: 'Alex M.',
-      authorPictureUrl: '',
-      helpfulUp: 6,
-      helpfulDown: 0,
-      userVote: null,
-    },
-  ];
-
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly eventService = inject(EventService);
@@ -92,18 +54,28 @@ export class EventDetailsPage implements OnInit {
   protected readonly activeBookingId = signal<string | null>(null);
 
   protected readonly reviews = signal<EventReviewItem[]>([]);
+  protected readonly reviewSummary = signal<{
+    averageRating: number;
+    totalReviews: number;
+    distribution: Array<{ level: number; count: number; pct: number }>;
+  } | null>(null);
   protected readonly canReview = signal(false);
   protected readonly hasReviewed = signal(false);
   protected readonly reviewBlockReason = signal<string | null>(null);
+  protected readonly ownReviewId = signal<string | null>(null);
   protected readonly reviewSubmitting = signal(false);
   protected readonly draftRating = signal(0);
   protected readonly draftMessage = signal('');
 
-  protected readonly reviewSearchDraft = signal('');
-  protected readonly reviewSearchApplied = signal('');
+  protected readonly reviewSearchTerm = signal('');
   protected readonly ratingFilter = signal<'all' | '1' | '2' | '3' | '4' | '5'>('all');
   protected readonly expandedReviewIds = signal<Record<string, boolean>>({});
   protected readonly voteBusy = signal<Record<string, boolean>>({});
+  protected readonly reviewActionBusy = signal<Record<string, boolean>>({});
+  protected readonly editingReviewId = signal<string | null>(null);
+  protected readonly editRating = signal(0);
+  protected readonly editMessage = signal('');
+  protected readonly pendingDeleteReview = signal<EventReviewItem | null>(null);
 
   protected readonly ratingFilterOptions: CustomNativeSelectOption[] = [
     { value: 'all', label: 'All ratings' },
@@ -114,16 +86,10 @@ export class EventDetailsPage implements OnInit {
     { value: '1', label: '1 star' },
   ];
 
-  /** Live reviews first, then sample placeholders. */
-  protected readonly mergedReviews = computed(() => [
-    ...this.reviews(),
-    ...EventDetailsPage.SAMPLE_REVIEWS,
-  ]);
-
   protected readonly filteredReviews = computed(() => {
-    const q = this.reviewSearchApplied().trim().toLowerCase();
+    const q = this.reviewSearchTerm().trim().toLowerCase();
     const f = this.ratingFilter();
-    return this.mergedReviews().filter((r) => {
+    return this.reviews().filter((r) => {
       if (f !== 'all' && r.rating !== Number(f)) return false;
       if (!q) return true;
       const msg = (r.message ?? '').toLowerCase();
@@ -133,14 +99,22 @@ export class EventDetailsPage implements OnInit {
   });
 
   protected readonly avgRatingDisplay = computed(() => {
-    const list = this.mergedReviews();
+    const summary = this.reviewSummary();
+    if (summary) {
+      return summary.totalReviews ? summary.averageRating : null;
+    }
+    const list = this.reviews();
     if (!list.length) return null;
     const sum = list.reduce((a, r) => a + r.rating, 0);
     return Math.round((sum / list.length) * 10) / 10;
   });
 
   protected readonly ratingDistribution = computed(() => {
-    const list = this.mergedReviews();
+    const summary = this.reviewSummary();
+    if (summary?.distribution?.length) {
+      return summary.distribution;
+    }
+    const list = this.reviews();
     const total = list.length;
     const rows: { level: number; pct: number; count: number }[] = [];
     for (let level = 5; level >= 1; level--) {
@@ -150,10 +124,6 @@ export class EventDetailsPage implements OnInit {
     }
     return rows;
   });
-
-  protected isSampleReview(r: EventReviewItem): boolean {
-    return r._id.startsWith('sample-review-');
-  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')?.trim();
@@ -246,16 +216,17 @@ export class EventDetailsPage implements OnInit {
     this.draftRating.set(n);
   }
 
-  protected applyReviewSearch(): void {
-    this.reviewSearchApplied.set(this.reviewSearchDraft().trim());
+  protected setReviewSearch(value: string): void {
+    this.reviewSearchTerm.set(value ?? '');
+  }
+  protected isOwnReview(r: EventReviewItem): boolean {
+    const currentUserId = this.auth.userData?.id;
+    if (currentUserId && r.authorId && String(currentUserId) === String(r.authorId)) {
+      return true;
+    }
+    return !!this.ownReviewId() && this.ownReviewId() === r._id;
   }
 
-  protected onReviewSearchKeydown(ev: KeyboardEvent): void {
-    if (ev.key === 'Enter') {
-      ev.preventDefault();
-      this.applyReviewSearch();
-    }
-  }
 
   protected setRatingFilter(raw: string): void {
     if (raw === 'all' || raw === '1' || raw === '2' || raw === '3' || raw === '4' || raw === '5') {
@@ -331,11 +302,14 @@ export class EventDetailsPage implements OnInit {
   }
 
   protected voteOnReview(r: EventReviewItem, value: ReviewVoteValue): void {
-    if (this.isSampleReview(r)) return;
     const eventId = this.event()?._id;
     if (!eventId) return;
     if (!this.auth.isLoggedIn()) {
-      void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      this.toast.showError('Please login or register to like/dislike reviews.');
+      return;
+    }
+    if (this.isOwnReview(r)) {
+      this.toast.showError('You cannot like or dislike your own review.');
       return;
     }
     if (this.voteBusy()[r._id]) return;
@@ -375,6 +349,114 @@ export class EventDetailsPage implements OnInit {
       });
   }
 
+  protected startEditReview(r: EventReviewItem): void {
+    if (!this.isOwnReview(r) || this.reviewActionBusy()[r._id]) return;
+    this.editingReviewId.set(r._id);
+    this.editRating.set(Math.max(1, Math.min(5, Number(r.rating) || 1)));
+    this.editMessage.set(r.message ?? '');
+  }
+
+  protected cancelEditReview(): void {
+    this.editingReviewId.set(null);
+    this.editRating.set(0);
+    this.editMessage.set('');
+  }
+
+  protected setEditRating(n: number): void {
+    this.editRating.set(n);
+  }
+
+  protected saveEditedReview(r: EventReviewItem): void {
+    const eventId = this.event()?._id;
+    if (!eventId || !this.isOwnReview(r)) return;
+    const rating = this.editRating();
+    if (rating < 1 || rating > 5) {
+      this.toast.showError('Please choose a rating from 1 to 5 hearts.');
+      return;
+    }
+    this.reviewActionBusy.update((m) => ({ ...m, [r._id]: true }));
+    this.reviewsApi
+      .updateReview(eventId, r._id, { rating, message: this.editMessage().trim() })
+      .pipe(
+        finalize(() => {
+          this.reviewActionBusy.update((m) => {
+            const next = { ...m };
+            delete next[r._id];
+            return next;
+          });
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          const updated = res.data;
+          this.reviews.update((list) =>
+            list.map((row) => (row._id === r._id ? { ...row, ...updated } : row)),
+          );
+          this.reviewSummary.set(this.buildReviewSummaryFromReviews(this.reviews()));
+          this.cancelEditReview();
+          this.toast.showSuccess(res.message ?? 'Review updated.');
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.toast.showError(typeof msg === 'string' ? msg : 'Could not update your review.');
+        },
+      });
+  }
+
+  protected deleteOwnReview(r: EventReviewItem): void {
+    if (!this.isOwnReview(r) || this.reviewActionBusy()[r._id]) return;
+    this.pendingDeleteReview.set(r);
+  }
+
+  protected closeDeleteReviewModal(): void {
+    const pending = this.pendingDeleteReview();
+    if (pending && this.reviewActionBusy()[pending._id]) return;
+    this.pendingDeleteReview.set(null);
+  }
+
+  protected confirmDeleteReview(): void {
+    const pending = this.pendingDeleteReview();
+    if (!pending) return;
+    this.executeDeleteOwnReview(pending);
+  }
+
+  private executeDeleteOwnReview(r: EventReviewItem): void {
+    const eventId = this.event()?._id;
+    if (!eventId || !this.isOwnReview(r) || this.reviewActionBusy()[r._id]) return;
+
+    this.reviewActionBusy.update((m) => ({ ...m, [r._id]: true }));
+    this.reviewsApi
+      .deleteReview(eventId, r._id)
+      .pipe(
+        finalize(() => {
+          this.reviewActionBusy.update((m) => {
+            const next = { ...m };
+            delete next[r._id];
+            return next;
+          });
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          this.reviews.update((list) => list.filter((row) => row._id !== r._id));
+          this.reviewSummary.set(this.buildReviewSummaryFromReviews(this.reviews()));
+          this.hasReviewed.set(false);
+          this.canReview.set(true);
+          this.reviewBlockReason.set(null);
+          this.ownReviewId.set(null);
+          if (this.editingReviewId() === r._id) {
+            this.cancelEditReview();
+          }
+          this.pendingDeleteReview.set(null);
+          this.toast.showSuccess(res.message ?? 'Review deleted.');
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.toast.showError(typeof msg === 'string' ? msg : 'Could not delete your review.');
+        },
+      });
+  }
+
   protected submitReview(): void {
     const ev = this.event();
     const id = ev?._id;
@@ -393,6 +475,7 @@ export class EventDetailsPage implements OnInit {
           this.reviews.update((list) => [
             {
               _id: row._id,
+              authorId: row.authorId,
               rating: row.rating,
               message: row.message ?? '',
               createdAt: row.createdAt ?? new Date().toISOString(),
@@ -404,8 +487,10 @@ export class EventDetailsPage implements OnInit {
             },
             ...list,
           ]);
+          this.reviewSummary.set(this.buildReviewSummaryFromReviews(this.reviews()));
           this.hasReviewed.set(true);
           this.canReview.set(false);
+          this.ownReviewId.set(row._id ?? null);
           this.draftRating.set(0);
           this.draftMessage.set('');
           this.reviewBlockReason.set('ALREADY_REVIEWED');
@@ -501,8 +586,15 @@ export class EventDetailsPage implements OnInit {
 
   private loadSecondary(eventId: string): void {
     this.reviewsApi.getReviews(eventId).subscribe({
-      next: (r) => this.reviews.set(r.data?.reviews ?? []),
-      error: () => this.reviews.set([]),
+      next: (r) => {
+        const reviews = r.data?.reviews ?? [];
+        this.reviews.set(reviews);
+        this.reviewSummary.set(r.data?.summary ?? this.buildReviewSummaryFromReviews(reviews));
+      },
+      error: () => {
+        this.reviews.set([]);
+        this.reviewSummary.set(this.buildReviewSummaryFromReviews([]));
+      },
     });
 
     if (!this.auth.isLoggedIn()) {
@@ -511,6 +603,7 @@ export class EventDetailsPage implements OnInit {
       this.canReview.set(false);
       this.hasReviewed.set(false);
       this.reviewBlockReason.set('NOT_AUTHENTICATED');
+      this.ownReviewId.set(null);
       return;
     }
 
@@ -528,6 +621,7 @@ export class EventDetailsPage implements OnInit {
               canReview: false,
               hasReviewed: false,
               reason: null,
+              existingReview: null,
             },
           }),
         ),
@@ -539,12 +633,13 @@ export class EventDetailsPage implements OnInit {
       this.canReview.set(!!d?.canReview);
       this.hasReviewed.set(!!d?.hasReviewed);
       this.reviewBlockReason.set(d?.reason ?? null);
+      this.ownReviewId.set(d?.existingReview?._id ?? null);
     });
   }
 
   protected reviewHint(): string {
     if (this.hasReviewed()) return 'You have already shared a review for this event.';
-    if (!this.auth.isLoggedIn()) return 'Log in to save favorites and book tickets.';
+    if (!this.auth.isLoggedIn()) return 'Log in or register to interact with reviews.';
     const r = this.reviewBlockReason();
     switch (r) {
       case 'NO_CONFIRMED_BOOKING':
@@ -580,5 +675,29 @@ export class EventDetailsPage implements OnInit {
       return false;
     }
     return eventDate.getTime() <= Date.now();
+  }
+
+  private buildReviewSummaryFromReviews(reviews: EventReviewItem[]): {
+    averageRating: number;
+    totalReviews: number;
+    distribution: Array<{ level: number; count: number; pct: number }>;
+  } {
+    const totalReviews = reviews.length;
+    const countsByLevel: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let totalRating = 0;
+    for (const review of reviews) {
+      const rating = Number(review.rating);
+      if (rating >= 1 && rating <= 5) {
+        countsByLevel[rating] = (countsByLevel[rating] || 0) + 1;
+        totalRating += rating;
+      }
+    }
+    const averageRating = totalReviews ? Math.round((totalRating / totalReviews) * 10) / 10 : 0;
+    const distribution = [5, 4, 3, 2, 1].map((level) => {
+      const count = countsByLevel[level] || 0;
+      const pct = totalReviews ? Math.round((count / totalReviews) * 100) : 0;
+      return { level, count, pct };
+    });
+    return { averageRating, totalReviews, distribution };
   }
 }

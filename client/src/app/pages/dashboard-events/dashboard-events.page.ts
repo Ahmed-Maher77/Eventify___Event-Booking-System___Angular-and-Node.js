@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 import { AdminEntityPaginationComponent } from '../../shared/admin-entity-pagination/admin-entity-pagination.component';
 import { AdminEventFormModalComponent } from '../../shared/admin-event-form-modal/admin-event-form-modal.component';
 import { Button } from '../../shared/button/button';
@@ -22,6 +23,7 @@ import {
   EventSortOrder,
   EventStatusFilter,
 } from '../../services/event.service';
+import { EventReviewService } from '../../services/event-review.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
@@ -43,6 +45,7 @@ import { ToastService } from '../../services/toast.service';
 export class DashboardEventsPage implements OnInit, OnDestroy {
   private static readonly CATALOG_IMAGE_FALLBACK = '/images/event-placeholder.svg';
   private readonly eventService = inject(EventService);
+  private readonly eventReviewService = inject(EventReviewService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -98,6 +101,8 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
   protected readonly catalogTotalEvents = signal(0);
   protected readonly catalogPageSize = EventService.MAX_EVENTS_PER_PAGE;
   protected readonly catalogFiltersExpanded = signal(false);
+  protected readonly catalogReviewStats = signal<Record<string, { count: number; average: number | null }>>({});
+  protected readonly isLoadingCatalogReviewStats = signal(false);
   protected isAddModalOpen = false;
   protected readonly editingEventId = signal<string | null>(null);
   protected readonly eventPendingDelete = signal<EventApiItem | null>(null);
@@ -195,6 +200,38 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
 
   protected goToEventDetail(event: EventApiItem): void {
     void this.router.navigate(['/dashboard/events', event._id]);
+  }
+
+  protected ticketsSnapshot(event: EventApiItem): { available: number; total: number } | null {
+    if (event.capacity == null || event.availableSeats == null) {
+      return null;
+    }
+    const total = Number(event.capacity);
+    const available = Number(event.availableSeats);
+    if (!Number.isFinite(total) || total < 1 || !Number.isFinite(available) || available < 0) {
+      return null;
+    }
+    return { available, total };
+  }
+
+  protected bookedSeatsCount(event: EventApiItem): number | null {
+    const seats = this.ticketsSnapshot(event);
+    if (!seats) return null;
+    return Math.max(0, seats.total - seats.available);
+  }
+
+  protected reviewSummaryLabel(event: EventApiItem): string {
+    const stats = this.catalogReviewStats()[event._id];
+    if (this.isLoadingCatalogReviewStats() && !stats) {
+      return 'Loading...';
+    }
+    if (!stats || stats.count < 1) {
+      return '0';
+    }
+    if (stats.average == null) {
+      return `${stats.count}`;
+    }
+    return `${stats.count} (${stats.average.toFixed(1)}★)`;
   }
 
   protected openAddEventModal(): void {
@@ -340,14 +377,61 @@ export class DashboardEventsPage implements OnInit, OnDestroy {
           this.catalogTotalPages.set(totalPages);
           this.catalogTotalEvents.set(totalEvents);
           this.events.set(list);
+          this.loadCatalogReviewStats(list);
           this.isLoadingEvents.set(false);
         },
         error: () => {
           this.events.set([]);
+          this.catalogReviewStats.set({});
           this.catalogTotalPages.set(1);
           this.catalogTotalEvents.set(0);
           this.listErrorMessage = 'Unable to load event catalog at the moment.';
           this.isLoadingEvents.set(false);
+        },
+      });
+  }
+
+  private loadCatalogReviewStats(events: EventApiItem[]): void {
+    if (!events.length) {
+      this.catalogReviewStats.set({});
+      this.isLoadingCatalogReviewStats.set(false);
+      return;
+    }
+
+    this.isLoadingCatalogReviewStats.set(true);
+    const requests = events.map((event) =>
+      this.eventReviewService.getReviews(event._id).pipe(
+        map((res) => {
+          const summary = res.data?.summary;
+          const count = Number(summary?.totalReviews ?? res.data?.totalReviews ?? 0);
+          const averageRaw = Number(summary?.averageRating);
+          return {
+            eventId: event._id,
+            count: Number.isFinite(count) ? Math.max(0, count) : 0,
+            average:
+              Number.isFinite(averageRaw) && count > 0
+                ? Math.round(averageRaw * 10) / 10
+                : null,
+          };
+        }),
+      ),
+    );
+
+    forkJoin(requests)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoadingCatalogReviewStats.set(false)),
+      )
+      .subscribe({
+        next: (rows) => {
+          const next: Record<string, { count: number; average: number | null }> = {};
+          for (const row of rows) {
+            next[row.eventId] = { count: row.count, average: row.average };
+          }
+          this.catalogReviewStats.set(next);
+        },
+        error: () => {
+          this.catalogReviewStats.set({});
         },
       });
   }

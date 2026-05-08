@@ -8,8 +8,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { distinctUntilChanged, filter, map, throttleTime } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
@@ -38,6 +40,13 @@ export class Header implements AfterViewInit, OnDestroy {
   private headerContext: ReturnType<typeof setupHeaderAnimations> | null = null;
   private routeRefreshSub: Subscription | null = null;
   private bookingCountIntervalId: ReturnType<typeof setInterval> | null = null;
+  private bookingCountRequestInFlight = false;
+  private bookingCountLastRequestedAt = 0;
+  private bookingCountCooldownUntil = 0;
+  private bookingCount429Streak = 0;
+  private static readonly BOOKING_COUNT_MIN_INTERVAL_MS = 120000;
+  private static readonly BOOKING_COUNT_INTERVAL_MS = 120000;
+  private static readonly BOOKING_COUNT_ROUTER_THROTTLE_MS = 30000;
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly isMainHeaderNavOpen = signal(false);
   protected readonly bookingCount = signal(0);
@@ -76,9 +85,6 @@ export class Header implements AfterViewInit, OnDestroy {
 
   protected toggleProfileMenu(): void {
     this.isProfileMenuOpen.update((value) => !value);
-    if (this.isProfileMenuOpen()) {
-      this.refreshBookingCount();
-    }
   }
 
   protected closeProfileMenu(): void {
@@ -119,6 +125,10 @@ export class Header implements AfterViewInit, OnDestroy {
   protected logout(): void {
     this.authService.logout();
     this.bookingCount.set(0);
+    this.bookingCountRequestInFlight = false;
+    this.bookingCountLastRequestedAt = 0;
+    this.bookingCountCooldownUntil = 0;
+    this.bookingCount429Streak = 0;
     this.isProfileMenuOpen.set(false);
     this.closeNavCollapse();
   }
@@ -183,36 +193,95 @@ export class Header implements AfterViewInit, OnDestroy {
     document.body.style.overflow = this.isMainHeaderNavOpen() ? 'hidden' : '';
   }
 
-  private refreshBookingCount(): void {
+  private refreshBookingCount(force = false): void {
     if (!this.authService.isLoggedIn()) {
       this.bookingCount.set(0);
       return;
     }
 
+    const now = Date.now();
+    if (this.bookingCountRequestInFlight) {
+      return;
+    }
+    if (!force && now < this.bookingCountCooldownUntil) {
+      return;
+    }
+    if (
+      !force &&
+      now - this.bookingCountLastRequestedAt < Header.BOOKING_COUNT_MIN_INTERVAL_MS
+    ) {
+      return;
+    }
+
+    this.bookingCountRequestInFlight = true;
+    this.bookingCountLastRequestedAt = now;
     this.bookingService.getUserBookings({ page: 1, limit: 1, status: 'pending' }).subscribe({
       next: (response) => {
+        this.bookingCount429Streak = 0;
+        this.bookingCountCooldownUntil = 0;
         this.bookingCount.set(response.data?.pagination?.totalBookings ?? 0);
       },
-      error: () => {
+      error: (err: unknown) => {
+        const status = typeof err === 'object' && err && 'status' in err ? Number((err as { status?: number }).status) : 0;
+        if (status === 429) {
+          this.bookingCount429Streak = Math.min(this.bookingCount429Streak + 1, 5);
+          const retryAfterMs = this.readRetryAfterMs(err);
+          const exponentialMs = Math.min(300000, 30000 * Math.pow(2, this.bookingCount429Streak - 1));
+          const cooldownMs = Math.max(retryAfterMs, exponentialMs);
+          this.bookingCountCooldownUntil = Date.now() + cooldownMs;
+          this.bookingCountRequestInFlight = false;
+          return;
+        }
+        this.bookingCountRequestInFlight = false;
         this.bookingCount.set(0);
+      },
+      complete: () => {
+        this.bookingCountRequestInFlight = false;
       },
     });
   }
 
+  private readRetryAfterMs(err: unknown): number {
+    if (!(err instanceof HttpErrorResponse)) {
+      return 0;
+    }
+    const retryAfterRaw = err.headers?.get('Retry-After')?.trim();
+    if (!retryAfterRaw) {
+      return 0;
+    }
+    const asSeconds = Number(retryAfterRaw);
+    if (Number.isFinite(asSeconds) && asSeconds > 0) {
+      return Math.round(asSeconds * 1000);
+    }
+    const asDateMs = Date.parse(retryAfterRaw);
+    if (Number.isNaN(asDateMs)) {
+      return 0;
+    }
+    return Math.max(0, asDateMs - Date.now());
+  }
+
   private setupBookingCountAutoRefresh(): void {
     this.routeRefreshSub?.unsubscribe();
-    this.routeRefreshSub = this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
+    this.routeRefreshSub = this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        map((event) => event.urlAfterRedirects),
+        distinctUntilChanged(),
+        throttleTime(Header.BOOKING_COUNT_ROUTER_THROTTLE_MS, undefined, {
+          leading: true,
+          trailing: true,
+        }),
+      )
+      .subscribe(() => {
         this.refreshBookingCount();
-      }
-    });
+      });
 
     if (this.bookingCountIntervalId) {
       clearInterval(this.bookingCountIntervalId);
     }
     this.bookingCountIntervalId = setInterval(() => {
       this.refreshBookingCount();
-    }, 15000);
+    }, Header.BOOKING_COUNT_INTERVAL_MS);
   }
 
   private getActiveRoutePath(): string | undefined {

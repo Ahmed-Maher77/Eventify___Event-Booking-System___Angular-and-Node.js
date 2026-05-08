@@ -7,14 +7,18 @@ import {
   deleteEvent,
 } from "../controllers/eventController.js";
 import {
+  adminDeleteEventReview,
   createEventReview,
+  deleteEventReview,
   getEventReviews,
   getEventReviewStatus,
+  updateEventReview,
   voteOnEventReview,
 } from "../controllers/eventReviewController.js";
 import {
   validateCreateEvent,
   validateCreateEventReview,
+  validateUpdateEventReview,
   validateReviewVote,
   validateUpdateEvent,
   validateObjectId,
@@ -43,6 +47,29 @@ router.post(
   ...validateObjectId("reviewId"),
   validateReviewVote,
   voteOnEventReview,
+);
+router.patch(
+  "/:id/reviews/:reviewId",
+  protect,
+  ...validateObjectId("id"),
+  ...validateObjectId("reviewId"),
+  validateUpdateEventReview,
+  updateEventReview,
+);
+router.delete(
+  "/:id/reviews/:reviewId",
+  protect,
+  ...validateObjectId("id"),
+  ...validateObjectId("reviewId"),
+  deleteEventReview,
+);
+router.delete(
+  "/:id/reviews/:reviewId/admin-delete",
+  protect,
+  authorize(["admin"]),
+  ...validateObjectId("id"),
+  ...validateObjectId("reviewId"),
+  adminDeleteEventReview,
 );
 
 // ======= Get single event (public) =======

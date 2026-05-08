@@ -43,6 +43,28 @@ const userSchema = mongoose.Schema({
         trim: true,
         default: "",
     },
+    phone: {
+        type: String,
+        trim: true,
+        default: "",
+    },
+    location: {
+        type: String,
+        trim: true,
+        default: "",
+    },
+    emailNotificationsEnabled: {
+        type: Boolean,
+        default: true,
+    },
+    marketingUpdatesEnabled: {
+        type: Boolean,
+        default: false,
+    },
+    bookingRemindersEnabled: {
+        type: Boolean,
+        default: true,
+    },
     favorites: [
         {
             type: mongoose.Schema.Types.ObjectId,

@@ -7,6 +7,7 @@ export type ReviewVoteValue = 'up' | 'down';
 
 export interface EventReviewItem {
   _id: string;
+  authorId?: string;
   rating: number;
   message: string;
   createdAt: string;
@@ -23,6 +24,15 @@ export interface EventReviewsResponse {
   data: {
     reviews: EventReviewItem[];
     totalReviews: number;
+    summary?: {
+      averageRating: number;
+      totalReviews: number;
+      distribution: Array<{
+        level: number;
+        count: number;
+        pct: number;
+      }>;
+    };
   };
 }
 
@@ -55,6 +65,20 @@ export interface CreateEventReviewResponse {
   success: boolean;
   message?: string;
   data: EventReviewItem;
+}
+
+export interface UpdateEventReviewResponse {
+  success: boolean;
+  message?: string;
+  data: EventReviewItem;
+}
+
+export interface DeleteEventReviewResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    reviewId: string;
+  };
 }
 
 export interface ReviewVoteResponse {
@@ -96,5 +120,30 @@ export class EventReviewService {
     return this.http.post<ReviewVoteResponse>(`${this.base}/${eventId}/reviews/${reviewId}/vote`, { value }, {
       withCredentials: true,
     });
+  }
+
+  updateReview(
+    eventId: string,
+    reviewId: string,
+    body: { rating?: number; message?: string },
+  ): Observable<UpdateEventReviewResponse> {
+    return this.http.patch<UpdateEventReviewResponse>(`${this.base}/${eventId}/reviews/${reviewId}`, body, {
+      withCredentials: true,
+    });
+  }
+
+  deleteReview(eventId: string, reviewId: string): Observable<DeleteEventReviewResponse> {
+    return this.http.delete<DeleteEventReviewResponse>(`${this.base}/${eventId}/reviews/${reviewId}`, {
+      withCredentials: true,
+    });
+  }
+
+  adminDeleteReview(eventId: string, reviewId: string): Observable<DeleteEventReviewResponse> {
+    return this.http.delete<DeleteEventReviewResponse>(
+      `${this.base}/${eventId}/reviews/${reviewId}/admin-delete`,
+      {
+        withCredentials: true,
+      },
+    );
   }
 }

@@ -40,6 +40,7 @@ export class BookingsPage implements OnInit {
   protected readonly totalBookings = signal(0);
   protected readonly isCancellingBookingId = signal<string | null>(null);
   protected readonly isDeletingBookingId = signal<string | null>(null);
+  protected readonly isOpeningBookingId = signal<string | null>(null);
   protected readonly quantityUpdatingMap = signal<Record<string, boolean>>({});
   protected readonly filtersExpanded = signal(false);
   protected readonly searchTerm = signal('');
@@ -145,6 +146,16 @@ export class BookingsPage implements OnInit {
     return 'Unknown event';
   }
 
+  protected eventDetailsLink(booking: BookingItem): string | null {
+    if (typeof booking.eventId === 'object' && booking.eventId?._id) {
+      return `/events/${booking.eventId._id}`;
+    }
+    if (typeof booking.eventId === 'string' && booking.eventId.trim()) {
+      return `/events/${booking.eventId.trim()}`;
+    }
+    return null;
+  }
+
   protected eventDate(booking: BookingItem): string | null {
     if (typeof booking.eventId === 'object' && booking.eventId?.date) {
       return booking.eventId.date;
@@ -202,6 +213,10 @@ export class BookingsPage implements OnInit {
     return this.isDeletingBookingId() === bookingId;
   }
 
+  protected isOpeningDetails(bookingId: string): boolean {
+    return this.isOpeningBookingId() === bookingId;
+  }
+
   protected isQuantityUpdating(bookingId: string): boolean {
     return !!this.quantityUpdatingMap()[bookingId];
   }
@@ -215,6 +230,39 @@ export class BookingsPage implements OnInit {
       return;
     }
     void this.router.navigate(['/checkout'], { queryParams: { bookingId: booking._id } });
+  }
+
+  protected openBookingDetails(booking: BookingItem): void {
+    if (this.isOpeningBookingId()) {
+      return;
+    }
+    this.isOpeningBookingId.set(booking._id);
+    this.bookingService
+      .getBookingById(booking._id)
+      .pipe(finalize(() => this.isOpeningBookingId.set(null)))
+      .subscribe({
+        next: (res) => {
+          if (res.data?._id) {
+            void this.router.navigate(['/bookings', res.data._id]);
+            return;
+          }
+          this.toast.showError('This booking is no longer available.');
+          this.loadBookings();
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 404) {
+            this.toast.showError('This booking no longer exists.');
+            this.loadBookings();
+            return;
+          }
+          const msg = err.error?.message;
+          this.toast.showError(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to open booking details right now.',
+          );
+        },
+      });
   }
 
   protected canDeleteCancelled(booking: BookingItem): boolean {

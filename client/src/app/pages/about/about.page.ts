@@ -82,7 +82,7 @@ export class AboutPage implements AfterViewInit, OnDestroy {
     {
       name: 'Mohamed Awadallah',
       role: 'Mobile Developer',
-      imageUrl: '/images/team_members/mohamed-awadallah.jpg',
+      imageUrl: '/images/team_members/mohamed-awad.jpeg',
       profileUrl: 'https://www.linkedin.com/in/mohamed-awadallah-ma/'
     },
     {
@@ -90,6 +90,12 @@ export class AboutPage implements AfterViewInit, OnDestroy {
       role: 'Mobile Developer',
       imageUrl: '/images/team_members/yasser-eid.jpg',
       profileUrl: 'https://www.linkedin.com/in/yasser-eid-18a45521a/'
+    },
+    {
+      name: 'Ahmed Essam',
+      role: 'Full Stack Developer',
+      imageUrl: '/images/team_members/ahmed-essam.jpeg',
+      profileUrl: 'https://www.linkedin.com/in/ahmed-essam-career2333/'
     }
   ] as const;
 }

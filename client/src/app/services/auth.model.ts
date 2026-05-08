@@ -4,6 +4,11 @@ export interface UserData {
   name?: string;
   email?: string;
   pictureUrl?: string;
+  phone?: string;
+  location?: string;
+  emailNotificationsEnabled?: boolean;
+  marketingUpdatesEnabled?: boolean;
+  bookingRemindersEnabled?: boolean;
 }
 
 export interface AuthResponse {

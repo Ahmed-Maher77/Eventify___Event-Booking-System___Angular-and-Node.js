@@ -10,7 +10,8 @@ import { Button } from '../../shared/button/button';
   styleUrl: '../../../sass/components/faq-page.scss'
 })
 export class FaqPage {
-  protected readonly supportWhatsappUrl = 'https://wa.me/+201150383416';
+  protected readonly supportWhatsappUrl =
+    'https://wa.me/201150383416?text=Hi%20Eventify%20Support%2C%20I%20need%20help%20with%20my%20booking.';
   protected readonly faqs: FaqAccordionItem[] = [
     {
       id: '01',
