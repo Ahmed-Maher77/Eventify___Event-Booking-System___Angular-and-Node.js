@@ -55,6 +55,25 @@ export class AuthService {
     );
   }
 
+  updateMyProfile(payload: {
+    name: string;
+    phone?: string;
+    location?: string;
+    emailNotificationsEnabled?: boolean;
+    marketingUpdatesEnabled?: boolean;
+    bookingRemindersEnabled?: boolean;
+  }): Observable<{ success: boolean; message?: string; data?: UserData }> {
+    return this.http
+      .patch<{ success: boolean; message?: string; data?: UserData }>(`${this.authApiUrl}/me`, payload, { withCredentials: true })
+      .pipe(tap((response) => this.updateStoredUserData(response.data)));
+  }
+
+  updateMyPassword(payload: { currentPassword: string; newPassword: string; confirmPassword: string }): Observable<{ success: boolean; message?: string }> {
+    return this.http.patch<{ success: boolean; message?: string }>(`${this.authApiUrl}/me/password`, payload, {
+      withCredentials: true,
+    });
+  }
+
   private initializeUserData(): void {
     if (!this.isLoggedIn()) {
       this.userData = null;
@@ -130,6 +149,12 @@ export class AuthService {
       });
   }
 
+  deleteMyAccount(): Observable<{ success: boolean; message?: string }> {
+    return this.http.delete<{ success: boolean; message?: string }>(`${this.authApiUrl}/me`, {
+      withCredentials: true,
+    });
+  }
+
   private persistAuthState(token: string, user: UserData): void {
     localStorage.setItem(this.accessTokenStorageKey, token);
     localStorage.setItem(this.userDataStorageKey, JSON.stringify(user));
@@ -138,8 +163,27 @@ export class AuthService {
       role: user.role,
       name: user.name,
       email: user.email,
-      pictureUrl: user.pictureUrl
+      pictureUrl: user.pictureUrl,
+      phone: user.phone,
+      location: user.location,
+      emailNotificationsEnabled: user.emailNotificationsEnabled,
+      marketingUpdatesEnabled: user.marketingUpdatesEnabled,
+      bookingRemindersEnabled: user.bookingRemindersEnabled,
     };
+  }
+
+  private updateStoredUserData(patch?: UserData): void {
+    if (!patch) return;
+    const current = this.userData ?? {};
+    const merged: UserData = {
+      ...current,
+      ...patch,
+      id: patch.id ?? current.id,
+      role: patch.role ?? current.role,
+      email: patch.email ?? current.email,
+    };
+    this.userData = merged;
+    localStorage.setItem(this.userDataStorageKey, JSON.stringify(merged));
   }
 
   private getStoredAccessToken(): string | null {

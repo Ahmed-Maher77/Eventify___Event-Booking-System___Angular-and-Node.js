@@ -46,7 +46,18 @@ export class Button {
   }
 
   protected get isLinkMode(): boolean {
-    return !!this.routerLink || !!this.href;
+    return this.hasRouterLink || this.hasHref;
+  }
+
+  protected get hasHref(): boolean {
+    return !!this.href?.trim();
+  }
+
+  protected get hasRouterLink(): boolean {
+    if (Array.isArray(this.routerLink)) {
+      return this.routerLink.length > 0;
+    }
+    return !!this.routerLink;
   }
 
   protected onClick(event: Event): void {
