@@ -31,6 +31,18 @@ export class AdminUserDetailPage implements OnInit {
     }
   }
 
+  protected userInitials(user: AdminUserListItem): string {
+    const parts = `${user.name ?? ''}`
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2);
+    if (!parts.length) {
+      return 'U';
+    }
+    return parts.map((part) => part.charAt(0).toUpperCase()).join('');
+  }
+
   private fetchUserDetails(id: string): void {
     this.adminService.getUserById(id).subscribe({
       next: (response) => {

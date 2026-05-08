@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { FavoriteService } from '../../services/favorite.service';
+import { BookingService } from '../../services/booking.service';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
 import { Button } from '../button/button';
 import { HeaderNavLinksComponent } from './components/header-nav-links/header-nav-links.component';
@@ -30,14 +30,14 @@ import {
 })
 export class Header implements AfterViewInit, OnDestroy {
   private readonly authService = inject(AuthService);
-  private readonly favoriteService = inject(FavoriteService);
+  private readonly bookingService = inject(BookingService);
   private readonly router = inject(Router);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
   private headerContext: ReturnType<typeof setupHeaderAnimations> | null = null;
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly isMainHeaderNavOpen = signal(false);
-  protected readonly favoriteCount = signal(0);
+  protected readonly bookingCount = signal(0);
   protected readonly navLinks = [
     { label: 'Home', route: '/' },
     { label: 'Events', route: '/events' },
@@ -74,7 +74,7 @@ export class Header implements AfterViewInit, OnDestroy {
   protected toggleProfileMenu(): void {
     this.isProfileMenuOpen.update((value) => !value);
     if (this.isProfileMenuOpen()) {
-      this.refreshFavoriteCount();
+      this.refreshBookingCount();
     }
   }
 
@@ -115,7 +115,7 @@ export class Header implements AfterViewInit, OnDestroy {
 
   protected logout(): void {
     this.authService.logout();
-    this.favoriteCount.set(0);
+    this.bookingCount.set(0);
     this.isProfileMenuOpen.set(false);
     this.closeNavCollapse();
   }
@@ -125,7 +125,7 @@ export class Header implements AfterViewInit, OnDestroy {
       this.hostElement.nativeElement,
       this.headerNavRoot?.nativeElement,
     );
-    this.refreshFavoriteCount();
+    this.refreshBookingCount();
   }
 
   ngOnDestroy(): void {
@@ -173,18 +173,18 @@ export class Header implements AfterViewInit, OnDestroy {
     document.body.style.overflow = this.isMainHeaderNavOpen() ? 'hidden' : '';
   }
 
-  private refreshFavoriteCount(): void {
+  private refreshBookingCount(): void {
     if (!this.authService.isLoggedIn()) {
-      this.favoriteCount.set(0);
+      this.bookingCount.set(0);
       return;
     }
 
-    this.favoriteService.getFavorites().subscribe({
+    this.bookingService.getUserBookingsSummary().subscribe({
       next: (response) => {
-        this.favoriteCount.set(response.data?.totalFavorites ?? 0);
+        this.bookingCount.set(response.data?.pagination?.totalBookings ?? 0);
       },
       error: () => {
-        this.favoriteCount.set(0);
+        this.bookingCount.set(0);
       },
     });
   }

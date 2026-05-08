@@ -1,5 +1,5 @@
-import { body, param, query, validationResult } from 'express-validator';
-import AppError from '../middlewares/AppError.js';
+import { body, param, query, validationResult } from "express-validator";
+import AppError from "../middlewares/AppError.js";
 
 /**
  * Validator utilities
@@ -11,375 +11,633 @@ import AppError from '../middlewares/AppError.js';
  * Must be called after validation chains
  */
 const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(err => err.msg);
-    throw AppError.badRequest(errorMessages.join(', '));
-  }
-  next();
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map((err) => err.msg);
+        throw AppError.badRequest(errorMessages.join(", "));
+    }
+    next();
 };
 
 /**
  * Validate user registration
  */
 const validateRegistration = [
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
-  
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  
-  body('password')
-    .notEmpty().withMessage('Password is required')
-    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain uppercase, lowercase, and number'),
-  
-  handleValidationErrors
+    body("name")
+        .trim()
+        .notEmpty()
+        .withMessage("Name is required")
+        .isLength({ min: 2, max: 50 })
+        .withMessage("Name must be between 2 and 50 characters"),
+
+    body("email")
+        .trim()
+        .notEmpty()
+        .withMessage("Email is required")
+        .isEmail()
+        .withMessage("Please provide a valid email address")
+        .normalizeEmail(),
+
+    body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+        .isLength({ min: 6 })
+        .withMessage("Password must be at least 6 characters")
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+        .withMessage("Password must contain uppercase, lowercase, and number"),
+
+    handleValidationErrors,
 ];
 
 /**
  * Validate user login
  */
 const validateLogin = [
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  
-  body('password')
-    .notEmpty().withMessage('Password is required'),
-  
-  handleValidationErrors
+    body("email")
+        .trim()
+        .notEmpty()
+        .withMessage("Email is required")
+        .isEmail()
+        .withMessage("Please provide a valid email address")
+        .normalizeEmail(),
+
+    body("password").notEmpty().withMessage("Password is required"),
+
+    handleValidationErrors,
 ];
 
 /**
  * Validate event creation/update
  */
-const eventCategories = ['concert', 'conference', 'workshop', 'seminar', 'sports', 'other'];
+const eventCategories = [
+    "concert",
+    "conference",
+    "workshop",
+    "seminar",
+    "sports",
+    "other",
+];
 
 const ensureEventBody = (req, res, next) => {
-  const { body: requestBody } = req;
+    const { body: requestBody } = req;
 
-  if (!requestBody || typeof requestBody !== 'object' || Array.isArray(requestBody) || Object.keys(requestBody).length === 0) {
-    throw AppError.badRequest('Request body is required');
-  }
+    if (
+        !requestBody ||
+        typeof requestBody !== "object" ||
+        Array.isArray(requestBody) ||
+        Object.keys(requestBody).length === 0
+    ) {
+        throw AppError.badRequest("Request body is required");
+    }
 
-  next();
+    next();
 };
 
 const validateCreateEvent = [
-  ensureEventBody,
-  body('title')
-    .trim()
-    .notEmpty().withMessage('Title is required')
-    .bail()
-    .isLength({ min: 3, max: 100 }).withMessage('Title must be between 3 and 100 characters'),
-  
-  body('description')
-    .trim()
-    .notEmpty().withMessage('Description is required')
-    .bail()
-    .isLength({ min: 10, max: 1000 }).withMessage('Description must be between 10 and 1000 characters'),
-  
-  body('date')
-    .notEmpty().withMessage('Date is required')
-    .bail()
-    .isISO8601().withMessage('Please provide a valid date'),
-  
-  body('location')
-    .trim()
-    .notEmpty().withMessage('Location is required')
-    .bail()
-    .isLength({ min: 3, max: 200 }).withMessage('Location must be between 3 and 200 characters'),
-  
-  body('category')
-    .trim()
-    .notEmpty().withMessage('Category is required')
-    .bail()
-    .isIn(eventCategories)
-    .withMessage('Category must be one of: concert, conference, workshop, seminar, sports, other'),
-  
-  body('capacity')
-    .notEmpty().withMessage('Capacity is required')
-    .bail()
-    .isInt({ min: 1 }).withMessage('Capacity must be a positive integer'),
-  
-  body('price')
-    .notEmpty().withMessage('Price is required')
-    .bail()
-    .isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+    ensureEventBody,
+    body("title")
+        .trim()
+        .notEmpty()
+        .withMessage("Title is required")
+        .bail()
+        .isLength({ min: 3, max: 100 })
+        .withMessage("Title must be between 3 and 100 characters"),
 
-  body('imageUrl')
-    .optional()
-    .trim()
-    .isURL().withMessage('imageUrl must be a valid URL'),
-  
-  handleValidationErrors
+    body("description")
+        .trim()
+        .notEmpty()
+        .withMessage("Description is required")
+        .bail()
+        .isLength({ min: 10, max: 1000 })
+        .withMessage("Description must be between 10 and 1000 characters"),
+
+    body("date")
+        .notEmpty()
+        .withMessage("Date is required")
+        .bail()
+        .isISO8601()
+        .withMessage("Please provide a valid date"),
+
+    body("location")
+        .trim()
+        .notEmpty()
+        .withMessage("Location is required")
+        .bail()
+        .isLength({ min: 3, max: 200 })
+        .withMessage("Location must be between 3 and 200 characters"),
+
+    body("category")
+        .trim()
+        .notEmpty()
+        .withMessage("Category is required")
+        .bail()
+        .isIn(eventCategories)
+        .withMessage(
+            "Category must be one of: concert, conference, workshop, seminar, sports, other",
+        ),
+
+    body("capacity")
+        .notEmpty()
+        .withMessage("Capacity is required")
+        .bail()
+        .isInt({ min: 1 })
+        .withMessage("Capacity must be a positive integer"),
+
+    body("price")
+        .notEmpty()
+        .withMessage("Price is required")
+        .bail()
+        .isFloat({ min: 0 })
+        .withMessage("Price must be a non-negative number"),
+
+    body("imageUrl")
+        .optional()
+        .trim()
+        .isURL()
+        .withMessage("imageUrl must be a valid URL"),
+
+    handleValidationErrors,
 ];
 
-  const validateUpdateEvent = [
+const validateUpdateEvent = [
     (req, res, next) => {
-      const updatableFields = ['title', 'description', 'date', 'location', 'category', 'capacity', 'price', 'imageUrl'];
-      const hasAtLeastOneField = updatableFields.some((field) =>
-        Object.prototype.hasOwnProperty.call(req.body, field),
-      );
+        const updatableFields = [
+            "title",
+            "description",
+            "date",
+            "location",
+            "category",
+            "capacity",
+            "price",
+            "imageUrl",
+        ];
+        const hasAtLeastOneField = updatableFields.some((field) =>
+            Object.prototype.hasOwnProperty.call(req.body, field),
+        );
 
-      if (!hasAtLeastOneField && !req.file) {
-        throw AppError.badRequest('At least one field (title, description, date, location, category, capacity, price, imageUrl) or an image file must be provided for update');
-      }
+        if (!hasAtLeastOneField && !req.file) {
+            throw AppError.badRequest(
+                "At least one field (title, description, date, location, category, capacity, price, imageUrl) or an image file must be provided for update",
+            );
+        }
 
-      next();
+        next();
     },
-    body('title')
-      .optional()
-      .trim()
-      .isLength({ min: 3, max: 100 }).withMessage('Title must be between 3 and 100 characters'),
+    body("title")
+        .optional()
+        .trim()
+        .isLength({ min: 3, max: 100 })
+        .withMessage("Title must be between 3 and 100 characters"),
 
-    body('description')
-      .optional()
-      .trim()
-      .isLength({ min: 10, max: 1000 }).withMessage('Description must be between 10 and 1000 characters'),
+    body("description")
+        .optional()
+        .trim()
+        .isLength({ min: 10, max: 1000 })
+        .withMessage("Description must be between 10 and 1000 characters"),
 
-    body('date')
-      .optional()
-      .isISO8601().withMessage('Please provide a valid date'),
+    body("date")
+        .optional()
+        .isISO8601()
+        .withMessage("Please provide a valid date"),
 
-    body('location')
-      .optional()
-      .trim()
-      .isLength({ min: 3, max: 200 }).withMessage('Location must be between 3 and 200 characters'),
+    body("location")
+        .optional()
+        .trim()
+        .isLength({ min: 3, max: 200 })
+        .withMessage("Location must be between 3 and 200 characters"),
 
-    body('category')
-      .optional()
-      .trim()
-      .isIn(eventCategories)
-      .withMessage('Category must be one of: concert, conference, workshop, seminar, sports, other'),
+    body("category")
+        .optional()
+        .trim()
+        .isIn(eventCategories)
+        .withMessage(
+            "Category must be one of: concert, conference, workshop, seminar, sports, other",
+        ),
 
-    body('capacity')
-      .optional()
-      .isInt({ min: 1 }).withMessage('Capacity must be a positive integer'),
+    body("capacity")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Capacity must be a positive integer"),
 
-    body('price')
-      .optional()
-      .isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+    body("price")
+        .optional()
+        .isFloat({ min: 0 })
+        .withMessage("Price must be a non-negative number"),
 
-    body('imageUrl')
-      .optional()
-      .trim()
-      .isURL().withMessage('imageUrl must be a valid URL'),
+    body("imageUrl")
+        .optional()
+        .trim()
+        .isURL()
+        .withMessage("imageUrl must be a valid URL"),
 
-    handleValidationErrors
-  ];
+    handleValidationErrors,
+];
 /**
  * Validate booking creation
  */
 const validateBooking = [
-  body('eventId')
-    .notEmpty().withMessage('Event ID is required')
-    .isMongoId().withMessage('Please provide a valid event ID'),
-  
-  body('quantity')
-    .notEmpty().withMessage('Quantity is required')
-    .isInt({ min: 1 }).withMessage('Quantity must be a positive integer'),
-  
-  handleValidationErrors
+    body("eventId")
+        .notEmpty()
+        .withMessage("Event ID is required")
+        .isMongoId()
+        .withMessage("Please provide a valid event ID"),
+
+    body("quantity")
+        .notEmpty()
+        .withMessage("Quantity is required")
+        .isInt({ min: 1 })
+        .withMessage("Quantity must be a positive integer"),
+
+    handleValidationErrors,
+];
+
+const validateBookingQuantityUpdate = [
+    body("quantity")
+        .notEmpty()
+        .withMessage("Quantity is required")
+        .isInt({ min: 1 })
+        .withMessage("Quantity must be a positive integer"),
+
+    handleValidationErrors,
 ];
 
 /**
  * Validate public event review (1–5 hearts + optional message)
  */
 const validateCreateEventReview = [
-  body('rating')
-    .notEmpty().withMessage('Rating is required')
-    .isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+    body("rating")
+        .notEmpty()
+        .withMessage("Rating is required")
+        .isInt({ min: 1, max: 5 })
+        .withMessage("Rating must be between 1 and 5"),
 
-  body('message')
-    .optional()
-    .trim()
-    .isLength({ max: 2000 }).withMessage('Message must be at most 2000 characters'),
+    body("message")
+        .optional()
+        .trim()
+        .isLength({ max: 2000 })
+        .withMessage("Message must be at most 2000 characters"),
 
-  handleValidationErrors
+    handleValidationErrors,
 ];
 
 const validateReviewVote = [
-  body('value')
-    .notEmpty().withMessage('Vote value is required')
-    .isIn(['up', 'down']).withMessage('Value must be up or down'),
+    body("value")
+        .notEmpty()
+        .withMessage("Vote value is required")
+        .isIn(["up", "down"])
+        .withMessage("Value must be up or down"),
 
-  handleValidationErrors
+    handleValidationErrors,
 ];
 
 /**
  * Validate contact message submission
  */
 const validateContactMessage = [
-  body('fullName')
-    .trim()
-    .notEmpty().withMessage('Full name is required')
-    .bail()
-    .isLength({ min: 2, max: 80 }).withMessage('Full name must be between 2 and 80 characters'),
+    body("fullName")
+        .trim()
+        .notEmpty()
+        .withMessage("Full name is required")
+        .bail()
+        .isLength({ min: 2, max: 80 })
+        .withMessage("Full name must be between 2 and 80 characters"),
 
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .bail()
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
+    body("email")
+        .trim()
+        .notEmpty()
+        .withMessage("Email is required")
+        .bail()
+        .isEmail()
+        .withMessage("Please provide a valid email address")
+        .normalizeEmail(),
 
-  body('subject')
-    .trim()
-    .notEmpty().withMessage('Subject is required')
-    .bail()
-    .isLength({ min: 4, max: 140 }).withMessage('Subject must be between 4 and 140 characters'),
+    body("subject")
+        .trim()
+        .notEmpty()
+        .withMessage("Subject is required")
+        .bail()
+        .isLength({ min: 4, max: 140 })
+        .withMessage("Subject must be between 4 and 140 characters"),
 
-  body('message')
-    .trim()
-    .notEmpty().withMessage('Message is required')
-    .bail()
-    .isLength({ min: 10, max: 2000 }).withMessage('Message must be between 10 and 2000 characters'),
+    body("message")
+        .trim()
+        .notEmpty()
+        .withMessage("Message is required")
+        .bail()
+        .isLength({ min: 10, max: 2000 })
+        .withMessage("Message must be between 10 and 2000 characters"),
 
-  handleValidationErrors
+    handleValidationErrors,
 ];
 
 /**
  * Validate newsletter subscription submission
  */
 const validateNewsletterSubscription = [
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .bail()
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
+    body("email")
+        .trim()
+        .notEmpty()
+        .withMessage("Email is required")
+        .bail()
+        .isEmail()
+        .withMessage("Please provide a valid email address")
+        .normalizeEmail(),
 
-  handleValidationErrors
+    handleValidationErrors,
 ];
 
 /**
  * Validate contact message status update (admin)
  */
 const validateContactMessageStatusUpdate = [
-  body('status')
-    .notEmpty().withMessage('Status is required')
-    .bail()
-    .isIn(['new', 'reviewed']).withMessage('Status must be either new or reviewed'),
-  handleValidationErrors
+    body("status")
+        .notEmpty()
+        .withMessage("Status is required")
+        .bail()
+        .isIn(["new", "reviewed"])
+        .withMessage("Status must be either new or reviewed"),
+    handleValidationErrors,
 ];
 
 /**
  * Validate newsletter subscriber status update (admin)
  */
 const validateNewsletterSubscriberStatusUpdate = [
-  body('status')
-    .notEmpty().withMessage('Status is required')
-    .bail()
-    .isIn(['active', 'unsubscribed']).withMessage('Status must be either active or unsubscribed'),
-  handleValidationErrors
+    body("status")
+        .notEmpty()
+        .withMessage("Status is required")
+        .bail()
+        .isIn(["active", "unsubscribed"])
+        .withMessage("Status must be either active or unsubscribed"),
+    handleValidationErrors,
 ];
 
 /**
  * Validate MongoDB ObjectId parameter
  */
-const validateObjectId = (paramName = 'id') => {
-  return [
-    param(paramName)
-      .isMongoId().withMessage(`Please provide a valid ID`),
-    handleValidationErrors
-  ];
+const validateObjectId = (paramName = "id") => {
+    return [
+        param(paramName).isMongoId().withMessage(`Please provide a valid ID`),
+        handleValidationErrors,
+    ];
 };
 
 /**
  * Validate pagination and query parameters
  */
 const validateQuery = [
-  query('page')
-    .optional()
-    .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-  
-  query('limit')
-    .optional()
-    .isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-  
-  query('sort')
-    .optional()
-    .trim(),
-  
-  query('order')
-    .optional()
-    .isIn(['asc', 'desc']).withMessage('Order must be either asc or desc'),
-  
-  handleValidationErrors
+    query("page")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Page must be a positive integer"),
+
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage("Limit must be between 1 and 100"),
+
+    query("sort").optional().trim(),
+
+    query("order")
+        .optional()
+        .isIn(["asc", "desc"])
+        .withMessage("Order must be either asc or desc"),
+
+    handleValidationErrors,
 ];
 
 /**
  * Validate admin creation
  */
 const validateAdminCreation = [
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
+    body("name")
+        .trim()
+        .notEmpty()
+        .withMessage("Name is required")
+        .isLength({ min: 2, max: 50 })
+        .withMessage("Name must be between 2 and 50 characters"),
 
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
+    body("email")
+        .trim()
+        .notEmpty()
+        .withMessage("Email is required")
+        .isEmail()
+        .withMessage("Please provide a valid email address")
+        .normalizeEmail(),
 
-  body('password')
-    .notEmpty().withMessage('Password is required')
-    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/).withMessage('Password must contain uppercase, lowercase, number, and special character'),
+    body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+        .isLength({ min: 6 })
+        .withMessage("Password must be at least 6 characters")
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
+        .withMessage(
+            "Password must contain uppercase, lowercase, number, and special character",
+        ),
 
-  body('confirmPassword')
-    .notEmpty().withMessage('Confirm password is required')
-    .custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error('Passwords do not match');
-      }
-      return true;
-    }),
+    body("confirmPassword")
+        .notEmpty()
+        .withMessage("Confirm password is required")
+        .custom((value, { req }) => {
+            if (value !== req.body.password) {
+                throw new Error("Passwords do not match");
+            }
+            return true;
+        }),
 
-  handleValidationErrors
+    handleValidationErrors,
 ];
 
 /**
  * Validate admin users list query (search/filter/sort)
  */
 const validateAdminUsersQuery = [
-  query('page')
-    .optional()
-    .isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+    query("page")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Page must be a positive integer"),
 
-  query('limit')
-    .optional()
-    .isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage("Limit must be between 1 and 100"),
 
-  query('role')
-    .optional()
-    .isIn(['admin', 'user']).withMessage('Role must be either admin or user'),
+    query("role")
+        .optional()
+        .isIn(["admin", "user"])
+        .withMessage("Role must be either admin or user"),
 
-  query('search')
-    .optional()
-    .isString().withMessage('Search must be a string')
-    .trim()
-    .isLength({ min: 1, max: 80 }).withMessage('Search must be between 1 and 80 characters'),
+    query("search")
+        .optional()
+        .isString()
+        .withMessage("Search must be a string")
+        .trim()
+        .isLength({ min: 1, max: 80 })
+        .withMessage("Search must be between 1 and 80 characters"),
 
-  query('sort')
-    .optional()
-    .isIn(['createdAt', 'name', 'email', 'role']).withMessage('Sort must be one of: createdAt, name, email, role'),
+    query("sort")
+        .optional()
+        .isIn(["createdAt", "name", "email", "role"])
+        .withMessage("Sort must be one of: createdAt, name, email, role"),
 
-  query('order')
-    .optional()
-    .isIn(['asc', 'desc']).withMessage('Order must be either asc or desc'),
+    query("order")
+        .optional()
+        .isIn(["asc", "desc"])
+        .withMessage("Order must be either asc or desc"),
 
-  handleValidationErrors
+    handleValidationErrors,
+];
+
+const validateAdminUserRoleUpdate = [
+    body("role")
+        .exists()
+        .withMessage("Role is required")
+        .isIn(["admin", "user"])
+        .withMessage("Role must be either admin or user"),
+    handleValidationErrors,
+];
+
+const validateAdminUserStatusUpdate = [
+    body("isActive")
+        .exists()
+        .withMessage("isActive is required")
+        .isBoolean()
+        .withMessage("isActive must be a boolean"),
+    handleValidationErrors,
+];
+
+/**
+ * Validate admin bookings list query (search/filter/sort)
+ */
+const validateAdminBookingsQuery = [
+    query("page")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Page must be a positive integer"),
+
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage("Limit must be between 1 and 100"),
+
+    query("status")
+        .optional()
+        .isIn(["pending", "confirmed", "cancelled"])
+        .withMessage("Status must be one of: pending, confirmed, cancelled"),
+
+    query("userId")
+        .optional()
+        .isMongoId()
+        .withMessage("User ID must be a valid Mongo ID"),
+
+    query("eventId")
+        .optional()
+        .isMongoId()
+        .withMessage("Event ID must be a valid Mongo ID"),
+
+    query("search")
+        .optional()
+        .isString()
+        .withMessage("Search must be a string")
+        .trim()
+        .isLength({ min: 1, max: 120 })
+        .withMessage("Search must be between 1 and 120 characters"),
+
+    query("sort")
+        .optional()
+        .isIn(["createdAt", "status", "quantity", "totalPrice"])
+        .withMessage(
+            "Sort must be one of: createdAt, status, quantity, totalPrice",
+        ),
+
+    query("order")
+        .optional()
+        .isIn(["asc", "desc"])
+        .withMessage("Order must be either asc or desc"),
+
+    handleValidationErrors,
+];
+
+/**
+ * Validate admin contact messages list query (search/filter/sort)
+ */
+const validateAdminContactMessagesQuery = [
+    query("page")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Page must be a positive integer"),
+
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage("Limit must be between 1 and 100"),
+
+    query("status")
+        .optional()
+        .isIn(["new", "reviewed"])
+        .withMessage("Status must be either new or reviewed"),
+
+    query("search")
+        .optional()
+        .isString()
+        .withMessage("Search must be a string")
+        .trim()
+        .isLength({ min: 1, max: 120 })
+        .withMessage("Search must be between 1 and 120 characters"),
+
+    query("sort")
+        .optional()
+        .isIn(["createdAt", "fullName", "email", "subject", "status"])
+        .withMessage(
+            "Sort must be one of: createdAt, fullName, email, subject, status",
+        ),
+
+    query("order")
+        .optional()
+        .isIn(["asc", "desc"])
+        .withMessage("Order must be either asc or desc"),
+
+    handleValidationErrors,
+];
+
+/**
+ * Validate admin newsletter subscribers list query (search/filter/sort)
+ */
+const validateAdminNewsletterSubscribersQuery = [
+    query("page")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Page must be a positive integer"),
+
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage("Limit must be between 1 and 100"),
+
+    query("status")
+        .optional()
+        .isIn(["active", "unsubscribed"])
+        .withMessage("Status must be either active or unsubscribed"),
+
+    query("search")
+        .optional()
+        .isString()
+        .withMessage("Search must be a string")
+        .trim()
+        .isLength({ min: 1, max: 120 })
+        .withMessage("Search must be between 1 and 120 characters"),
+
+    query("sort")
+        .optional()
+        .isIn(["createdAt", "email", "status"])
+        .withMessage("Sort must be one of: createdAt, email, status"),
+
+    query("order")
+        .optional()
+        .isIn(["asc", "desc"])
+        .withMessage("Order must be either asc or desc"),
+
+    handleValidationErrors,
 ];
 
 /**
@@ -388,8 +646,8 @@ const validateAdminUsersQuery = [
  * @returns {string} Sanitized string
  */
 const sanitizeString = (str) => {
-  if (typeof str !== 'string') return str;
-  return str.trim().replace(/[<>]/g, '');
+    if (typeof str !== "string") return str;
+    return str.trim().replace(/[<>]/g, "");
 };
 
 /**
@@ -398,27 +656,33 @@ const sanitizeString = (str) => {
  * @returns {boolean} Is valid email
  */
 const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 };
 
 export {
-  validateRegistration,
-  validateLogin,
-  validateCreateEvent,
-  validateUpdateEvent,
-  validateBooking,
-  validateCreateEventReview,
-  validateReviewVote,
-  validateContactMessage,
-  validateNewsletterSubscription,
-  validateContactMessageStatusUpdate,
-  validateNewsletterSubscriberStatusUpdate,
-  validateAdminUsersQuery,
-  validateAdminCreation,
-  validateObjectId,
-  validateQuery,
-  handleValidationErrors,
-  sanitizeString,
-  isValidEmail
+    validateRegistration,
+    validateLogin,
+    validateCreateEvent,
+    validateUpdateEvent,
+    validateBooking,
+    validateBookingQuantityUpdate,
+    validateCreateEventReview,
+    validateReviewVote,
+    validateContactMessage,
+    validateNewsletterSubscription,
+    validateContactMessageStatusUpdate,
+    validateNewsletterSubscriberStatusUpdate,
+    validateAdminBookingsQuery,
+    validateAdminUsersQuery,
+    validateAdminUserRoleUpdate,
+    validateAdminUserStatusUpdate,
+    validateAdminContactMessagesQuery,
+    validateAdminNewsletterSubscribersQuery,
+    validateAdminCreation,
+    validateObjectId,
+    validateQuery,
+    handleValidationErrors,
+    sanitizeString,
+    isValidEmail,
 };

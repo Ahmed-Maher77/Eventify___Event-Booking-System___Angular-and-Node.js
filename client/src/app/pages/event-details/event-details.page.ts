@@ -89,6 +89,7 @@ export class EventDetailsPage implements OnInit {
 
   protected readonly bookingQuantity = signal(1);
   protected readonly bookingSubmitting = signal(false);
+  protected readonly activeBookingId = signal<string | null>(null);
 
   protected readonly reviews = signal<EventReviewItem[]>([]);
   protected readonly canReview = signal(false);
@@ -184,7 +185,12 @@ export class EventDetailsPage implements OnInit {
     if (!ev || ev.status === 'cancelled' || ev.status === 'completed') return false;
     const seats = this.seatsSnapshot(ev);
     if (seats && seats.available < 1) return false;
+    if (this.activeBookingId()) return false;
     return this.auth.isLoggedIn();
+  }
+
+  protected hasActiveBookingForCurrentEvent(): boolean {
+    return !!this.activeBookingId();
   }
 
   protected showBookingCta(): boolean {
@@ -406,12 +412,24 @@ export class EventDetailsPage implements OnInit {
       .pipe(finalize(() => this.bookingSubmitting.set(false)))
       .subscribe({
         next: (res) => {
-          const bookingId = res.data?._id;
           this.toast.showSuccess(res.message ?? 'Booking created.');
-          if (bookingId) {
-            void this.router.navigate(['/bookings', bookingId]);
-          } else {
-            void this.router.navigate(['/bookings']);
+          // Keep the user on the same page and reflect seat changes immediately.
+          this.event.update((current) => {
+            if (!current) {
+              return current;
+            }
+            const nextAvailable =
+              typeof current.availableSeats === 'number'
+                ? Math.max(0, current.availableSeats - qty)
+                : current.availableSeats;
+            return {
+              ...current,
+              availableSeats: nextAvailable,
+            };
+          });
+          this.bookingQuantity.set(1);
+          if (res.data?._id) {
+            this.activeBookingId.set(res.data._id);
           }
         },
         error: (err: HttpErrorResponse) => {
@@ -455,6 +473,7 @@ export class EventDetailsPage implements OnInit {
 
     if (!this.auth.isLoggedIn()) {
       this.isFavorite.set(false);
+      this.activeBookingId.set(null);
       this.canReview.set(false);
       this.hasReviewed.set(false);
       this.reviewBlockReason.set('NOT_AUTHENTICATED');
@@ -463,6 +482,9 @@ export class EventDetailsPage implements OnInit {
 
     forkJoin({
       fav: this.favorites.getFavoriteStatus(eventId).pipe(catchError(() => of({ data: { isFavorite: false } }))),
+      activeBooking: this.bookings
+        .getActiveBookingForEvent(eventId)
+        .pipe(catchError(() => of({ success: true, data: null }))),
       status: this.reviewsApi.getReviewStatus(eventId).pipe(
         catchError(() =>
           of({
@@ -476,8 +498,9 @@ export class EventDetailsPage implements OnInit {
           }),
         ),
       ),
-    }).subscribe(({ fav, status }) => {
+    }).subscribe(({ fav, activeBooking, status }) => {
       this.isFavorite.set(!!fav.data?.isFavorite);
+      this.activeBookingId.set(activeBooking.data?._id ?? null);
       const d = status.data;
       this.canReview.set(!!d?.canReview);
       this.hasReviewed.set(!!d?.hasReviewed);
@@ -490,10 +513,8 @@ export class EventDetailsPage implements OnInit {
     if (!this.auth.isLoggedIn()) return 'Log in to save favorites and book tickets.';
     const r = this.reviewBlockReason();
     switch (r) {
-      case 'EVENT_NOT_ENDED':
-        return 'Reviews open after the event date has passed.';
       case 'NO_CONFIRMED_BOOKING':
-        return 'Reviews unlock once your booking is confirmed and the event date has passed.';
+        return 'Reviews unlock once your booking is confirmed.';
       case 'EVENT_CANCELLED':
         return 'This event was cancelled — reviews are closed.';
       case 'NOT_AUTHENTICATED':

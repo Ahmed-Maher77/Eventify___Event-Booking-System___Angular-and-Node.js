@@ -117,12 +117,13 @@
 
   &.is-open {
     grid-template-rows: 1fr;
+    overflow: visible;
   }
 }
 
 .admin-entity-page__catalog-filters-inner {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -145,7 +146,7 @@
 .admin-entity-page__catalog-filters-grid {
   display: grid;
   gap: 0.75rem 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: minmax(260px, 2.2fr) repeat(3, minmax(160px, 1fr));
   align-items: end;
 }
 
@@ -154,6 +155,26 @@
   gap: 0.28rem;
   margin: 0;
   min-width: 0;
+}
+
+.admin-entity-page__filter-field--search {
+  grid-column: span 1;
+}
+
+@media (width <= 1100px) {
+  .admin-entity-page__catalog-filters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .admin-entity-page__filter-field--search {
+    grid-column: span 2;
+  }
+}
+
+@media (width <= 700px) {
+  .admin-entity-page__filter-field--search {
+    grid-column: span 1;
+  }
 }
 
 .admin-entity-page__filter-label {
@@ -232,6 +253,41 @@
 .admin-entity-page__table {
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
+
+  th:nth-child(1),
+  td:nth-child(1) {
+    min-width: 170px;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    min-width: 220px;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3),
+  th:nth-child(4),
+  td:nth-child(4) {
+    min-width: 110px;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    min-width: 130px;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6) {
+    min-width: 170px;
+    white-space: nowrap;
+  }
+
+  td.text-end {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
 }
 
 .admin-entity-page__table tbody tr:last-child td {
@@ -244,6 +300,134 @@
   color: var(--color-brown);
   padding: 0.15rem 0.5rem;
   font-size: 0.78rem;
+}
+
+.admin-directory__status-pill {
+  border-radius: 999px;
+  background: rgb(16 185 129 / 12%);
+  color: #047857;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.admin-directory__status-pill.is-inactive {
+  background: rgb(220 38 38 / 10%);
+  color: #b91c1c;
+}
+
+.admin-entity-page__icon-btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid var(--color-admin-panel-border);
+  border-radius: 0.55rem;
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 40%, white);
+    color: var(--color-black);
+    background: rgb(255 255 255 / 96%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(231 200 115 / 55%);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.admin-directory__row-action {
+  border: 1px solid rgb(0 0 0 / 10%);
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  border-radius: 0.5rem;
+  min-height: 2.2rem;
+  padding: 0 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-black);
+  }
+
+  &.is-danger {
+    border-color: rgb(220 38 38 / 30%);
+    color: var(--color-danger);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.admin-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.admin-confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(14, 14, 14, 0.65);
+}
+
+.admin-confirm-modal__panel {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 1.35rem 1.25rem 1.25rem;
+  border-radius: 14px;
+  border: 2px solid var(--color-admin-panel-border);
+  background: var(--color-white);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.admin-confirm-modal__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: var(--color-black);
+}
+
+.admin-confirm-modal__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-admin-sidebar-text);
+}
+
+.admin-confirm-modal__text strong {
+  color: var(--color-black);
+  font-weight: 600;
+}
+
+.admin-confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
 }
 
 .admin-page__loader-wrap {

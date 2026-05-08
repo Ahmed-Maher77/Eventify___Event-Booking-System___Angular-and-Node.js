@@ -18,6 +18,7 @@ import {
 } from '../../shared/custom-native-select/custom-native-select';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
+import { ToastService } from '../../services/toast.service';
 
 type MemberSortField = 'createdAt' | 'name' | 'email' | 'role';
 type MemberSortOrder = 'asc' | 'desc';
@@ -42,6 +43,7 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminDashboardService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   protected readonly directorySortOptions: CustomNativeSelectOption[] = [
@@ -77,6 +79,13 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
   protected readonly rows = signal<AdminUserListItem[]>([]);
   protected readonly directoryFiltersExpanded = signal(false);
   protected readonly isCreateModalOpen = signal(false);
+  protected readonly actionInProgressId = signal<string | null>(null);
+  protected readonly pendingAction = signal<{
+    type: 'role' | 'status';
+    user: AdminUserListItem;
+    nextRole?: 'admin' | 'user';
+    nextIsActive?: boolean;
+  } | null>(null);
 
   ngOnInit(): void {
     this.directoryFilterForm.valueChanges
@@ -130,6 +139,39 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
     void this.router.navigate(['/dashboard/users', user._id]);
   }
 
+  protected requestRoleToggle(user: AdminUserListItem): void {
+    const nextRole = user.role === 'admin' ? 'user' : 'admin';
+    this.pendingAction.set({ type: 'role', user, nextRole });
+  }
+
+  protected requestStatusToggle(user: AdminUserListItem): void {
+    const nextIsActive = !(user.isActive ?? true);
+    this.pendingAction.set({ type: 'status', user, nextIsActive });
+  }
+
+  protected closePendingActionModal(): void {
+    if (this.actionInProgressId()) {
+      return;
+    }
+    this.pendingAction.set(null);
+  }
+
+  protected confirmPendingAction(): void {
+    const pending = this.pendingAction();
+    if (!pending) {
+      return;
+    }
+    if (pending.type === 'role') {
+      this.executeRoleChange(pending.user, pending.nextRole ?? 'user');
+      return;
+    }
+    this.executeStatusChange(pending.user, pending.nextIsActive ?? true);
+  }
+
+  protected isUserActionDisabled(user: AdminUserListItem): boolean {
+    return this.actionInProgressId() === user._id;
+  }
+
   protected openCreateAdminModal(): void {
     this.isCreateModalOpen.set(true);
   }
@@ -141,6 +183,60 @@ export class DashboardUsersPage implements OnInit, OnDestroy {
   protected onAdminCreated(): void {
     this.loadUsers();
     this.closeCreateAdminModal();
+  }
+
+  private executeRoleChange(user: AdminUserListItem, role: 'admin' | 'user'): void {
+    this.actionInProgressId.set(user._id);
+    this.errorMessage.set(null);
+
+    this.adminApi
+      .updateUserRole(user._id, role)
+      .pipe(finalize(() => this.actionInProgressId.set(null)))
+      .subscribe({
+        next: () => {
+          this.pendingAction.set(null);
+          this.rows.update((rows) => rows.map((row) => (row._id === user._id ? { ...row, role } : row)));
+          this.toastService.showSuccess(
+            role === 'admin' ? 'User promoted to admin.' : 'User changed to regular member.',
+          );
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.errorMessage.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to update role. Please try again.',
+          );
+        },
+      });
+  }
+
+  private executeStatusChange(user: AdminUserListItem, isActive: boolean): void {
+    this.actionInProgressId.set(user._id);
+    this.errorMessage.set(null);
+
+    this.adminApi
+      .updateUserStatus(user._id, isActive)
+      .pipe(finalize(() => this.actionInProgressId.set(null)))
+      .subscribe({
+        next: () => {
+          this.pendingAction.set(null);
+          this.rows.update((rows) =>
+            rows.map((row) => (row._id === user._id ? { ...row, isActive } : row)),
+          );
+          this.toastService.showSuccess(
+            isActive ? 'User account reactivated.' : 'User account deactivated.',
+          );
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.errorMessage.set(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to update account status. Please try again.',
+          );
+        },
+      });
   }
 
   private loadUsers(): void {

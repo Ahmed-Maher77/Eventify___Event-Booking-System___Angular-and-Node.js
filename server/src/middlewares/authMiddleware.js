@@ -1,6 +1,7 @@
 import { verifyToken } from "../utils/jwtUtils.js";
 import AppError from "./AppError.js";
 import { getAuthCookieName } from "../utils/authCookie.js";
+import User from "../models/User.js";
 
 /**
  * Authentication middleware - Protects routes
@@ -32,10 +33,18 @@ const protect = async (req, res, next) => {
     // Verify token
     const decoded = verifyToken(token);
 
+    const dbUser = await User.findById(decoded.id).select("role isActive");
+    if (!dbUser) {
+      throw AppError.unauthorized("User no longer exists.");
+    }
+    if (dbUser.isActive === false) {
+      throw AppError.forbidden("Your account is deactivated.");
+    }
+
     // Attach user info to request
     req.user = {
       id: decoded.id,
-      role: decoded.role,
+      role: dbUser.role,
     };
 
     next();

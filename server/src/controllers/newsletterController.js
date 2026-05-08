@@ -44,21 +44,29 @@ const createNewsletterSubscription = async (req, res, next) => {
 // ---- Get Newsletter Subscribers [Admin ONLY] ----
 const getAllNewsletterSubscribers = async (req, res, next) => {
   try {
-    const { status } = req.query;
+    const { status, search, sort = "createdAt", order = "desc" } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const filter = {};
     if (status) filter.status = status;
+    if (search?.trim()) {
+      filter.email = { $regex: search.trim(), $options: "i" };
+    }
+
+    const sortField = ["createdAt", "email", "status"].includes(String(sort))
+      ? String(sort)
+      : "createdAt";
+    const sortOrder = String(order).toLowerCase() === "asc" ? 1 : -1;
 
     const subscribers = await NewsletterSubscriber.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ [sortField]: sortOrder })
       .skip(skip)
       .limit(limit);
 
     const totalSubscribers = await NewsletterSubscriber.countDocuments(filter);
-    const totalPages = Math.ceil(totalSubscribers / limit);
+    const totalPages = Math.max(1, Math.ceil(totalSubscribers / limit));
 
     res.status(200).json({
       success: true,

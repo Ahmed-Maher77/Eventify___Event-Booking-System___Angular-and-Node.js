@@ -32,9 +32,6 @@
       >
         <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
         <span>Filters &amp; sort</span>
-        @if (hasActiveCatalogFilters()) {
-          <span class="admin-entity-page__filters-active-badge">Active</span>
-        }
       </button>
       <button
         type="button"
@@ -59,7 +56,7 @@
       <div class="admin-entity-page__catalog-filters-inner">
   <div class="admin-entity-page__catalog-filters" [formGroup]="catalogFilterForm">
     <div class="admin-entity-page__catalog-filters-grid">
-      <label class="admin-entity-page__filter-field">
+      <label class="admin-entity-page__filter-field admin-entity-page__filter-field--search">
         <span class="admin-entity-page__filter-label">Search</span>
         <input
           class="admin-entity-page__filter-input"
@@ -140,6 +137,8 @@
               <span class="visually-hidden">Event image</span>
             </th>
             <th scope="col">Event</th>
+            <th scope="col">Location</th>
+            <th scope="col">Category</th>
             <th scope="col">Date</th>
             <th scope="col">Status</th>
             <th class="text-end" scope="col">Actions</th>
@@ -159,35 +158,39 @@
                 />
               </td>
               <td>{{ event.title }}</td>
+              <td>{{ event.location || '—' }}</td>
+              <td>{{ event.category ? (event.category | titlecase) : '—' }}</td>
               <td>{{ event.date | date: 'MMM d, y' }}</td>
               <td>
                 <span class="admin-entity-page__pill">{{ event.status || 'upcoming' }}</span>
               </td>
               <td class="text-end">
-                <button
-                  type="button"
-                  class="admin-entity-page__icon-btn"
-                  aria-label="View event details"
-                  (click)="goToEventDetail(event)"
-                >
-                  <i class="fa-regular fa-eye" aria-hidden="true"></i>
-                </button>
-                <button
-                  type="button"
-                  class="admin-entity-page__icon-btn"
-                  aria-label="Edit event"
-                  (click)="openEditEventModal(event)"
-                >
-                  <i class="fa-regular fa-pen-to-square"></i>
-                </button>
-                <button
-                  type="button"
-                  class="admin-entity-page__icon-btn is-danger"
-                  aria-label="Delete event"
-                  (click)="openDeleteConfirm(event)"
-                >
-                  <i class="fa-regular fa-trash-can"></i>
-                </button>
+                <div class="admin-entity-page__row-actions">
+                  <button
+                    type="button"
+                    class="admin-entity-page__icon-btn"
+                    aria-label="View event details"
+                    (click)="goToEventDetail(event)"
+                  >
+                    <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="admin-entity-page__icon-btn"
+                    aria-label="Edit event"
+                    (click)="openEditEventModal(event)"
+                  >
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="admin-entity-page__icon-btn is-danger"
+                    aria-label="Delete event"
+                    (click)="openDeleteConfirm(event)"
+                  >
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           }

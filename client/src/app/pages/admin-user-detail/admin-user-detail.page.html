@@ -1,5 +1,16 @@
 <section class="admin-user-detail">
   <header class="admin-user-detail__header">
+    <nav class="admin-user-detail__breadcrumb" aria-label="Breadcrumb">
+      <ol class="admin-user-detail__crumbs">
+        <li>
+          <a routerLink="/dashboard">Dashboard</a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/users">Member Directory</a>
+        </li>
+        <li aria-current="page">User Profile</li>
+      </ol>
+    </nav>
     <app-highlighted-page-heading
       titlePrefix="User"
       titleHighlight="Profile"
@@ -8,15 +19,6 @@
       containerClass="admin-heading--container"
       titleClass="admin-heading--title"
       subtitleClass="admin-heading--subtitle"
-    />
-    <app-button
-      label="Back to Directory"
-      variant="dark"
-      size="sm"
-      [rounded]="true"
-      leftIcon="fa-solid fa-arrow-left"
-      customClass="diagonal-swipe-hover"
-      routerLink="/dashboard/users"
     />
   </header>
 
@@ -30,6 +32,13 @@
   <div class="admin-entity-page__panel">
     <div class="user-profile-grid">
       <div class="profile-main">
+        <div class="profile-avatar" aria-label="User profile picture">
+          @if (user.pictureUrl) {
+            <img [src]="user.pictureUrl" [alt]="user.name + ' profile picture'" loading="lazy" />
+          } @else {
+            <span class="profile-avatar__fallback">{{ userInitials(user) }}</span>
+          }
+        </div>
         <div class="profile-field">
           <span class="profile-label">Full Name</span>
           <span class="profile-value">{{ user.name }}</span>
@@ -44,9 +53,19 @@
             <span class="admin-directory__pill">{{ user.role | titlecase }}</span>
           </span>
         </div>
-        <div class="profile-field">
-          <span class="profile-label">Member Since</span>
-          <span class="profile-value">{{ user.createdAt | date: 'longDate' }}</span>
+        <div class="profile-dates">
+          <div class="profile-field">
+            <span class="profile-label">Member Since</span>
+            <span class="profile-value">
+              {{ user.createdAt ? (user.createdAt | date: 'longDate') : '—' }}
+            </span>
+          </div>
+          <div class="profile-field">
+            <span class="profile-label">Updated At</span>
+            <span class="profile-value">
+              {{ user.updatedAt ? (user.updatedAt | date: 'medium') : '—' }}
+            </span>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, finalize, tap } from 'rxjs';
+import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 import { AuthResponse, LoginPayload, RegisterPayload, UserData } from './auth.model';
 import { environment } from '../../environments/environment';
 
@@ -9,6 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly accessTokenStorageKey = 'eventify_access_token';
   private readonly userDataStorageKey = 'eventify_user_data';
   private readonly authApiUrl = `${environment.backendApiUrl.trim().replace(/\/+$/, '')}/auth`;
@@ -114,12 +116,16 @@ export class AuthService {
   }
 
   logout(): void {
+    // Clear local auth and leave protected routes immediately.
+    this.clearLocalAuthState();
+    void this.router.navigate(['/']);
+
+    // Best-effort server-side cookie/session invalidation.
     this.http
       .post<{ success: boolean; message: string }>(`${this.authApiUrl}/logout`, {}, { withCredentials: true })
-      .pipe(finalize(() => this.clearLocalAuthState()))
       .subscribe({
         error: () => {
-          // Local state is still cleared in finalize even if request fails.
+          // Ignore backend logout failures; local state is already cleared.
         }
       });
   }
