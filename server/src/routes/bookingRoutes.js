@@ -46,6 +46,15 @@ router.patch(
   updateBookingQuantity,
 );
 
+// ---- Update Booking Quantity [Owner/Admin] ----
+router.patch(
+  "/:id/quantity",
+  protect,
+  ...validateObjectId(),
+  validateBookingQuantityUpdate,
+  updateBookingQuantity,
+);
+
 //      ==> DELETE <==
 // ---- Cancel Booking ----
 router.delete("/:id", protect, ...validateObjectId(), cancelBooking);

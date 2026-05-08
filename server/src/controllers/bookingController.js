@@ -385,6 +385,69 @@ const updateBookingQuantity = async (req, res, next) => {
   }
 };
 
+// ---- Update Booking Quantity [Owner/Admin] ----
+const updateBookingQuantity = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const nextQuantity = Number(req.body.quantity);
+
+    if (!Number.isFinite(nextQuantity) || nextQuantity < 1) {
+      throw AppError.badRequest("Quantity must be a positive integer.");
+    }
+
+    const booking = await Booking.findById(id).populate("userId", "name email");
+    if (!booking) throw AppError.notFound("Booking not found");
+
+    const isOwner = booking.userId?._id?.toString() === req.user.id.toString();
+    const isAdmin = req.user.role === "admin";
+    if (!isOwner && !isAdmin) {
+      throw AppError.forbidden("You do not have permission to update this booking.");
+    }
+
+    if (booking.status === "cancelled") {
+      throw AppError.badRequest("Cancelled bookings cannot be updated.");
+    }
+
+    const event = await Event.findById(booking.eventId);
+    if (!event) throw AppError.notFound("Event is not found.");
+
+    const currentQuantity = Number(booking.quantity) || 1;
+    const quantityDiff = nextQuantity - currentQuantity;
+    if (quantityDiff === 0) {
+      await booking.populate("eventId", "title date location");
+      return res.status(200).json({
+        success: true,
+        message: "Booking quantity unchanged.",
+        data: booking,
+      });
+    }
+
+    if (quantityDiff > 0) {
+      if (event.availableSeats < quantityDiff) {
+        throw AppError.badRequest(`Only ${event.availableSeats} seats available.`);
+      }
+      event.availableSeats -= quantityDiff;
+    } else {
+      event.availableSeats += Math.abs(quantityDiff);
+    }
+
+    booking.quantity = nextQuantity;
+    booking.totalPrice = nextQuantity * (Number(event.price) || 0);
+
+    await Promise.all([event.save(), booking.save()]);
+    await booking.populate("eventId", "title date location");
+
+    res.status(200).json({
+      success: true,
+      message: "Booking quantity updated successfully.",
+      data: booking,
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(AppError.internalError("An error occurred when updating booking quantity."));
+  }
+};
+
 //      ==> DELETE <==
 // ---- Cancel Booking ----
 const cancelBooking = async (req, res, next) => {
