@@ -140,6 +140,9 @@
             <th scope="col">Location</th>
             <th scope="col">Category</th>
             <th scope="col">Date</th>
+            <th scope="col">Tickets</th>
+            <th scope="col">Booked</th>
+            <th scope="col">Reviews</th>
             <th scope="col">Status</th>
             <th class="text-end" scope="col">Actions</th>
           </tr>
@@ -161,6 +164,21 @@
               <td>{{ event.location || '—' }}</td>
               <td>{{ event.category ? (event.category | titlecase) : '—' }}</td>
               <td>{{ event.date | date: 'MMM d, y' }}</td>
+              <td>
+                @if (ticketsSnapshot(event); as seats) {
+                  {{ seats.available }} / {{ seats.total }}
+                } @else {
+                  —
+                }
+              </td>
+              <td>
+                @if (bookedSeatsCount(event); as booked) {
+                  {{ booked }}
+                } @else {
+                  —
+                }
+              </td>
+              <td>{{ reviewSummaryLabel(event) }}</td>
               <td>
                 <span class="admin-entity-page__pill">{{ event.status || 'upcoming' }}</span>
               </td>

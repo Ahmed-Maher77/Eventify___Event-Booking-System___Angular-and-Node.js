@@ -76,6 +76,40 @@
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
 
+  th:nth-child(2),
+  td:nth-child(2) {
+    min-width: 200px;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3) {
+    min-width: 170px;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    min-width: 140px;
+    white-space: nowrap;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6) {
+    min-width: 120px;
+    white-space: nowrap;
+  }
+
+  th:nth-child(7),
+  td:nth-child(7) {
+    min-width: 90px;
+    white-space: nowrap;
+  }
+
+  th:nth-child(8),
+  td:nth-child(8) {
+    min-width: 130px;
+    white-space: nowrap;
+  }
+
   th.text-end,
   td.text-end {
     width: 130px;

@@ -157,7 +157,14 @@
               <div class="bookings-page__card-head">
                 <div>
                   <p class="bookings-page__kicker">Reservation</p>
-                  <h2 class="bookings-page__title">{{ eventTitle(booking) }}</h2>
+                  @if (eventDetailsLink(booking); as eventLink) {
+                    <a class="bookings-page__title-link" [routerLink]="eventLink" aria-label="Open event details">
+                      <h2 class="bookings-page__title">{{ eventTitle(booking) }}</h2>
+                      <i class="fa-solid fa-arrow-right bookings-page__title-link-arrow" aria-hidden="true"></i>
+                    </a>
+                  } @else {
+                    <h2 class="bookings-page__title">{{ eventTitle(booking) }}</h2>
+                  }
                 </div>
                 <span
                   class="bookings-page__status-pill"
@@ -264,8 +271,10 @@
                   variant="primary"
                   size="sm"
                   [rounded]="true"
-                  [routerLink]="'/bookings/' + booking._id"
+                  [loading]="isOpeningDetails(booking._id)"
+                  [disabled]="isOpeningDetails(booking._id)"
                   customClass="diagonal-swipe-hover"
+                  (pressed)="openBookingDetails(booking)"
                 />
                 @if (cancellationPolicyNote(booking); as note) {
                   <p

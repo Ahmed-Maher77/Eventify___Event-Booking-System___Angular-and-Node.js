@@ -22,10 +22,6 @@ type BookingStatusTab = 'all' | 'pending' | 'confirmed' | 'cancelled';
 type BookingSortField = 'createdAt' | 'status' | 'quantity' | 'totalPrice';
 type BookingSortOrder = 'asc' | 'desc';
 
-type BookingStatusTab = 'all' | 'pending' | 'confirmed' | 'cancelled';
-type BookingSortField = 'createdAt' | 'status' | 'quantity' | 'totalPrice';
-type BookingSortOrder = 'asc' | 'desc';
-
 @Component({
   selector: 'app-dashboard-bookings-page',
   standalone: true,

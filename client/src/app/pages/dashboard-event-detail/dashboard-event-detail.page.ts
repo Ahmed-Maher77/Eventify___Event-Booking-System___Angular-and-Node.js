@@ -3,10 +3,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { EventReviewItem, EventReviewService } from '../../services/event-review.service';
 import { EventApiItem, EventService } from '../../services/event.service';
+import { ToastService } from '../../services/toast.service';
 import { AdminEventFormModalComponent } from '../../shared/admin-event-form-modal/admin-event-form-modal.component';
 import { Button } from '../../shared/button/button';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
+import { resolveAvatarUrl } from '../../utils/avatar-url';
 
 @Component({
   selector: 'app-dashboard-event-detail-page',
@@ -20,8 +23,13 @@ export class DashboardEventDetailPage implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly eventService = inject(EventService);
+  private readonly reviewsApi = inject(EventReviewService);
+  private readonly toast = inject(ToastService);
 
   protected readonly event = signal<EventApiItem | null>(null);
+  protected readonly reviews = signal<EventReviewItem[]>([]);
+  protected readonly reviewsLoading = signal(false);
+  protected readonly deletingReviewId = signal<string | null>(null);
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly eventEditModalOpen = signal(false);
@@ -41,6 +49,7 @@ export class DashboardEventDetailPage implements OnInit {
         next: (res) => {
           if (res?.data) {
             this.event.set(res.data);
+            this.loadReviews(res.data._id);
           } else {
             this.errorMessage.set('Event not found.');
           }
@@ -101,5 +110,53 @@ export class DashboardEventDetailPage implements OnInit {
       return null;
     }
     return { available, capacity };
+  }
+
+  protected isDeletingReview(reviewId: string): boolean {
+    return this.deletingReviewId() === reviewId;
+  }
+
+  protected reviewAvatarUrl(review: EventReviewItem): string {
+    return resolveAvatarUrl(review.authorName ?? 'Attendee', review.authorPictureUrl);
+  }
+
+  protected deleteReviewAsAdmin(review: EventReviewItem): void {
+    const eventId = this.event()?._id;
+    if (!eventId || this.deletingReviewId()) {
+      return;
+    }
+    this.deletingReviewId.set(review._id);
+    this.reviewsApi
+      .adminDeleteReview(eventId, review._id)
+      .pipe(finalize(() => this.deletingReviewId.set(null)))
+      .subscribe({
+        next: (res) => {
+          this.reviews.update((current) => current.filter((row) => row._id !== review._id));
+          this.toast.showSuccess(res.message ?? 'Review deleted.');
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = err.error?.message;
+          this.toast.showError(
+            typeof msg === 'string' && msg.trim()
+              ? msg
+              : 'Unable to delete this review right now.',
+          );
+        },
+      });
+  }
+
+  private loadReviews(eventId: string): void {
+    this.reviewsLoading.set(true);
+    this.reviewsApi
+      .getReviews(eventId)
+      .pipe(finalize(() => this.reviewsLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.reviews.set(res.data?.reviews ?? []);
+        },
+        error: () => {
+          this.reviews.set([]);
+        },
+      });
   }
 }

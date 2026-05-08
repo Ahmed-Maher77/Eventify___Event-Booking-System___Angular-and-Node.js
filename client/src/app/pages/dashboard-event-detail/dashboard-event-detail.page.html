@@ -163,6 +163,52 @@
           </dl>
         </aside>
       </div>
+
+      <section class="admin-event-detail__block" aria-labelledby="event-detail-reviews">
+        <h2 id="event-detail-reviews" class="admin-event-detail__block-title">Reviews moderation</h2>
+        @if (reviewsLoading()) {
+          <p class="admin-event-detail__empty-note">Loading reviews...</p>
+        } @else if (!reviews().length) {
+          <p class="admin-event-detail__empty-note">No reviews found for this event.</p>
+        } @else {
+          <ul class="admin-event-detail__reviews-list">
+            @for (review of reviews(); track review._id) {
+              <li class="admin-event-detail__review-item">
+                <div class="admin-event-detail__review-main">
+                  <div class="admin-event-detail__review-head">
+                    <img
+                      class="admin-event-detail__review-avatar"
+                      [src]="reviewAvatarUrl(review)"
+                      [alt]="'Profile photo for ' + (review.authorName || 'Attendee')"
+                      width="36"
+                      height="36"
+                      loading="lazy"
+                    />
+                    <p class="admin-event-detail__review-head-meta">
+                      <strong>{{ review.authorName || 'Attendee' }}</strong>
+                      <span>• {{ review.createdAt | date: 'medium' }}</span>
+                      <span>• {{ review.rating }}/5</span>
+                    </p>
+                  </div>
+                  <p class="admin-event-detail__review-message">{{ review.message || 'No message.' }}</p>
+                </div>
+                <button
+                  type="button"
+                  class="admin-event-detail__review-delete-btn"
+                  [disabled]="isDeletingReview(review._id)"
+                  (click)="deleteReviewAsAdmin(review)"
+                >
+                  <i
+                    [class]="isDeletingReview(review._id) ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-trash-can'"
+                    aria-hidden="true"
+                  ></i>
+                  <span>{{ isDeletingReview(review._id) ? 'Deleting...' : 'Delete review' }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
     </div>
   }
 </section>
