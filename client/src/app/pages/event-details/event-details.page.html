@@ -209,7 +209,7 @@
           }
         </div>
 
-        @if (mergedReviews().length) {
+        @if (reviews().length) {
           <div class="public-event-detail__feedback-summary" aria-labelledby="student-feedback-heading">
             <h3 id="student-feedback-heading" class="public-event-detail__feedback-title">Attendee feedback</h3>
             <div class="public-event-detail__feedback-grid">
@@ -265,19 +265,9 @@
                   class="public-event-detail__review-search-input"
                   placeholder="Search reviews"
                   autocomplete="off"
-                  [ngModel]="reviewSearchDraft()"
-                  (ngModelChange)="reviewSearchDraft.set($event)"
-                  (keydown)="onReviewSearchKeydown($event)"
+                  [ngModel]="reviewSearchTerm()"
+                  (ngModelChange)="setReviewSearch($event)"
                 />
-                <button
-                  type="button"
-                  class="public-event-detail__review-search-btn"
-                  title="Search reviews"
-                  aria-label="Search reviews"
-                  (click)="applyReviewSearch()"
-                >
-                  <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                </button>
               </div>
               <div class="public-event-detail__review-filter">
                 <label class="public-event-detail__review-filter-label" for="review-rating-filter">Filter ratings</label>
@@ -293,16 +283,9 @@
           </div>
         }
 
-        <p class="public-event-detail__sample-note">
-          Rows marked “Sample” are placeholders so you can preview the layout before live reviews appear.
-        </p>
-
         <ul class="public-event-detail__review-list">
           @for (r of filteredReviews(); track r._id) {
-            <li
-              class="public-event-detail__review-card"
-              [class.public-event-detail__review-card--sample]="isSampleReview(r)"
-            >
+            <li class="public-event-detail__review-card">
               <div class="public-event-detail__review-head">
                 <img
                   class="public-event-detail__review-avatar"
@@ -315,8 +298,8 @@
                 <div class="public-event-detail__review-head-text">
                   <div class="public-event-detail__review-name-row">
                     <span class="public-event-detail__review-author">{{ r.authorName }}</span>
-                    @if (isSampleReview(r)) {
-                      <span class="public-event-detail__sample-pill">Sample</span>
+                    @if (isOwnReview(r)) {
+                      <span class="public-event-detail__review-owner-pill">Your review</span>
                     }
                   </div>
                   <div class="public-event-detail__review-meta-row">
@@ -365,6 +348,78 @@
                 }
               }
 
+              @if (isOwnReview(r)) {
+                <div class="public-event-detail__review-owner-actions">
+                  <button
+                    type="button"
+                    class="public-event-detail__review-owner-btn"
+                    [disabled]="reviewActionBusy()[r._id]"
+                    (click)="startEditReview(r)"
+                  >
+                    <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="public-event-detail__review-owner-btn public-event-detail__review-owner-btn--danger"
+                    [disabled]="reviewActionBusy()[r._id]"
+                    (click)="deleteOwnReview(r)"
+                  >
+                    <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                    Delete
+                  </button>
+                </div>
+              }
+
+              @if (editingReviewId() === r._id) {
+                <div class="public-event-detail__review-edit">
+                  <div class="public-event-detail__hearts" role="group" aria-label="Edit rating out of five">
+                    @for (n of [1, 2, 3, 4, 5]; track n) {
+                      <button
+                        type="button"
+                        class="public-event-detail__heart"
+                        [class.is-selected]="editRating() >= n"
+                        [attr.aria-label]="'Set rating to ' + n + ' out of 5'"
+                        [disabled]="reviewActionBusy()[r._id]"
+                        (click)="setEditRating(n)"
+                      >
+                        <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                      </button>
+                    }
+                  </div>
+                  <label class="public-event-detail__review-label" [for]="'edit-review-msg-' + r._id">
+                    Message (optional)
+                  </label>
+                  <textarea
+                    [id]="'edit-review-msg-' + r._id"
+                    class="public-event-detail__review-textarea"
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Update your review"
+                    [ngModel]="editMessage()"
+                    (ngModelChange)="editMessage.set($event)"
+                  ></textarea>
+                  <div class="public-event-detail__review-edit-actions">
+                    <button
+                      type="button"
+                      class="public-event-detail__review-owner-btn"
+                      [disabled]="reviewActionBusy()[r._id]"
+                      (click)="cancelEditReview()"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      class="public-event-detail__review-owner-btn public-event-detail__review-owner-btn--save"
+                      [disabled]="reviewActionBusy()[r._id] || editRating() < 1"
+                      (click)="saveEditedReview(r)"
+                    >
+                      {{ reviewActionBusy()[r._id] ? 'Saving...' : 'Save changes' }}
+                    </button>
+                  </div>
+                </div>
+              }
+
               <div class="public-event-detail__review-helpful">
                 <span class="public-event-detail__review-helpful-q">Was this review helpful?</span>
                 <div class="public-event-detail__review-votes" role="group" [attr.aria-label]="'Helpful votes for ' + r.authorName">
@@ -372,7 +427,8 @@
                     type="button"
                     class="public-event-detail__vote-btn"
                     [class.is-active]="r.userVote === 'up'"
-                    [disabled]="isSampleReview(r) || voteBusy()[r._id]"
+                    [disabled]="voteBusy()[r._id] || isOwnReview(r)"
+                    [attr.title]="isOwnReview(r) ? 'You cannot vote on your own review' : null"
                     [attr.aria-pressed]="r.userVote === 'up'"
                     [attr.aria-label]="'Mark review as helpful' + (r.helpfulUp != null ? ', ' + r.helpfulUp + ' votes' : '')"
                     (click)="voteOnReview(r, 'up')"
@@ -383,7 +439,8 @@
                     type="button"
                     class="public-event-detail__vote-btn"
                     [class.is-active]="r.userVote === 'down'"
-                    [disabled]="isSampleReview(r) || voteBusy()[r._id]"
+                    [disabled]="voteBusy()[r._id] || isOwnReview(r)"
+                    [attr.title]="isOwnReview(r) ? 'You cannot vote on your own review' : null"
                     [attr.aria-pressed]="r.userVote === 'down'"
                     [attr.aria-label]="'Mark review as not helpful' + (r.helpfulDown != null ? ', ' + r.helpfulDown + ' votes' : '')"
                     (click)="voteOnReview(r, 'down')"
@@ -396,12 +453,59 @@
           }
         </ul>
 
-        @if (mergedReviews().length && !filteredReviews().length) {
+        @if (reviews().length && !filteredReviews().length) {
           <p class="public-event-detail__empty-note">No reviews match your search or filter.</p>
         } @else if (!reviews().length) {
-          <p class="public-event-detail__empty-note">No live reviews yet — you can be the first when you are eligible.</p>
+          <p class="public-event-detail__empty-note">No reviews yet — you can be the first when you are eligible.</p>
         }
       </section>
     </div>
   }
 </section>
+
+@if (pendingDeleteReview(); as pending) {
+  <div
+    class="public-event-detail__confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="review-delete-dialog-title"
+    aria-describedby="review-delete-dialog-desc"
+  >
+    <button
+      type="button"
+      class="public-event-detail__confirm-backdrop"
+      aria-label="Cancel deleting review"
+      [disabled]="reviewActionBusy()[pending._id]"
+      (click)="closeDeleteReviewModal()"
+    ></button>
+    <div class="public-event-detail__confirm-panel">
+      <h3 id="review-delete-dialog-title" class="public-event-detail__confirm-title">
+        Delete your review?
+      </h3>
+      <p id="review-delete-dialog-desc" class="public-event-detail__confirm-text">
+        This action cannot be undone. Your rating and message will be permanently removed.
+      </p>
+      <div class="public-event-detail__confirm-actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="reviewActionBusy()[pending._id]"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closeDeleteReviewModal()"
+        />
+        <app-button
+          [label]="reviewActionBusy()[pending._id] ? 'Deleting...' : 'Delete review'"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [disabled]="reviewActionBusy()[pending._id]"
+          [loading]="reviewActionBusy()[pending._id]"
+          customClass="public-event-detail__confirm-delete-btn diagonal-swipe-hover"
+          (pressed)="confirmDeleteReview()"
+        />
+      </div>
+    </div>
+  </div>
+}
