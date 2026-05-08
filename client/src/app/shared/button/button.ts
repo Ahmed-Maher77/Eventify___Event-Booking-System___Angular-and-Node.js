@@ -1,5 +1,6 @@
 import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Params } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { ButtonSize, ButtonVariant, NativeButtonType } from './button.model';
 
@@ -23,6 +24,7 @@ export class Button {
   @Input() rightIcon = '';
   @Input() customClass = '';
   @Input() routerLink: string | string[] | null = null;
+  @Input() queryParams: Params | null = null;
   @Input() href = '';
   @Input() target = '_self';
   @Input() rel = '';

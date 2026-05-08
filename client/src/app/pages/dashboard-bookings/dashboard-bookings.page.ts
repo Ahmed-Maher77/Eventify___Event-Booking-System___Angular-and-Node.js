@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
 import {
   ADMIN_LIST_PAGE_SIZE,
@@ -41,9 +43,12 @@ import {
 export class DashboardBookingsPage implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminDashboardService);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
   private latestRequestId = 0;
+  private suppressFormChangeReload = false;
 
   protected readonly statusOptions: CustomNativeSelectOption[] = [
     { value: '', label: 'All statuses' },
@@ -84,8 +89,14 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
     confirmed: 0,
     cancelled: 0,
   });
+  protected readonly selectedUserId = signal('');
+  protected readonly selectedEventId = signal('');
 
   ngOnInit(): void {
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      this.applyRouteQueryParams(params);
+    });
+
     this.filterForm.valueChanges
       .pipe(
         debounceTime(280),
@@ -93,12 +104,13 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(() => {
+        if (this.suppressFormChangeReload) {
+          return;
+        }
         this.syncActiveStatusTabWithFilter();
         this.listPage.set(1);
         this.loadBookings();
       });
-
-    this.loadBookings();
   }
 
   ngOnDestroy(): void {
@@ -121,6 +133,8 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
   }
 
   protected clearFilters(): void {
+    this.selectedUserId.set('');
+    this.selectedEventId.set('');
     this.filterForm.reset(
       {
         search: '',
@@ -132,6 +146,11 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
     );
     this.activeStatusTab.set('all');
     this.listPage.set(1);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
     this.loadBookings();
   }
 
@@ -151,7 +170,14 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
 
   protected hasActiveFilters(): boolean {
     const f = this.filterForm.getRawValue();
-    return !!f.search.trim() || !!f.status.trim() || f.sort !== 'createdAt' || f.order !== 'desc';
+    return (
+      !!f.search.trim() ||
+      !!f.status.trim() ||
+      f.sort !== 'createdAt' ||
+      f.order !== 'desc' ||
+      !!this.selectedUserId() ||
+      !!this.selectedEventId()
+    );
   }
 
   protected bookingCustomerLabel(b: AdminBookingListItem): string {
@@ -324,6 +350,8 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
         page: safePage,
         limit: ADMIN_LIST_PAGE_SIZE,
         status: (f.status || undefined) as 'pending' | 'confirmed' | 'cancelled' | undefined,
+        userId: this.selectedUserId() || undefined,
+        eventId: this.selectedEventId() || undefined,
         search: search || undefined,
         sort: f.sort,
         order: f.order,
@@ -412,5 +440,41 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
       return null;
     }
     return parsed;
+  }
+
+  private applyRouteQueryParams(params: import('@angular/router').ParamMap): void {
+    const status = (params.get('status') ?? '').trim();
+    const search = (params.get('search') ?? '').trim();
+    const sort = (params.get('sort') ?? '').trim();
+    const order = (params.get('order') ?? '').trim();
+    const userId = (params.get('userId') ?? '').trim();
+    const eventId = (params.get('eventId') ?? '').trim();
+    const pageRaw = Number(params.get('page') ?? '1');
+
+    const nextStatus = status === 'pending' || status === 'confirmed' || status === 'cancelled' ? status : '';
+    const nextSort: BookingSortField =
+      sort === 'status' || sort === 'quantity' || sort === 'totalPrice' || sort === 'createdAt'
+        ? sort
+        : 'createdAt';
+    const nextOrder: BookingSortOrder = order === 'asc' ? 'asc' : 'desc';
+    const nextPage = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    this.suppressFormChangeReload = true;
+    this.filterForm.patchValue(
+      {
+        search,
+        status: nextStatus,
+        sort: nextSort,
+        order: nextOrder,
+      },
+      { emitEvent: false },
+    );
+    this.suppressFormChangeReload = false;
+
+    this.selectedUserId.set(userId);
+    this.selectedEventId.set(eventId);
+    this.listPage.set(nextPage);
+    this.syncActiveStatusTabWithFilter();
+    this.loadBookings();
   }
 }
