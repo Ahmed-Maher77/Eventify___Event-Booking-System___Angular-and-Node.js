@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://eventify-event-management.vercel.app/api/$1"
+      "destination": "https://eventify-event-booking-system-nine.vercel.app/api/$1"
     },
     {
       "source": "/(.*)",
