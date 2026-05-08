@@ -7,9 +7,8 @@ import {
   getSingleBooking,
   getUsersBookings,
   updateBookingQuantity,
-  updateBookingStatus,
 } from "../controllers/bookingController.js";
-import { authorize, protect } from "../middlewares/authMiddleware.js";
+import { protect } from "../middlewares/authMiddleware.js";
 import {
   validateBooking,
   validateBookingQuantityUpdate,
@@ -38,13 +37,13 @@ router.get("/:id", protect, ...validateObjectId(), getSingleBooking);
 router.post("/", protect, validateBooking, createBooking);
 
 //              ==> PATCH <==
-// ---- Update Booking Status [Admin ONLY] ----
+// ---- Update Booking Quantity [Owner/Admin] ----
 router.patch(
-  "/:id",
+  "/:id/quantity",
   protect,
   ...validateObjectId(),
-  authorize(["admin"]),
-  updateBookingStatus,
+  validateBookingQuantityUpdate,
+  updateBookingQuantity,
 );
 
 // ---- Update Booking Quantity [Owner/Admin] ----

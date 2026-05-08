@@ -283,20 +283,72 @@
   font-size: 0.84rem;
 }
 
+.admin-entity-page__table th:nth-child(1),
+.admin-entity-page__table td:nth-child(1) {
+  min-width: 14rem;
+}
+
+.admin-entity-page__table th:nth-child(2),
+.admin-entity-page__table td:nth-child(2) {
+  min-width: 11rem;
+}
+
+.admin-entity-page__table th:nth-child(3),
+.admin-entity-page__table td:nth-child(3) {
+  min-width: 13rem;
+}
+
+.admin-entity-page__table th:nth-child(4),
+.admin-entity-page__table td:nth-child(4) {
+  min-width: 10rem;
+}
+
+.admin-entity-page__table th:nth-child(5),
+.admin-entity-page__table td:nth-child(5) {
+  min-width: 6rem;
+}
+
+.admin-entity-page__table th:nth-child(6),
+.admin-entity-page__table td:nth-child(6) {
+  min-width: 8.5rem;
+}
+
+.admin-entity-page__table th:nth-child(7),
+.admin-entity-page__table td:nth-child(7) {
+  min-width: 7rem;
+}
+
+.admin-entity-page__table th:nth-child(8),
+.admin-entity-page__table td:nth-child(8) {
+  min-width: 16rem;
+}
+
 .admin-entity-page__table {
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
-  tr td:last-child {
-    width: 100%;
-    display: inline-flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.35rem;
+  tbody td {
+    vertical-align: middle;
   }
 }
 
 .admin-entity-page__table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.admin-entity-page__event-ended-label {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 0.45rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgb(220 38 38 / 35%);
+  background: rgb(220 38 38 / 12%);
+  color: #b91c1c;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
 .admin-entity-page__pill {
@@ -305,6 +357,21 @@
   color: var(--color-brown);
   padding: 0.15rem 0.5rem;
   font-size: 0.78rem;
+}
+
+.admin-entity-page__pill--pending {
+  background: rgb(234 179 8 / 14%);
+  color: #a16207;
+}
+
+.admin-entity-page__pill--confirmed {
+  background: rgb(16 185 129 / 12%);
+  color: #047857;
+}
+
+.admin-entity-page__pill--cancelled {
+  background: rgb(220 38 38 / 12%);
+  color: #b91c1c;
 }
 
 .admin-entity-page__icon-btn {
@@ -337,4 +404,159 @@
 
 .admin-entity-page__state-message.is-error {
   color: var(--color-danger);
+}
+
+.admin-entity-page__actions-cell {
+  min-width: 15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 100%;
+}
+
+.admin-entity-page__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgb(120 112 100 / 35%);
+  border-radius: 0.45rem;
+  background: #fff;
+  color: var(--color-admin-sidebar-text);
+  font-size: 0.78rem;
+  font-weight: 650;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-entity-page__action-btn--refund {
+  border-color: rgb(217 119 6 / 38%);
+  background: rgb(251 191 36 / 14%);
+  color: #a16207;
+}
+
+.admin-entity-page__action-btn--refund:hover:not(:disabled) {
+  border-color: rgb(217 119 6 / 55%);
+  background: rgb(251 191 36 / 24%);
+}
+
+.admin-entity-page__action-btn--delete {
+  border-color: rgb(220 38 38 / 35%);
+  background: rgb(220 38 38 / 9%);
+  color: #b91c1c;
+}
+
+.admin-entity-page__action-btn--delete:hover:not(:disabled) {
+  border-color: rgb(220 38 38 / 52%);
+  background: rgb(220 38 38 / 16%);
+}
+
+.admin-entity-page__action-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin-entity-page__action-hint {
+  margin: 0.4rem 0 0;
+  color: var(--color-admin-stat-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.admin-entity-page__action-hint--refund {
+  color: #92400e;
+}
+
+.admin-entity-page__action-hint--delete {
+  color: #b91c1c;
+}
+
+.admin-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.admin-confirm-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgb(14 14 14 / 65%);
+  cursor: pointer;
+}
+
+.admin-confirm-modal__backdrop:disabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.admin-confirm-modal__panel {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 1.35rem 1.25rem 1.25rem;
+  border-radius: 14px;
+  border: 2px solid var(--color-admin-panel-border);
+  background: var(--color-white);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
+}
+
+.admin-confirm-modal__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: var(--color-black);
+}
+
+.admin-confirm-modal__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-admin-sidebar-text);
+  white-space: pre-line;
+}
+
+.admin-confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+::host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+::host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.diagonal-swipe-hover::before {
+  background-color: #7f1d1d;
+}
+
+::host
+  ::ng-deep
+  .admin-confirm-modal__delete-btn.ev-btn--primary.diagonal-swipe-hover:not(.ev-btn--inactive):hover {
+  color: #fff;
+  border-color: #b91c1c;
+  background-color: #b91c1c;
+}
+
+::host ::ng-deep .admin-confirm-modal__delete-btn.ev-btn--primary.ev-btn--inactive {
+  opacity: 0.75;
 }

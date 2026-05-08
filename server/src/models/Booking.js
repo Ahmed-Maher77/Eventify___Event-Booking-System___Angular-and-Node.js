@@ -31,6 +31,15 @@ const bookingSchema = new Schema(
       },
       default: "pending",
     },
+    payment: {
+      paymentIntentId: { type: String, default: null },
+      paymentStatus: { type: String, default: null },
+      amountPaid: { type: Number, default: null },
+      currency: { type: String, default: null },
+      paidAt: { type: Date, default: null },
+      refundId: { type: String, default: null },
+      refundStatus: { type: String, default: null },
+    },
   },
   { timestamps: true },
 );

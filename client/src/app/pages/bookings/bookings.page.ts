@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { BookingItem, BookingService } from '../../services/booking.service';
 import { ToastService } from '../../services/toast.service';
@@ -9,16 +10,26 @@ import { Button } from '../../shared/button/button';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
 
+const CANCELLATION_CUTOFF_HOURS = 48;
+
 @Component({
   selector: 'app-bookings-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, Button, HighlightedPageHeadingComponent, SectionLoader],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    Button,
+    HighlightedPageHeadingComponent,
+    SectionLoader,
+  ],
   templateUrl: './bookings.page.html',
   styleUrls: ['../../../sass/components/static-info-page.scss', './bookings.page.scss'],
 })
 export class BookingsPage implements OnInit {
   private readonly bookingService = inject(BookingService);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
@@ -30,13 +41,50 @@ export class BookingsPage implements OnInit {
   protected readonly isCancellingBookingId = signal<string | null>(null);
   protected readonly isDeletingBookingId = signal<string | null>(null);
   protected readonly quantityUpdatingMap = signal<Record<string, boolean>>({});
+  protected readonly filtersExpanded = signal(false);
+  protected readonly searchTerm = signal('');
+  protected readonly sortBy = signal<'booked_desc' | 'booked_asc' | 'event_asc' | 'event_desc'>(
+    'booked_desc',
+  );
+  protected readonly displayedBookings = computed(() => {
+    const query = this.searchTerm().trim().toLowerCase();
+    let rows = this.bookings().slice();
+    if (query) {
+      rows = rows.filter((booking) => {
+        const eventTitle = this.eventTitle(booking).toLowerCase();
+        const eventLocation = this.eventLocation(booking).toLowerCase();
+        const status = booking.status.toLowerCase();
+        return (
+          eventTitle.includes(query) ||
+          eventLocation.includes(query) ||
+          status.includes(query) ||
+          booking._id.toLowerCase().includes(query)
+        );
+      });
+    }
+    switch (this.sortBy()) {
+      case 'booked_asc':
+        rows.sort((a, b) => this.bookingTimestamp(a) - this.bookingTimestamp(b));
+        break;
+      case 'event_asc':
+        rows.sort((a, b) => this.eventTimestamp(a) - this.eventTimestamp(b));
+        break;
+      case 'event_desc':
+        rows.sort((a, b) => this.eventTimestamp(b) - this.eventTimestamp(a));
+        break;
+      default:
+        rows.sort((a, b) => this.bookingTimestamp(b) - this.bookingTimestamp(a));
+        break;
+    }
+    return rows;
+  });
 
   ngOnInit(): void {
     this.loadBookings();
   }
 
   protected hasBookings(): boolean {
-    return this.bookings().length > 0;
+    return this.displayedBookings().length > 0;
   }
 
   protected switchStatus(status: 'all' | 'pending' | 'confirmed' | 'cancelled'): void {
@@ -46,6 +94,29 @@ export class BookingsPage implements OnInit {
     this.activeStatus.set(status);
     this.currentPage.set(1);
     this.loadBookings();
+  }
+
+  protected toggleFilters(): void {
+    this.filtersExpanded.update((open) => !open);
+  }
+
+  protected clearFilters(): void {
+    this.activeStatus.set('all');
+    this.currentPage.set(1);
+    this.searchTerm.set('');
+    this.sortBy.set('booked_desc');
+    this.loadBookings();
+  }
+
+  protected setSortBy(raw: string): void {
+    if (
+      raw === 'booked_desc' ||
+      raw === 'booked_asc' ||
+      raw === 'event_asc' ||
+      raw === 'event_desc'
+    ) {
+      this.sortBy.set(raw);
+    }
   }
 
   protected goToPage(nextPage: number): void {
@@ -60,6 +131,9 @@ export class BookingsPage implements OnInit {
     const status = this.activeStatus();
     if (status === 'all') {
       return 'All bookings';
+    }
+    if (status === 'pending') {
+      return 'Awaiting payment';
     }
     return `${status[0].toUpperCase()}${status.slice(1)} bookings`;
   }
@@ -85,8 +159,39 @@ export class BookingsPage implements OnInit {
     return 'Location not available';
   }
 
+  protected bookingStatusLabel(status: BookingItem['status']): string {
+    if (status === 'pending') {
+      return 'Awaiting payment';
+    }
+    return `${status[0].toUpperCase()}${status.slice(1)}`;
+  }
+
   protected canCancel(booking: BookingItem): boolean {
-    return booking.status !== 'cancelled';
+    return booking.status !== 'cancelled' && this.isCancellationWindowOpen(booking);
+  }
+
+  protected cancellationPolicyNote(booking: BookingItem): string | null {
+    if (booking.status === 'cancelled') {
+      return null;
+    }
+    if (this.isCancellationWindowOpen(booking)) {
+      return 'Cancellations are available up to 48 hours before the event starts.';
+    }
+    return 'Cancellation unavailable: this booking is within 48 hours of the event.';
+  }
+
+  protected refundNotice(booking: BookingItem): string | null {
+    if (booking.status !== 'cancelled') {
+      return null;
+    }
+    const refundStatus = (booking.payment?.refundStatus || '').toLowerCase();
+    if (refundStatus === 'succeeded') {
+      return 'Refund completed: your payment was returned to your original payment method.';
+    }
+    if (booking.payment?.refundId || refundStatus) {
+      return 'Refund is being processed and will appear on your payment method shortly.';
+    }
+    return null;
   }
 
   protected isCancelling(bookingId: string): boolean {
@@ -101,12 +206,29 @@ export class BookingsPage implements OnInit {
     return !!this.quantityUpdatingMap()[bookingId];
   }
 
+  protected canPayNow(booking: BookingItem): boolean {
+    return booking.status === 'pending' && booking.totalPrice > 0;
+  }
+
+  protected payForBooking(booking: BookingItem): void {
+    if (!this.canPayNow(booking)) {
+      return;
+    }
+    void this.router.navigate(['/checkout'], { queryParams: { bookingId: booking._id } });
+  }
+
   protected canDeleteCancelled(booking: BookingItem): boolean {
     return booking.status === 'cancelled';
   }
 
   protected canAdjustQuantity(booking: BookingItem): boolean {
-    return booking.status !== 'cancelled' && !this.isQuantityUpdating(booking._id);
+    if (booking.status === 'cancelled') {
+      return false;
+    }
+    if (booking.payment?.paidAt) {
+      return false;
+    }
+    return !this.isQuantityUpdating(booking._id);
   }
 
   protected increaseQuantity(booking: BookingItem): void {
@@ -151,6 +273,11 @@ export class BookingsPage implements OnInit {
 
   protected cancelBooking(booking: BookingItem): void {
     if (!this.canCancel(booking) || this.isCancellingBookingId()) {
+      if (booking.status !== 'cancelled' && !this.isCancellationWindowOpen(booking)) {
+        this.toast.showError(
+          'This booking can no longer be cancelled because the 48-hour cancellation window has passed.',
+        );
+      }
       return;
     }
 
@@ -162,7 +289,9 @@ export class BookingsPage implements OnInit {
         next: () => {
           this.toast.showSuccess('Booking cancelled successfully.');
           this.bookings.update((current) =>
-            current.map((item) => (item._id === booking._id ? { ...item, status: 'cancelled' } : item)),
+            current.map((item) =>
+              item._id === booking._id ? { ...item, status: 'cancelled' } : item,
+            ),
           );
         },
         error: (err: HttpErrorResponse) => {
@@ -246,5 +375,38 @@ export class BookingsPage implements OnInit {
           );
         },
       });
+  }
+
+  private isCancellationWindowOpen(booking: BookingItem): boolean {
+    const eventDate = this.parseEventDate(booking);
+    if (!eventDate) {
+      return true;
+    }
+    const cutoffMs = CANCELLATION_CUTOFF_HOURS * 60 * 60 * 1000;
+    return eventDate.getTime() - Date.now() >= cutoffMs;
+  }
+
+  private parseEventDate(booking: BookingItem): Date | null {
+    if (typeof booking.eventId !== 'object' || !booking.eventId?.date) {
+      return null;
+    }
+    const parsed = new Date(booking.eventId.date);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+    return parsed;
+  }
+
+  private bookingTimestamp(booking: BookingItem): number {
+    if (!booking.createdAt) {
+      return 0;
+    }
+    const parsed = new Date(booking.createdAt);
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+  }
+
+  private eventTimestamp(booking: BookingItem): number {
+    const parsed = this.parseEventDate(booking);
+    return parsed ? parsed.getTime() : 0;
   }
 }

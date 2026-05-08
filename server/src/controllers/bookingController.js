@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 import AppError from "../middlewares/AppError.js";
+import { getStripe } from "../config/stripe.js";
 import Booking from "../models/Booking.js";
 import Event from "../models/Event.js";
+
+const CANCELLATION_CUTOFF_HOURS = 48;
 
 //         ==> GET <==
 // ---- Get User's Bookings ----
@@ -25,6 +28,7 @@ const getUsersBookings = async (req, res, next) => {
     const bookings = await Booking.find(filter)
       .populate("userId", "name email")
       .populate("eventId", "title date location")
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -229,9 +233,20 @@ const createBooking = async (req, res, next) => {
     const event = await Event.findById(eventId);
     if (!event) throw AppError.notFound("Event is not found.");
 
+    const eventDate = new Date(event.date);
+    if (
+      Number.isFinite(eventDate.getTime()) &&
+      eventDate.getTime() <= Date.now()
+    ) {
+      throw AppError.badRequest(
+        "Booking is closed because this event date has already passed.",
+      );
+    }
+
     // Check if event has available seats
-    if (event.availableSeats < 0)
-      throw AppError.badRequest("Not enough available seats.");
+    if (event.availableSeats <= 0) {
+      throw AppError.badRequest("This event is sold out. No seats are available.");
+    }
 
     if (quantity > event.availableSeats)
       throw AppError.badRequest(
@@ -253,12 +268,15 @@ const createBooking = async (req, res, next) => {
     // Calculate total price (quantity × event price)
     const totalPrice = quantity * event.price;
 
+    const status = totalPrice <= 0 ? "confirmed" : "pending";
+
     // Create booking
     const booking = await Booking.create({
       userId: req.user.id,
       eventId,
       quantity,
       totalPrice,
+      status,
     });
     await booking.populate("userId", "name email");
     await booking.populate("eventId", "title date location");
@@ -287,41 +305,83 @@ const createBooking = async (req, res, next) => {
   }
 };
 
-//              ==> PATCH <==
-// ---- Update Booking Status [Admin ONLY] ----
-const updateBookingStatus = async (req, res, next) => {
+// Booking status is not editable by admins manually: it follows user actions
+// (cancel), and later payment/provider webhooks or automated rules.
+
+// ---- Update Booking Quantity [Owner/Admin] ----
+const updateBookingQuantity = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const nextQuantity = Number(req.body.quantity);
 
-    if (!status) throw AppError.badRequest("Booking status is required");
+    if (!Number.isFinite(nextQuantity) || nextQuantity < 1) {
+      throw AppError.badRequest("Quantity must be a positive integer.");
+    }
 
-    const validStatuses = ["confirmed", "pending", "cancelled"];
-    if (!validStatuses.includes(status))
-      throw AppError.badRequest(`Invalid booking status.`);
-
-    if (!mongoose.Types.ObjectId.isValid(id))
-      throw new AppError("Invalid Booking ID", 400);
-
-    const booking = await Booking.findById(id)
-      .populate("userId", "name email")
-      .populate("eventId", "title date location");
-
+    const booking = await Booking.findById(id).populate("userId", "name email");
     if (!booking) throw AppError.notFound("Booking not found");
 
-    booking.status = status;
-    await booking.save();
+    const isOwner = booking.userId?._id?.toString() === req.user.id.toString();
+    const isAdmin = req.user.role === "admin";
+    if (!isOwner && !isAdmin) {
+      throw AppError.forbidden("You do not have permission to update this booking.");
+    }
+
+    if (booking.status === "cancelled") {
+      throw AppError.badRequest("Cancelled bookings cannot be updated.");
+    }
+
+    if (booking.payment?.paidAt) {
+      throw AppError.badRequest(
+        "Quantity cannot be changed after payment; cancel for a refund or contact support.",
+      );
+    }
+    const event = await Event.findById(booking.eventId);
+    if (!event) throw AppError.notFound("Event is not found.");
+
+    const currentQuantity = Number(booking.quantity) || 1;
+    const quantityDiff = nextQuantity - currentQuantity;
+    if (quantityDiff === 0) {
+      await booking.populate("eventId", "title date location");
+      return res.status(200).json({
+        success: true,
+        message: "Booking quantity unchanged.",
+        data: booking,
+      });
+    }
+
+    if (quantityDiff > 0) {
+      if (event.availableSeats < quantityDiff) {
+        throw AppError.badRequest(`Only ${event.availableSeats} seats available.`);
+      }
+      event.availableSeats -= quantityDiff;
+    } else {
+      event.availableSeats += Math.abs(quantityDiff);
+    }
+
+    booking.quantity = nextQuantity;
+    booking.totalPrice = nextQuantity * (Number(event.price) || 0);
+
+    if (booking.payment?.paymentIntentId) {
+      const stripe = getStripe();
+      if (stripe) {
+        await stripe.paymentIntents.cancel(booking.payment.paymentIntentId).catch(() => {});
+      }
+      booking.payment.paymentIntentId = null;
+      booking.payment.paymentStatus = null;
+    }
+
+    await Promise.all([event.save(), booking.save()]);
+    await booking.populate("eventId", "title date location");
 
     res.status(200).json({
       success: true,
-      message: "Booking status updated successfully",
+      message: "Booking quantity updated successfully.",
       data: booking,
     });
   } catch (error) {
     if (error instanceof AppError) return next(error);
-    next(
-      AppError.internalError("An error occurred when updating the booking."),
-    );
+    next(AppError.internalError("An error occurred when updating booking quantity."));
   }
 };
 
@@ -417,6 +477,50 @@ const cancelBooking = async (req, res, next) => {
       throw AppError.badRequest("Booking is already cancelled.");
     }
 
+    const eventDateValue =
+      booking.eventId && typeof booking.eventId === "object"
+        ? booking.eventId.date
+        : null;
+    if (eventDateValue) {
+      const eventDate = new Date(eventDateValue);
+      if (!Number.isNaN(eventDate.getTime())) {
+        const cutoffMs = CANCELLATION_CUTOFF_HOURS * 60 * 60 * 1000;
+        if (eventDate.getTime() - Date.now() < cutoffMs) {
+          throw AppError.badRequest(
+            "Cancellation is unavailable within 48 hours of the event start time.",
+          );
+        }
+      }
+    }
+
+    const stripe = getStripe();
+
+    if (booking.payment?.paidAt && booking.payment?.paymentIntentId) {
+      if (!stripe) {
+        return next(
+          AppError.internalError(
+            "Payment refund service is not configured.",
+          ),
+        );
+      }
+      try {
+        const refund = await stripe.refunds.create({
+          payment_intent: booking.payment.paymentIntentId,
+        });
+        booking.payment.refundId = refund.id;
+        booking.payment.refundStatus = refund.status;
+      } catch (refundErr) {
+        return next(
+          AppError.badRequest(
+            refundErr?.message ||
+              "Unable to process refund. Please contact support.",
+          ),
+        );
+      }
+    } else if (booking.payment?.paymentIntentId && stripe && !booking.payment?.paidAt) {
+      await stripe.paymentIntents.cancel(booking.payment.paymentIntentId).catch(() => {});
+    }
+
     // 3. Update booking status to "cancelled"
     booking.status = "cancelled";
 
@@ -474,14 +578,128 @@ const deleteCancelledBooking = async (req, res, next) => {
   }
 };
 
+// ---- Admin booking operation: before event => delete + refund, after event => delete only ----
+const adminDeleteBookingByEventDateRule = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) throw AppError.badRequest("Booking ID is required");
+    if (!mongoose.Types.ObjectId.isValid(id))
+      throw new AppError("Invalid Booking ID", 400);
+
+    const booking = await Booking.findById(id)
+      .populate("userId", "name email")
+      .populate("eventId", "title date location");
+    if (!booking) throw AppError.notFound("Booking not found");
+
+    const eventDateValue =
+      booking.eventId && typeof booking.eventId === "object"
+        ? booking.eventId.date
+        : null;
+    const parsedEventDate = eventDateValue ? new Date(eventDateValue) : null;
+    if (!parsedEventDate || Number.isNaN(parsedEventDate.getTime())) {
+      throw AppError.badRequest("Booking event date is invalid.");
+    }
+
+    const isBeforeEvent = parsedEventDate.getTime() > Date.now();
+    const canRefund =
+      isBeforeEvent &&
+      booking.status !== "cancelled" &&
+      !!booking.payment?.paidAt &&
+      !!booking.payment?.paymentIntentId;
+    const stripe = getStripe();
+    let refundCreated = false;
+
+    // Before event: apply refund workflow for paid bookings.
+    if (
+      canRefund
+    ) {
+      if (!stripe) {
+        return next(
+          AppError.internalError("Payment refund service is not configured."),
+        );
+      }
+      if (booking.payment.refundStatus !== "succeeded") {
+        try {
+          const refund = await stripe.refunds.create({
+            payment_intent: booking.payment.paymentIntentId,
+          });
+          booking.payment.refundId = refund.id;
+          booking.payment.refundStatus = refund.status;
+          refundCreated = refund.status === "succeeded";
+        } catch (refundErr) {
+          return next(
+            AppError.badRequest(
+              refundErr?.message ||
+                "Unable to process refund. Please contact support.",
+            ),
+          );
+        }
+      } else {
+        refundCreated = true;
+      }
+    }
+
+    if (
+      isBeforeEvent &&
+      booking.status !== "cancelled" &&
+      booking.payment?.paymentIntentId &&
+      !booking.payment?.paidAt &&
+      stripe
+    ) {
+      await stripe.paymentIntents
+        .cancel(booking.payment.paymentIntentId)
+        .catch(() => {});
+    }
+
+    // Before event: release held seats back to event pool (if applicable).
+    if (isBeforeEvent && booking.status !== "cancelled") {
+      const event = await Event.findById(booking.eventId);
+      if (event) {
+        event.availableSeats += booking.quantity;
+        await event.save();
+      }
+    }
+
+    // Keep refunded bookings as cancelled history for user visibility/audit.
+    // Delete-only paths still remove the booking permanently.
+    if (canRefund) {
+      booking.status = "cancelled";
+      await booking.save();
+    } else {
+      await booking.deleteOne();
+    }
+
+    const actionLabel = canRefund ? "Cancel & refund" : "Delete";
+    const message = canRefund
+      ? "Cancel & refund completed. Booking moved to cancelled history."
+      : `${actionLabel} completed successfully.`;
+
+    res.status(200).json({
+      success: true,
+      message,
+      data: {
+        action: canRefund ? "cancel_refund" : "delete_only",
+        refunded: refundCreated,
+      },
+    });
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    next(
+      AppError.internalError(
+        "An error occurred when processing this admin booking operation.",
+      ),
+    );
+  }
+};
+
 export {
   createBooking,
   cancelBooking,
   deleteCancelledBooking,
+  adminDeleteBookingByEventDateRule,
   getUsersBookings,
   getActiveBookingForEvent,
   getSingleBooking,
   updateBookingQuantity,
-  updateBookingStatus,
   getAllBookings,
 };

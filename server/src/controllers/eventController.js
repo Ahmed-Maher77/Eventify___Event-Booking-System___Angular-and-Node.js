@@ -1,6 +1,7 @@
 import AppError from "../middlewares/AppError.js";
 import Event from "../models/Event.js";
 import mongoose from "mongoose";
+import { cancelBookingsForDeletedEvent } from "../services/eventDeletionPaymentService.js";
 import parseurl from "parseurl";
 import {
     deleteCloudinaryImage,
@@ -448,6 +449,8 @@ const deleteEvent = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new AppError("Invalid Event ID", 400);
         }
+
+        await cancelBookingsForDeletedEvent(id);
 
         // delete event
         const deletedEvent = await Event.findByIdAndDelete(id);

@@ -1,1 +1,47 @@
-<h1>Booking Success Page</h1>
+<section class="static-info-page bookings-success-page">
+  <div class="container static-info-page__container">
+    <app-highlighted-page-heading
+      titlePrefix="Payment"
+      titleHighlight="Status"
+      subtitle="We are confirming your booking with our payment provider."
+      titleClass="static-info-page__title"
+      subtitleClass="static-info-page__subtitle"
+    />
+
+    @if (loading()) {
+      <div class="bookings-success-page__loader-wrap">
+        <app-section-loader [size]="40" label="Confirming your booking" />
+      </div>
+    } @else if (confirmed()) {
+      <div class="bookings-success-page__panel bookings-success-page__panel--ok">
+        <span class="bookings-success-page__icon" aria-hidden="true">
+          <i class="fa-solid fa-circle-check"></i>
+        </span>
+        <h2 class="bookings-success-page__title">You are all set</h2>
+        <p class="bookings-success-page__text">
+          Payment succeeded and your booking is confirmed.
+        </p>
+        <app-button
+          label="View my bookings"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          routerLink="/bookings"
+          customClass="diagonal-swipe-hover"
+        />
+      </div>
+    } @else {
+      <div class="bookings-success-page__panel">
+        <p class="bookings-success-page__text">{{ errorMessage() }}</p>
+        <app-button
+          label="Go to My Bookings"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          routerLink="/bookings"
+          customClass="diagonal-swipe-hover"
+        />
+      </div>
+    }
+  </div>
+</section>

@@ -16,6 +16,16 @@ export interface BookingPopulatedEvent {
   location?: string;
 }
 
+export interface BookingPayment {
+  paymentIntentId?: string | null;
+  paymentStatus?: string | null;
+  amountPaid?: number | null;
+  currency?: string | null;
+  paidAt?: string | null;
+  refundId?: string | null;
+  refundStatus?: string | null;
+}
+
 export interface BookingItem {
   _id: string;
   userId: string | BookingPopulatedUser;
@@ -23,6 +33,7 @@ export interface BookingItem {
   quantity: number;
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'cancelled';
+  payment?: BookingPayment | null;
   createdAt?: string;
   updatedAt?: string;
 }

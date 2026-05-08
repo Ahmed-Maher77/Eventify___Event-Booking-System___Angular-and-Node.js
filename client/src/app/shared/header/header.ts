@@ -8,7 +8,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRouteSnapshot, Router, RouterLink } from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
@@ -35,6 +36,8 @@ export class Header implements AfterViewInit, OnDestroy {
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
   private headerContext: ReturnType<typeof setupHeaderAnimations> | null = null;
+  private routeRefreshSub: Subscription | null = null;
+  private bookingCountIntervalId: ReturnType<typeof setInterval> | null = null;
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly isMainHeaderNavOpen = signal(false);
   protected readonly bookingCount = signal(0);
@@ -126,12 +129,19 @@ export class Header implements AfterViewInit, OnDestroy {
       this.headerNavRoot?.nativeElement,
     );
     this.refreshBookingCount();
+    this.setupBookingCountAutoRefresh();
   }
 
   ngOnDestroy(): void {
     document.body.style.overflow = '';
     this.headerContext?.revert();
     this.headerContext = null;
+    this.routeRefreshSub?.unsubscribe();
+    this.routeRefreshSub = null;
+    if (this.bookingCountIntervalId) {
+      clearInterval(this.bookingCountIntervalId);
+      this.bookingCountIntervalId = null;
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -179,7 +189,7 @@ export class Header implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.bookingService.getUserBookingsSummary().subscribe({
+    this.bookingService.getUserBookings({ page: 1, limit: 1, status: 'pending' }).subscribe({
       next: (response) => {
         this.bookingCount.set(response.data?.pagination?.totalBookings ?? 0);
       },
@@ -187,6 +197,22 @@ export class Header implements AfterViewInit, OnDestroy {
         this.bookingCount.set(0);
       },
     });
+  }
+
+  private setupBookingCountAutoRefresh(): void {
+    this.routeRefreshSub?.unsubscribe();
+    this.routeRefreshSub = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.refreshBookingCount();
+      }
+    });
+
+    if (this.bookingCountIntervalId) {
+      clearInterval(this.bookingCountIntervalId);
+    }
+    this.bookingCountIntervalId = setInterval(() => {
+      this.refreshBookingCount();
+    }, 15000);
   }
 
   private getActiveRoutePath(): string | undefined {

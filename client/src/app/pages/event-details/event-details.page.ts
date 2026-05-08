@@ -183,10 +183,36 @@ export class EventDetailsPage implements OnInit {
   protected canBook(): boolean {
     const ev = this.event();
     if (!ev || ev.status === 'cancelled' || ev.status === 'completed') return false;
+    if (this.isEventDatePassed(ev)) return false;
     const seats = this.seatsSnapshot(ev);
     if (seats && seats.available < 1) return false;
     if (this.activeBookingId()) return false;
     return this.auth.isLoggedIn();
+  }
+
+  protected bookingUnavailableMessage(ev: EventApiItem): string {
+    if (this.isEventDatePassed(ev)) {
+      return 'Booking has closed because this event date has already passed.';
+    }
+    if (this.isSoldOut(ev)) {
+      return 'This event is sold out. No seats are currently available.';
+    }
+    if (ev.status === 'cancelled') {
+      return 'Booking is unavailable because this event was cancelled.';
+    }
+    if (ev.status === 'completed') {
+      return 'Booking is unavailable because this event has already ended.';
+    }
+    const seats = this.seatsSnapshot(ev);
+    if (seats && seats.available < 1) {
+      return 'No seats are currently available for this event.';
+    }
+    return 'Booking is not available for this event.';
+  }
+
+  protected isSoldOut(ev: EventApiItem): boolean {
+    const seats = this.seatsSnapshot(ev);
+    return !!seats && seats.available < 1;
   }
 
   protected hasActiveBookingForCurrentEvent(): boolean {
@@ -395,6 +421,10 @@ export class EventDetailsPage implements OnInit {
   protected submitBooking(): void {
     const ev = this.event();
     const id = ev?._id;
+    if (ev && !this.canBook()) {
+      this.toast.showError(this.bookingUnavailableMessage(ev));
+      return;
+    }
     if (!id || !this.auth.isLoggedIn()) {
       void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
@@ -412,8 +442,8 @@ export class EventDetailsPage implements OnInit {
       .pipe(finalize(() => this.bookingSubmitting.set(false)))
       .subscribe({
         next: (res) => {
+          const data = res.data;
           this.toast.showSuccess(res.message ?? 'Booking created.');
-          // Keep the user on the same page and reflect seat changes immediately.
           this.event.update((current) => {
             if (!current) {
               return current;
@@ -428,8 +458,12 @@ export class EventDetailsPage implements OnInit {
             };
           });
           this.bookingQuantity.set(1);
-          if (res.data?._id) {
-            this.activeBookingId.set(res.data._id);
+          if (data?._id) {
+            this.activeBookingId.set(data._id);
+          }
+          if (data && data.totalPrice > 0 && data.status === 'pending') {
+            void this.router.navigate(['/checkout'], { queryParams: { bookingId: data._id } });
+            return;
           }
         },
         error: (err: HttpErrorResponse) => {
@@ -534,5 +568,17 @@ export class EventDetailsPage implements OnInit {
     const n = typeof raw === 'number' ? raw : Number(raw);
     const q = Number.isFinite(n) ? Math.max(1, Math.floor(n)) : 1;
     this.bookingQuantity.set(q);
+  }
+
+  private isEventDatePassed(ev: EventApiItem): boolean {
+    const rawDate = ev.date?.trim();
+    if (!rawDate) {
+      return false;
+    }
+    const eventDate = new Date(rawDate);
+    if (Number.isNaN(eventDate.getTime())) {
+      return false;
+    }
+    return eventDate.getTime() <= Date.now();
   }
 }

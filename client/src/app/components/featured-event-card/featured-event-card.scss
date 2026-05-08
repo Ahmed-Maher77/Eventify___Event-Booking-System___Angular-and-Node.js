@@ -55,6 +55,25 @@
   text-transform: uppercase;
 }
 
+.featured-event-card__soldout-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgb(220 38 38 / 92%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  z-index: 1;
+}
+
 .featured-event-card__favorite-btn {
   position: absolute;
   top: 12px;
@@ -77,6 +96,10 @@
     transform: scale(1.05);
     color: var(--color-primary);
   }
+}
+
+.featured-event-card__image-wrap:has(.featured-event-card__soldout-badge) .featured-event-card__favorite-btn {
+  top: 48px;
 }
 
 .featured-event-card__favorite-btn.is-active i {

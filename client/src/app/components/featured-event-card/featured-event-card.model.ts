@@ -7,4 +7,5 @@ export interface FeaturedEventCardData {
   priceFrom: string;
   imageUrl: string;
   isFavorite?: boolean;
+  isSoldOut?: boolean;
 }

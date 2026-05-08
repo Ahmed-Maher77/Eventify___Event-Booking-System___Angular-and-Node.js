@@ -8,6 +8,7 @@ import {
   AdminBookingListItem,
   AdminDashboardService,
 } from '../../services/admin-dashboard.service';
+import { ToastService } from '../../services/toast.service';
 import { AdminEntityPaginationComponent } from '../../shared/admin-entity-pagination/admin-entity-pagination.component';
 import {
   CustomNativeSelectComponent,
@@ -15,6 +16,11 @@ import {
 } from '../../shared/custom-native-select/custom-native-select';
 import { HighlightedPageHeadingComponent } from '../../shared/highlighted-page-heading/highlighted-page-heading';
 import { SectionLoader } from '../../shared/section-loader/section-loader';
+import { Button } from '../../shared/button/button';
+
+type BookingStatusTab = 'all' | 'pending' | 'confirmed' | 'cancelled';
+type BookingSortField = 'createdAt' | 'status' | 'quantity' | 'totalPrice';
+type BookingSortOrder = 'asc' | 'desc';
 
 type BookingStatusTab = 'all' | 'pending' | 'confirmed' | 'cancelled';
 type BookingSortField = 'createdAt' | 'status' | 'quantity' | 'totalPrice';
@@ -30,6 +36,7 @@ type BookingSortOrder = 'asc' | 'desc';
     SectionLoader,
     AdminEntityPaginationComponent,
     CustomNativeSelectComponent,
+    Button,
   ],
   templateUrl: './dashboard-bookings.page.html',
   styleUrl: './dashboard-bookings.page.scss',
@@ -37,12 +44,13 @@ type BookingSortOrder = 'asc' | 'desc';
 export class DashboardBookingsPage implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminDashboardService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
   private latestRequestId = 0;
 
   protected readonly statusOptions: CustomNativeSelectOption[] = [
     { value: '', label: 'All statuses' },
-    { value: 'pending', label: 'Pending' },
+    { value: 'pending', label: 'Awating_Payment' },
     { value: 'confirmed', label: 'Confirmed' },
     { value: 'cancelled', label: 'Cancelled' },
   ];
@@ -69,8 +77,10 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
   protected readonly listTotalPages = signal(1);
   protected readonly totalListItems = signal(0);
   protected readonly rows = signal<AdminBookingListItem[]>([]);
+  protected readonly operationBusyByBookingId = signal<Record<string, boolean>>({});
   protected readonly filtersExpanded = signal(false);
   protected readonly activeStatusTab = signal<BookingStatusTab>('all');
+  protected readonly pendingOperation = signal<AdminBookingListItem | null>(null);
   protected readonly statusCounts = signal<Record<BookingStatusTab, number>>({
     all: 0,
     pending: 0,
@@ -163,6 +173,144 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
     return '—';
   }
 
+  protected bookingEventDateValue(b: AdminBookingListItem): string | null {
+    const e = b.eventId;
+    if (e && typeof e === 'object' && 'date' in e && (e as { date?: string }).date) {
+      return (e as { date: string }).date;
+    }
+    return null;
+  }
+
+  protected bookingStatusLabel(status: AdminBookingListItem['status']): string {
+    if (status === 'pending') {
+      return 'Awating_Payment';
+    }
+    return `${status[0].toUpperCase()}${status.slice(1)}`;
+  }
+
+  protected canRunOperation(b: AdminBookingListItem): boolean {
+    return !this.operationBusyByBookingId()[b._id];
+  }
+
+  protected operationLabel(b: AdminBookingListItem): string {
+    return this.isRefundOperation(b) ? 'Cancel & refund' : 'Delete';
+  }
+
+  protected isRefundOperation(b: AdminBookingListItem): boolean {
+    return this.canRefundOperation(b);
+  }
+
+  protected operationHint(b: AdminBookingListItem): string {
+    if (this.isRefundOperation(b)) {
+      return 'Available before event start for paid bookings. Booking is refunded then removed.';
+    }
+    if (this.isBeforeEventDate(b)) {
+      return 'Available before event start for unpaid/cancelled bookings. Booking is removed without refund.';
+    }
+    return 'Available after event start. Booking is removed without refund.';
+  }
+
+  protected isEventEnded(b: AdminBookingListItem): boolean {
+    const eventDate = this.parseEventDate(b);
+    if (!eventDate) {
+      return false;
+    }
+    return eventDate.getTime() <= Date.now();
+  }
+
+  protected runOperation(b: AdminBookingListItem): void {
+    if (!this.canRunOperation(b)) {
+      return;
+    }
+    this.pendingOperation.set(b);
+  }
+
+  protected closePendingOperationModal(): void {
+    const pending = this.pendingOperation();
+    if (pending && this.operationBusyByBookingId()[pending._id]) {
+      return;
+    }
+    this.pendingOperation.set(null);
+  }
+
+  protected confirmPendingOperation(): void {
+    const pending = this.pendingOperation();
+    if (!pending || !this.canRunOperation(pending)) {
+      return;
+    }
+    this.executeOperation(pending);
+  }
+
+  private executeOperation(b: AdminBookingListItem): void {
+    const label = this.operationLabel(b);
+    this.operationBusyByBookingId.update((current) => ({ ...current, [b._id]: true }));
+    this.adminApi.runBookingOperation(b._id).subscribe({
+      next: (res) => {
+        this.toast.showSuccess(res.message || `${label} completed.`);
+        this.pendingOperation.set(null);
+        // Always refresh from backend so tab badges stay accurate immediately.
+        this.loadBookings();
+      },
+      error: (err: HttpErrorResponse) => {
+        const msg = err.error?.message;
+        this.toast.showError(
+          typeof msg === 'string' && msg.trim()
+            ? msg
+            : 'Unable to complete booking operation. Please try again.',
+        );
+      },
+      complete: () => {
+        this.operationBusyByBookingId.update((current) => {
+          const next = { ...current };
+          delete next[b._id];
+          return next;
+        });
+      },
+    });
+  }
+
+  protected operationConfirmTitle(b: AdminBookingListItem): string {
+    if (this.isRefundOperation(b)) {
+      return 'Cancel and refund this booking?';
+    }
+    if (this.isBeforeEventDate(b)) {
+      return 'Delete this unpaid booking?';
+    }
+    return 'Delete this booking record?';
+  }
+
+  protected operationConfirmMessage(b: AdminBookingListItem): string {
+    const eventTitle = this.bookingEventLabel(b);
+    const customerLabel = this.bookingCustomerLabel(b);
+    if (this.isRefundOperation(b)) {
+      return (
+        `Event: "${eventTitle}"\n` +
+        `Customer: ${customerLabel}\n\n` +
+        `A refund will be sent to the original payment method and this booking will be permanently deleted.`
+      );
+    }
+    if (this.isBeforeEventDate(b)) {
+      return (
+        `Delete this booking (no refund)?\n\n` +
+        `Event: "${eventTitle}"\n` +
+        `Customer: ${customerLabel}\n` +
+        `Status: ${this.bookingStatusLabel(b.status)}\n\n` +
+        `This booking has not been paid/refundable. It will be permanently deleted without any refund.`
+      );
+    }
+    return (
+      `Delete this booking from records?\n\n` +
+      `Event: "${eventTitle}"\n` +
+      `Customer: ${customerLabel}\n` +
+      `Status: ${this.bookingStatusLabel(b.status)}\n\n` +
+      `The event has already started/ended. This removes the booking record permanently without a refund.`
+    );
+  }
+
+  protected operationConfirmButtonLabel(b: AdminBookingListItem): string {
+    return this.isRefundOperation(b) ? 'Cancel & refund' : 'Delete booking';
+  }
+
   private loadBookings(): void {
     const requestId = ++this.latestRequestId;
     this.isLoading.set(true);
@@ -244,5 +392,28 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
       return;
     }
     this.activeStatusTab.set('all');
+  }
+
+  private isBeforeEventDate(b: AdminBookingListItem): boolean {
+    const eventDate = this.parseEventDate(b);
+    if (!eventDate) {
+      return false;
+    }
+    return eventDate.getTime() > Date.now();
+  }
+
+  private canRefundOperation(b: AdminBookingListItem): boolean {
+    return this.isBeforeEventDate(b) && b.status === 'confirmed';
+  }
+
+  private parseEventDate(b: AdminBookingListItem): Date | null {
+    if (typeof b.eventId !== 'object' || !b.eventId?.date) {
+      return null;
+    }
+    const parsed = new Date(b.eventId.date);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+    return parsed;
   }
 }

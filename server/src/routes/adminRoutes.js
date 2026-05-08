@@ -11,7 +11,10 @@ import {
   getRecentBookings,
   getNeedsAttention,
 } from "../controllers/adminDashboardController.js";
-import { getAllBookings } from "../controllers/bookingController.js";
+import {
+  adminDeleteBookingByEventDateRule,
+  getAllBookings,
+} from "../controllers/bookingController.js";
 import { getAllAssistantActivities } from "../controllers/adminAssistantActivityController.js";
 import {
   deleteContactMessage,
@@ -46,6 +49,11 @@ router.use(protect, authorize(["admin"]));
 router.get("/dashboard-stats", getDashboardStats);
 router.get("/needs-attention", getNeedsAttention);
 router.get("/bookings", validateAdminBookingsQuery, getAllBookings);
+router.delete(
+  "/bookings/:id",
+  validateObjectId("id"),
+  adminDeleteBookingByEventDateRule,
+);
 router.get("/recent-bookings",getRecentBookings)
 router.get("/users", validateAdminUsersQuery, getAllUsers);
 router.get("/users/:id", validateObjectId("id"), getUserById);

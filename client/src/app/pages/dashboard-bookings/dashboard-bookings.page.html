@@ -3,7 +3,7 @@
     <app-highlighted-page-heading
       titlePrefix="Booking"
       titleHighlight="Operations"
-      subtitle="Monitor reservation activity and fulfillment outcomes."
+      subtitle="Manage booking records with date-aware operations: delete & refund before event start, and delete-only after event start."
       headingLevel="h2"
       containerClass="admin-heading--container"
       titleClass="admin-heading--title"
@@ -28,7 +28,7 @@
         [class.is-active]="isActiveStatusTab('pending')"
         (click)="setStatusTab('pending')"
       >
-        <span>Pending</span>
+        <span>Awating_Payment</span>
         <span class="admin-entity-page__tab-badge">{{ statusCounts().pending }}</span>
       </button>
       <button
@@ -150,10 +150,11 @@
             <th>Booking ID</th>
             <th>Customer</th>
             <th>Event</th>
+            <th>Event date</th>
             <th>Quantity</th>
             <th>Total price</th>
             <th>Status</th>
-            <th class="text-end">Actions</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -162,21 +163,49 @@
               <td class="admin-entity-page__mono-id">{{ row._id }}</td>
               <td>{{ bookingCustomerLabel(row) }}</td>
               <td>{{ bookingEventLabel(row) }}</td>
+              <td>
+                {{
+                  bookingEventDateValue(row)
+                    ? (bookingEventDateValue(row)! | date: 'mediumDate')
+                    : 'Not available'
+                }}
+                @if (isEventEnded(row)) {
+                  <span class="admin-entity-page__event-ended-label">Event ended</span>
+                }
+              </td>
               <td>{{ row.quantity }}</td>
               <td>{{ row.totalPrice | currency }}</td>
               <td>
-                <span class="admin-entity-page__pill">{{ row.status | titlecase }}</span>
+                <span
+                  class="admin-entity-page__pill"
+                  [class.admin-entity-page__pill--pending]="row.status === 'pending'"
+                  [class.admin-entity-page__pill--confirmed]="row.status === 'confirmed'"
+                  [class.admin-entity-page__pill--cancelled]="row.status === 'cancelled'"
+                >
+                  {{ bookingStatusLabel(row.status) }}
+                </span>
               </td>
-              <td class="text-end">
-                <button type="button" class="admin-entity-page__icon-btn" aria-label="View booking">
-                  <i class="fa-regular fa-eye" aria-hidden="true"></i>
+              <td class="admin-entity-page__actions-cell">
+                <button
+                  type="button"
+                  class="admin-entity-page__action-btn"
+                  [class.admin-entity-page__action-btn--refund]="isRefundOperation(row)"
+                  [class.admin-entity-page__action-btn--delete]="!isRefundOperation(row)"
+                  [disabled]="!canRunOperation(row)"
+                  (click)="runOperation(row)"
+                >
+                  @if (operationBusyByBookingId()[row._id]) {
+                    <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                  }
+                  <span>{{ operationLabel(row) }}</span>
                 </button>
-                <button type="button" class="admin-entity-page__icon-btn" aria-label="Edit booking">
-                  <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="admin-entity-page__icon-btn is-danger" aria-label="Delete booking">
-                  <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
-                </button>
+                <p
+                  class="admin-entity-page__action-hint"
+                  [class.admin-entity-page__action-hint--refund]="isRefundOperation(row)"
+                  [class.admin-entity-page__action-hint--delete]="!isRefundOperation(row)"
+                >
+                  {{ operationHint(row) }}
+                </p>
               </td>
             </tr>
           }
@@ -194,3 +223,49 @@
     }
   </div>
 </section>
+
+@if (pendingOperation(); as pending) {
+  <div
+    class="admin-confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="booking-operation-dialog-title"
+    aria-describedby="booking-operation-dialog-desc"
+  >
+    <button
+      type="button"
+      class="admin-confirm-modal__backdrop"
+      aria-label="Cancel booking operation"
+      [disabled]="operationBusyByBookingId()[pending._id]"
+      (click)="closePendingOperationModal()"
+    ></button>
+    <div class="admin-confirm-modal__panel">
+      <h3 id="booking-operation-dialog-title" class="admin-confirm-modal__title">
+        {{ operationConfirmTitle(pending) }}
+      </h3>
+      <p id="booking-operation-dialog-desc" class="admin-confirm-modal__text">
+        {{ operationConfirmMessage(pending) }}
+      </p>
+      <div class="admin-confirm-modal__actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="operationBusyByBookingId()[pending._id]"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closePendingOperationModal()"
+        />
+        <app-button
+          [label]="operationConfirmButtonLabel(pending)"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [loading]="operationBusyByBookingId()[pending._id]"
+          customClass="admin-confirm-modal__delete-btn diagonal-swipe-hover"
+          (pressed)="confirmPendingOperation()"
+        />
+      </div>
+    </div>
+  </div>
+}

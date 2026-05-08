@@ -17,36 +17,112 @@
         <button type="button" class="bookings-page__retry" (click)="retry()">Try again</button>
       </div>
     } @else {
-      <section class="bookings-page__toolbar" aria-label="Bookings filters">
-        <div class="bookings-page__status-tabs">
+      <div class="bookings-page__catalog-filters-wrap">
+        <div class="bookings-page__catalog-filters-bar">
           <button
             type="button"
+            id="bookings-filters-toggle"
+            class="bookings-page__filters-toggle"
+            [attr.aria-expanded]="filtersExpanded()"
+            aria-controls="bookings-filters-panel"
+            (click)="toggleFilters()"
+          >
+            <i
+              class="fa-solid fa-chevron-right bookings-page__filters-toggle-icon"
+              aria-hidden="true"
+            ></i>
+            <span>Filters &amp; sort</span>
+          </button>
+          <button
+            type="button"
+            class="bookings-page__catalog-clear-btn"
+            aria-label="Clear filters"
+            title="Clear filters"
+            (click)="clearFilters()"
+          >
+            <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+            <span class="bookings-page__catalog-clear-label">Clear Filters</span>
+          </button>
+        </div>
+
+        <div
+          id="bookings-filters-panel"
+          class="bookings-page__catalog-filters-body"
+          [class.is-open]="filtersExpanded()"
+          role="region"
+          aria-labelledby="bookings-filters-toggle"
+          [attr.aria-hidden]="!filtersExpanded()"
+        >
+          <div class="bookings-page__catalog-filters-inner">
+            <div class="bookings-page__catalog-fields">
+              <label class="bookings-page__field">
+                <span class="bookings-page__field-label">Search</span>
+                <input
+                  class="bookings-page__field-input"
+                  type="search"
+                  placeholder="Event, location, status, booking ID"
+                  [ngModel]="searchTerm()"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="searchTerm.set($event)"
+                />
+              </label>
+              <label class="bookings-page__field">
+                <span class="bookings-page__field-label">Sort by</span>
+                <select
+                  class="bookings-page__field-input"
+                  [ngModel]="sortBy()"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setSortBy($event)"
+                >
+                  <option value="booked_desc">Booked on (Newest first)</option>
+                  <option value="booked_asc">Booked on (Oldest first)</option>
+                  <option value="event_asc">Event date (Soonest)</option>
+                  <option value="event_desc">Event date (Latest)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="bookings-page__toolbar" aria-label="Bookings filters">
+        <div class="bookings-page__status-tabs" role="tablist" aria-label="Filter bookings">
+          <button
+            type="button"
+            role="tab"
             class="bookings-page__tab"
             [class.is-active]="activeStatus() === 'all'"
+            [attr.aria-selected]="activeStatus() === 'all'"
             (click)="switchStatus('all')"
           >
             All
           </button>
           <button
             type="button"
+            role="tab"
             class="bookings-page__tab"
             [class.is-active]="activeStatus() === 'pending'"
+            [attr.aria-selected]="activeStatus() === 'pending'"
             (click)="switchStatus('pending')"
           >
-            Pending
+            Awaiting payment
           </button>
           <button
             type="button"
+            role="tab"
             class="bookings-page__tab"
             [class.is-active]="activeStatus() === 'confirmed'"
+            [attr.aria-selected]="activeStatus() === 'confirmed'"
             (click)="switchStatus('confirmed')"
           >
             Confirmed
           </button>
           <button
             type="button"
+            role="tab"
             class="bookings-page__tab"
             [class.is-active]="activeStatus() === 'cancelled'"
+            [attr.aria-selected]="activeStatus() === 'cancelled'"
             (click)="switchStatus('cancelled')"
           >
             Cancelled
@@ -76,7 +152,7 @@
         </section>
       } @else {
         <div class="bookings-page__list">
-          @for (booking of bookings(); track booking._id) {
+          @for (booking of displayedBookings(); track booking._id) {
             <article class="bookings-page__card">
               <div class="bookings-page__card-head">
                 <div>
@@ -88,7 +164,7 @@
                   [class.is-pending]="booking.status === 'pending'"
                   [class.is-cancelled]="booking.status === 'cancelled'"
                 >
-                  {{ booking.status | titlecase }}
+                  {{ bookingStatusLabel(booking.status) }}
                 </span>
               </div>
 
@@ -142,7 +218,17 @@
               </dl>
 
               <div class="bookings-page__actions">
-                @if (canCancel(booking)) {
+                @if (canPayNow(booking)) {
+                  <app-button
+                    label="Pay now"
+                    variant="primary"
+                    size="sm"
+                    [rounded]="true"
+                    customClass="diagonal-swipe-hover"
+                    (pressed)="payForBooking(booking)"
+                  />
+                }
+                @if (booking.status !== 'cancelled') {
                   <app-button
                     label="Cancel"
                     variant="outline"
@@ -150,6 +236,7 @@
                     [rounded]="true"
                     customClass="bookings-page__cancel-btn"
                     [loading]="isCancelling(booking._id)"
+                    [disabled]="!canCancel(booking)"
                     (pressed)="cancelBooking(booking)"
                   />
                 }
@@ -180,6 +267,17 @@
                   [routerLink]="'/bookings/' + booking._id"
                   customClass="diagonal-swipe-hover"
                 />
+                @if (cancellationPolicyNote(booking); as note) {
+                  <p
+                    class="bookings-page__cancel-note"
+                    [class.bookings-page__cancel-note--disabled]="!canCancel(booking)"
+                  >
+                    {{ note }}
+                  </p>
+                }
+                @if (refundNotice(booking); as refundNote) {
+                  <p class="bookings-page__refund-note">{{ refundNote }}</p>
+                }
               </div>
             </article>
           }

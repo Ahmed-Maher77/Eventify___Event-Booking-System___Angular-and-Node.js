@@ -55,6 +55,15 @@ export interface AdminBookingsResponse {
   };
 }
 
+export interface AdminBookingOperationResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    action?: 'cancel_refund' | 'delete_only';
+    refunded?: boolean;
+  };
+}
+
 export interface AdminUsersPagination extends AdminPaginationCore {
   totalUsers: number;
 }
@@ -304,6 +313,12 @@ export class AdminDashboardService {
     }
     return this.http.get<AdminBookingsResponse>(`${this.adminBase}/bookings`, {
       params,
+      withCredentials: true,
+    });
+  }
+
+  runBookingOperation(bookingId: string): Observable<AdminBookingOperationResponse> {
+    return this.http.delete<AdminBookingOperationResponse>(`${this.adminBase}/bookings/${bookingId}`, {
       withCredentials: true,
     });
   }

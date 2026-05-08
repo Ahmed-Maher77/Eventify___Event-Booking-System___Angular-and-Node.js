@@ -5,12 +5,14 @@ const DEFAULT_USER_ID = "507f1f77bcf86cd799439011";
 const DEFAULT_EVENT_ID = "507f1f77bcf86cd799439021";
 
 const mockFind = jest.fn();
+const mockFindOne = jest.fn();
 const mockCountDocuments = jest.fn();
 const mockFindById = jest.fn();
 const mockCreate = jest.fn();
 
 const BookingMock = {
     find: mockFind,
+    findOne: mockFindOne,
     countDocuments: mockCountDocuments,
     findById: mockFindById,
     create: mockCreate,
@@ -54,6 +56,7 @@ const { default: app } = await import("../../src/app.js");
 const createFindChain = (result) => {
     const chain = {
         populate: jest.fn(() => chain),
+        sort: jest.fn(() => chain),
         skip: jest.fn(() => chain),
         limit: jest.fn().mockResolvedValue(result),
     };
@@ -129,6 +132,9 @@ describe("Booking API", () => {
                 populate: jest.fn().mockResolvedValue(),
             };
 
+            mockFindOne.mockReturnValue({
+                select: jest.fn().mockResolvedValue(null),
+            });
             mockEventFindById.mockResolvedValue(event);
             mockCreate.mockResolvedValue(booking);
 
@@ -145,43 +151,21 @@ describe("Booking API", () => {
                 eventId: DEFAULT_EVENT_ID,
                 quantity: 2,
                 totalPrice: 100,
+                status: "pending",
             });
             expect(event.availableSeats).toBe(8);
             expect(event.save).toHaveBeenCalledTimes(1);
         });
     });
 
-    describe("PATCH /api/bookings/:id", () => {
-        it("updates booking status as admin", async () => {
-            const booking = {
-                _id: "507f1f77bcf86cd799439103",
-                status: "pending",
-                save: jest.fn().mockResolvedValue(),
-            };
-
-            mockFindById.mockReturnValue(createFindByIdChain(booking));
-
+    describe("PATCH /api/bookings/:id (manual status)", () => {
+        it("is not available — status is system-driven", async () => {
             const res = await request(app)
                 .patch("/api/bookings/507f1f77bcf86cd799439103")
                 .set("x-test-role", "admin")
                 .send({ status: "confirmed" });
 
-            expect(res.statusCode).toBe(200);
-            expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Booking status updated successfully");
-            expect(booking.status).toBe("confirmed");
-            expect(booking.save).toHaveBeenCalledTimes(1);
-        });
-
-        it("returns 403 for non-admin users", async () => {
-            const res = await request(app)
-                .patch("/api/bookings/507f1f77bcf86cd799439103")
-                .set("x-test-role", "user")
-                .send({ status: "confirmed" });
-
-            expect(res.statusCode).toBe(403);
-            expect(res.body.success).toBe(false);
-            expect(res.body.message).toBe("Not authorized to access this route");
+            expect(res.statusCode).toBe(404);
         });
     });
 
@@ -223,7 +207,7 @@ describe("Booking API", () => {
         it("returns all bookings for admin", async () => {
             const bookings = [{ _id: "507f1f77bcf86cd799439105", status: "confirmed" }];
             mockFind.mockReturnValue(createFindChain(bookings));
-            mockCountDocuments.mockResolvedValue(1);
+            mockCountDocuments.mockImplementation(() => Promise.resolve(1));
 
             const res = await request(app)
                 .get("/api/admin/bookings?page=1&limit=10")

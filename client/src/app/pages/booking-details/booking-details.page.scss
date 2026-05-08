@@ -85,6 +85,17 @@
   color: #a16207;
 }
 
+.booking-details-page__refund-note {
+  margin: 0.65rem 0 0;
+  color: #065f46;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  padding: 0.45rem 0.62rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(16 185 129 / 24%);
+  background: rgb(16 185 129 / 10%);
+}
+
 .booking-details-page__metrics {
   margin-top: 1rem;
   display: grid;
@@ -159,6 +170,18 @@
   flex-wrap: wrap;
   padding-top: 1rem;
   border-top: 1px solid rgb(0 0 0 / 8%);
+}
+
+.booking-details-page__cancel-note {
+  flex-basis: 100%;
+  margin: 0.1rem 0 0;
+  color: var(--color-admin-stat-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.booking-details-page__cancel-note--disabled {
+  color: var(--color-danger);
 }
 
 :host ::ng-deep .booking-details-page__cancel-btn.ev-btn {

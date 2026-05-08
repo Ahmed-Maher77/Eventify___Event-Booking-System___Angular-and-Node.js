@@ -14,8 +14,12 @@
       </div>
     } @else if (errorMessage()) {
       <div class="booking-details-page__state-wrap">
-        <p class="booking-details-page__state booking-details-page__state--error">{{ errorMessage() }}</p>
-        <button type="button" class="booking-details-page__retry" (click)="retry()">Try again</button>
+        <p class="booking-details-page__state booking-details-page__state--error">
+          {{ errorMessage() }}
+        </p>
+        <button type="button" class="booking-details-page__retry" (click)="retry()">
+          Try again
+        </button>
       </div>
     } @else if (booking(); as item) {
       <section class="booking-details-page__hero">
@@ -31,9 +35,12 @@
           [class.is-cancelled]="item.status === 'cancelled'"
           [class.is-pending]="item.status === 'pending'"
         >
-          {{ item.status | titlecase }}
+          {{ bookingStatusLabel(item.status) }}
         </span>
       </section>
+      @if (refundNotice(); as refundNote) {
+        <p class="booking-details-page__refund-note">{{ refundNote }}</p>
+      }
 
       <section class="booking-details-page__metrics" aria-label="Booking summary">
         <article class="booking-details-page__metric">
@@ -41,7 +48,9 @@
           <p class="booking-details-page__metric-value">{{ item.quantity }}</p>
         </article>
         <article class="booking-details-page__metric">
-          <p class="booking-details-page__metric-label">Total paid</p>
+          <p class="booking-details-page__metric-label">
+            {{ item.status === 'pending' && item.totalPrice > 0 ? 'Amount due' : 'Total' }}
+          </p>
           <p class="booking-details-page__metric-value">{{ item.totalPrice | currency }}</p>
         </article>
         <article class="booking-details-page__metric">
@@ -75,6 +84,16 @@
       </section>
 
       <div class="booking-details-page__actions">
+        @if (canPayBooking()) {
+          <app-button
+            label="Pay now"
+            variant="primary"
+            size="md"
+            [rounded]="true"
+            customClass="diagonal-swipe-hover"
+            (pressed)="goToCheckout()"
+          />
+        }
         @if (canCancelBooking()) {
           <app-button
             label="Cancel booking"
@@ -85,6 +104,25 @@
             customClass="booking-details-page__cancel-btn diagonal-swipe-hover"
             (pressed)="cancelBooking()"
           />
+          @if (cancellationPolicyNote(); as note) {
+            <p class="booking-details-page__cancel-note">{{ note }}</p>
+          }
+        } @else if (booking()?.status !== 'cancelled') {
+          <app-button
+            label="Cancel booking"
+            variant="outline"
+            size="md"
+            [rounded]="true"
+            [disabled]="true"
+            customClass="booking-details-page__cancel-btn"
+          />
+          @if (cancellationPolicyNote(); as note) {
+            <p
+              class="booking-details-page__cancel-note booking-details-page__cancel-note--disabled"
+            >
+              {{ note }}
+            </p>
+          }
         }
         <app-button
           label="Back to bookings"

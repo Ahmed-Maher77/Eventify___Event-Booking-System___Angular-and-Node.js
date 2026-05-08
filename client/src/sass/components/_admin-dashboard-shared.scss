@@ -13,6 +13,28 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(161 138 105 / 88%) rgb(161 138 105 / 20%);
+}
+
+%admin-entity-page-panel::-webkit-scrollbar {
+  height: 0.65rem;
+}
+
+%admin-entity-page-panel::-webkit-scrollbar-track {
+  background: rgb(161 138 105 / 20%);
+  border-radius: 999px;
+}
+
+%admin-entity-page-panel::-webkit-scrollbar-thumb {
+  background: rgb(161 138 105 / 88%);
+  border-radius: 999px;
+  border: 2px solid rgb(161 138 105 / 20%);
+}
+
+%admin-entity-page-panel::-webkit-scrollbar-thumb:hover {
+  background: rgb(138 113 78 / 95%);
 }
 
 %admin-page-section-title {

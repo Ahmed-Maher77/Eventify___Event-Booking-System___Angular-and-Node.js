@@ -40,6 +40,12 @@ function formatEventDate(dateIso: string | null | undefined): string {
 
 export function mapEventApiItemToFeaturedCard(event: EventApiItem): FeaturedEventCardData {
   const numericPrice = Number(event?.price);
+  const availableSeats = Number(event?.availableSeats);
+  const isSoldOut =
+    Number.isFinite(availableSeats) &&
+    availableSeats <= 0 &&
+    event?.status !== 'cancelled' &&
+    event?.status !== 'completed';
 
   return {
     id: event?._id || crypto.randomUUID(),
@@ -49,6 +55,7 @@ export function mapEventApiItemToFeaturedCard(event: EventApiItem): FeaturedEven
     location: event?.location?.trim() || 'Location not specified',
     priceFrom: `$${Number.isFinite(numericPrice) ? numericPrice.toFixed(2) : '0.00'}`,
     imageUrl: event.image || '/images/event-placeholder.svg',
-    isFavorite: false
+    isFavorite: false,
+    isSoldOut,
   };
 }
