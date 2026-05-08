@@ -13,9 +13,11 @@ import {
 } from "./middlewares/errorMiddleware.js";
 import { logger } from "./middlewares/loggerMiddleware.js";
 import { apiLimiter } from "./middlewares/rateLimiter.js";
+import { handleStripeWebhook } from "./controllers/checkoutController.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import checkoutRoutes from "./routes/checkoutRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
@@ -82,19 +84,21 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Stripe webhook must use the **raw** body for signature verification (before express.json).
+app.post(
+    "/api/checkout/webhook",
+    express.raw({ type: "application/json" }),
+    handleStripeWebhook,
+);
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Security middleware
 app.use(helmet()); // Set security HTTP headers
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 app.use(cookieParser());
-
-// Body parsing middleware
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Request logging middleware
 app.use(logger);
@@ -123,6 +127,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/checkout", checkoutRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/chat", chatRoutes);

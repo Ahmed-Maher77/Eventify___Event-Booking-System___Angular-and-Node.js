@@ -39,6 +39,24 @@ select.custom-native-select__native {
   }
 }
 
+/* Audience List filter panel uses its own field class but same visual style */
+:host-context(.admin-audience__filter-field) select.custom-native-select__native {
+  min-height: 2.45rem;
+  padding: 0.4rem 2.35rem 0.4rem 0.65rem;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-admin-sidebar-text);
+  background: rgb(255 255 255 / 55%);
+
+  &:focus {
+    outline: 2px solid rgb(231 200 115 / 45%);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+    background: rgb(255 255 255 / 85%);
+  }
+}
+
 :host-context(.admin-event-form__field) select.custom-native-select__native {
   padding: 0.7rem 2.35rem 0.7rem 0.82rem;
   border: 1px solid var(--color-chip-border);

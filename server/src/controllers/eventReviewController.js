@@ -13,7 +13,7 @@ const userObjectId = (req) => {
 
 /**
  * Eligible to review: at least one confirmed booking for this event
- * and the event start time is in the past.
+ * while the event is not cancelled.
  */
 export const getReviewEligibility = async (userId, event) => {
   if (!userId || !event?._id) {
@@ -22,14 +22,6 @@ export const getReviewEligibility = async (userId, event) => {
 
   if (event.status === "cancelled") {
     return { canReview: false, reason: "EVENT_CANCELLED" };
-  }
-
-  const eventStart = new Date(event.date);
-  if (Number.isNaN(eventStart.getTime())) {
-    return { canReview: false, reason: "INVALID_EVENT_DATE" };
-  }
-  if (eventStart >= new Date()) {
-    return { canReview: false, reason: "EVENT_NOT_ENDED" };
   }
 
   const booking = await Booking.findOne({
@@ -214,7 +206,7 @@ export const createEventReview = async (req, res, next) => {
     const eligibility = await getReviewEligibility(uid, event);
     if (!eligibility.canReview) {
       throw AppError.forbidden(
-        "Reviews are only available after a confirmed booking and once the event date has passed.",
+        "Reviews are only available for users with a confirmed booking.",
       );
     }
 

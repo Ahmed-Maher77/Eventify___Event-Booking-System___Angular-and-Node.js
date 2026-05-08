@@ -46,6 +46,9 @@
           <div class="public-event-detail__badges">
             <span class="public-event-detail__status-pill">{{ (ev.status || 'upcoming') | titlecase }}</span>
             <span class="public-event-detail__category-chip">{{ ev.category | titlecase }}</span>
+            @if (isSoldOut(ev)) {
+              <span class="public-event-detail__soldout-pill">Sold out</span>
+            }
           </div>
           <div class="public-event-detail__banner-facts">
             <span class="public-event-detail__banner-fact">
@@ -93,33 +96,60 @@
 
           @if (showBookingCta()) {
             @if (auth.isLoggedIn()) {
-              @if (canBook()) {
-                <div class="public-event-detail__book-row">
-                  <label class="public-event-detail__qty-label" for="book-qty">Tickets</label>
-                  <input
-                    id="book-qty"
-                    type="number"
-                    class="public-event-detail__qty-input"
-                    min="1"
-                    [max]="seatsSnapshot(ev)?.available ?? 99"
-                    [ngModel]="bookingQuantity()"
-                    (ngModelChange)="onBookingQtyChange($event)"
+              <div class="public-event-detail__ticket-stack">
+                @if (hasActiveBookingForCurrentEvent()) {
+                  <p class="public-event-detail__hint">You already booked this event.</p>
+                  <app-button
+                    label="Already booked"
+                    variant="outline"
+                    size="md"
+                    [rounded]="true"
+                    leftIcon="fa-solid fa-check"
+                    customClass="public-event-detail__book-btn public-event-detail__book-btn--booked"
+                    [disabled]="true"
                   />
-                </div>
-                <app-button
-                  label="Book now"
-                  variant="primary"
-                  size="md"
-                  [rounded]="true"
-                  leftIcon="fa-solid fa-ticket"
-                  customClass="public-event-detail__book-btn diagonal-swipe-hover"
-                  [disabled]="bookingSubmitting()"
-                  [loading]="bookingSubmitting()"
-                  (pressed)="submitBooking()"
-                />
-              } @else {
-                <p class="public-event-detail__hint">No seats available for this event.</p>
-              }
+                  @if (activeBookingId(); as bookingId) {
+                    <a class="public-event-detail__text-btn" [routerLink]="'/bookings/' + bookingId">
+                      View your booking details
+                    </a>
+                  }
+                } @else if (canBook()) {
+                  <div class="public-event-detail__book-row">
+                    <label class="public-event-detail__qty-label" for="book-qty">Tickets</label>
+                    <input
+                      id="book-qty"
+                      type="number"
+                      class="public-event-detail__qty-input"
+                      min="1"
+                      [max]="seatsSnapshot(ev)?.available ?? 99"
+                      [ngModel]="bookingQuantity()"
+                      (ngModelChange)="onBookingQtyChange($event)"
+                    />
+                  </div>
+                  <app-button
+                    label="Book now"
+                    variant="primary"
+                    size="md"
+                    [rounded]="true"
+                    leftIcon="fa-solid fa-ticket"
+                    customClass="public-event-detail__book-btn diagonal-swipe-hover"
+                    [disabled]="bookingSubmitting()"
+                    [loading]="bookingSubmitting()"
+                    (pressed)="submitBooking()"
+                  />
+                } @else {
+                  <p class="public-event-detail__hint">{{ bookingUnavailableMessage(ev) }}</p>
+                  <app-button
+                    label="Book now"
+                    variant="primary"
+                    size="md"
+                    [rounded]="true"
+                    leftIcon="fa-solid fa-ticket"
+                    customClass="public-event-detail__book-btn"
+                    [disabled]="true"
+                  />
+                }
+              </div>
             } @else {
               <p class="public-event-detail__hint">Log in to book tickets for this event.</p>
               <a routerLink="/login" [queryParams]="{ returnUrl: '/events/' + ev._id }" class="public-event-detail__text-btn"

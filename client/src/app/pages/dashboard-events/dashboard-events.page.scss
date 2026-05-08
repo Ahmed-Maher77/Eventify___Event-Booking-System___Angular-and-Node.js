@@ -75,13 +75,24 @@
 .admin-entity-page__table {
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
-  tr td:last-child {
-    width: 100%;
-    display: inline-flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.35rem;
+
+  th.text-end,
+  td.text-end {
+    width: 130px;
+    white-space: nowrap;
   }
+
+  td.text-end {
+    vertical-align: middle;
+  }
+}
+
+.admin-entity-page__row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
 }
 
 .admin-entity-page__table tbody tr:last-child td {
@@ -94,6 +105,7 @@
   color: var(--color-brown);
   padding: 0.15rem 0.5rem;
   font-size: 0.78rem;
+  white-space: nowrap;
 }
 
 .admin-entity-page__catalog-filters-wrap {
@@ -172,12 +184,13 @@
 
   &.is-open {
     grid-template-rows: 1fr;
+    overflow: visible;
   }
 }
 
 .admin-entity-page__catalog-filters-inner {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -209,6 +222,16 @@
   gap: 0.28rem;
   margin: 0;
   min-width: 0;
+}
+
+.admin-entity-page__filter-field--search {
+  grid-column: span 2;
+}
+
+@media (width <= 700px) {
+  .admin-entity-page__filter-field--search {
+    grid-column: span 1;
+  }
 }
 
 .admin-entity-page__filter-label {
@@ -292,6 +315,16 @@
   border-radius: 0.55rem;
   background: #fff;
   color: var(--color-admin-sidebar-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.admin-entity-page__icon-btn i {
+  display: block;
+  line-height: 1;
 }
 
 .admin-entity-page__icon-btn.is-danger {

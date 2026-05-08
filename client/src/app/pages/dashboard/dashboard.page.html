@@ -121,38 +121,28 @@
     <p class="admin-page__attention-intro">
       Exceptions and follow-ups across your catalog and operations.
     </p>
-    <ul class="admin-page__alert-list">
-      <li class="admin-page__alert admin-page__alert--warning">
-        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
-        <div class="admin-page__alert-body">
-          <p class="admin-page__alert-title">3 events start within 48 hours with low sales</p>
-          <p class="admin-page__alert-meta">
-            Check pricing, capacity, and promotion in the catalog.
-          </p>
-        </div>
-        <a routerLink="/dashboard/events" class="admin-page__alert-action">Review events</a>
-      </li>
-      <li class="admin-page__alert admin-page__alert--info">
-        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
-        <div class="admin-page__alert-body">
-          <p class="admin-page__alert-title">12 messages awaiting first reply</p>
-          <p class="admin-page__alert-meta">
-            Oldest thread is 6 hours — keep response time on track.
-          </p>
-        </div>
-        <a routerLink="/dashboard/messages" class="admin-page__alert-action">Open inbox</a>
-      </li>
-      <li class="admin-page__alert admin-page__alert--neutral">
-        <span class="admin-page__alert-icon" aria-hidden="true"><i class="fa-solid fa-user-plus"></i></span>
-        <div class="admin-page__alert-body">
-          <p class="admin-page__alert-title">28 new members this week</p>
-          <p class="admin-page__alert-meta">
-            Up from 19 the week before — consider a welcome campaign.
-          </p>
-        </div>
-        <a routerLink="/dashboard/users" class="admin-page__alert-action">Member directory</a>
-      </li>
-    </ul>
+    @if (isAttentionLoading()) {
+      <div class="admin-page__loader-wrap">
+        <app-section-loader [size]="28" label="Loading attention items" />
+      </div>
+    } @else {
+      <ul class="admin-page__alert-list">
+        @for (item of attentionItems(); track item.actionLink) {
+          <li class="admin-page__alert" [class.admin-page__alert--warning]="item.type === 'warning'"
+            [class.admin-page__alert--info]="item.type === 'info'"
+            [class.admin-page__alert--neutral]="item.type === 'neutral'">
+            <span class="admin-page__alert-icon" aria-hidden="true"><i [class]="item.icon"></i></span>
+            <div class="admin-page__alert-body">
+              <p class="admin-page__alert-title">{{ item.title }}</p>
+              <p class="admin-page__alert-meta">
+                {{ item.meta }}
+              </p>
+            </div>
+            <a [routerLink]="item.actionLink" class="admin-page__alert-action">{{ item.actionLabel }}</a>
+          </li>
+        }
+      </ul>
+    }
   </section>
 
   <app-admin-recent-bookings [items]="recentBookings()" [isLoading]="isRecentBookingsLoading()" />

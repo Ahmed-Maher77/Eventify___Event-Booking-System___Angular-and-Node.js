@@ -12,6 +12,130 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
+    <div class="admin-stream__toolbar">
+      <div class="admin-stream__tabs" role="tablist" aria-label="Message status tabs">
+        <button
+          type="button"
+          class="admin-stream__tab-btn"
+          [class.is-active]="isActiveStatusTab('all')"
+          (click)="setStatusTab('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="admin-stream__tab-btn"
+          [class.is-active]="isActiveStatusTab('new')"
+          (click)="setStatusTab('new')"
+        >
+          Unread
+        </button>
+        <button
+          type="button"
+          class="admin-stream__tab-btn"
+          [class.is-active]="isActiveStatusTab('reviewed')"
+          (click)="setStatusTab('reviewed')"
+        >
+          Read
+        </button>
+      </div>
+
+      <div class="admin-stream__bulk-actions">
+        <button
+          type="button"
+          class="admin-stream__action-btn"
+          [disabled]="isBulkActionLoading() || !hasAnyNew()"
+          (click)="markAllAsReviewed()"
+        >
+          Mark all as read
+        </button>
+        <button
+          type="button"
+          class="admin-stream__action-btn"
+          [disabled]="isBulkActionLoading() || !hasAnyReviewed()"
+          (click)="markAllAsNew()"
+        >
+          Mark all as unread
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-entity-page__catalog-filters-wrap">
+      <div class="admin-entity-page__catalog-filters-bar">
+        <button
+          type="button"
+          id="messages-filters-toggle"
+          class="admin-entity-page__filters-toggle"
+          [attr.aria-expanded]="filtersExpanded()"
+          aria-controls="messages-filters-panel"
+          (click)="toggleFilters()"
+        >
+          <i class="fa-solid fa-chevron-right admin-entity-page__filters-toggle-icon" aria-hidden="true"></i>
+          <span>Filters &amp; sort</span>
+        </button>
+        <button
+          type="button"
+          class="admin-entity-page__catalog-clear-btn"
+          aria-label="Clear filters"
+          title="Clear filters"
+          (click)="clearFilters()"
+        >
+          <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+          <span class="admin-entity-page__catalog-clear-label">Clear Filters</span>
+        </button>
+      </div>
+
+      <div
+        id="messages-filters-panel"
+        class="admin-entity-page__catalog-filters-body"
+        [class.is-open]="filtersExpanded()"
+        role="region"
+        aria-labelledby="messages-filters-toggle"
+        [attr.aria-hidden]="!filtersExpanded()"
+      >
+        <div class="admin-entity-page__catalog-filters-inner">
+          <div class="admin-entity-page__catalog-filters" [formGroup]="filterForm">
+            <div class="admin-entity-page__catalog-filters-grid">
+              <label class="admin-entity-page__filter-field admin-entity-page__filter-field--search">
+                <span class="admin-entity-page__filter-label">Search</span>
+                <input
+                  class="admin-entity-page__filter-input"
+                  type="search"
+                  formControlName="search"
+                  placeholder="Name, email, or subject"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Status</span>
+                <app-custom-native-select
+                  formControlName="status"
+                  [options]="statusOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Sort by</span>
+                <app-custom-native-select
+                  formControlName="sort"
+                  [options]="sortOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+              <label class="admin-entity-page__filter-field">
+                <span class="admin-entity-page__filter-label">Order</span>
+                <app-custom-native-select
+                  formControlName="order"
+                  [options]="orderOptions"
+                  selectClass="admin-entity-page__filter-input"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading message center" />
@@ -19,16 +143,81 @@
     } @else if (errorMessage()) {
       <p class="admin-entity-page__state-message is-error">{{ errorMessage() }}</p>
     } @else if (!items().length && totalListItems() === 0) {
-      <p class="admin-entity-page__state-message">No contact messages yet.</p>
+      <p class="admin-entity-page__state-message">
+        @if (hasActiveFilters()) {
+          No messages match your filters. Try adjusting search or filters.
+        } @else {
+          No contact messages yet.
+        }
+      </p>
     } @else {
       @for (item of items(); track item._id) {
         <article class="admin-stream__item">
-          <p class="admin-stream__from">From: {{ item.fullName }} ({{ item.email }})</p>
-          <p class="admin-stream__subject">{{ item.subject }}</p>
-          <p class="admin-stream__meta">
-            {{ item.createdAt | date: 'medium' }}
-            · <span class="admin-stream__status">{{ item.status | titlecase }}</span>
-          </p>
+          <header class="admin-stream__item-header">
+            <div class="admin-stream__sender">
+              <p class="admin-stream__name">{{ item.fullName }}</p>
+              <a class="admin-stream__email" [href]="'mailto:' + item.email">{{ item.email }}</a>
+            </div>
+            <span
+              class="admin-stream__status-badge"
+              [class.is-reviewed]="item.status === 'reviewed'"
+              [class.is-new]="item.status === 'new'"
+            >
+              {{ item.status === 'new' ? 'Unread' : 'Read' }}
+            </span>
+          </header>
+
+          <section class="admin-stream__item-content">
+            <h3 class="admin-stream__subject">{{ item.subject }}</h3>
+            <p class="admin-stream__message" [class.is-expanded]="isMessageExpanded(item._id)">
+              {{ item.message }}
+            </p>
+          </section>
+
+          <div class="admin-stream__item-footer">
+            <p class="admin-stream__meta">Received {{ item.createdAt | date: 'medium' }}</p>
+            <div class="admin-stream__row-actions">
+              @if (shouldShowMessageToggle(item)) {
+                <button
+                  type="button"
+                  class="admin-stream__show-more"
+                  [disabled]="isMessageActionDisabled(item)"
+                  (click)="toggleMessageExpanded(item._id)"
+                >
+                  {{ isMessageExpanded(item._id) ? 'Show less' : 'Show more' }}
+                </button>
+              }
+              @if (item.status === 'new') {
+                <button
+                  type="button"
+                  class="admin-stream__action-btn"
+                  [disabled]="isMessageActionDisabled(item)"
+                  (click)="markMessageAsReviewed(item)"
+                >
+                  Mark as read
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="admin-stream__action-btn"
+                  [disabled]="isMessageActionDisabled(item)"
+                  (click)="markMessageAsNew(item)"
+                >
+                  Mark as unread
+                </button>
+              }
+              <button
+                type="button"
+                class="admin-stream__action-btn is-danger"
+                aria-label="Delete message"
+                title="Delete message"
+                [disabled]="isMessageActionDisabled(item)"
+                (click)="requestDeleteMessage(item)"
+              >
+                <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
         </article>
       }
 
@@ -43,3 +232,70 @@
     }
   </div>
 </section>
+
+@if (pendingAction(); as pending) {
+  <div
+    class="admin-confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="message-action-dialog-title"
+    aria-describedby="message-action-dialog-desc"
+  >
+    <button
+      type="button"
+      class="admin-confirm-modal__backdrop"
+      aria-label="Cancel action"
+      [disabled]="isMessageActionDisabled(pending.item)"
+      (click)="closePendingActionModal()"
+    ></button>
+    <div class="admin-confirm-modal__panel">
+      <h3 id="message-action-dialog-title" class="admin-confirm-modal__title">
+        @if (pending.type === 'delete') {
+          Delete this message?
+        } @else {
+          @if (pending.nextStatus === 'reviewed') {
+            Mark as read?
+          } @else {
+            Mark as unread?
+          }
+        }
+      </h3>
+      <p id="message-action-dialog-desc" class="admin-confirm-modal__text">
+        @if (pending.type === 'delete') {
+          This will permanently remove the message from
+          <strong>{{ pending.item.fullName }}</strong>
+          ({{ pending.item.email }}). This action cannot be undone.
+        } @else {
+          Update message status for
+          <strong>{{ pending.item.fullName }}</strong>
+          to
+          <strong>{{ pending.nextStatus === 'reviewed' ? 'Read' : 'Unread' }}</strong>.
+        }
+      </p>
+      <div class="admin-confirm-modal__actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="isMessageActionDisabled(pending.item)"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closePendingActionModal()"
+        />
+        <app-button
+          [label]="pending.type === 'delete' ? 'Delete message' : 'Confirm'"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [loading]="isMessageActionDisabled(pending.item)"
+          [customClass]="
+            pending.type === 'delete'
+              ? 'admin-confirm-modal__delete-btn diagonal-swipe-hover'
+              : 'diagonal-swipe-hover'
+          "
+          (pressed)="confirmPendingAction()"
+        />
+      </div>
+    </div>
+  </div>
+}

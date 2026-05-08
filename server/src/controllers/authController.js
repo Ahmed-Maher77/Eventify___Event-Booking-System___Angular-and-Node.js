@@ -60,6 +60,9 @@ export const login = async (req, res) => {
     if (!user) {
         throw new AppError("invalid email or password", 401);
     }
+    if (user.isActive === false) {
+        throw new AppError("Your account is deactivated. Please contact support.", 403);
+    }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {

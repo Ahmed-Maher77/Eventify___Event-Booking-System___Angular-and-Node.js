@@ -12,6 +12,83 @@
   </header>
 
   <div class="admin-entity-page__panel table-responsive">
+    <div class="admin-audience__top-actions">
+      <button
+        type="button"
+        class="admin-audience__export-btn"
+        [disabled]="isExportingCsv() || !canExport()"
+        (click)="exportSubscribersCsv('all')"
+      >
+        Export all CSV
+      </button>
+      <button
+        type="button"
+        class="admin-audience__export-btn"
+        [disabled]="isExportingCsv() || !canExport()"
+        (click)="exportSubscribersCsv('active')"
+      >
+        Export active CSV
+      </button>
+    </div>
+
+    <div class="admin-audience__filters-wrap">
+      <div class="admin-audience__filters-bar">
+        <button
+          type="button"
+          id="audience-filters-toggle"
+          class="admin-audience__filters-toggle"
+          [attr.aria-expanded]="audienceFiltersExpanded()"
+          aria-controls="audience-filters-panel"
+          (click)="toggleAudienceFilters()"
+        >
+          <i class="fa-solid fa-chevron-right admin-audience__filters-toggle-icon" aria-hidden="true"></i>
+          <span>Filters &amp; sort</span>
+        </button>
+        <button
+          type="button"
+          class="admin-audience__clear-btn"
+          aria-label="Clear filters"
+          title="Clear filters"
+          (click)="clearFilters()"
+        >
+          <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+          <span class="admin-audience__clear-label">Clear Filters</span>
+        </button>
+      </div>
+
+      <div
+        id="audience-filters-panel"
+        class="admin-audience__filters-body"
+        [class.is-open]="audienceFiltersExpanded()"
+        role="region"
+        aria-labelledby="audience-filters-toggle"
+        [attr.aria-hidden]="!audienceFiltersExpanded()"
+      >
+        <div class="admin-audience__filters-inner">
+          <div class="admin-audience__controls-grid" [formGroup]="audienceFilterForm">
+            <label class="admin-audience__filter-field">
+              <span class="admin-audience__filter-label">Search</span>
+              <input
+                class="admin-audience__filter-input"
+                type="search"
+                placeholder="Search by email"
+                formControlName="search"
+              />
+            </label>
+
+            <label class="admin-audience__filter-field">
+              <span class="admin-audience__filter-label">Status</span>
+              <app-custom-native-select
+                formControlName="status"
+                [options]="audienceStatusOptions"
+                selectClass="admin-audience__filter-input"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
     @if (isLoading()) {
       <div class="admin-page__loader-wrap">
         <app-section-loader [size]="36" label="Loading audience list" />
@@ -27,6 +104,8 @@
             <th>Email</th>
             <th>Status</th>
             <th>Subscribed</th>
+            <th>Updated</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -37,6 +116,27 @@
                 <span class="admin-audience__pill">{{ row.status | titlecase }}</span>
               </td>
               <td>{{ row.createdAt | date: 'mediumDate' }}</td>
+              <td>{{ row.updatedAt | date: 'mediumDate' }}</td>
+              <td class="admin-audience__actions">
+                <button
+                  type="button"
+                  class="admin-audience__btn"
+                  [disabled]="isUpdatingRowId() === row._id || isDeletingRowId() === row._id"
+                  (click)="requestToggleSubscriberStatus(row)"
+                >
+                  {{ row.status === 'active' ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button
+                  type="button"
+                  class="admin-audience__btn is-danger"
+                  aria-label="Delete subscriber"
+                  title="Delete subscriber"
+                  [disabled]="isUpdatingRowId() === row._id || isDeletingRowId() === row._id"
+                  (click)="requestDeleteSubscriber(row)"
+                >
+                  <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                </button>
+              </td>
             </tr>
           }
         </tbody>
@@ -53,3 +153,70 @@
     }
   </div>
 </section>
+
+@if (pendingAction(); as pending) {
+  <div
+    class="admin-confirm-modal is-open"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="subscriber-action-dialog-title"
+    aria-describedby="subscriber-action-dialog-desc"
+  >
+    <button
+      type="button"
+      class="admin-confirm-modal__backdrop"
+      aria-label="Cancel action"
+      [disabled]="isUpdatingRowId() === pending.row._id || isDeletingRowId() === pending.row._id"
+      (click)="closePendingActionModal()"
+    ></button>
+    <div class="admin-confirm-modal__panel">
+      <h3 id="subscriber-action-dialog-title" class="admin-confirm-modal__title">
+        @if (pending.type === 'delete') {
+          Delete subscriber?
+        } @else {
+          @if (pending.nextStatus === 'active') {
+            Activate subscriber?
+          } @else {
+            Deactivate subscriber?
+          }
+        }
+      </h3>
+      <p id="subscriber-action-dialog-desc" class="admin-confirm-modal__text">
+        @if (pending.type === 'delete') {
+          This will permanently delete
+          <strong>{{ pending.row.email }}</strong>.
+          This action cannot be undone.
+        } @else {
+          You are about to set
+          <strong>{{ pending.row.email }}</strong>
+          to
+          <strong>{{ pending.nextStatus }}</strong>.
+        }
+      </p>
+      <div class="admin-confirm-modal__actions">
+        <app-button
+          label="Cancel"
+          variant="outline"
+          size="md"
+          [rounded]="true"
+          [disabled]="isUpdatingRowId() === pending.row._id || isDeletingRowId() === pending.row._id"
+          customClass="diagonal-swipe-hover"
+          (pressed)="closePendingActionModal()"
+        />
+        <app-button
+          [label]="pending.type === 'delete' ? 'Delete subscriber' : 'Confirm'"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          [loading]="isUpdatingRowId() === pending.row._id || isDeletingRowId() === pending.row._id"
+          [customClass]="
+            pending.type === 'delete'
+              ? 'admin-confirm-modal__delete-btn diagonal-swipe-hover'
+              : 'diagonal-swipe-hover'
+          "
+          (pressed)="confirmPendingAction()"
+        />
+      </div>
+    </div>
+  </div>
+}

@@ -31,8 +31,26 @@ const bookingSchema = new Schema(
       },
       default: "pending",
     },
+    payment: {
+      paymentIntentId: { type: String, default: null },
+      paymentStatus: { type: String, default: null },
+      amountPaid: { type: Number, default: null },
+      currency: { type: String, default: null },
+      paidAt: { type: Date, default: null },
+      refundId: { type: String, default: null },
+      refundStatus: { type: String, default: null },
+    },
   },
   { timestamps: true },
+);
+
+// Allow only one active booking per user/event. Cancelled bookings can be recreated.
+bookingSchema.index(
+  { userId: 1, eventId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: { $in: ["pending", "confirmed"] } },
+  },
 );
 
 const Booking = model("booking", bookingSchema);

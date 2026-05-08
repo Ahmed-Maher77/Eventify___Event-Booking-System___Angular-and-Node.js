@@ -22,6 +22,12 @@ await jest.unstable_mockModule("../../src/models/Event.js", () => ({
     default: EventMock,
 }));
 
+const mockCancelBookingsForDeletedEvent = jest.fn().mockResolvedValue(undefined);
+
+await jest.unstable_mockModule("../../src/services/eventDeletionPaymentService.js", () => ({
+    cancelBookingsForDeletedEvent: mockCancelBookingsForDeletedEvent,
+}));
+
 await jest.unstable_mockModule("../../src/middlewares/authMiddleware.js", () => ({
     protect: (req, _res, next) => {
         req.user = { id: "507f1f77bcf86cd799439099", role: "admin" };
@@ -282,6 +288,9 @@ describe("Event API", () => {
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
             expect(res.body.message).toBe("Event deleted successfully");
+            expect(mockCancelBookingsForDeletedEvent).toHaveBeenCalledWith(
+                "507f1f77bcf86cd799439034",
+            );
             expect(mockFindByIdAndDelete).toHaveBeenCalledWith(
                 "507f1f77bcf86cd799439034",
             );

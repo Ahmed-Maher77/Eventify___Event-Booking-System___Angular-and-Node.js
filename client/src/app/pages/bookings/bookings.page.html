@@ -11,6 +11,300 @@
       <div class="bookings-page__loader-wrap">
         <app-section-loader [size]="40" label="Loading bookings" />
       </div>
+    } @else if (errorMessage()) {
+      <div class="bookings-page__status-wrap">
+        <p class="bookings-page__status bookings-page__status--error">{{ errorMessage() }}</p>
+        <button type="button" class="bookings-page__retry" (click)="retry()">Try again</button>
+      </div>
+    } @else {
+      <div class="bookings-page__catalog-filters-wrap">
+        <div class="bookings-page__catalog-filters-bar">
+          <button
+            type="button"
+            id="bookings-filters-toggle"
+            class="bookings-page__filters-toggle"
+            [attr.aria-expanded]="filtersExpanded()"
+            aria-controls="bookings-filters-panel"
+            (click)="toggleFilters()"
+          >
+            <i
+              class="fa-solid fa-chevron-right bookings-page__filters-toggle-icon"
+              aria-hidden="true"
+            ></i>
+            <span>Filters &amp; sort</span>
+          </button>
+          <button
+            type="button"
+            class="bookings-page__catalog-clear-btn"
+            aria-label="Clear filters"
+            title="Clear filters"
+            (click)="clearFilters()"
+          >
+            <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+            <span class="bookings-page__catalog-clear-label">Clear Filters</span>
+          </button>
+        </div>
+
+        <div
+          id="bookings-filters-panel"
+          class="bookings-page__catalog-filters-body"
+          [class.is-open]="filtersExpanded()"
+          role="region"
+          aria-labelledby="bookings-filters-toggle"
+          [attr.aria-hidden]="!filtersExpanded()"
+        >
+          <div class="bookings-page__catalog-filters-inner">
+            <div class="bookings-page__catalog-fields">
+              <label class="bookings-page__field">
+                <span class="bookings-page__field-label">Search</span>
+                <input
+                  class="bookings-page__field-input"
+                  type="search"
+                  placeholder="Event, location, status, booking ID"
+                  [ngModel]="searchTerm()"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="searchTerm.set($event)"
+                />
+              </label>
+              <label class="bookings-page__field">
+                <span class="bookings-page__field-label">Sort by</span>
+                <select
+                  class="bookings-page__field-input"
+                  [ngModel]="sortBy()"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setSortBy($event)"
+                >
+                  <option value="booked_desc">Booked on (Newest first)</option>
+                  <option value="booked_asc">Booked on (Oldest first)</option>
+                  <option value="event_asc">Event date (Soonest)</option>
+                  <option value="event_desc">Event date (Latest)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="bookings-page__toolbar" aria-label="Bookings filters">
+        <div class="bookings-page__status-tabs" role="tablist" aria-label="Filter bookings">
+          <button
+            type="button"
+            role="tab"
+            class="bookings-page__tab"
+            [class.is-active]="activeStatus() === 'all'"
+            [attr.aria-selected]="activeStatus() === 'all'"
+            (click)="switchStatus('all')"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="bookings-page__tab"
+            [class.is-active]="activeStatus() === 'pending'"
+            [attr.aria-selected]="activeStatus() === 'pending'"
+            (click)="switchStatus('pending')"
+          >
+            Awaiting payment
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="bookings-page__tab"
+            [class.is-active]="activeStatus() === 'confirmed'"
+            [attr.aria-selected]="activeStatus() === 'confirmed'"
+            (click)="switchStatus('confirmed')"
+          >
+            Confirmed
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="bookings-page__tab"
+            [class.is-active]="activeStatus() === 'cancelled'"
+            [attr.aria-selected]="activeStatus() === 'cancelled'"
+            (click)="switchStatus('cancelled')"
+          >
+            Cancelled
+          </button>
+        </div>
+        <p class="bookings-page__meta">{{ statusCountLabel() }}: {{ totalBookings() }}</p>
+      </section>
+
+      @if (!hasBookings()) {
+        <section class="bookings-page__empty-state" aria-live="polite">
+          <span class="bookings-page__empty-icon" aria-hidden="true">
+            <i class="fa-regular fa-calendar-check"></i>
+          </span>
+          <h2 class="bookings-page__empty-title">No bookings found</h2>
+          <p class="bookings-page__empty-text">
+            You do not have bookings in this category yet. Explore events and reserve your next
+            spot.
+          </p>
+          <app-button
+            label="Browse events"
+            variant="primary"
+            size="md"
+            [rounded]="true"
+            customClass="bookings-page__empty-action diagonal-swipe-hover"
+            routerLink="/events"
+          />
+        </section>
+      } @else {
+        <div class="bookings-page__list">
+          @for (booking of displayedBookings(); track booking._id) {
+            <article class="bookings-page__card">
+              <div class="bookings-page__card-head">
+                <div>
+                  <p class="bookings-page__kicker">Reservation</p>
+                  <h2 class="bookings-page__title">{{ eventTitle(booking) }}</h2>
+                </div>
+                <span
+                  class="bookings-page__status-pill"
+                  [class.is-pending]="booking.status === 'pending'"
+                  [class.is-cancelled]="booking.status === 'cancelled'"
+                >
+                  {{ bookingStatusLabel(booking.status) }}
+                </span>
+              </div>
+
+              <dl class="bookings-page__meta-grid">
+                <div>
+                  <dt>Event date</dt>
+                  <dd>
+                    {{
+                      eventDate(booking)
+                        ? (eventDate(booking)! | date: 'fullDate')
+                        : 'Not available'
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Location</dt>
+                  <dd>{{ eventLocation(booking) }}</dd>
+                </div>
+                <div>
+                  <dt>Quantity</dt>
+                  <dd class="bookings-page__qty-cell">
+                    <button
+                      type="button"
+                      class="bookings-page__qty-btn"
+                      [disabled]="!canAdjustQuantity(booking) || booking.quantity <= 1"
+                      (click)="decreaseQuantity(booking)"
+                    >
+                      -
+                    </button>
+                    <span>{{ booking.quantity }}</span>
+                    <button
+                      type="button"
+                      class="bookings-page__qty-btn"
+                      [disabled]="!canAdjustQuantity(booking)"
+                      (click)="increaseQuantity(booking)"
+                    >
+                      +
+                    </button>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Total price</dt>
+                  <dd>{{ booking.totalPrice | currency }}</dd>
+                </div>
+                <div>
+                  <dt>Booked on</dt>
+                  <dd>
+                    {{ booking.createdAt ? (booking.createdAt | date: 'medium') : 'Not available' }}
+                  </dd>
+                </div>
+              </dl>
+
+              <div class="bookings-page__actions">
+                @if (canPayNow(booking)) {
+                  <app-button
+                    label="Pay now"
+                    variant="primary"
+                    size="sm"
+                    [rounded]="true"
+                    customClass="diagonal-swipe-hover"
+                    (pressed)="payForBooking(booking)"
+                  />
+                }
+                @if (booking.status !== 'cancelled') {
+                  <app-button
+                    label="Cancel"
+                    variant="outline"
+                    size="sm"
+                    [rounded]="true"
+                    customClass="bookings-page__cancel-btn"
+                    [loading]="isCancelling(booking._id)"
+                    [disabled]="!canCancel(booking)"
+                    (pressed)="cancelBooking(booking)"
+                  />
+                }
+                @if (canDeleteCancelled(booking)) {
+                  <button
+                    type="button"
+                    class="bookings-page__icon-btn bookings-page__icon-btn--danger"
+                    [disabled]="isDeleting(booking._id)"
+                    aria-label="Delete cancelled booking"
+                    title="Delete cancelled booking"
+                    (click)="deleteCancelledBooking(booking)"
+                  >
+                    <i
+                      [class]="
+                        isDeleting(booking._id)
+                          ? 'fa-solid fa-spinner fa-spin'
+                          : 'fa-solid fa-trash-can'
+                      "
+                      aria-hidden="true"
+                    ></i>
+                  </button>
+                }
+                <app-button
+                  label="View details"
+                  variant="primary"
+                  size="sm"
+                  [rounded]="true"
+                  [routerLink]="'/bookings/' + booking._id"
+                  customClass="diagonal-swipe-hover"
+                />
+                @if (cancellationPolicyNote(booking); as note) {
+                  <p
+                    class="bookings-page__cancel-note"
+                    [class.bookings-page__cancel-note--disabled]="!canCancel(booking)"
+                  >
+                    {{ note }}
+                  </p>
+                }
+                @if (refundNotice(booking); as refundNote) {
+                  <p class="bookings-page__refund-note">{{ refundNote }}</p>
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        <nav class="bookings-page__pagination" aria-label="Bookings pagination">
+          <button
+            type="button"
+            class="bookings-page__page-btn"
+            [disabled]="currentPage() <= 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            Previous
+          </button>
+          <span class="bookings-page__page-info"
+            >Page {{ currentPage() }} of {{ totalPages() }}</span
+          >
+          <button
+            type="button"
+            class="bookings-page__page-btn"
+            [disabled]="currentPage() >= totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Next
+          </button>
+        </nav>
+      }
     }
   </div>
 </section>

@@ -9,9 +9,9 @@
     <span class="eventify-header__user-name">{{ displayName }}</span>
     <span class="eventify-header__avatar-wrap">
       <img [src]="profileImageUrl" [alt]="displayName" class="header-avatar" />
-      @if (favoriteCount > 0) {
-        <span class="eventify-header__favorites-badge">
-          {{ favoriteCount > 99 ? '99+' : favoriteCount }}
+      @if (bookingCount > 0) {
+        <span class="eventify-header__bookings-badge">
+          {{ bookingCount > 99 ? '99+' : bookingCount }}
         </span>
       }
     </span>
@@ -66,6 +66,9 @@
     >
       <span class="fa-solid fa-ticket eventify-header__profile-link-icon" aria-hidden="true"></span>
       <span>My Bookings</span>
+      <span class="eventify-header__profile-link-count">
+        {{ bookingCount > 99 ? '99+' : bookingCount }}
+      </span>
     </a>
 
     <button class="eventify-header__profile-link eventify-header__profile-link--danger" (click)="logout.emit()">

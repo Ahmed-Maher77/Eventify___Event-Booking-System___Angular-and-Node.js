@@ -8,8 +8,10 @@
 <div class="admin-recent-booking-item__content">
   <p class="admin-recent-booking-item__time d-flex align-items-center gap-2">
     <span>{{ entry().timeLabel }}</span>
-    @if (entry().status === 'Pending') {
-      <span class="admin-recent-booking-item__status-pill admin-recent-booking-item__status" >Pending</span>
+    @if (entry().status.toLowerCase() === 'pending') {
+      <span class="admin-recent-booking-item__status-pill admin-recent-booking-item__status"
+        >Awating_Payment</span
+      >
     }
   </p>
   <p class="admin-recent-booking-item__title">{{ entry().eventTitle }}</p>

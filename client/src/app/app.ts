@@ -95,7 +95,6 @@ export class App {
       }
     });
 
-    this.redirectAdminToDashboardIfNeeded();
     this.updateRouteThemeFlags();
     this.initializeChatbotHintState();
   }

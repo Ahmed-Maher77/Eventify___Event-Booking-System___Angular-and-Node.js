@@ -45,7 +45,22 @@ export interface AdminBookingsResponse {
   message: string;
   data: {
     bookings: AdminBookingListItem[];
+    statusCounts?: {
+      all: number;
+      pending: number;
+      confirmed: number;
+      cancelled: number;
+    };
     pagination: AdminBookingsPagination;
+  };
+}
+
+export interface AdminBookingOperationResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    action?: 'cancel_refund' | 'delete_only';
+    refunded?: boolean;
   };
 }
 
@@ -58,6 +73,7 @@ export interface AdminUserListItem {
   name: string;
   email: string;
   role: 'admin' | 'user';
+  isActive?: boolean;
   pictureUrl?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -95,6 +111,14 @@ export interface CreateAdminResponse {
   };
 }
 
+export interface AdminUserMutationResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AdminUserListItem;
+  };
+}
+
 export interface AdminContactMessagesPagination extends AdminPaginationCore {
   totalMessages: number;
 }
@@ -117,6 +141,12 @@ export interface AdminContactMessagesResponse {
     messages: AdminContactMessageListItem[];
     pagination: AdminContactMessagesPagination;
   };
+}
+
+export interface AdminContactMessageMutationResponse {
+  success: boolean;
+  message: string;
+  data: AdminContactMessageListItem;
 }
 
 export interface AdminNewsletterPagination extends AdminPaginationCore {
@@ -176,6 +206,22 @@ export interface AdminRecentBookingsResponse {
   message: string;
   data: AdminRecentBooking[];
 }
+
+export interface AdminNeedsAttentionResponse {
+  success: boolean;
+  message: string;
+  data: {
+    lowSalesUpcomingEvents48h: number;
+    unreadMessages: {
+      count: number;
+      oldestHours: number;
+    };
+    newMembers: {
+      thisWeek: number;
+      priorWeek: number;
+    };
+  };
+}
 export interface AdminAssistantActivityListItem {
   _id: string;
   userId: null | { _id: string; name: string; email: string };
@@ -201,9 +247,12 @@ export interface AdminAssistantActivitiesResponse {
 export interface AdminBookingsQuery {
   page?: number;
   limit?: number;
-  status?: string;
+  status?: 'pending' | 'confirmed' | 'cancelled';
   userId?: string;
   eventId?: string;
+  search?: string;
+  sort?: 'createdAt' | 'status' | 'quantity' | 'totalPrice';
+  order?: 'asc' | 'desc';
 }
 
 export interface AdminUsersQuery {
@@ -219,12 +268,18 @@ export interface AdminContactMessagesQuery {
   page?: number;
   limit?: number;
   status?: string;
+  search?: string;
+  sort?: 'createdAt' | 'fullName' | 'email' | 'subject' | 'status';
+  order?: 'asc' | 'desc';
 }
 
 export interface AdminNewsletterSubscribersQuery {
   page?: number;
   limit?: number;
   status?: string;
+  search?: string;
+  sort?: 'createdAt' | 'email' | 'status';
+  order?: 'asc' | 'desc';
 }
 
 @Injectable({
@@ -247,8 +302,23 @@ export class AdminDashboardService {
     if (options.eventId?.trim()) {
       params = params.set('eventId', options.eventId.trim());
     }
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
     return this.http.get<AdminBookingsResponse>(`${this.adminBase}/bookings`, {
       params,
+      withCredentials: true,
+    });
+  }
+
+  runBookingOperation(bookingId: string): Observable<AdminBookingOperationResponse> {
+    return this.http.delete<AdminBookingOperationResponse>(`${this.adminBase}/bookings/${bookingId}`, {
       withCredentials: true,
     });
   }
@@ -287,6 +357,22 @@ export class AdminDashboardService {
     });
   }
 
+  updateUserRole(id: string, role: 'admin' | 'user'): Observable<AdminUserMutationResponse> {
+    return this.http.patch<AdminUserMutationResponse>(
+      `${this.adminBase}/users/${id}/role`,
+      { role },
+      { withCredentials: true },
+    );
+  }
+
+  updateUserStatus(id: string, isActive: boolean): Observable<AdminUserMutationResponse> {
+    return this.http.patch<AdminUserMutationResponse>(
+      `${this.adminBase}/users/${id}/status`,
+      { isActive },
+      { withCredentials: true },
+    );
+  }
+
   getContactMessages(options: AdminContactMessagesQuery = {}): Observable<AdminContactMessagesResponse> {
     let params = new HttpParams()
       .set('page', String(options.page ?? 1))
@@ -294,8 +380,34 @@ export class AdminDashboardService {
     if (options.status?.trim()) {
       params = params.set('status', options.status.trim());
     }
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
     return this.http.get<AdminContactMessagesResponse>(`${this.adminBase}/contact-messages`, {
       params,
+      withCredentials: true,
+    });
+  }
+
+  updateContactMessageStatus(
+    id: string,
+    status: 'new' | 'reviewed',
+  ): Observable<AdminContactMessageMutationResponse> {
+    return this.http.patch<AdminContactMessageMutationResponse>(
+      `${this.adminBase}/contact-messages/${id}/status`,
+      { status },
+      { withCredentials: true },
+    );
+  }
+
+  deleteContactMessage(id: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(`${this.adminBase}/contact-messages/${id}`, {
       withCredentials: true,
     });
   }
@@ -309,10 +421,37 @@ export class AdminDashboardService {
     if (options.status?.trim()) {
       params = params.set('status', options.status.trim());
     }
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
     return this.http.get<AdminNewsletterSubscribersResponse>(`${this.adminBase}/newsletter-subscribers`, {
       params,
       withCredentials: true,
     });
+  }
+
+  updateNewsletterSubscriberStatus(
+    id: string,
+    status: 'active' | 'unsubscribed',
+  ): Observable<{ success: boolean; message: string; data: AdminNewsletterSubscriberListItem }> {
+    return this.http.patch<{ success: boolean; message: string; data: AdminNewsletterSubscriberListItem }>(
+      `${this.adminBase}/newsletter-subscribers/${id}/status`,
+      { status },
+      { withCredentials: true },
+    );
+  }
+
+  deleteNewsletterSubscriber(id: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(
+      `${this.adminBase}/newsletter-subscribers/${id}`,
+      { withCredentials: true },
+    );
   }
 
   getDashboardStats(options: Number = 30): Observable<AdminDashboardStatsResponse> {
@@ -327,10 +466,54 @@ export class AdminDashboardService {
   getRecentBookings(): Observable<AdminRecentBookingsResponse> {
     return this.http.get<AdminRecentBookingsResponse>(`${this.adminBase}/recent-bookings`, {
       withCredentials: true,});}
-  getAssistantActivities(options: { page?: number; limit?: number } = {}): Observable<AdminAssistantActivitiesResponse> {
-    const params = new HttpParams()
+  getNeedsAttention(): Observable<AdminNeedsAttentionResponse> {
+    return this.http.get<AdminNeedsAttentionResponse>(`${this.adminBase}/needs-attention`, {
+      withCredentials: true,
+    });
+  }
+  getAssistantActivities(options: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    model?: string;
+    sort?: 'createdAt' | 'responseMs' | 'relevantEventsCount' | 'status' | 'model';
+    order?: 'asc' | 'desc';
+    minResponseMs?: number;
+    maxResponseMs?: number;
+    startDate?: string;
+    endDate?: string;
+  } = {}): Observable<AdminAssistantActivitiesResponse> {
+    let params = new HttpParams()
       .set('page', String(options.page ?? 1))
       .set('limit', String(options.limit ?? ADMIN_LIST_PAGE_SIZE));
+    if (options.search?.trim()) {
+      params = params.set('search', options.search.trim());
+    }
+    if (options.status?.trim()) {
+      params = params.set('status', options.status.trim());
+    }
+    if (options.model?.trim()) {
+      params = params.set('model', options.model.trim());
+    }
+    if (options.sort) {
+      params = params.set('sort', options.sort);
+    }
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
+    if (options.minResponseMs != null) {
+      params = params.set('minResponseMs', String(options.minResponseMs));
+    }
+    if (options.maxResponseMs != null) {
+      params = params.set('maxResponseMs', String(options.maxResponseMs));
+    }
+    if (options.startDate) {
+      params = params.set('startDate', options.startDate);
+    }
+    if (options.endDate) {
+      params = params.set('endDate', options.endDate);
+    }
 
     return this.http.get<AdminAssistantActivitiesResponse>(`${this.adminBase}/assistant-activity`, {
       params,

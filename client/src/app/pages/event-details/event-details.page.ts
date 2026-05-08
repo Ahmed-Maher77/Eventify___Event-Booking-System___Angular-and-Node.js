@@ -89,6 +89,7 @@ export class EventDetailsPage implements OnInit {
 
   protected readonly bookingQuantity = signal(1);
   protected readonly bookingSubmitting = signal(false);
+  protected readonly activeBookingId = signal<string | null>(null);
 
   protected readonly reviews = signal<EventReviewItem[]>([]);
   protected readonly canReview = signal(false);
@@ -182,9 +183,40 @@ export class EventDetailsPage implements OnInit {
   protected canBook(): boolean {
     const ev = this.event();
     if (!ev || ev.status === 'cancelled' || ev.status === 'completed') return false;
+    if (this.isEventDatePassed(ev)) return false;
     const seats = this.seatsSnapshot(ev);
     if (seats && seats.available < 1) return false;
+    if (this.activeBookingId()) return false;
     return this.auth.isLoggedIn();
+  }
+
+  protected bookingUnavailableMessage(ev: EventApiItem): string {
+    if (this.isEventDatePassed(ev)) {
+      return 'Booking has closed because this event date has already passed.';
+    }
+    if (this.isSoldOut(ev)) {
+      return 'This event is sold out. No seats are currently available.';
+    }
+    if (ev.status === 'cancelled') {
+      return 'Booking is unavailable because this event was cancelled.';
+    }
+    if (ev.status === 'completed') {
+      return 'Booking is unavailable because this event has already ended.';
+    }
+    const seats = this.seatsSnapshot(ev);
+    if (seats && seats.available < 1) {
+      return 'No seats are currently available for this event.';
+    }
+    return 'Booking is not available for this event.';
+  }
+
+  protected isSoldOut(ev: EventApiItem): boolean {
+    const seats = this.seatsSnapshot(ev);
+    return !!seats && seats.available < 1;
+  }
+
+  protected hasActiveBookingForCurrentEvent(): boolean {
+    return !!this.activeBookingId();
   }
 
   protected showBookingCta(): boolean {
@@ -389,6 +421,10 @@ export class EventDetailsPage implements OnInit {
   protected submitBooking(): void {
     const ev = this.event();
     const id = ev?._id;
+    if (ev && !this.canBook()) {
+      this.toast.showError(this.bookingUnavailableMessage(ev));
+      return;
+    }
     if (!id || !this.auth.isLoggedIn()) {
       void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
@@ -406,12 +442,28 @@ export class EventDetailsPage implements OnInit {
       .pipe(finalize(() => this.bookingSubmitting.set(false)))
       .subscribe({
         next: (res) => {
-          const bookingId = res.data?._id;
+          const data = res.data;
           this.toast.showSuccess(res.message ?? 'Booking created.');
-          if (bookingId) {
-            void this.router.navigate(['/bookings', bookingId]);
-          } else {
-            void this.router.navigate(['/bookings']);
+          this.event.update((current) => {
+            if (!current) {
+              return current;
+            }
+            const nextAvailable =
+              typeof current.availableSeats === 'number'
+                ? Math.max(0, current.availableSeats - qty)
+                : current.availableSeats;
+            return {
+              ...current,
+              availableSeats: nextAvailable,
+            };
+          });
+          this.bookingQuantity.set(1);
+          if (data?._id) {
+            this.activeBookingId.set(data._id);
+          }
+          if (data && data.totalPrice > 0 && data.status === 'pending') {
+            void this.router.navigate(['/checkout'], { queryParams: { bookingId: data._id } });
+            return;
           }
         },
         error: (err: HttpErrorResponse) => {
@@ -455,6 +507,7 @@ export class EventDetailsPage implements OnInit {
 
     if (!this.auth.isLoggedIn()) {
       this.isFavorite.set(false);
+      this.activeBookingId.set(null);
       this.canReview.set(false);
       this.hasReviewed.set(false);
       this.reviewBlockReason.set('NOT_AUTHENTICATED');
@@ -463,6 +516,9 @@ export class EventDetailsPage implements OnInit {
 
     forkJoin({
       fav: this.favorites.getFavoriteStatus(eventId).pipe(catchError(() => of({ data: { isFavorite: false } }))),
+      activeBooking: this.bookings
+        .getActiveBookingForEvent(eventId)
+        .pipe(catchError(() => of({ success: true, data: null }))),
       status: this.reviewsApi.getReviewStatus(eventId).pipe(
         catchError(() =>
           of({
@@ -476,8 +532,9 @@ export class EventDetailsPage implements OnInit {
           }),
         ),
       ),
-    }).subscribe(({ fav, status }) => {
+    }).subscribe(({ fav, activeBooking, status }) => {
       this.isFavorite.set(!!fav.data?.isFavorite);
+      this.activeBookingId.set(activeBooking.data?._id ?? null);
       const d = status.data;
       this.canReview.set(!!d?.canReview);
       this.hasReviewed.set(!!d?.hasReviewed);
@@ -490,10 +547,8 @@ export class EventDetailsPage implements OnInit {
     if (!this.auth.isLoggedIn()) return 'Log in to save favorites and book tickets.';
     const r = this.reviewBlockReason();
     switch (r) {
-      case 'EVENT_NOT_ENDED':
-        return 'Reviews open after the event date has passed.';
       case 'NO_CONFIRMED_BOOKING':
-        return 'Reviews unlock once your booking is confirmed and the event date has passed.';
+        return 'Reviews unlock once your booking is confirmed.';
       case 'EVENT_CANCELLED':
         return 'This event was cancelled — reviews are closed.';
       case 'NOT_AUTHENTICATED':
@@ -513,5 +568,17 @@ export class EventDetailsPage implements OnInit {
     const n = typeof raw === 'number' ? raw : Number(raw);
     const q = Number.isFinite(n) ? Math.max(1, Math.floor(n)) : 1;
     this.bookingQuantity.set(q);
+  }
+
+  private isEventDatePassed(ev: EventApiItem): boolean {
+    const rawDate = ev.date?.trim();
+    if (!rawDate) {
+      return false;
+    }
+    const eventDate = new Date(rawDate);
+    if (Number.isNaN(eventDate.getTime())) {
+      return false;
+    }
+    return eventDate.getTime() <= Date.now();
   }
 }

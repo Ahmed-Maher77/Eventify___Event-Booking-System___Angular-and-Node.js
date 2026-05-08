@@ -1,1 +1,101 @@
-<h1>Checkout Page</h1>
+<section class="static-info-page checkout-page">
+  <div class="container static-info-page__container">
+    <app-highlighted-page-heading
+      titlePrefix="Secure"
+      titleHighlight="Checkout"
+      subtitle="Complete payment for your booking using Stripe. You will return here after the payment step if your bank requires extra verification."
+      titleClass="static-info-page__title"
+      subtitleClass="static-info-page__subtitle"
+    />
+
+    @if (loading()) {
+      <div class="checkout-page__loader-wrap">
+        <app-section-loader [size]="40" label="Preparing secure checkout" />
+      </div>
+    } @else if (errorMessage()) {
+      <div class="checkout-page__state-wrap">
+        <p class="checkout-page__state checkout-page__state--error">{{ errorMessage() }}</p>
+        <a routerLink="/bookings" class="checkout-page__link">Back to My Bookings</a>
+      </div>
+    } @else {
+      <div class="checkout-page__content">
+        <div class="checkout-page__layout">
+          <aside class="checkout-page__summary-col">
+            @if (bookingSummary(); as summary) {
+              <section class="checkout-page__summary" aria-label="Booking summary">
+                <p class="checkout-page__summary-kicker">Paying for</p>
+                <h2 class="checkout-page__summary-title">{{ summary.title }}</h2>
+                <p class="checkout-page__summary-meta">
+                  {{ summary.quantity }} {{ summary.quantity === 1 ? 'ticket' : 'tickets' }} ·
+                  {{ summary.total | currency }}
+                </p>
+                <div class="checkout-page__summary-actions">
+                  <app-button
+                    label="Cancel & remove booking"
+                    variant="outline"
+                    size="sm"
+                    [rounded]="true"
+                    [fullWidth]="true"
+                    [loading]="cancelBookingBusy()"
+                    [disabled]="cancelBookingBusy() || paying()"
+                    customClass="checkout-page__summary-cancel-btn"
+                    (pressed)="cancelDeleteBooking()"
+                  />
+                  <p class="checkout-page__summary-actions-hint">
+                    Releases your seats and removes this booking. Any completed charge is refunded through Stripe.
+                  </p>
+                </div>
+              </section>
+            }
+          </aside>
+
+          <div class="checkout-page__checkout-col">
+            <nav class="checkout-page__steps" aria-label="Checkout progress">
+              <div class="checkout-page__steps-inner">
+                <div class="checkout-page__step checkout-page__step--current">
+                  <span class="checkout-page__step-circle" aria-current="step">1</span>
+                  <span class="checkout-page__step-label">Payment details</span>
+                </div>
+                <span class="checkout-page__steps-rail" aria-hidden="true"></span>
+                <div class="checkout-page__step checkout-page__step--pending">
+                  <span class="checkout-page__step-circle">2</span>
+                  <span class="checkout-page__step-label">Confirmation</span>
+                </div>
+              </div>
+            </nav>
+
+            <div class="checkout-page__stripe-box">
+              @if (!stripeFormReady() && !stripeError()) {
+                <p class="checkout-page__stripe-placeholder" aria-live="polite">
+                  Loading secure payment fields…
+                </p>
+              }
+              <!-- Host must stay outside @if so ViewChild exists as soon as this branch renders -->
+              <div #paymentElementHost class="checkout-page__payment-host"></div>
+              <app-button
+                label="Pay now"
+                variant="primary"
+                size="md"
+                [rounded]="true"
+                [fullWidth]="true"
+                [loading]="paying()"
+                [disabled]="paying() || !stripeFormReady()"
+                customClass="checkout-page__pay-btn diagonal-swipe-hover"
+                (pressed)="submitPayment()"
+              />
+            </div>
+            @if (stripeError()) {
+              <p class="checkout-page__stripe-error" role="alert">{{ stripeError() }}</p>
+            }
+            <p class="checkout-page__hint">
+              Test mode: use card <code>4242 4242 4242 4242</code>, any future expiry, any CVC.
+            </p>
+            <a routerLink="/bookings" class="checkout-page__link checkout-page__link--muted">
+              Cancel and return to bookings
+            </a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

@@ -25,6 +25,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   protected readonly selectedPeriod = signal<InsightsPeriod>(30);
   protected readonly isStatsLoading = signal(false);
   protected readonly isRecentBookingsLoading = signal(false);
+  protected readonly isAttentionLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly bookingChartRef = viewChild<ElementRef<HTMLCanvasElement>>('bookingChart');
@@ -52,6 +53,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadStats();
     this.loadRecentBookings();
+    this.loadNeedsAttention();
   }
 
   protected readonly adminDashboardStatsData = signal<AdminDashboardStatsData>({
@@ -127,6 +129,44 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   protected readonly recentBookings = signal<AdminRecentBookingItemData[]>([]);
+  protected readonly needsAttention = signal({
+    lowSalesUpcomingEvents48h: 0,
+    unreadMessages: { count: 0, oldestHours: 0 },
+    newMembers: { thisWeek: 0, priorWeek: 0 },
+  });
+
+  protected readonly attentionItems = computed(() => {
+    const data = this.needsAttention();
+    return [
+      {
+        type: 'warning',
+        icon: 'fa-solid fa-triangle-exclamation',
+        title: `${data.lowSalesUpcomingEvents48h} events start within 48 hours with low sales`,
+        meta: 'Check pricing, capacity, and promotion in the catalog.',
+        actionLabel: 'Review events',
+        actionLink: '/dashboard/events',
+      },
+      {
+        type: 'info',
+        icon: 'fa-regular fa-envelope',
+        title: `${data.unreadMessages.count} messages awaiting first reply`,
+        meta:
+          data.unreadMessages.count > 0
+            ? `Oldest thread is ${data.unreadMessages.oldestHours} hours — keep response time on track.`
+            : 'No unread threads right now.',
+        actionLabel: 'Open inbox',
+        actionLink: '/dashboard/messages',
+      },
+      {
+        type: 'neutral',
+        icon: 'fa-solid fa-user-plus',
+        title: `${data.newMembers.thisWeek} new members this week`,
+        meta: `Up from ${data.newMembers.priorWeek} the week before — consider a welcome campaign.`,
+        actionLabel: 'Member directory',
+        actionLink: '/dashboard/users',
+      },
+    ];
+  });
 
   private loadRecentBookings(): void {
     this.isRecentBookingsLoading.set(true);
@@ -147,6 +187,25 @@ export class DashboardPage implements OnInit, OnDestroy {
         error: () => {
           this.recentBookings.set([]);
         }
+      });
+  }
+
+  private loadNeedsAttention(): void {
+    this.isAttentionLoading.set(true);
+    this.adminApi
+      .getNeedsAttention()
+      .pipe(finalize(() => this.isAttentionLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.needsAttention.set(res.data);
+        },
+        error: () => {
+          this.needsAttention.set({
+            lowSalesUpcomingEvents48h: 0,
+            unreadMessages: { count: 0, oldestHours: 0 },
+            newMembers: { thisWeek: 0, priorWeek: 0 },
+          });
+        },
       });
   }
 

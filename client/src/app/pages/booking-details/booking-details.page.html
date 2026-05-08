@@ -1,1 +1,138 @@
-<h1>Booking Details Page</h1>
+<section class="static-info-page booking-details-page">
+  <div class="container static-info-page__container">
+    <app-highlighted-page-heading
+      titlePrefix="Booking"
+      titleHighlight="Details"
+      subtitle="View reservation information, event context, and booking status."
+      titleClass="static-info-page__title"
+      subtitleClass="static-info-page__subtitle"
+    />
+
+    @if (isLoading()) {
+      <div class="booking-details-page__loader-wrap">
+        <app-section-loader [size]="40" label="Loading booking details" />
+      </div>
+    } @else if (errorMessage()) {
+      <div class="booking-details-page__state-wrap">
+        <p class="booking-details-page__state booking-details-page__state--error">
+          {{ errorMessage() }}
+        </p>
+        <button type="button" class="booking-details-page__retry" (click)="retry()">
+          Try again
+        </button>
+      </div>
+    } @else if (booking(); as item) {
+      <section class="booking-details-page__hero">
+        <div>
+          <p class="booking-details-page__kicker">Reservation details</p>
+          <h2 class="booking-details-page__event-title">{{ eventTitle() }}</h2>
+          <p class="booking-details-page__hero-subtitle">
+            Booking ID: <span>{{ item._id }}</span>
+          </p>
+        </div>
+        <span
+          class="booking-details-page__status"
+          [class.is-cancelled]="item.status === 'cancelled'"
+          [class.is-pending]="item.status === 'pending'"
+        >
+          {{ bookingStatusLabel(item.status) }}
+        </span>
+      </section>
+      @if (refundNotice(); as refundNote) {
+        <p class="booking-details-page__refund-note">{{ refundNote }}</p>
+      }
+
+      <section class="booking-details-page__metrics" aria-label="Booking summary">
+        <article class="booking-details-page__metric">
+          <p class="booking-details-page__metric-label">Tickets</p>
+          <p class="booking-details-page__metric-value">{{ item.quantity }}</p>
+        </article>
+        <article class="booking-details-page__metric">
+          <p class="booking-details-page__metric-label">
+            {{ item.status === 'pending' && item.totalPrice > 0 ? 'Amount due' : 'Total' }}
+          </p>
+          <p class="booking-details-page__metric-value">{{ item.totalPrice | currency }}</p>
+        </article>
+        <article class="booking-details-page__metric">
+          <p class="booking-details-page__metric-label">Event date</p>
+          <p class="booking-details-page__metric-value">
+            {{ eventDate() ? (eventDate()! | date: 'fullDate') : 'Not available' }}
+          </p>
+        </article>
+      </section>
+
+      <section class="booking-details-page__section">
+        <h3 class="booking-details-page__section-title">Event information</h3>
+        <dl class="booking-details-page__grid">
+          <div class="booking-details-page__field">
+            <dt>Event</dt>
+            <dd>{{ eventTitle() }}</dd>
+          </div>
+          <div class="booking-details-page__field">
+            <dt>Location</dt>
+            <dd>{{ eventLocation() }}</dd>
+          </div>
+          <div class="booking-details-page__field">
+            <dt>Booked on</dt>
+            <dd>{{ item.createdAt ? (item.createdAt | date: 'medium') : 'Not available' }}</dd>
+          </div>
+          <div class="booking-details-page__field">
+            <dt>Last updated</dt>
+            <dd>{{ item.updatedAt ? (item.updatedAt | date: 'medium') : 'Not available' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="booking-details-page__actions">
+        @if (canPayBooking()) {
+          <app-button
+            label="Pay now"
+            variant="primary"
+            size="md"
+            [rounded]="true"
+            customClass="diagonal-swipe-hover"
+            (pressed)="goToCheckout()"
+          />
+        }
+        @if (canCancelBooking()) {
+          <app-button
+            label="Cancel booking"
+            variant="outline"
+            size="md"
+            [rounded]="true"
+            [loading]="isCancelling()"
+            customClass="booking-details-page__cancel-btn diagonal-swipe-hover"
+            (pressed)="cancelBooking()"
+          />
+          @if (cancellationPolicyNote(); as note) {
+            <p class="booking-details-page__cancel-note">{{ note }}</p>
+          }
+        } @else if (booking()?.status !== 'cancelled') {
+          <app-button
+            label="Cancel booking"
+            variant="outline"
+            size="md"
+            [rounded]="true"
+            [disabled]="true"
+            customClass="booking-details-page__cancel-btn"
+          />
+          @if (cancellationPolicyNote(); as note) {
+            <p
+              class="booking-details-page__cancel-note booking-details-page__cancel-note--disabled"
+            >
+              {{ note }}
+            </p>
+          }
+        }
+        <app-button
+          label="Back to bookings"
+          variant="primary"
+          size="md"
+          [rounded]="true"
+          customClass="diagonal-swipe-hover"
+          routerLink="/bookings"
+        />
+      </div>
+    }
+  </div>
+</section>
