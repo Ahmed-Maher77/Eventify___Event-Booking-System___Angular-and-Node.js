@@ -44,6 +44,9 @@
     >
       <span class="fa-regular fa-heart eventify-header__profile-link-icon" aria-hidden="true"></span>
       <span>My Favorites</span>
+      <span class="eventify-header__profile-link-count">
+        {{ favoriteCount > 99 ? '99+' : favoriteCount }}
+      </span>
     </a>
 
     <a

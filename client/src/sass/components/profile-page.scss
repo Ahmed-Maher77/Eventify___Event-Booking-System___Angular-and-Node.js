@@ -50,18 +50,12 @@ $stat-chip-tones: (
 }
 
 .profile-page__card--readonly {
-  opacity: 0.68;
   transition: opacity 0.2s ease;
 }
 
 .profile-page__card--readonly .profile-page__input {
   cursor: not-allowed;
-}
-
-.profile-page__card--readonly .profile-page__label,
-.profile-page__card--readonly .profile-page__card-title,
-.profile-page__card--readonly .profile-page__card-subtitle {
-  opacity: 0.9;
+  opacity: 0.6;
 }
 
 .profile-page__card:not(:first-of-type)::before {

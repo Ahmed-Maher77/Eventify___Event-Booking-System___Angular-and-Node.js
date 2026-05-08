@@ -24,6 +24,7 @@ export class HeaderUserMenuComponent implements OnChanges {
   @Input({ required: true }) displayEmail = '';
   @Input({ required: true }) profileImageUrl = '';
   @Input() bookingCount = 0;
+  @Input() favoriteCount = 0;
   @Input({ required: true }) isOpen = false;
   @Input() isSolidStyle = false;
 

@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { distinctUntilChanged, filter, map, throttleTime } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
+import { FavoriteService } from '../../services/favorite.service';
 import { resolveAvatarUrl } from '../../utils/avatar-url';
 import { Button } from '../button/button';
 import { HeaderNavLinksComponent } from './components/header-nav-links/header-nav-links.component';
@@ -34,11 +35,13 @@ import {
 export class Header implements AfterViewInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly bookingService = inject(BookingService);
+  private readonly favoriteService = inject(FavoriteService);
   private readonly router = inject(Router);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   @ViewChild('headerNavRoot') private headerNavRoot?: ElementRef<HTMLElement>;
   private headerContext: ReturnType<typeof setupHeaderAnimations> | null = null;
   private routeRefreshSub: Subscription | null = null;
+  private favoriteCountSub: Subscription | null = null;
   private bookingCountIntervalId: ReturnType<typeof setInterval> | null = null;
   private bookingCountRequestInFlight = false;
   private bookingCountLastRequestedAt = 0;
@@ -50,6 +53,7 @@ export class Header implements AfterViewInit, OnDestroy {
   protected readonly isProfileMenuOpen = signal(false);
   protected readonly isMainHeaderNavOpen = signal(false);
   protected readonly bookingCount = signal(0);
+  protected readonly favoriteCount = signal(0);
   protected readonly navLinks = [
     { label: 'Home', route: '/' },
     { label: 'Events', route: '/events' },
@@ -125,6 +129,7 @@ export class Header implements AfterViewInit, OnDestroy {
   protected logout(): void {
     this.authService.logout();
     this.bookingCount.set(0);
+    this.favoriteCount.set(0);
     this.bookingCountRequestInFlight = false;
     this.bookingCountLastRequestedAt = 0;
     this.bookingCountCooldownUntil = 0;
@@ -139,6 +144,10 @@ export class Header implements AfterViewInit, OnDestroy {
       this.headerNavRoot?.nativeElement,
     );
     this.refreshBookingCount();
+    this.favoriteCountSub = this.favoriteService.totalFavorites$.subscribe((count) => {
+      this.favoriteCount.set(count);
+    });
+    this.refreshFavoriteCount();
     this.setupBookingCountAutoRefresh();
   }
 
@@ -148,6 +157,8 @@ export class Header implements AfterViewInit, OnDestroy {
     this.headerContext = null;
     this.routeRefreshSub?.unsubscribe();
     this.routeRefreshSub = null;
+    this.favoriteCountSub?.unsubscribe();
+    this.favoriteCountSub = null;
     if (this.bookingCountIntervalId) {
       clearInterval(this.bookingCountIntervalId);
       this.bookingCountIntervalId = null;
@@ -274,6 +285,7 @@ export class Header implements AfterViewInit, OnDestroy {
       )
       .subscribe(() => {
         this.refreshBookingCount();
+        this.refreshFavoriteCount();
       });
 
     if (this.bookingCountIntervalId) {
@@ -281,7 +293,21 @@ export class Header implements AfterViewInit, OnDestroy {
     }
     this.bookingCountIntervalId = setInterval(() => {
       this.refreshBookingCount();
+      this.refreshFavoriteCount();
     }, Header.BOOKING_COUNT_INTERVAL_MS);
+  }
+
+  private refreshFavoriteCount(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.favoriteCount.set(0);
+      return;
+    }
+
+    this.favoriteService.getFavorites().subscribe({
+      error: () => {
+        this.favoriteCount.set(0);
+      },
+    });
   }
 
   private getActiveRoutePath(): string | undefined {
