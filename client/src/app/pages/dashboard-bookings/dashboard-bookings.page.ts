@@ -451,7 +451,8 @@ export class DashboardBookingsPage implements OnInit, OnDestroy {
     const eventId = (params.get('eventId') ?? '').trim();
     const pageRaw = Number(params.get('page') ?? '1');
 
-    const nextStatus = status === 'pending' || status === 'confirmed' || status === 'cancelled' ? status : '';
+    const nextStatus =
+      status === 'pending' || status === 'confirmed' || status === 'cancelled' ? status : '';
     const nextSort: BookingSortField =
       sort === 'status' || sort === 'quantity' || sort === 'totalPrice' || sort === 'createdAt'
         ? sort
