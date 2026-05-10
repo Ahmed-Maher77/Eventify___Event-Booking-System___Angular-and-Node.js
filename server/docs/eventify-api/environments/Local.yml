@@ -7,7 +7,7 @@ variables:
   - name: timeout
     value: "30000"
   - name: adminEmail
-    value: mohamed@gmail.com
+    value: admin@example.com
   - secret: true
     name: adminPassword
   - name: userEmail

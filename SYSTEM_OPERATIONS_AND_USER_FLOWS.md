@@ -10,20 +10,20 @@ Comprehensive technical operations handbook for the Eventify platform (Angular c
 4. [Global Request Lifecycle](#global-request-lifecycle)
 5. [State Management Model (Frontend)](#state-management-model-frontend)
 6. [Operation Flows](#operation-flows)
-   - [User Registration](#operation-user-registration)
-   - [User Login](#operation-user-login)
-   - [User Logout](#operation-user-logout)
-   - [Profile Update and Avatar Upload](#operation-profile-update-and-avatar-upload)
-   - [Event Discovery and Event Details](#operation-event-discovery-and-event-details)
-   - [Favorites Management](#operation-favorites-management)
-   - [Event Reviews and Voting](#operation-event-reviews-and-voting)
-   - [Booking Creation](#operation-booking-creation)
-   - [Checkout Payment Processing](#operation-checkout-payment-processing)
-   - [Booking Management (User and Admin)](#operation-booking-management-user-and-admin)
-   - [Admin Dashboard Analytics](#operation-admin-dashboard-analytics)
-   - [Admin User/Message/Subscriber Management](#operation-admin-usermessagesubscriber-management)
-   - [Contact and Newsletter Public Flows](#operation-contact-and-newsletter-public-flows)
-   - [AI Assistant Chat Flow](#operation-ai-assistant-chat-flow)
+    - [User Registration](#operation-user-registration)
+    - [User Login](#operation-user-login)
+    - [User Logout](#operation-user-logout)
+    - [Profile Update and Avatar Upload](#operation-profile-update-and-avatar-upload)
+    - [Event Discovery and Event Details](#operation-event-discovery-and-event-details)
+    - [Favorites Management](#operation-favorites-management)
+    - [Event Reviews and Voting](#operation-event-reviews-and-voting)
+    - [Booking Creation](#operation-booking-creation)
+    - [Checkout Payment Processing](#operation-checkout-payment-processing)
+    - [Booking Management (User and Admin)](#operation-booking-management-user-and-admin)
+    - [Admin Dashboard Analytics](#operation-admin-dashboard-analytics)
+    - [Admin User/Message/Subscriber Management](#operation-admin-usermessagesubscriber-management)
+    - [Contact and Newsletter Public Flows](#operation-contact-and-newsletter-public-flows)
+    - [AI Assistant Chat Flow](#operation-ai-assistant-chat-flow)
 7. [Cross-Cutting Error Handling](#cross-cutting-error-handling)
 8. [Security Controls Summary](#security-controls-summary)
 9. [Known Gaps and Edge Behaviors](#known-gaps-and-edge-behaviors)
@@ -83,8 +83,8 @@ Operational boundaries:
 - Login/Register response includes JWT token and user payload.
 - Backend also sets auth cookie (`res.cookie(...)`).
 - `protect` middleware accepts either:
-  - `Authorization: Bearer <token>`
-  - token from auth cookie
+    - `Authorization: Bearer <token>`
+    - token from auth cookie
 
 ### Authorization
 
@@ -118,22 +118,22 @@ sequenceDiagram
 
 1. Request enters `app.js`.
 2. Middleware chain:
-   - security headers (`helmet`)
-   - CORS
-   - cookie parsing
-   - logging
-   - API limiter
+    - security headers (`helmet`)
+    - CORS
+    - cookie parsing
+    - logging
+    - API limiter
 3. Route matching and route-level middleware:
-   - body validation
-   - auth (`protect`)
-   - role check (`authorize`)
+    - body validation
+    - auth (`protect`)
+    - role check (`authorize`)
 4. Controller business logic:
-   - DB reads/writes
-   - optional external integrations
+    - DB reads/writes
+    - optional external integrations
 5. Structured JSON response.
 6. If any error occurs:
-   - routed to centralized `errorHandler`
-   - normalized response shape with status code and message
+    - routed to centralized `errorHandler`
+    - normalized response shape with status code and message
 
 Special case:
 
@@ -187,10 +187,10 @@ Create a new user account with optional avatar upload and immediate authenticate
 3. Backend validates required fields.
 4. Backend checks duplicate email.
 5. If image file exists:
-   - upload image buffer to Cloudinary
-   - store `pictureUrl` and `picturePublicId`
+    - upload image buffer to Cloudinary
+    - store `pictureUrl` and `picturePublicId`
 6. If no image:
-   - generate fallback avatar URL from name.
+    - generate fallback avatar URL from name.
 7. Backend creates `User` document and hashes password through model hooks.
 8. JWT generated and auth cookie set.
 9. Response returns user data + token.
@@ -205,18 +205,18 @@ Content-Type: application/json
 
 ```json
 {
-  "name": "Ahmed Maher",
-  "email": "ahmed@example.com",
-  "password": "Strong123!"
+    "name": "Ahmed Maher",
+    "email": "ahmed@example.com",
+    "password": "Strong123!"
 }
 ```
 
 ```json
 {
-  "success": true,
-  "message": "User registered successfully",
-  "token": "<jwt>",
-  "data": { "id": "...", "role": "user", "email": "ahmed@example.com" }
+    "success": true,
+    "message": "User registered successfully",
+    "token": "<jwt>",
+    "data": { "id": "...", "role": "user", "email": "ahmed@example.com" }
 }
 ```
 
@@ -291,7 +291,12 @@ POST /api/auth/login
 ```
 
 ```json
-{ "success": true, "message": "Login successful", "token": "<jwt>", "data": { "role": "admin" } }
+{
+    "success": true,
+    "message": "Login successful",
+    "token": "<jwt>",
+    "data": { "role": "admin" }
+}
 ```
 
 ### Validation Rules
@@ -382,8 +387,8 @@ Allow authenticated users to update personal profile fields, preferences, and av
 5. Backend validates input lengths/types and optional booleans.
 6. Backend applies partial updates only for supplied fields.
 7. If file uploaded:
-   - upload new image to Cloudinary
-   - delete previous cloud image if applicable
+    - upload new image to Cloudinary
+    - delete previous cloud image if applicable
 8. Backend saves user with `validateModifiedOnly`.
 9. Frontend merges returned patch into local auth state.
 10. UI updates profile and avatar immediately.
@@ -429,12 +434,12 @@ Enable users to search and evaluate events before booking.
 1. User opens `/events` or updates filters.
 2. Frontend requests `GET /api/events` with query params.
 3. Backend parses:
-   - search/name/location
-   - categories/category alias
-   - min/max price
-   - date range
-   - status
-   - sort/order
+    - search/name/location
+    - categories/category alias
+    - min/max price
+    - date range
+    - status
+    - sort/order
 4. Backend builds Mongo filter with safe defaults.
 5. Backend fetches paged event data + total count.
 6. Frontend renders cards and pagination.
@@ -480,9 +485,9 @@ Let authenticated users maintain personal saved events list.
 
 1. User favorites/unfavorites event from list/detail page.
 2. Frontend calls:
-   - `POST /api/favorites/:eventId`
-   - `DELETE /api/favorites/:eventId`
-   - or `PATCH /api/favorites/:eventId/toggle`
+    - `POST /api/favorites/:eventId`
+    - `DELETE /api/favorites/:eventId`
+    - or `PATCH /api/favorites/:eventId/toggle`
 3. Backend validates event id and event existence.
 4. Backend updates user `favorites` array (`$addToSet`, `$pull`, or manual toggle).
 5. Response includes updated `totalFavorites`.
@@ -525,17 +530,17 @@ Collect verified attendee feedback and community helpfulness votes.
 
 1. Frontend checks review eligibility via `GET /api/events/:id/review-status`.
 2. Backend evaluates:
-   - auth presence
-   - event status
-   - confirmed booking existence
-   - existing review existence
+    - auth presence
+    - event status
+    - confirmed booking existence
+    - existing review existence
 3. User submits review (`POST /:id/reviews`).
 4. Backend enforces one review per user per event.
 5. Review created and returned with author metadata.
 6. Reviews listing (`GET /:id/reviews`) computes:
-   - helpful up/down counts via aggregate
-   - summary distribution
-   - current user vote state
+    - helpful up/down counts via aggregate
+    - summary distribution
+    - current user vote state
 7. Vote endpoint toggles/updates/removes vote depending on current state.
 
 ### Validation Rules
@@ -586,8 +591,8 @@ Reserve seats for a selected event and create a booking record.
 4. Backend loads event and checks date and capacity.
 5. Backend checks duplicate active booking.
 6. Computes `totalPrice` and sets initial status:
-   - `confirmed` when total is zero
-   - `pending` when payment required
+    - `confirmed` when total is zero
+    - `pending` when payment required
 7. Creates booking, decrements event available seats.
 8. Returns populated booking payload.
 
@@ -643,8 +648,8 @@ Collect payment for pending bookings and confirm booking status.
 5. Frontend confirms payment with Stripe SDK using returned `clientSecret`.
 6. Frontend calls `POST /api/checkout/sync-payment`.
 7. Backend retrieves payment intent from Stripe:
-   - succeeded -> finalize booking as `confirmed` with paid metadata
-   - not yet succeeded -> return current state
+    - succeeded -> finalize booking as `confirmed` with paid metadata
+    - not yet succeeded -> return current state
 8. Webhook (`payment_intent.succeeded`) also finalizes booking asynchronously.
 
 ### Error Handling
@@ -704,8 +709,8 @@ Support booking lifecycle operations after creation.
 2. Reject already-cancelled bookings.
 3. Enforce cancellation cutoff (48h before event).
 4. Handle payment:
-   - paid -> attempt Stripe refund
-   - unpaid intent -> cancel intent
+    - paid -> attempt Stripe refund
+    - unpaid intent -> cancel intent
 5. Set booking status cancelled.
 6. Restore event seats.
 
@@ -719,9 +724,9 @@ Support booking lifecycle operations after creation.
 
 1. Parse event date from booking.
 2. If before event and refundable paid booking:
-   - refund then keep as cancelled history
+    - refund then keep as cancelled history
 3. Otherwise:
-   - delete booking record
+    - delete booking record
 4. Restore seats when before-event and non-cancelled.
 
 ### Error Handling
@@ -760,14 +765,14 @@ Provide operational visibility for admins (revenue, activity, attention signals)
 ### Step-by-Step Flow
 
 1. Frontend loads dashboard endpoints:
-   - `/api/admin/dashboard-stats`
-   - `/api/admin/recent-bookings`
-   - `/api/admin/needs-attention`
+    - `/api/admin/dashboard-stats`
+    - `/api/admin/recent-bookings`
+    - `/api/admin/needs-attention`
 2. Backend computes aggregates:
-   - revenue/tickets from confirmed bookings
-   - active users/events counts
-   - daily chart data
-   - unread support and low-sales upcoming events
+    - revenue/tickets from confirmed bookings
+    - active users/events counts
+    - daily chart data
+    - unread support and low-sales upcoming events
 3. Frontend renders KPI cards/charts.
 4. If `needs-attention` fails, UI shows retry state and explicit error message.
 
@@ -801,10 +806,10 @@ Allow admins to moderate platform users and communication channels.
 1. Admin list pages request paginated list endpoints with search/filter/sort.
 2. Backend validates query constraints and returns normalized pagination payloads.
 3. Admin executes mutation:
-   - update user role/status
-   - create admin account
-   - update contact message status/delete
-   - update subscriber status/delete
+    - update user role/status
+    - create admin account
+    - update contact message status/delete
+    - update subscriber status/delete
 4. Frontend displays toast feedback and refreshes list state.
 
 ### Security Considerations
@@ -837,8 +842,8 @@ Collect user support requests and newsletter subscriptions from public pages.
 2. Backend creates `ContactMessage` with initial status.
 3. User submits newsletter email (`POST /api/newsletter`).
 4. Backend:
-   - creates new subscription, or
-   - reactivates unsubscribed record.
+    - creates new subscription, or
+    - reactivates unsubscribed record.
 
 ### Error Handling
 

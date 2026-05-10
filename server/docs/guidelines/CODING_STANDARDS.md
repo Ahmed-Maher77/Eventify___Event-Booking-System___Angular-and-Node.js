@@ -415,8 +415,8 @@ process.on('unhandledRejection', (err) => {
 ❌ **Never hardcode secrets**
 ```javascript
 // ❌ BAD
-const dbUrl = 'mongodb://user:password@localhost:27017';
-const jwtSecret = 'my_secret_key_123';
+const dbUrl = 'mongodb://<user>:<password>@localhost:27017'; // example only — never hardcode
+const jwtSecret = 'hardcoded-secret'; // example only — never hardcode
 
 // ✅ GOOD
 const dbUrl = process.env.DB_URL;

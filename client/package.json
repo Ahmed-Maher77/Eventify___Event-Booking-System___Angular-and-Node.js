@@ -1,6 +1,7 @@
 {
   "name": "eventify-client",
   "version": "0.0.0",
+  "description": "Angular 21 SPA for Eventify - Event Management System: event catalog, Stripe checkout, bookings, favorites, reviews, profile and avatars, database-driven RAG AI chatbot UI (Groq-backed API), and admin dashboard with assistant activity.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o",

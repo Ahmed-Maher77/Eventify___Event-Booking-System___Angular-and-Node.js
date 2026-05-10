@@ -83,9 +83,7 @@ export class Footer implements AfterViewInit, OnDestroy {
           this.startSuccessMessageTimer();
         },
         error: (error: HttpErrorResponse) => {
-          this.errorMessage.set(
-            error.error?.message ?? 'Subscription failed. Please try again.',
-          );
+          this.errorMessage.set(error.error?.message ?? 'Subscription failed. Please try again.');
           this.isSubmitting.set(false);
         },
         complete: () => {
@@ -96,7 +94,9 @@ export class Footer implements AfterViewInit, OnDestroy {
 
   protected scrollToTop(): void {
     const footerElement = this.footerRoot?.nativeElement;
-    const adminScrollContainer = footerElement?.closest('.admin-layout__main') as HTMLElement | null;
+    const adminScrollContainer = footerElement?.closest(
+      '.admin-layout__main',
+    ) as HTMLElement | null;
 
     if (adminScrollContainer) {
       adminScrollContainer.scrollTo({ top: 0, behavior: 'smooth' });

@@ -7,17 +7,26 @@ import User from '../models/User.js';
 dotenv.config({ path: './.env' });
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
-// command: 
-    // node src/scripts/seedAdmin.js <adminEmail> <adminPassword> <adminName>
-    // or: node src/scripts/seedAdmin.js
+// Usage:
+//   SEED_ADMIN_PASSWORD='your-secure-password' node src/scripts/seedAdmin.js
+//   node src/scripts/seedAdmin.js <adminEmail> <adminPassword> <adminName>
+// Do not commit real passwords. Never log credentials.
 const seedAdmin = async () => {
     try {
-        // Admin account details
-        const adminEmail = process.argv[2] || 'admin@eventify.com';
-        const adminPassword = process.argv[3] || 'Admin@123';
-        const adminName = process.argv[4] || 'Eventify Admin';
+        const adminEmail =
+            process.argv[2] || process.env.SEED_ADMIN_EMAIL || 'admin@eventify.local';
+        const adminPassword =
+            process.argv[3] || process.env.SEED_ADMIN_PASSWORD;
+        const adminName = process.argv[4] || process.env.SEED_ADMIN_NAME || 'Eventify Admin';
 
-        console.log(adminEmail, adminPassword, adminName);
+        if (!adminPassword || String(adminPassword).length < 8) {
+            console.error(
+                'Missing or weak admin password. Pass as argv[3] or set SEED_ADMIN_PASSWORD (min 8 characters).',
+            );
+            process.exit(1);
+        }
+
+        console.log(`Seeding admin: ${adminEmail} (${adminName})`);
 
         // Connect to database
         await mongoose.connect(process.env.MONGO_URI);
@@ -46,9 +55,8 @@ const seedAdmin = async () => {
 
         console.log('✓ Admin account created successfully!');
         console.log(`  Email: ${adminEmail}`);
-        console.log(`  Password: ${adminPassword}`);
         console.log(`  Role: ${admin.role}`);
-        console.log('\n⚠  Please change the default password in production!');
+        console.log('\n⚠  Store credentials only in your secrets manager or local .env (never in git).');
 
         await mongoose.connection.close();
     } catch (error) {

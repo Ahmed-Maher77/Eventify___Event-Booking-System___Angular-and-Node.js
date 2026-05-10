@@ -29,7 +29,7 @@ paths:
                   type: string
                   format: email
                   description: User's email address
-                  example: "mohamed@example.com"
+                  example: "user@example.com"
                 password:
                   type: string
                   minLength: 6

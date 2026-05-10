@@ -1,7 +1,7 @@
 {
     "name": "eventify",
     "version": "1.0.0",
-    "description": "",
+    "description": "Express 5 REST API for Eventify - Event Management System: JWT auth, MongoDB/Mongoose, events and reviews, bookings, Stripe, Cloudinary, favorites, contact and newsletter, database-driven RAG chatbot (MongoDB event retrieval + Groq LLM via OpenAI SDK), assistant activity logging, admin analytics.",
     "type": "module",
     "main": "index.js",
     "scripts": {
@@ -10,7 +10,23 @@
         "seed:admin": "node src/scripts/seedAdmin.js",
         "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
     },
-    "keywords": [],
+    "keywords": [
+        "eventify",
+        "express",
+        "event-booking",
+        "stripe",
+        "mongodb",
+        "mongoose",
+        "jwt",
+        "cloudinary",
+        "openapi",
+        "swagger",
+        "rag",
+        "chatbot",
+        "groq",
+        "retrieval-augmented-generation",
+        "llm"
+    ],
     "author": "",
     "license": "ISC",
     "dependencies": {

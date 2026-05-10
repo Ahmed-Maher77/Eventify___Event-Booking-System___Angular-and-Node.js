@@ -21,7 +21,7 @@ components:
           type: string
           format: email
           description: User's email address (unique)
-          example: "mohamed@example.com"
+          example: "user@example.com"
         password:
           type: string
           minLength: 6
@@ -158,7 +158,7 @@ components:
         email:
           type: string
           format: email
-          example: "mohamed@example.com"
+          example: "user@example.com"
 
     bookingeventref:
       type: object

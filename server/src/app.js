@@ -34,6 +34,12 @@ app.set("query parser", "extended");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Liveness probe for load balancers and hosts (e.g. Render). No DB or auth — keep fast and stable.
+app.get("/healthz", (_req, res) => {
+    res.set("Cache-Control", "no-store");
+    res.status(200).json({ status: "ok", service: "eventify-api" });
+});
+
 const corsOptions = {
     origin: (origin, callback) => {
         if (!origin) {
@@ -56,7 +62,7 @@ const swaggerOptions = {
             title: "Eventify API Documentation",
             version: "1.0.0",
             description:
-                "API documentation for Eventify - Event Management System",
+                "API documentation for Eventify - Event Management System: authentication, events and reviews, bookings, Stripe checkout, Cloudinary media, favorites, contact, newsletter, admin modules, and an authenticated database-driven RAG chatbot (MongoDB event retrieval + Groq completions). MongoDB-backed; JWT where applicable.",
             contact: {
                 name: "Eventify Team",
             },
@@ -114,7 +120,9 @@ app.use("/files", express.static(path.join(__dirname, "..", "files")));
 // Basic route
 app.get("/", (req, res) => {
     res.json({
-        message: "Eventify API is running!",
+        message: "Eventify API",
+        summary:
+            "Event discovery, bookings, Stripe, favorites, reviews, contact, newsletter, MongoDB-grounded RAG chatbot (Groq), admin.",
         version: "1.0.0",
         docs: "/api-docs",
     });
@@ -122,7 +130,6 @@ app.get("/", (req, res) => {
 
 
 
-// API Routes (to be added by other team members)
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/favorites", favoriteRoutes);

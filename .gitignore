@@ -1,0 +1,20 @@
+# Root — monorepo / IDE
+.env
+.env.*
+!.env.example
+!.env*.example
+*.pem
+*.key
+*.crt
+.DS_Store
+Thumbs.db
+.idea/
+
+# Dependencies & build (if tooling runs from repo root)
+node_modules/
+dist/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*

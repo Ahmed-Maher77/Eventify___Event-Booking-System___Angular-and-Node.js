@@ -14,7 +14,9 @@
         <article class="contact-page__info-card h-100">
           <div class="contact-page__meta-block">
             <h2 class="contact-page__meta-title">Email</h2>
-            <a class="contact-page__meta-value" href="mailto:ahmedmaher.dev1@gmail.com">support@eventify.com</a>
+            <a class="contact-page__meta-value" href="mailto:ahmedmaher.dev1@gmail.com"
+              >support@eventify.com</a
+            >
           </div>
 
           <div class="contact-page__meta-block">
@@ -28,12 +30,17 @@
               @for (socialLink of socialLinks; track socialLink.label) {
                 <a
                   [href]="socialLink.url"
-                  class="contact-page__social-link contact-page__social-link--{{ socialLink.modifier }}"
+                  class="contact-page__social-link contact-page__social-link--{{
+                    socialLink.modifier
+                  }}"
                   target="_blank"
                   rel="noreferrer noopener"
                 >
                   <span>{{ socialLink.label }}</span>
-                  <i class="fa-solid fa-arrow-right contact-page__social-arrow" aria-hidden="true"></i>
+                  <i
+                    class="fa-solid fa-arrow-right contact-page__social-arrow"
+                    aria-hidden="true"
+                  ></i>
                 </a>
               }
             </nav>
@@ -43,9 +50,15 @@
 
       <div class="col-12 col-lg-7">
         <article class="contact-page__form-card h-100">
-          <form class="contact-page__form" [formGroup]="contactForm" (ngSubmit)="submitContactForm()">
+          <form
+            class="contact-page__form"
+            [formGroup]="contactForm"
+            (ngSubmit)="submitContactForm()"
+          >
             <label class="contact-page__field">
-              <span class="contact-page__field-label">Full Name <span class="contact-page__required">*</span></span>
+              <span class="contact-page__field-label"
+                >Full Name <span class="contact-page__required">*</span></span
+              >
               <input
                 class="contact-page__input"
                 [class.contact-page__input--invalid]="isFieldInvalid('fullName')"
@@ -65,7 +78,9 @@
             </label>
 
             <label class="contact-page__field">
-              <span class="contact-page__field-label">Email Address <span class="contact-page__required">*</span></span>
+              <span class="contact-page__field-label"
+                >Email Address <span class="contact-page__required">*</span></span
+              >
               <input
                 class="contact-page__input"
                 [class.contact-page__input--invalid]="isFieldInvalid('email')"
@@ -85,7 +100,9 @@
             </label>
 
             <label class="contact-page__field">
-              <span class="contact-page__field-label">Subject <span class="contact-page__required">*</span></span>
+              <span class="contact-page__field-label"
+                >Subject <span class="contact-page__required">*</span></span
+              >
               <input
                 class="contact-page__input"
                 [class.contact-page__input--invalid]="isFieldInvalid('subject')"
@@ -105,7 +122,9 @@
             </label>
 
             <label class="contact-page__field">
-              <span class="contact-page__field-label">Message <span class="contact-page__required">*</span></span>
+              <span class="contact-page__field-label"
+                >Message <span class="contact-page__required">*</span></span
+              >
               <textarea
                 class="contact-page__input contact-page__input--textarea"
                 [class.contact-page__input--invalid]="isFieldInvalid('message')"

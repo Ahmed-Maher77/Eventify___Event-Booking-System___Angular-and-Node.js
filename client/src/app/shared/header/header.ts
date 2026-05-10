@@ -66,7 +66,7 @@ export class Header implements AfterViewInit, OnDestroy {
   }
 
   protected getDisplayName(): string {
-    return this.authService.userData?.name?.trim() || 'Ahmed Maher';
+    return this.authService.userData?.name?.trim() || 'Guest';
   }
 
   protected getDisplayEmail(): string {
