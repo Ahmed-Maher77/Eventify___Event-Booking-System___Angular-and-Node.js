@@ -100,7 +100,7 @@ This document lists the project tasks in a clean delivery format.
 - [x] Update API specifications markdown to match current routes
 - [x] Update middleware/utilities status markdown
 - [x] Update Bruno collection README status
-- [ ] Update root README to align with current backend/frontend behavior
+- [x] Update root README to align with current backend/frontend behavior
 - [ ] Expand Bruno collection coverage to include all current endpoints
 
 ## Testing and Delivery
