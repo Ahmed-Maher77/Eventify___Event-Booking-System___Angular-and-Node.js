@@ -92,11 +92,30 @@
                   ></i>
                   One special character (@$!%*?&)
                 </li>
+                <li [class.is-met]="hasOnlyAllowedCharacters">
+                  <i
+                    [class]="hasOnlyAllowedCharacters ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle'"
+                    aria-hidden="true"
+                  ></i>
+                  Letters, numbers, and @$!%*?& only (no spaces)
+                </li>
               </ul>
-              @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+              @if (
+                registerForm.controls.password.touched &&
+                registerForm.controls.password.invalid &&
+                hasMinLength &&
+                hasUppercase &&
+                hasLowercase &&
+                hasNumber &&
+                hasSpecialCharacter &&
+                !hasOnlyAllowedCharacters
+              ) {
                 <small class="auth-page__error">
-                  Password must be at least 6 characters long and include uppercase, lowercase, number, and special
-                  character.
+                  Remove spaces and unsupported characters (only letters, numbers, and @$!%*?& are allowed).
+                </small>
+              } @else if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+                <small class="auth-page__error">
+                  Complete all password requirements above.
                 </small>
               }
             </div>

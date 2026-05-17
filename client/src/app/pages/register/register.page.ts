@@ -4,8 +4,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Button } from '../../shared/button/button';
-
-const PASSWORD_COMPLEXITY_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+import {
+  PASSWORD_COMPLEXITY_PATTERN,
+  passwordChecklist,
+} from '../../shared/password-validation';
 
 @Component({
   selector: 'app-register-page',
@@ -38,24 +40,32 @@ export class RegisterPage {
     return this.registerForm.controls.password.value ?? '';
   }
 
+  private get passwordChecks() {
+    return passwordChecklist(this.passwordValue);
+  }
+
   protected get hasMinLength(): boolean {
-    return this.passwordValue.length >= 6;
+    return this.passwordChecks.hasMinLength;
   }
 
   protected get hasUppercase(): boolean {
-    return /[A-Z]/.test(this.passwordValue);
+    return this.passwordChecks.hasUppercase;
   }
 
   protected get hasLowercase(): boolean {
-    return /[a-z]/.test(this.passwordValue);
+    return this.passwordChecks.hasLowercase;
   }
 
   protected get hasNumber(): boolean {
-    return /\d/.test(this.passwordValue);
+    return this.passwordChecks.hasNumber;
   }
 
   protected get hasSpecialCharacter(): boolean {
-    return /[@$!%*?&]/.test(this.passwordValue);
+    return this.passwordChecks.hasSpecialCharacter;
+  }
+
+  protected get hasOnlyAllowedCharacters(): boolean {
+    return this.passwordChecks.hasOnlyAllowedCharacters;
   }
 
   protected onImageSelected(event: Event): void {
@@ -120,7 +130,16 @@ export class RegisterPage {
           void this.router.navigate([nextRoute]);
         },
         error: (error: HttpErrorResponse) => {
-          this.errorMessage.set(error.error?.message ?? 'Registration failed. Please try again.');
+          if (error.status === 429) {
+            this.errorMessage.set(
+              error.error?.message ??
+                'Too many attempts. Wait a few minutes, restart the API server, or set RATE_LIMIT_DISABLED=true in server/.env for local development.',
+            );
+          } else {
+            this.errorMessage.set(
+              error.error?.message ?? 'Registration failed. Please try again.',
+            );
+          }
           this.scrollToErrorMessage();
           this.isSubmitting.set(false);
         },
