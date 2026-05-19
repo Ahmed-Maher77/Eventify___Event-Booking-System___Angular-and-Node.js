@@ -6,6 +6,12 @@ This file is the project index: Markdown documentation map, **npm** scripts for 
 
 ---
 
+🎥 **Watch Video on LinkedIn:** [Click Here 🔗](https://www.linkedin.com/posts/ahmed-maher-algohary_angular-nodejs-expressjs-ugcPost-7462610188286664704-nQQ7?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADxaYJMBq3vC9su8VPtfe-FziMjGaqcNOsA)
+
+🎨 **View the full case study on Behance:** [Click Here 🔗](https://www.behance.net/gallery/249560693/Eventify-AI-Powered-Event-Management-Booking-System)
+
+<hr/>
+
 ## 👀 Website Preview:
 <a href="website-url" title="demo">
   <img src="https://github.com/user-attachments/assets/c453aac7-5f6f-4573-bdf3-4c67fb872b8f" alt="website preview - Demo - UI Mockup" width="400">
