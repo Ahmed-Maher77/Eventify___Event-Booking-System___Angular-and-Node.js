@@ -6,6 +6,13 @@ This file is the project index: Markdown documentation map, **npm** scripts for 
 
 ---
 
+## 👀 Website Preview:
+<a href="website-url" title="demo">
+  <img src="https://github.com/user-attachments/assets/c453aac7-5f6f-4573-bdf3-4c67fb872b8f" alt="website preview - Demo - UI Mockup" width="400">
+</a>
+
+---
+
 ## Table of contents
 
 - [Documentation compass](#documentation-compass-all-markdown-files)
